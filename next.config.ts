@@ -1,16 +1,12 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: "export", // ✅ For static export
+  output: 'export', // ✅ Enables static export
   images: {
-    unoptimized: true, // ✅ Required for Netlify static export
+    unoptimized: true, // ✅ Required for Netlify or static hosting
   },
   eslint: {
-    ignoreDuringBuilds: true, // ✅ Prevent ESLint from breaking builds on Netlify
-  },
-  typescript: {
-    // ✅ Optional: uncomment if type errors are blocking your build
-    // ignoreBuildErrors: true,
+    ignoreDuringBuilds: true, // ✅ Skip lint errors on Netlify
   },
 };
 
