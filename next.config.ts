@@ -1,14 +1,10 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export', // ✅ Enables static export
-  images: {
-    unoptimized: true, // ✅ Required for Netlify or static hosting
-  },
-  eslint: {
-    ignoreDuringBuilds: true, // ✅ Skip lint errors on Netlify
-  },
+  output: "export",
+  images: { unoptimized: true },
+  eslint: { ignoreDuringBuilds: true },
 };
 
-export default nextConfig;
+export default nextConfig
 
