@@ -2,12 +2,12 @@
   "name": "ecofocus-website",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
+ "scripts": {
+  "dev": "next dev",
+  "build": "next build && next export",
+  "start": "next start",
+  "lint": "next lint"
+},
   "dependencies": {
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
