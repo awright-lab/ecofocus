@@ -31,7 +31,7 @@ export default function Hero() {
             <div className="relative z-10 container mx-auto px-6 py-12 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
                 {/* Left Text Content */}
                 <motion.div
-                    className="text-center lg:text-left max-w-lg lg:pl-4"
+                    className="text-left max-w-lg justify-self-start"
                     initial={{ opacity: 0, x: -40 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
@@ -43,7 +43,7 @@ export default function Hero() {
                     <p className="text-base md:text-lg text-gray-700 mb-8">
                         Data-backed research to guide sustainability decisions since 2010.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                    <div className="flex flex-col sm:flex-row gap-4">
                         <Link
                             href="/reports"
                             className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform hover:scale-105"
