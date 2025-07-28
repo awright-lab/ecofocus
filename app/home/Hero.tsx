@@ -13,7 +13,7 @@ export default function Hero() {
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover brightness-300"
+                className="absolute inset-0 w-full h-full object-cover brightness-300 opacity-70"
             >
                 <source src="/videos/hero.mp4" type="video/mp4" />
             </video>
