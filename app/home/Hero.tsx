@@ -17,11 +17,11 @@ export default function Hero() {
                 Your browser does not support the video tag.
             </video>
 
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/40 via-emerald-400/30 to-blue-500/40 mix-blend-overlay"></div>
+            {/* Bright Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/70 via-emerald-300/60 to-blue-500/70"></div>
 
-            {/* Optional Extra Brightness Layer */}
-            <div className="absolute inset-0 bg-white/5"></div>
+            {/* White Tint for Extra Brightness */}
+            <div className="absolute inset-0 bg-white/20"></div>
 
             {/* Hexagonal Pattern */}
             <div className="absolute inset-0 opacity-10">
