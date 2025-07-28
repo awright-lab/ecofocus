@@ -13,16 +13,16 @@ export default function Hero() {
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover brightness-300 opacity-70"
+                className="absolute inset-0 w-full h-full object-cover brightness-150"
             >
                 <source src="/videos/hero.mp4" type="video/mp4" />
             </video>
 
-            {/* White Overlay */}
-            <div className="absolute inset-0 bg-white/50"></div>
+            {/* Gradient Overlay (lighter opacity) */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-emerald-400/15 to-blue-500/20"></div>
 
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/70 via-emerald-400/60 to-blue-500/70"></div>
+            {/* White Overlay on Top */}
+            <div className="absolute inset-0 bg-white/40"></div>
 
             {/* Angled Accent Bar */}
             <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-500 to-blue-500 transform -skew-y-6 opacity-30"></div>
