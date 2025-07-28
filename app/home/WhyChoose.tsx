@@ -8,21 +8,17 @@ export default function WhyChoose() {
     ];
 
     return (
-        <section className="py-16 bg-gray-50 text-center">
+        <section className="py-20 bg-gradient-to-br from-emerald-600 to-blue-600 text-white text-center">
             <div className="max-w-4xl mx-auto px-6">
                 <h2 className="text-3xl md:text-4xl font-bold mb-6">Why Choose EcoFocus?</h2>
-                <p className="text-gray-600 mb-8">
-                    We deliver actionable insights backed by years of expertise and robust data.
-                </p>
-                <ul className="space-y-4 text-left sm:text-center">
+                <ul className="space-y-4 text-lg">
                     {points.map((p, i) => (
-                        <li key={i} className="text-gray-700 text-lg">
-                            ✅ {p}
-                        </li>
+                        <li key={i}>✅ {p}</li>
                     ))}
                 </ul>
             </div>
         </section>
     );
 }
+
 
