@@ -7,19 +7,22 @@ import { motion } from 'framer-motion';
 export default function Hero() {
     return (
         <section className="relative min-h-[65vh] flex items-center overflow-hidden">
-            {/* Background Video */}
+            {/* Video Background with Brightness Filter */}
             <video
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover brightness-150"
             >
                 <source src="/videos/hero.mp4" type="video/mp4" />
             </video>
 
-            {/* Lighter Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/30 via-emerald-400/20 to-blue-500/30"></div>
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/70 via-emerald-400/60 to-blue-500/70"></div>
+
+            {/* Angled Accent Bar */}
+            <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-500 to-blue-500 transform -skew-y-6 opacity-30"></div>
 
             <div className="relative z-10 container mx-auto px-6 py-12 lg:py-20 grid lg:grid-cols-2 gap-8 items-center">
                 {/* Left Content */}
