@@ -29,14 +29,14 @@ export default function Hero() {
 
             {/* Glass Container wrapping both text and image */}
             <motion.div
-                className="relative z-10 max-w-6xl mx-auto px-6 py-10 bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl grid lg:grid-cols-2 items-center gap-8"
+                className="relative z-10 max-w-6xl mx-auto px-6 lg:px-0 py-10 bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl grid lg:grid-cols-2 items-center gap-8"
                 initial={{ opacity: 0, scale: 0.95 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
             >
                 {/* Left Content */}
-                <div>
+                <div className="px-6 lg:px-8">
                     <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6">
                         Sustainability Insights That Drive <span className="text-emerald-600">Growth</span>
                     </h1>
@@ -74,6 +74,7 @@ export default function Hero() {
         </section>
     );
 }
+
 
 
 
