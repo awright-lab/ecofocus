@@ -27,16 +27,16 @@ export default function Hero() {
             {/* Angled Accent Bar */}
             <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-500 to-blue-500 transform -skew-y-6 opacity-30"></div>
 
-            {/* Glass Container wrapping both text and image */}
-            <motion.div
-                className="relative z-10 max-w-6xl mx-auto px-6 lg:px-0 py-10 bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl grid lg:grid-cols-2 items-center gap-8"
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-            >
-                {/* Left Content */}
-                <div className="px-6 lg:px-8">
+            {/* Main Wrapper */}
+            <div className="relative z-10 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center justify-between">
+                {/* Glass Container for Text ONLY */}
+                <motion.div
+                    className="bg-white/30 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 max-w-xl"
+                    initial={{ opacity: 0, x: -40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
                     <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6">
                         Sustainability Insights That Drive <span className="text-emerald-600">Growth</span>
                     </h1>
@@ -57,10 +57,16 @@ export default function Hero() {
                             Explore Solutions
                         </Link>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Right Image */}
-                <div className="flex justify-center lg:justify-end">
+                {/* Image OUTSIDE Glass */}
+                <motion.div
+                    className="mt-8 lg:mt-0 lg:ml-8"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                >
                     <Image
                         src="/images/report-cover.png"
                         alt="EcoFocus Sustainability Report"
@@ -69,8 +75,8 @@ export default function Hero() {
                         className="rounded-xl shadow-2xl object-cover"
                         priority
                     />
-                </div>
-            </motion.div>
+                </motion.div>
+            </div>
         </section>
     );
 }
