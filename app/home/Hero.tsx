@@ -18,6 +18,9 @@ export default function Hero() {
                 <source src="/videos/hero.mp4" type="video/mp4" />
             </video>
 
+            {/* White Overlay */}
+            <div className="absolute inset-0 bg-white/30"></div>
+
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/70 via-emerald-400/60 to-blue-500/70"></div>
 
