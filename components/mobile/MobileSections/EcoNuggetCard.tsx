@@ -1,33 +1,44 @@
 'use client';
 
-import { motion } from 'framer-motion';
+const nuggets = [
+    {
+        id: 1,
+        text: '74% of Gen Z consumers prioritize sustainability when choosing brands.'
+    },
+    {
+        id: 2,
+        text: 'Eco-friendly packaging boosts purchase intent by 35% across all demographics.'
+    },
+    {
+        id: 3,
+        text: '91% of Millennials expect companies to have a sustainability mission.'
+    },
+    {
+        id: 4,
+        text: 'Consumers trust brands 2x more when sustainability goals are transparent.'
+    }
+];
 
-interface EcoNuggetCardProps {
-    title: string;
-    tag: string;
-    cta: string;
-}
-
-export default function EcoNuggetCard({ title, tag, cta }: EcoNuggetCardProps) {
+export default function EcoNuggetsSection() {
     return (
-        <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ type: 'spring', stiffness: 120 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col space-y-4 w-full"
-        >
-            <span className="text-xs text-green-600 font-semibold">{tag}</span>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
-            <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="self-start bg-green-600 text-white text-sm px-4 py-2 rounded-full"
-                onClick={() => alert('Open full report')}
-            >
-                {cta}
-            </motion.button>
-        </motion.div>
+        <section className="p-6">
+            <h2 className="text-xl font-bold mb-4">Eco Nuggets</h2>
+            <div className="flex space-x-4 overflow-x-auto no-scrollbar">
+                {nuggets.map((n) => (
+                    <div
+                        key={n.id}
+                        className="min-w-[240px] bg-green-50 rounded-lg p-4 shadow-md flex flex-col justify-between"
+                    >
+                        <p className="text-sm text-gray-800 mb-4">{n.text}</p>
+                        <button className="text-green-600 font-semibold underline text-sm">
+                            Learn More
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </section>
     );
 }
+
 
 

@@ -1,31 +1,24 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import Lottie from 'lottie-react';
-import ecoAnimation from '@/public/lottie/eco.json'; // Add your Lottie file
-
 export default function Hero() {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-6 text-white text-center shadow-lg flex flex-col justify-center h-full"
+        <section
+            className="h-[450px] bg-cover bg-center flex flex-col justify-center px-6 text-white"
+            style={{ backgroundImage: "url('/images/desktop-hero.jpg')" }} // Replace with actual path
         >
-            <div className="w-40 mx-auto mb-4">
-                <Lottie animationData={ecoAnimation} loop={true} />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">Sustainability Insights That Drive Growth</h2>
-            <p className="text-sm mb-4">Data-backed research to guide sustainability decisions since 2010.</p>
-            <motion.button
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-green-600 px-4 py-2 rounded-full font-semibold"
-            >
+            <h2 className="text-3xl font-bold mb-3 max-w-[90%]">
+                Sustainability Insights That Drive Growth
+            </h2>
+            <p className="mb-6 text-sm max-w-[85%]">
+                Data-backed research to guide sustainability decisions since 2010.
+            </p>
+            <button className="bg-green-600 px-6 py-3 rounded-full font-semibold">
                 Explore Reports
-            </motion.button>
-        </motion.div>
+            </button>
+        </section>
     );
 }
+
 
 
 
