@@ -30,7 +30,7 @@ export default function Hero() {
             {/* Glass Container */}
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 <motion.div
-                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row items-center gap-8"
+                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row items-center justify-between gap-8"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -67,21 +67,30 @@ export default function Hero() {
                     </div>
 
                     {/* Right Image */}
-                    <div className="w-full lg:w-1/2 flex justify-center">
-                        <Image
-                            src="/images/hero-cover.png"
-                            alt="EcoFocus Sustainability Report"
-                            width={500}
-                            height={350}
-                            className="rounded-xl shadow-2xl object-cover"
-                            priority
-                        />
-                    </div>
+                    <motion.div
+                        className="relative w-full lg:w-1/2 flex justify-center"
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <div className="relative bg-transparent rounded-xl shadow-2xl p-4">
+                            <Image
+                                src="/images/hero-cover.png"
+                                alt="EcoFocus Sustainability Report"
+                                width={500}
+                                height={350}
+                                className="rounded-xl object-cover"
+                                priority
+                            />
+                        </div>
+                    </motion.div>
                 </motion.div>
             </div>
         </section>
     );
 }
+
 
 
 
