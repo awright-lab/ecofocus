@@ -1,23 +1,37 @@
 'use client';
 
-export default function Hero() {
+export default function HeroSection() {
     return (
-        <section
-            className="h-[450px] bg-cover bg-center flex flex-col justify-center px-6 text-white"
-            style={{ backgroundImage: "url('/images/desktop-hero.jpg')" }} // Replace with actual path
-        >
-            <h2 className="text-3xl font-bold mb-3 max-w-[90%]">
-                Sustainability Insights That Drive Growth
-            </h2>
-            <p className="mb-6 text-sm max-w-[85%]">
-                Data-backed research to guide sustainability decisions since 2010.
-            </p>
-            <button className="bg-green-600 px-6 py-3 rounded-full font-semibold">
-                Explore Reports
-            </button>
-        </section>
+        <div className="relative h-[480px] w-full overflow-hidden">
+            {/* Background Video */}
+            <video
+                className="absolute top-0 left-0 w-full h-full object-cover"
+                src="/videos/ecofocus-hero.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+            />
+
+            {/* Dark Overlay */}
+            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/40 to-black/70" />
+
+            {/* Text Overlay */}
+            <div className="relative z-10 flex flex-col justify-end h-full p-6 text-white">
+                <h2 className="text-3xl font-bold mb-3 max-w-[90%]">
+                    Sustainability Insights That Drive Growth
+                </h2>
+                <p className="mb-6 text-sm max-w-[85%]">
+                    Data-backed research to guide sustainability decisions since 2010.
+                </p>
+                <button className="bg-green-600 px-6 py-3 rounded-full font-semibold shadow-md">
+                    Explore Reports
+                </button>
+            </div>
+        </div>
     );
 }
+
 
 
 

@@ -43,17 +43,17 @@ export default function MobileHome() {
             </header>
 
             {/* Sections */}
-            <HeroSection />
-            <QuickStatsSection />
-            <FeaturedReportSection />
-            <ServicesSection />
-            <EcoNuggetsCard />
-            <WhyChooseSection />
-            <PartnersSection />
-            <CTASection />
+            <section id="hero"><HeroSection /></section>
+            <section id="stats"><QuickStatsSection /></section>
+            <section id="report"><FeaturedReportSection /></section>
+            <section id="services"><ServicesSection /></section>
+            <section id="nuggets"><EcoNuggetsCard /></section>
+            <section id="why"><WhyChooseSection /></section>
+            <section id="partners"><PartnersSection /></section>
+            <section id="cta"><CTASection /></section>
 
             {/* FAB and Bottom Nav */}
-            <Contact />
+            <ContactFAB />
             <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
     );

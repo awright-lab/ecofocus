@@ -1,10 +1,12 @@
 'use client';
 
 const partners = [
-    '/images/partners/logo1.png',
-    '/images/partners/logo2.png',
-    '/images/partners/logo3.png',
-    '/images/partners/logo4.png'
+    '/images/logos/Avery Logo_Light Backgrounds.png',
+    '/images/logos/CGLR-Icon.png',
+    '/images/logos/clean_label.png',
+    '/images/logos/duraflame-logo.png',
+    '/images/logos/Site_GPI Logo 2_0.png',
+    '/images/logos/thinkPARALLAX_Logos_RBW-01-bug.png'
 ]; // Replace with actual logos
 
 export default function PartnersSection() {

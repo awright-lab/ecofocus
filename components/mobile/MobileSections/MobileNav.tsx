@@ -5,16 +5,23 @@ import { FaHome, FaBookOpen, FaBookmark, FaUser } from 'react-icons/fa';
 
 interface MobileNavProps {
     activeTab: string;
-    setActiveTab: (tab: 'home' | 'reports' | 'saved' | 'profile') => void;
+    setActiveTab: (tab: string) => void;
 }
 
 export default function MobileNav({ activeTab, setActiveTab }: MobileNavProps) {
     const items = [
-        { id: 'home', label: 'Home', icon: <FaHome size={22} /> },
-        { id: 'reports', label: 'Reports', icon: <FaBookOpen size={22} /> },
-        { id: 'saved', label: 'Saved', icon: <FaBookmark size={22} /> },
-        { id: 'profile', label: 'Profile', icon: <FaUser size={22} /> }
+        { id: 'hero', label: 'Home', icon: <FaHome size={22} /> },
+        { id: 'report', label: 'Reports', icon: <FaBookOpen size={22} /> },
+        { id: 'nuggets', label: 'Insights', icon: <FaBookmark size={22} /> },
+        { id: 'cta', label: 'Contact', icon: <FaUser size={22} /> }
     ];
+
+    const scrollToSection = (id: string) => {
+        const section = document.getElementById(id);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg flex justify-around items-center py-3 shadow-xl">
@@ -22,7 +29,10 @@ export default function MobileNav({ activeTab, setActiveTab }: MobileNavProps) {
                 <motion.button
                     key={item.id}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setActiveTab(item.id as any)}
+                    onClick={() => {
+                        setActiveTab(item.id);
+                        scrollToSection(item.id);
+                    }}
                     className={`flex flex-col items-center text-xs ${activeTab === item.id ? 'text-green-600 font-semibold' : 'text-gray-500'
                         }`}
                 >
@@ -43,6 +53,7 @@ export default function MobileNav({ activeTab, setActiveTab }: MobileNavProps) {
         </nav>
     );
 }
+
 
 
 
