@@ -60,7 +60,7 @@ export default function Header() {
         <div className="hidden md:flex items-center">
           <Link
             href="/reports"
-            className="bg-gradient-to-r from-emerald-600 to-blue-500 text-white px-6 py-2 rounded-full shadow hover:opacity-90 transition-transform hover:scale-105"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform"
           >
             Buy Report
           </Link>
