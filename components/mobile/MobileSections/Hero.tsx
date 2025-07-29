@@ -6,7 +6,7 @@ export default function HeroSection() {
             {/* Background Video */}
             <video
                 className="absolute top-0 left-0 w-full h-full object-cover"
-                src="/videos/ecofocus-hero.mp4"
+                src="/videos/hero.mp4"
                 autoPlay
                 muted
                 loop
