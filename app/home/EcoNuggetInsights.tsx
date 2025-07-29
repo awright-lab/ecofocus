@@ -47,7 +47,7 @@ export default function EcoNuggetInsights() {
                     </span>
                 </motion.div>
 
-                <h2 className="text-4xl md:text-5xl font-bold mb-12 text-left">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-left">
                     Fresh Insights with <span className="text-emerald-400">EcoNuggets</span>
                 </h2>
 

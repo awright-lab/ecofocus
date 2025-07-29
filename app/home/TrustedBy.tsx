@@ -30,9 +30,9 @@ export default function TrustedBy() {
                 </motion.div>
 
                 {/* Heading & Tagline */}
-                <h3 className="text-gray-800 text-2xl md:text-3xl font-bold mb-3">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                     Trusted By Leading Organizations
-                </h3>
+                </h2>
                 <p className="text-gray-600 mb-12 text-sm md:text-base max-w-2xl">
                     EcoFocus partners with top innovators and industry leaders to advance sustainability and drive measurable impact.
                 </p>

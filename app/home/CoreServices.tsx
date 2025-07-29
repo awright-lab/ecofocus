@@ -54,7 +54,7 @@ export default function CoreServices() {
 
                 {/* Heading */}
                 <motion.h2
-                    className="text-3xl md:text-5xl font-bold mb-4 text-gray-900"
+                    className="text-3xl md:text-4xl font-bold text-gray-900 mb-6"
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}

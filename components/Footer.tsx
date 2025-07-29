@@ -32,7 +32,7 @@ export default function Footer() {
           transition={{ duration: 0.6 }}
         >
           <Image
-            src="/images/logo.png" // Replace with your logo path
+            src="/images/ef-logo.png" // Replace with your logo path
             alt="EcoFocus Research"
             width={180}
             height={60}
@@ -136,7 +136,7 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-gray-800 mt-12 py-6 flex flex-col md:flex-row justify-between items-center px-6">
         <p className="text-gray-400 text-sm">
-          © 2024 EcoFocus Research. All rights reserved.
+          © 2025 EcoFocus Research. All rights reserved.
         </p>
         <div className="flex space-x-6 mt-4 md:mt-0">
           <a href="#" className="text-gray-400 hover:text-white text-sm transition">Privacy Policy</a>
