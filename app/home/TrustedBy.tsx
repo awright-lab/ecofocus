@@ -15,19 +15,25 @@ export default function TrustedBy() {
 
     return (
         <section className="py-20 bg-gray-50 relative">
-            <div className="max-w-6xl mx-auto px-6 text-center relative">
+            <div className="max-w-6xl mx-auto px-6">
                 {/* Category Tag */}
-                <div className="absolute top-0 left-6">
-                    <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">
+                <motion.div
+                    className="mb-4"
+                    initial={{ opacity: 0, y: -10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
                         Partners
                     </span>
-                </div>
+                </motion.div>
 
                 {/* Heading & Tagline */}
                 <h3 className="text-gray-800 text-2xl md:text-3xl font-bold mb-3">
                     Trusted By Leading Organizations
                 </h3>
-                <p className="text-gray-600 mb-12 text-sm md:text-base max-w-2xl mx-auto">
+                <p className="text-gray-600 mb-12 text-sm md:text-base max-w-2xl">
                     EcoFocus partners with top innovators and industry leaders to advance sustainability and drive measurable impact.
                 </p>
 

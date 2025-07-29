@@ -34,15 +34,20 @@ export default function EcoNuggetInsights() {
     return (
         <section className="py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white relative">
             <div className="max-w-6xl mx-auto px-6">
-                {/* Category Tag (subtle Nielsen-style) */}
-                <div className="absolute top-6 left-6">
+                {/* Category Tag + Header */}
+                <motion.div
+                    className="mb-4"
+                    initial={{ opacity: 0, y: -10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                >
                     <span className="uppercase text-xs tracking-wide bg-emerald-500/10 text-emerald-300 px-4 py-1 rounded-full border border-emerald-500/20">
                         EcoNuggets
                     </span>
-                </div>
+                </motion.div>
 
-                {/* Header */}
-                <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">
+                <h2 className="text-4xl md:text-5xl font-bold mb-12 text-left">
                     Fresh Insights with <span className="text-emerald-400">EcoNuggets</span>
                 </h2>
 
@@ -93,19 +98,13 @@ export default function EcoNuggetInsights() {
                             xmlns="http://www.w3.org/2000/svg"
                         >
                             <g className="transition-all duration-700 group-hover:translate-x-full group-hover:rotate-12">
-                                <rect
-                                    x="0"
-                                    y="0"
-                                    width="100%"
-                                    height="100%"
-                                    fill="rgba(5,150,105,0.25)" /* emerald */
-                                />
+                                <rect x="0" y="0" width="100%" height="100%" fill="rgba(5,150,105,0.25)" />
                                 <rect
                                     x="-20"
                                     y="20"
                                     width="150%"
                                     height="40"
-                                    fill="rgba(6,182,212,0.3)" /* cyan stripe */
+                                    fill="rgba(6,182,212,0.3)"
                                     transform="rotate(-15)"
                                 />
                                 <rect
@@ -113,7 +112,7 @@ export default function EcoNuggetInsights() {
                                     y="80"
                                     width="150%"
                                     height="40"
-                                    fill="rgba(16,185,129,0.25)" /* teal stripe */
+                                    fill="rgba(16,185,129,0.25)"
                                     transform="rotate(-15)"
                                 />
                                 <circle
