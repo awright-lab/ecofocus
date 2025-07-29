@@ -2,17 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import MobileNav from './MobileSections/MobileNav';
-import HeroSection from './MobileSections/Hero';
-import EcoNuggetCard from './MobileSections/EcoNuggetCard';
 import ContactFAB from './MobileSections/Contact';
-
-const ecoNuggets = [
-    { id: 1, title: "74% of Gen Z consumers prioritize sustainability.", tag: "Gen Z Trends", cta: "Learn More" },
-    { id: 2, title: "Eco-friendly packaging boosts purchase intent by 35%.", tag: "Packaging", cta: "Learn More" },
-    { id: 3, title: "91% of Millennials expect companies to be sustainable.", tag: "Corporate Commitments", cta: "Learn More" },
-    { id: 4, title: "Consumers trust brands 2x more when transparent.", tag: "Trust & Transparency", cta: "Learn More" },
-    { id: 5, title: "42% pay more for certified eco-label products.", tag: "Certifications", cta: "Learn More" }
-];
+import HeroSection from './MobileSections/Hero';
+import AboutSection from './MobileSections/About';
+import ServicesSection from './MobileSections/Services';
+import FeaturedReportSection from './MobileSections/FeaturedReportSection';
 
 export default function MobileHome() {
     const [darkMode, setDarkMode] = useState(false);
@@ -44,16 +38,20 @@ export default function MobileHome() {
                 </button>
             </header>
 
-            {/* Main Content with scroll snapping */}
-            <main className="flex-1 overflow-y-auto snap-y">
-                <section className="snap-start p-4">
+            {/* Scroll Snap Sections */}
+            <main className="flex-1 overflow-y-auto snap-y snap-mandatory">
+                <section className="snap-start h-screen p-4 flex items-center justify-center">
                     <HeroSection />
                 </section>
-                {ecoNuggets.map((nugget) => (
-                    <section key={nugget.id} className="snap-start p-4 min-h-screen flex items-center">
-                        <EcoNuggetCard title={nugget.title} tag={nugget.tag} cta={nugget.cta} />
-                    </section>
-                ))}
+                <section className="snap-start h-screen p-4 flex items-center">
+                    <AboutSection />
+                </section>
+                <section className="snap-start h-screen p-4">
+                    <ServicesSection />
+                </section>
+                <section className="snap-start h-screen p-4 flex items-center">
+                    <FeaturedReportSection />
+                </section>
             </main>
 
             <ContactFAB />
@@ -61,6 +59,7 @@ export default function MobileHome() {
         </div>
     );
 }
+
 
 
 
