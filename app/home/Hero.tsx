@@ -27,17 +27,17 @@ export default function Hero() {
             {/* Angled Accent Bar */}
             <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-500 to-blue-500 transform -skew-y-6 opacity-30"></div>
 
-            {/* Glass Container */}
+            {/* Wrapper */}
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 <motion.div
-                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row items-center justify-between gap-8"
+                    className="w-full rounded-2xl shadow-xl flex flex-col lg:flex-row overflow-hidden"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    {/* Left Text */}
-                    <div className="w-full lg:w-1/2 text-center lg:text-left">
+                    {/* Left Glass Section */}
+                    <div className="w-full lg:w-1/2 bg-white/10 backdrop-blur-lg border border-white/20 p-8">
                         <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
                             <span className="block">Sustainability Insights</span>
                             <span className="block">
@@ -50,7 +50,7 @@ export default function Hero() {
                         <p className="text-lg text-gray-200 mb-8">
                             Data-backed research to guide sustainability decisions since 2010.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-start">
                             <Link
                                 href="/reports"
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform hover:scale-105"
@@ -66,30 +66,23 @@ export default function Hero() {
                         </div>
                     </div>
 
-                    {/* Right Image */}
-                    <motion.div
-                        className="relative w-full lg:w-1/2 flex justify-center"
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                    >
-                        <div className="relative bg-transparent rounded-xl shadow-2xl p-4">
-                            <Image
-                                src="/images/hero-cover.png"
-                                alt="EcoFocus Sustainability Report"
-                                width={500}
-                                height={350}
-                                className="rounded-xl object-cover"
-                                priority
-                            />
-                        </div>
-                    </motion.div>
+                    {/* Right Image Section */}
+                    <div className="w-full lg:w-1/2 flex justify-center bg-transparent p-6">
+                        <Image
+                            src="/images/hero-cover.png"
+                            alt="EcoFocus Sustainability Report"
+                            width={500}
+                            height={350}
+                            className="rounded-xl shadow-2xl object-cover"
+                            priority
+                        />
+                    </div>
                 </motion.div>
             </div>
         </section>
     );
 }
+
 
 
 
