@@ -36,8 +36,14 @@ export default function Hero() {
                     transition={{ duration: 0.8 }}
                 >
                     <div className="w-full">
-                        <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
-                            Sustainability Insights That Drive <span className="text-emerald-400">Growth</span>
+                        <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
+                            <span className="block">Sustainability Insights</span>
+                            <span className="block">
+                                That Drive{' '}
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">
+                                    Growth
+                                </span>
+                            </span>
                         </h1>
                         <p className="text-lg text-gray-200 mb-8">
                             Data-backed research to guide sustainability decisions since 2010.
