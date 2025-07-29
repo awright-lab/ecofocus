@@ -5,14 +5,14 @@ import { motion } from 'framer-motion';
 
 export default function Hero() {
     return (
-        <section className="relative min-h-[65vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[55vh] flex items-center overflow-hidden">
             {/* Background Video */}
             <video
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover brightness-150"
+                className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150"
             >
                 <source src="/videos/hero-2.mp4" type="video/mp4" />
             </video>
