@@ -1,62 +1,111 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navLinks = [
+    { name: 'Home', href: '/' },
+    { name: 'About', href: '/about' },
+    { name: 'Solutions', href: '/solutions' },
+    { name: 'Reports & Store', href: '/reports' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'Contact', href: '/contact' }
+  ];
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-[#3E7C59]">
-            <span className="font-pacifico">EcoFocus</span>
-            <span className="text-sm text-gray-600 ml-2 font-sans">RESEARCH</span>
-          </Link>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Home</Link>
-            <Link href="/about" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">About</Link>
-            <Link href="/solutions" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Solutions</Link>
-            <Link href="/reports" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Reports & Store</Link>
-            <Link href="/blog" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Blog</Link>
-            <Link href="/contact" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Contact</Link>
-          </nav>
+    <header
+      className={`fixed top-0 w-full z-50 transition-all ${isScrolled ? 'bg-white/80 backdrop-blur-lg shadow-md' : 'bg-white'
+        }`}
+    >
+      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/images/ef-logo.png"
+            alt="EcoFocus Research Logo"
+            width={160}
+            height={50}
+            className="object-contain"
+            priority
+          />
+        </Link>
 
-          <div className="hidden md:flex items-center space-x-4">
-            <Link href="/reports" className="bg-[#4AAE8C] text-white px-6 py-2 rounded-full hover:bg-[#3E7C59] transition-colors whitespace-nowrap cursor-pointer">
-              Buy Report
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-8">
+          {navLinks.map((link, index) => (
+            <Link
+              key={index}
+              href={link.href}
+              className="relative text-gray-700 hover:text-emerald-600 transition-colors font-medium group"
+            >
+              {link.name}
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-emerald-500 transition-all group-hover:w-full"></span>
             </Link>
-          </div>
+          ))}
+        </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden w-6 h-6 flex items-center justify-center cursor-pointer"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+        {/* Desktop CTA */}
+        <div className="hidden md:flex items-center">
+          <Link
+            href="/reports"
+            className="bg-gradient-to-r from-emerald-600 to-blue-500 text-white px-6 py-2 rounded-full shadow hover:opacity-90 transition-transform hover:scale-105"
           >
-            <i className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-xl`}></i>
-          </button>
+            Buy Report
+          </Link>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden w-8 h-8 flex items-center justify-center"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          <i className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-2xl text-gray-800`}></i>
+        </button>
+      </div>
+
+      {/* Mobile Navigation */}
+      <AnimatePresence>
         {isMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 border-t border-gray-200">
-            <div className="flex flex-col space-y-4 pt-4">
-              <Link href="/" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Home</Link>
-              <Link href="/about" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">About</Link>
-              <Link href="/solutions" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Solutions</Link>
-              <Link href="/reports" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Reports & Store</Link>
-              <Link href="/blog" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Blog</Link>
-              <Link href="/contact" className="text-gray-700 hover:text-[#3E7C59] transition-colors cursor-pointer">Contact</Link>
-              <Link href="/reports" className="bg-[#4AAE8C] text-white px-6 py-3 rounded-full hover:bg-[#3E7C59] transition-colors text-center whitespace-nowrap cursor-pointer">
+          <motion.nav
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white/95 backdrop-blur-lg shadow-md overflow-hidden"
+          >
+            <div className="flex flex-col px-6 py-4 space-y-4">
+              {navLinks.map((link, index) => (
+                <Link
+                  key={index}
+                  href={link.href}
+                  className="text-gray-700 hover:text-emerald-600 font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              <Link
+                href="/reports"
+                className="bg-gradient-to-r from-emerald-600 to-blue-500 text-white px-6 py-3 rounded-full shadow hover:opacity-90 transition-transform hover:scale-105 text-center"
+                onClick={() => setIsMenuOpen(false)}
+              >
                 Buy Report
               </Link>
             </div>
-          </nav>
+          </motion.nav>
         )}
-      </div>
+      </AnimatePresence>
     </header>
   );
 }

@@ -10,7 +10,7 @@ export default function QuickStats() {
     ];
 
     return (
-        <section className="bg-emerald-600 py-16">
+        <section className="bg-gradient-to-br from-emerald-600 via-emerald-500 to-blue-600 py-16">
             <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
                 {stats.map((stat, i) => (
                     <motion.div
@@ -30,5 +30,6 @@ export default function QuickStats() {
         </section>
     );
 }
+
 
 
