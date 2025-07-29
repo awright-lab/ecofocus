@@ -5,12 +5,12 @@ import { motion } from 'framer-motion';
 
 export default function TrustedBy() {
     const logos = [
-        { src: '/Avery Logo_Light Backgrounds.png', alt: 'Avery' },
-        { src: '/CGLR-Icon.png', alt: 'Council of the Great Lakes Region' },
-        { src: '/clean_label.png', alt: 'Clean Label Project' },
-        { src: '/duraflame-logo.png', alt: 'Duraflame' },
-        { src: '/Site_GPI Logo 2_0.png', alt: 'Glass Packaging Institute' },
-        { src: '/thinkPARALLAX_Logos_RBW-01-bug.png', alt: 'thinkPARALLAX' }
+        { src: '/images/logos/Avery Logo_Light Backgrounds.png', alt: 'Avery' },
+        { src: '/images/logos/CGLR-Icon.png', alt: 'Council of the Great Lakes Region' },
+        { src: '/images/logos/clean_label.png', alt: 'Clean Label Project' },
+        { src: '/images/logos/duraflame-logo.png', alt: 'Duraflame' },
+        { src: '/images/logos/Site_GPI Logo 2_0.png', alt: 'Glass Packaging Institute' },
+        { src: '/images/logos/thinkPARALLAX_Logos_RBW-01-bug.png', alt: 'thinkPARALLAX' }
     ];
 
     return (
