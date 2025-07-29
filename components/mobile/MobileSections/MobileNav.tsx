@@ -1,47 +1,49 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FaHome, FaInfoCircle, FaServicestack, FaEnvelope } from 'react-icons/fa';
+import { FaHome, FaBookOpen, FaBookmark, FaUser } from 'react-icons/fa';
 
 interface MobileNavProps {
     activeTab: string;
-    setActiveTab: (tab: 'home' | 'about' | 'services' | 'contact') => void;
+    setActiveTab: (tab: 'home' | 'reports' | 'saved' | 'profile') => void;
 }
 
 export default function MobileNav({ activeTab, setActiveTab }: MobileNavProps) {
     const items = [
         { id: 'home', label: 'Home', icon: <FaHome size={22} /> },
-        { id: 'about', label: 'About', icon: <FaInfoCircle size={22} /> },
-        { id: 'services', label: 'Services', icon: <FaServicestack size={22} /> },
-        { id: 'contact', label: 'Contact', icon: <FaEnvelope size={22} /> }
+        { id: 'reports', label: 'Reports', icon: <FaBookOpen size={22} /> },
+        { id: 'saved', label: 'Saved', icon: <FaBookmark size={22} /> },
+        { id: 'profile', label: 'Profile', icon: <FaUser size={22} /> }
     ];
 
     return (
-        <nav className="flex justify-around p-3 border-t border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 relative">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg flex justify-around items-center py-3 shadow-xl">
             {items.map((item) => (
                 <motion.button
                     key={item.id}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => {
-                        setActiveTab(item.id as any);
-                        navigator.vibrate?.(20); // ✅ Vibration feedback
-                    }}
-                    className={`flex flex-col items-center text-xs ${activeTab === item.id ? 'text-green-600 font-bold' : 'text-gray-500'
+                    onClick={() => setActiveTab(item.id as any)}
+                    className={`flex flex-col items-center text-xs ${activeTab === item.id ? 'text-green-600 font-semibold' : 'text-gray-500'
                         }`}
                 >
-                    {item.icon}
+                    <div
+                        className={`p-2 rounded-full ${activeTab === item.id ? 'bg-green-600 text-white shadow-glow' : ''
+                            }`}
+                    >
+                        {item.icon}
+                    </div>
                     <span>{item.label}</span>
-                    {activeTab === item.id && (
-                        <motion.div
-                            layoutId="underline"
-                            className="h-1 w-6 bg-green-600 rounded mt-1"
-                        />
-                    )}
                 </motion.button>
             ))}
+            <style jsx>{`
+        .shadow-glow {
+          box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+      `}</style>
         </nav>
     );
 }
+
 
 
   

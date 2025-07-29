@@ -1,35 +1,34 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Lottie from 'lottie-react';
+import ecoAnimation from '@/public/lottie/eco.json';
 
-export default function Hero() {
+export default function HeroSection() {
     return (
-        <motion.section
-            className="text-center space-y-4"
+        <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
+            className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-6 text-white text-center shadow-lg relative overflow-hidden"
         >
-            <motion.h1
-                className="text-2xl font-bold"
-                initial={{ scale: 0.95 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.3 }}
-            >
-                Sustainability Insights That Drive Growth
-            </motion.h1>
-            <p className="text-gray-600 dark:text-gray-300">
-                Data-backed research to guide sustainability decisions since 2010.
-            </p>
+            <div className="w-32 mx-auto mb-4">
+                <Lottie animationData={ecoAnimation} loop={true} />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Sustainability Insights</h2>
+            <p className="text-sm mb-4">Bite-sized trends to keep you ahead of the curve.</p>
             <motion.button
                 whileTap={{ scale: 0.95 }}
-                className="bg-green-600 text-white px-4 py-2 rounded-full mt-4"
+                className="bg-white text-green-600 px-4 py-2 rounded-full font-semibold"
             >
-                Learn More
+                Explore Insights
             </motion.button>
-        </motion.section>
+        </motion.div>
     );
 }
+
+
+
 
 
   

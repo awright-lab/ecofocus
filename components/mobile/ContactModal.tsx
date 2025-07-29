@@ -22,31 +22,16 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                className="bg-white dark:bg-gray-900 rounded-t-2xl p-6 w-full max-w-md shadow-lg"
+                transition={{ duration: 0.3 }}
+                className="bg-white dark:bg-gray-900 rounded-t-2xl p-6 w-full max-w-md shadow-xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="w-12 h-1 bg-gray-400 rounded-full mx-auto mb-4" />
                 <h2 className="text-xl font-bold mb-4 text-center">Contact Us</h2>
                 <form className="space-y-4">
-                    <motion.input
-                        whileFocus={{ scale: 1.02 }}
-                        type="text"
-                        placeholder="Your Name"
-                        className="w-full border p-2 rounded dark:bg-gray-800"
-                    />
-                    <motion.input
-                        whileFocus={{ scale: 1.02 }}
-                        type="email"
-                        placeholder="Your Email"
-                        className="w-full border p-2 rounded dark:bg-gray-800"
-                    />
-                    <motion.textarea
-                        whileFocus={{ scale: 1.02 }}
-                        placeholder="Your Message"
-                        className="w-full border p-2 rounded dark:bg-gray-800"
-                        rows={4}
-                    />
+                    <input type="text" placeholder="Your Name" className="w-full border p-2 rounded dark:bg-gray-800" />
+                    <input type="email" placeholder="Your Email" className="w-full border p-2 rounded dark:bg-gray-800" />
+                    <textarea placeholder="Your Message" className="w-full border p-2 rounded dark:bg-gray-800" rows={4}></textarea>
                     <motion.button
                         whileTap={{ scale: 0.95 }}
                         type="submit"
@@ -59,4 +44,5 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
         </motion.div>
     );
 }
+
 
