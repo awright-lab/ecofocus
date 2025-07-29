@@ -38,10 +38,37 @@ export default function CoreServices() {
                 <FloatingOrbs />
             </div>
 
-            <div className="relative z-10 container mx-auto px-6 max-w-6xl text-center">
-                <h2 className="text-3xl md:text-5xl font-bold mb-12">
-                    Our Core Services
-                </h2>
+            <div className="relative z-10 max-w-6xl mx-auto px-6">
+                {/* Category Tag */}
+                <motion.div
+                    className="mb-6"
+                    initial={{ opacity: 0, y: -10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full border border-emerald-200">
+                        Solutions
+                    </span>
+                </motion.div>
+
+                {/* Heading */}
+                <motion.h2
+                    className="text-3xl md:text-5xl font-bold mb-4 text-gray-900"
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
+                    Solutions to Drive Sustainability Success
+                </motion.h2>
+
+                {/* Subtitle */}
+                <p className="text-lg text-gray-600 mb-12 max-w-2xl">
+                    Explore our range of research and consulting services designed to help your business lead with purpose.
+                </p>
+
+                {/* Service Grid */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {services.map((service, i) => (
                         <motion.div
@@ -53,7 +80,7 @@ export default function CoreServices() {
                             transition={{ duration: 0.6, delay: i * 0.15 }}
                         >
                             <div
-                                className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mx-auto mb-4`}
+                                className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4`}
                             >
                                 <i className={`${service.icon} text-3xl text-white`}></i>
                             </div>
@@ -66,6 +93,7 @@ export default function CoreServices() {
         </section>
     );
 }
+
 
 
 

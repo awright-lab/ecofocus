@@ -32,10 +32,17 @@ export default function EcoNuggetInsights() {
     ];
 
     return (
-        <section className="py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white">
+        <section className="py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white relative">
             <div className="max-w-6xl mx-auto px-6">
+                {/* Category Tag (subtle Nielsen-style) */}
+                <div className="absolute top-6 left-6">
+                    <span className="uppercase text-xs tracking-wide bg-emerald-500/10 text-emerald-300 px-4 py-1 rounded-full border border-emerald-500/20">
+                        EcoNuggets
+                    </span>
+                </div>
+
                 {/* Header */}
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
+                <h2 className="text-4xl md:text-5xl font-bold mb-12 text-center">
                     Fresh Insights with <span className="text-emerald-400">EcoNuggets</span>
                 </h2>
 
@@ -64,7 +71,7 @@ export default function EcoNuggetInsights() {
                         </Link>
                     </motion.div>
 
-                    {/* Image with SVG geometric hover animation */}
+                    {/* Image with Hover Effect */}
                     <motion.div
                         className="relative overflow-hidden rounded-xl group"
                         initial={{ opacity: 0, x: 50 }}
@@ -80,7 +87,7 @@ export default function EcoNuggetInsights() {
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
 
-                        {/* Animated SVG Overlay */}
+                        {/* Animated Overlay */}
                         <svg
                             className="absolute inset-0 w-full h-full pointer-events-none"
                             xmlns="http://www.w3.org/2000/svg"
@@ -144,27 +151,6 @@ export default function EcoNuggetInsights() {
                                 <h4 className="text-xl font-bold mb-2">{post.title}</h4>
                                 <div className="text-gray-300 text-sm">{post.time}</div>
                             </div>
-                            {/* SVG Shape Hover */}
-                            <svg
-                                className="absolute inset-0 w-full h-full pointer-events-none transition-transform duration-700 group-hover:translate-x-full group-hover:rotate-12"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <rect
-                                    x="-20"
-                                    y="30"
-                                    width="150%"
-                                    height="50"
-                                    fill="rgba(6,182,212,0.25)" /* cyan accent */
-                                    transform="rotate(-15)"
-                                />
-                                <circle
-                                    cx="60%"
-                                    cy="50%"
-                                    r="100"
-                                    fill="rgba(255,255,255,0.1)"
-                                    className="transition-all duration-700 group-hover:scale-0 group-hover:opacity-0"
-                                />
-                            </svg>
                         </motion.div>
                     ))}
                 </div>
@@ -182,5 +168,6 @@ export default function EcoNuggetInsights() {
         </section>
     );
 }
+
 
 

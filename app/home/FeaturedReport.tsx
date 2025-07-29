@@ -7,6 +7,19 @@ import Image from 'next/image';
 export default function FeaturedReport() {
     return (
         <section className="py-24 bg-white relative overflow-hidden">
+            {/* Category Tag */}
+            <motion.div
+                className="absolute top-6 left-6"
+                initial={{ opacity: 0, y: -10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+            >
+                <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full border border-emerald-200">
+                    Report Highlight
+                </span>
+            </motion.div>
+
             <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
                 {/* Left Content */}
                 <motion.div
@@ -55,6 +68,7 @@ export default function FeaturedReport() {
         </section>
     );
 }
+
 
 
 
