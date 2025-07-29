@@ -3,88 +3,65 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import FloatingOrbs from '@/components/FloatingOrbs';
 
 export default function Hero() {
     return (
-        <section className="relative min-h-[55vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[65vh] flex items-center overflow-hidden">
             {/* Background Video */}
-            <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150"
-            >
+            <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150">
                 <source src="/videos/hero.mp4" type="video/mp4" />
             </video>
 
             {/* Dark Overlay */}
             <div className="absolute inset-0 bg-black/50"></div>
 
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 via-emerald-400/15 to-blue-500/20"></div>
+            {/* Floating Accent Orbs */}
+            <FloatingOrbs />
 
-            {/* Angled Accent Bar */}
-            <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-500 to-blue-500 transform -skew-y-6 opacity-30"></div>
-
-            {/* Glass Container */}
-            <div className="relative z-10 max-w-6xl mx-auto px-6">
-                <motion.div
-                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row items-center justify-between gap-8"
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8 }}
-                >
-                    {/* Left Text */}
-                    <div className="w-full lg:w-1/2 text-center lg:text-left">
-                        <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
-                            <span className="block">Sustainability Insights</span>
-                            <span className="block">
-                                That Drive{' '}
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">
-                                    Growth
-                                </span>
-                            </span>
-                        </h1>
-                        <p className="text-lg text-gray-200 mb-8">
-                            Data-backed research to guide sustainability decisions since 2010.
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <Link
-                                href="/reports"
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform hover:scale-105"
-                            >
-                                View Reports
-                            </Link>
-                            <Link
-                                href="/solutions"
-                                className="bg-white text-gray-900 border border-gray-300 hover:border-emerald-500 px-8 py-4 rounded-full font-semibold shadow hover:shadow-lg transition-transform hover:scale-105"
-                            >
-                                Explore Solutions
-                            </Link>
-                        </div>
+            {/* Hero Content */}
+            <div className="relative z-10 max-w-6xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-8">
+                {/* Glass Text Container */}
+                <div className="w-full lg:w-1/2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 relative z-10">
+                    <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6">
+                        Sustainability Insights<br />That Drive{' '}
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">
+                            Growth
+                        </span>
+                    </h1>
+                    <p className="text-lg text-gray-200 mb-8">Data-backed research to guide sustainability decisions since 2010.</p>
+                    <div className="flex gap-4">
+                        <motion.a
+                            href="/reports"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg"
+                            whileHover={{ scale: 1.05 }}
+                        >
+                            View Reports
+                        </motion.a>
+                        <motion.a
+                            href="/solutions"
+                            className="bg-white text-gray-900 px-8 py-4 rounded-full font-semibold shadow-lg"
+                            whileHover={{ scale: 1.05 }}
+                        >
+                            Explore Solutions
+                        </motion.a>
                     </div>
+                </div>
 
-                    {/* Right Image */}
-                    <motion.div
-                        className="relative w-full lg:w-1/2 flex justify-center"
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                    >
-                        <div className="relative bg-transparent rounded-xl shadow-2xl p-4">
-                            <Image
-                                src="/images/dashboard.png"
-                                alt="EcoFocus Sustainability Report"
-                                width={500}
-                                height={350}
-                                className="rounded-xl object-cover"
-                                priority
-                            />
-                        </div>
-                    </motion.div>
+                {/* Image */}
+                <motion.div
+                    className="w-full lg:w-1/2 flex justify-center relative z-10"
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
+                >
+                    <Image
+                        src="/images/hero-cover.png"
+                        alt="EcoFocus Report"
+                        width={500}
+                        height={350}
+                        className="rounded-xl shadow-2xl"
+                    />
                 </motion.div>
             </div>
         </section>
