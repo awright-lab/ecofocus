@@ -12,6 +12,7 @@ import WhyChoose from './home/WhyChoose';
 import TrustedBy from './home/TrustedBy';
 import CallToAction from './home/CallToAction';
 import Newsletter from './home/Newsletter';
+import EcoNuggetInsights from './home/EcoNuggetInsights';
 
 export default function HomePage() {
   return (
@@ -22,6 +23,7 @@ export default function HomePage() {
       <FeaturedReport />
       <CoreServices />
       <WhyChoose />
+      <EcoNuggetInsights />
       <TrustedBy />
       <CallToAction />
       <Newsletter />
