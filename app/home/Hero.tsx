@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 
 export default function Hero() {
     return (
-        <section className="relative min-h-[55vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[65vh] flex items-center overflow-hidden">
             {/* Background Video */}
             <video
                 autoPlay
@@ -29,17 +30,14 @@ export default function Hero() {
             {/* Glass Container */}
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 <motion.div
-                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 relative overflow-hidden"
+                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row items-center gap-8"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    {/* Decorative Orb */}
-                    <div className="absolute top-[-50px] right-[-50px] w-72 h-72 bg-gradient-to-br from-blue-500/30 to-emerald-400/30 rounded-full blur-3xl opacity-50"></div>
-
-                    {/* Text Content */}
-                    <div className="relative z-10 max-w-2xl">
+                    {/* Left Text */}
+                    <div className="w-full lg:w-1/2 text-center lg:text-left">
                         <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
                             <span className="block">Sustainability Insights</span>
                             <span className="block">
@@ -52,7 +50,7 @@ export default function Hero() {
                         <p className="text-lg text-gray-200 mb-8">
                             Data-backed research to guide sustainability decisions since 2010.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <Link
                                 href="/reports"
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform hover:scale-105"
@@ -67,11 +65,24 @@ export default function Hero() {
                             </Link>
                         </div>
                     </div>
+
+                    {/* Right Image */}
+                    <div className="w-full lg:w-1/2 flex justify-center">
+                        <Image
+                            src="/images/hero-cover.png"
+                            alt="EcoFocus Sustainability Report"
+                            width={500}
+                            height={350}
+                            className="rounded-xl shadow-2xl object-cover"
+                            priority
+                        />
+                    </div>
                 </motion.div>
             </div>
         </section>
     );
 }
+
 
 
 
