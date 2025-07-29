@@ -53,7 +53,7 @@ export default function MobileHome() {
             <section id="cta"><CTASection /></section>
 
             {/* FAB and Bottom Nav */}
-            <ContactFAB />
+            <Contact />
             <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
     );
