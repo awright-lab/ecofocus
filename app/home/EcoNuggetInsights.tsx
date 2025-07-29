@@ -10,7 +10,7 @@ export default function EcoNuggetInsights() {
         excerpt: 'Discover key environmental trends shaping consumer behavior and business strategies in 2025.',
         category: 'Trends',
         time: '4 min read',
-        image: '/images/insight-feature.jpg',
+        image: '/images/blogs/789b87_124054fd6ae6426a8a3704ac7202498d~mv2.png',
         link: '/blog/2025-sustainability-outlook'
     };
 
@@ -19,14 +19,14 @@ export default function EcoNuggetInsights() {
             title: 'The Future of Packaging',
             category: 'Research',
             time: '3 min read',
-            image: '/images/insight-1.jpg',
+            image: '/images/blogs/789b87_bb45408bfd124de4b8ee212b555dcb10~mv2.png',
             link: '/blog/future-of-packaging'
         },
         {
             title: 'Consumer Trust in ESG',
             category: 'Strategy',
             time: '5 min read',
-            image: '/images/insight-2.jpg',
+            image: '/images/blogs/789b87_ccb5f325dfb94da3877531229248edc3~mv2.png',
             link: '/blog/consumer-trust-esg'
         }
     ];
