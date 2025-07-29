@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 export default function Hero() {
     return (
-        <section className="relative min-h-[65vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[55vh] flex items-center overflow-hidden">
             {/* Background Video */}
             <video
                 autoPlay
