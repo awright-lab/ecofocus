@@ -22,11 +22,10 @@ export default function HomePage() {
       <QuickStats />
       <FeaturedReport />
       <CoreServices />
-      <WhyChoose />
       <EcoNuggetInsights />
+      <WhyChoose />
       <TrustedBy />
       <CallToAction />
-      <Newsletter />
       <Footer />
       <StickyButtons />
     </main>
