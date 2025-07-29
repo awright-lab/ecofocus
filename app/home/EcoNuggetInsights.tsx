@@ -32,18 +32,18 @@ export default function EcoNuggetInsights() {
     ];
 
     return (
-        <section className="py-24 bg-gradient-to-br from-[#0a1837] via-[#121633] to-[#1c0433] text-white">
+        <section className="py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white">
             <div className="max-w-6xl mx-auto px-6">
                 {/* Header */}
                 <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                    Stay Ahead with <span className="text-emerald-400">EcoNuggets</span>
+                    Fresh Insights with <span className="text-emerald-400">EcoNuggets</span>
                 </h2>
 
                 {/* Featured Card */}
                 <div className="grid lg:grid-cols-2 gap-8 mb-10">
                     {/* Text */}
                     <motion.div
-                        className="flex flex-col justify-center bg-[#1c1f3d] rounded-xl p-8"
+                        className="flex flex-col justify-center bg-emerald-900/40 rounded-xl p-8 backdrop-blur-sm border border-emerald-700"
                         initial={{ opacity: 0, x: -50 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
@@ -53,7 +53,7 @@ export default function EcoNuggetInsights() {
                         <h3 className="text-3xl font-bold mb-4">{featured.title}</h3>
                         <p className="text-gray-300 mb-6">{featured.excerpt}</p>
                         <div className="flex items-center gap-4 text-sm text-gray-400">
-                            <span className="bg-gray-700 px-3 py-1 rounded-full">{featured.category}</span>
+                            <span className="bg-emerald-800 px-3 py-1 rounded-full">{featured.category}</span>
                             <span>{featured.time}</span>
                         </div>
                         <Link
@@ -86,13 +86,19 @@ export default function EcoNuggetInsights() {
                             xmlns="http://www.w3.org/2000/svg"
                         >
                             <g className="transition-all duration-700 group-hover:translate-x-full group-hover:rotate-12">
-                                <rect x="0" y="0" width="100%" height="100%" fill="rgba(0,255,200,0.25)" />
+                                <rect
+                                    x="0"
+                                    y="0"
+                                    width="100%"
+                                    height="100%"
+                                    fill="rgba(5,150,105,0.25)" /* emerald */
+                                />
                                 <rect
                                     x="-20"
                                     y="20"
                                     width="150%"
                                     height="40"
-                                    fill="rgba(0,200,255,0.3)"
+                                    fill="rgba(6,182,212,0.3)" /* cyan stripe */
                                     transform="rotate(-15)"
                                 />
                                 <rect
@@ -100,14 +106,14 @@ export default function EcoNuggetInsights() {
                                     y="80"
                                     width="150%"
                                     height="40"
-                                    fill="rgba(0,255,180,0.2)"
+                                    fill="rgba(16,185,129,0.25)" /* teal stripe */
                                     transform="rotate(-15)"
                                 />
                                 <circle
                                     cx="50%"
                                     cy="50%"
                                     r="120"
-                                    fill="rgba(255,255,255,0.15)"
+                                    fill="rgba(255,255,255,0.08)"
                                     className="transition-all duration-700 group-hover:scale-0 group-hover:opacity-0"
                                 />
                             </g>
@@ -133,8 +139,8 @@ export default function EcoNuggetInsights() {
                                 height={350}
                                 className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex flex-col justify-end p-6">
-                                <span className="text-sm text-emerald-400 uppercase mb-2">{post.category}</span>
+                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/30 to-transparent flex flex-col justify-end p-6">
+                                <span className="text-sm text-emerald-300 uppercase mb-2">{post.category}</span>
                                 <h4 className="text-xl font-bold mb-2">{post.title}</h4>
                                 <div className="text-gray-300 text-sm">{post.time}</div>
                             </div>
@@ -148,14 +154,14 @@ export default function EcoNuggetInsights() {
                                     y="30"
                                     width="150%"
                                     height="50"
-                                    fill="rgba(0,255,180,0.25)"
+                                    fill="rgba(6,182,212,0.25)" /* cyan accent */
                                     transform="rotate(-15)"
                                 />
                                 <circle
                                     cx="60%"
                                     cy="50%"
                                     r="100"
-                                    fill="rgba(255,255,255,0.15)"
+                                    fill="rgba(255,255,255,0.1)"
                                     className="transition-all duration-700 group-hover:scale-0 group-hover:opacity-0"
                                 />
                             </svg>
@@ -176,4 +182,5 @@ export default function EcoNuggetInsights() {
         </section>
     );
 }
+
 
