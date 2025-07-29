@@ -29,13 +29,14 @@ export default function Hero() {
             {/* Glass Container */}
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 <motion.div
-                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row lg:items-center lg:text-left text-center"
+                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 flex flex-col lg:flex-row lg:items-center lg:text-left text-center relative overflow-hidden"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    <div className="w-full">
+                    {/* Left Text */}
+                    <div className="w-full lg:w-2/3 relative z-10">
                         <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
                             <span className="block">Sustainability Insights</span>
                             <span className="block">
@@ -63,11 +64,15 @@ export default function Hero() {
                             </Link>
                         </div>
                     </div>
+
+                    {/* Decorative Element */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-500/30 to-emerald-400/30 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
                 </motion.div>
             </div>
         </section>
     );
 }
+
 
 
 
