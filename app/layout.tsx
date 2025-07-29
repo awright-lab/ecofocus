@@ -1,22 +1,16 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import AppWrapper from '@/components/AppWrapper';
 
 export const metadata: Metadata = {
   title: 'EcoFocus Research | Sustainability Insights & Reports',
   description:
-    'EcoFocus provides sustainability research, custom studies, and actionable insights to help businesses make informed decisions. Since 2010, we deliver data-driven solutions for a sustainable future.',
-  keywords: [
-    'sustainability research',
-    'EcoFocus reports',
-    'consumer sustainability data',
-    'custom sustainability studies',
-    'ESG insights'
-  ],
+    'EcoFocus provides sustainability research, custom studies, and actionable insights to help businesses make informed decisions.',
   openGraph: {
-    title: 'EcoFocus Research | Sustainability Insights & Reports',
+    title: 'EcoFocus Research',
     description:
-      'Actionable sustainability data and research to power your business strategies. Explore our reports and solutions today.',
+      'Actionable sustainability data and research to power your business strategies.',
     url: 'https://www.ecofocusworldwide.com/',
     type: 'website',
     images: [
@@ -27,21 +21,13 @@ export const metadata: Metadata = {
         alt: 'EcoFocus Research Homepage'
       }
     ]
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'EcoFocus Research | Sustainability Insights & Reports',
-    description:
-      'Explore EcoFocus sustainability reports and custom research solutions to drive business growth.',
-    images: ['/og-image.jpg']
   }
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-white dark:bg-gray-900">
       <head>
-        {/* JSON-LD Structured Data */}
         <Script
           id="structured-data"
           type="application/ld+json"
@@ -51,26 +37,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'EcoFocus Research',
-              url: 'https://www.ecofocusworldwide.com',
-              logo: 'https://www.ecofocusworldwide.com/logo.png',
-              description:
-                'EcoFocus provides sustainability research, custom studies, and actionable insights to help businesses make informed decisions.',
-              sameAs: [
-                'https://www.linkedin.com/company/ecofocusworldwide',
-                'https://twitter.com/ecofocus'
-              ],
-              foundingDate: '2010',
-              contactPoint: {
-                '@type': 'ContactPoint',
-                contactType: 'Customer Service',
-                email: 'info@ecofocusworldwide.com'
-              }
+              url: 'https://www.ecofocusworldwide.com'
             })
           }}
         />
       </head>
-      <body>{children}</body>
+      <body className="text-gray-900 dark:text-white">
+        <AppWrapper>{children}</AppWrapper>
+      </body>
     </html>
   );
 }
+
 
