@@ -8,32 +8,32 @@ export default function CoreServices() {
         {
             title: 'Syndicated Research',
             icon: 'ri-bar-chart-box-line',
-            color: 'from-emerald-400 to-blue-400',
+            color: 'from-emerald-400 via-blue-400 to-emerald-500',
             text: 'Annual trend studies on sustainability.'
         },
         {
             title: 'Custom Research',
             icon: 'ri-search-line',
-            color: 'from-blue-400 to-cyan-400',
+            color: 'from-blue-400 via-cyan-400 to-emerald-400',
             text: 'Tailored B2C & B2B research solutions.'
         },
         {
             title: 'Specialized Reports',
             icon: 'ri-file-text-line',
-            color: 'from-cyan-400 to-emerald-400',
+            color: 'from-emerald-400 via-blue-400 to-cyan-400',
             text: 'Actionable insights for your strategy.'
         },
         {
             title: 'Consulting',
             icon: 'ri-user-settings-line',
-            color: 'from-emerald-400 to-green-400',
+            color: 'from-emerald-400 via-green-400 to-blue-400',
             text: 'Expert guidance for your sustainability goals.'
         }
     ];
 
     return (
         <section className="relative py-20 bg-gray-50 overflow-hidden">
-            {/* Subtle Accent Orbs */}
+            {/* Floating Orbs */}
             <div className="absolute inset-0 z-0">
                 <FloatingOrbs />
             </div>
@@ -60,7 +60,10 @@ export default function CoreServices() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    Solutions to Drive Sustainability Success
+                    Solutions to Drive{' '}
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">
+                        Sustainability Success
+                    </span>
                 </motion.h2>
 
                 {/* Subtitle */}
@@ -73,17 +76,23 @@ export default function CoreServices() {
                     {services.map((service, i) => (
                         <motion.div
                             key={i}
-                            className="p-8 bg-white/70 backdrop-blur-lg rounded-xl border border-white/30 shadow-lg hover:shadow-xl transition-transform hover:scale-105"
+                            className="group p-8 bg-white/70 backdrop-blur-lg rounded-xl border border-white/30 shadow-lg hover:shadow-xl transition-transform hover:scale-105 relative overflow-hidden"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: i * 0.15 }}
                         >
+                            {/* Gradient Glow Behind Icon */}
                             <div
-                                className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4`}
+                                className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                            ></div>
+
+                            <div
+                                className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4 animate-pulse-slow`}
                             >
                                 <i className={`${service.icon} text-3xl text-white`}></i>
                             </div>
+
                             <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
                             <p className="text-gray-600">{service.text}</p>
                         </motion.div>
@@ -93,6 +102,7 @@ export default function CoreServices() {
         </section>
     );
 }
+
 
 
 
