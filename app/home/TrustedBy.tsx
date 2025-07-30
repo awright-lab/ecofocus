@@ -1,7 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function TrustedBy() {
     const logos = [
@@ -14,53 +15,69 @@ export default function TrustedBy() {
     ];
 
     return (
-        <section className="py-20 bg-gray-50 relative">
-            <div className="max-w-6xl mx-auto px-6">
-                {/* Category Tag */}
+        <section className="relative py-24 bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white overflow-hidden">
+            {/* Floating orbs */}
+            <div className="absolute top-10 left-[-100px] w-[250px] h-[250px] bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-[-120px] right-[-80px] w-[220px] h-[220px] bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+
+            <div className="max-w-6xl mx-auto px-6 relative z-10">
+                {/* Heading */}
                 <motion.div
-                    className="mb-4"
-                    initial={{ opacity: 0, y: -10 }}
+                    className="text-center mb-16"
+                    initial={{ opacity: 0, y: -20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ duration: 0.8 }}
                 >
-                    <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
+                    <span className="uppercase text-[10px] tracking-wide bg-emerald-500/10 text-emerald-300 px-3 py-0.5 rounded-full border border-emerald-500/20 mb-4 inline-block">
                         Partners
                     </span>
+                    <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                        Trusted By <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">Leading Organizations</span>
+                    </h2>
+                    <p className="text-lg text-gray-300 max-w-2xl mx-auto">
+                        We partner with forward-thinking companies to accelerate sustainability and create measurable impact.
+                    </p>
                 </motion.div>
 
-                {/* Heading & Tagline */}
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                    Trusted By Leading Organizations
-                </h2>
-                <p className="text-gray-600 mb-12 text-sm md:text-base max-w-2xl">
-                    EcoFocus partners with top innovators and industry leaders to advance sustainability and drive measurable impact.
-                </p>
-
                 {/* Logo Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-10 items-center justify-items-center">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
                     {logos.map((logo, i) => (
                         <motion.div
                             key={i}
-                            className="flex items-center justify-center grayscale hover:grayscale-0 transition-all hover:scale-105"
-                            initial={{ opacity: 0, y: 20 }}
+                            className="relative bg-white/10 backdrop-blur-md rounded-xl p-4 flex items-center justify-center border border-white/10 hover:border-emerald-400/40 shadow-lg hover:shadow-emerald-500/30 transition-all group"
+                            initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ duration: 0.4, delay: i * 0.1 }}
+                            transition={{ duration: 0.6, delay: i * 0.1 }}
+                            whileHover={{ scale: 1.05 }}
                         >
                             <Image
                                 src={logo.src}
                                 alt={logo.alt}
-                                width={150}
-                                height={70}
-                                className="object-contain max-h-16"
+                                width={140}
+                                height={60}
+                                className="object-contain grayscale group-hover:grayscale-0 transition-all duration-500 max-h-16"
                             />
                         </motion.div>
                     ))}
+                </div>
+
+                {/* CTA Button */}
+                <div className="text-center mt-14">
+                    <Link
+                        href="/partners"
+                        className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
+                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                    >
+                        <span className="relative z-10">Become a Partner →</span>
+                    </Link>
                 </div>
             </div>
         </section>
     );
 }
+
 
 
