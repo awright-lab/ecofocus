@@ -42,17 +42,17 @@ export default function Hero() {
                 >
                     {/* Left Text */}
                     <div className="w-full lg:w-1/2 text-center lg:text-left">
-                        <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight">
-                            <span className="block">Sustainability Insights</span>
+                        <h1 className="text-2xl md:text-4xl font-extrabold text-white mb-6 leading-tight">
+                            <span className="block">Your Sustainability Data.</span>
                             <span className="block">
-                                That Drive{' '}
+                                On{' '}
                                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">
-                                    Growth
+                                    Demand.
                                 </span>
                             </span>
                         </h1>
                         <p className="text-lg text-gray-200 mb-8">
-                            Data-backed research to guide sustainability decisions since 2010.
+                            Unlock 90,000+ data points on consumer sustainability attitudes—accessible 24/7 through our interactive dashboard.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <motion.div whileHover={{ scale: 1.05 }}>
@@ -60,7 +60,7 @@ export default function Hero() {
                                     href="/reports"
                                     className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform"
                                 >
-                                    View Reports
+                                    Explore Dashboard Demo
                                 </Link>
                             </motion.div>
                             <motion.div whileHover={{ scale: 1.05 }}>
@@ -68,7 +68,7 @@ export default function Hero() {
                                     href="/solutions"
                                     className="bg-white text-gray-900 border border-gray-300 hover:border-emerald-500 px-8 py-4 rounded-full font-semibold shadow hover:shadow-lg transition-transform"
                                 >
-                                    Explore Solutions
+                                    Add Our Data to Your Lake
                                 </Link>
                             </motion.div>
                         </div>
