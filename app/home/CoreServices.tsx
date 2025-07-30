@@ -39,9 +39,6 @@ export default function CoreServices() {
                 <FloatingOrbs />
             </div>
 
-            {/* Accent Bar */}
-            <div className="absolute top-[-50px] left-[-50%] w-[250%] h-40 bg-gradient-to-r from-emerald-500 to-blue-500 opacity-30 rounded-full rotate-[12deg]"></div>
-
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 {/* Category Tag */}
                 <motion.div
@@ -74,6 +71,20 @@ export default function CoreServices() {
                 <p className="text-lg text-gray-600 mb-12 max-w-2xl">
                     Explore our range of research and consulting services designed to help your business lead with purpose.
                 </p>
+
+                {/* Bold Image Section */}
+                <div className="mb-12">
+                    <div className="relative w-full h-[250px] rounded-xl overflow-hidden shadow-lg">
+                        <img
+                            src="/images/solutions-banner.png" // ✅ Replace with your image
+                            alt="EcoFocus Solutions Banner"
+                            className="w-full h-full object-cover"
+                        />
+                        {/* Optional Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/40 via-blue-500/30 to-transparent"></div>
+                    </div>
+                </div>
+
 
                 {/* Service Grid */}
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
