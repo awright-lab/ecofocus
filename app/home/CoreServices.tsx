@@ -77,12 +77,13 @@ export default function CoreServices() {
                     {services.map((service, i) => (
                         <motion.div
                             key={i}
-                            className="group flex flex-col justify-between h-full p-8 bg-white rounded-xl border border-gray-100 shadow-md hover:shadow-xl transition-transform hover:scale-105 relative overflow-hidden"
+                            className="group flex flex-col justify-between h-full p-8 bg-white rounded-xl border border-gray-100 shadow-md relative overflow-hidden"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
+                            whileHover={{ scale: 1.05 }} // ✅ Add Framer Motion hover scaling
                             viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: i * 0.15 }}
-                        >
+                            transition={{ duration: 0.3 }}
+                        >                    
                             <div>
                                 <div
                                     className={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4`}
