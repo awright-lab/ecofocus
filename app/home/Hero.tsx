@@ -58,7 +58,7 @@ export default function Hero() {
                                 className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white
                                 bg-emerald-600 transition-all duration-300
                                 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110
+                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-100
                                 before:z-0"
                             >
                                 <span className="relative z-10">Explore Dashboard Demo</span>
@@ -73,7 +73,7 @@ export default function Hero() {
                                 bg-white border border-gray-300 transition-all duration-300
                                 hover:border-transparent hover:text-white
                                 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110
+                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-100
                                 before:z-0"
                             >
                                 <span className="relative z-10">Add Our Data to Your Lake</span>
