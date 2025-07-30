@@ -90,6 +90,7 @@ export default function EcoNuggetInsights() {
                                 >
                                     <span className="relative z-10">Read More →</span>
                                 </Link>
+
                             </div>
                             {/* Hover shimmer bar */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>

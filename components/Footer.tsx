@@ -32,7 +32,7 @@ export default function Footer() {
           transition={{ duration: 0.6 }}
         >
           <Image
-            src="/images/ef-logo.png" // Replace with your logo path
+            src="/images/ef-logo-2.png" // Replace with your logo path
             alt="EcoFocus Research"
             width={180}
             height={60}
