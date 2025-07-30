@@ -85,9 +85,9 @@ export default function Header() {
           ></i>
         </button>
       </div>
-      
+
       {/* Gradient Top Border */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500"></div>
+      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500"></div>
       {/* Mobile Navigation */}
       <AnimatePresence>
         {isMenuOpen && (
