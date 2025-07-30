@@ -31,9 +31,6 @@ export default function Header() {
           : 'bg-white'
         }`}
     >
-      {/* Gradient Top Border */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500"></div>
-
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
@@ -88,7 +85,9 @@ export default function Header() {
           ></i>
         </button>
       </div>
-
+      
+      {/* Gradient Top Border */}
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500"></div>
       {/* Mobile Navigation */}
       <AnimatePresence>
         {isMenuOpen && (
