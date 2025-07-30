@@ -32,8 +32,12 @@ export default function EcoNuggetInsights() {
     ];
 
     return (
-        <section className="py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white relative">
-            <div className="max-w-6xl mx-auto px-6">
+        <section className="relative py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white overflow-hidden">
+            {/* Floating Gradient Orbs */}
+            <div className="absolute top-10 left-[-150px] w-[300px] h-[300px] bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-[-150px] right-[-100px] w-[250px] h-[250px] bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+
+            <div className="max-w-6xl mx-auto px-6 relative z-10">
                 {/* Header */}
                 <motion.div
                     className="mb-4"
@@ -47,78 +51,90 @@ export default function EcoNuggetInsights() {
                     </span>
                 </motion.div>
 
-                <h2 className="text-3xl md:text-4xl font-bold mb-10 text-left">
+                <h2 className="text-3xl md:text-4xl font-bold mb-12">
                     Fresh Insights with <span className="text-emerald-400">EcoNuggets</span>
                 </h2>
 
                 {/* Featured Card */}
-                <motion.div
-                    className="relative rounded-xl overflow-hidden mb-12 group shadow-2xl"
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8 }}
-                    whileHover={{ scale: 1.02, rotate: -0.5 }}
-                >
-                    <div className="relative w-full h-[500px] overflow-hidden rounded-xl">
-                        <Image
-                            src={featured.image}
-                            alt={featured.title}
-                            width={1200}
-                            height={600}
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        {/* Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/40 to-transparent p-10 flex flex-col justify-end">
-                            <span className="text-sm uppercase text-emerald-400 mb-3">Featured</span>
-                            <h3 className="text-4xl font-bold mb-4">{featured.title}</h3>
-                            <p className="text-gray-300 mb-6 max-w-2xl">{featured.excerpt}</p>
-                            <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
-                                <span className="bg-emerald-800 px-3 py-1 rounded-full">{featured.category}</span>
-                                <span>{featured.time}</span>
-                            </div>
-                            <Link
-                                href={featured.link}
-                                className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-full font-semibold transition w-fit"
-                            >
-                                Read More →
-                            </Link>
-                        </div>
-                        {/* Gradient shimmer overlay for hover */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                    </div>
-                </motion.div>
-
-                {/* Two Smaller Cards (Magazine-style layout with overlap) */}
-                <div className="grid md:grid-cols-2 gap-8 relative z-10">
-                    {posts.map((post, i) => (
-                        <motion.div
-                            key={i}
-                            className="relative rounded-xl overflow-hidden group shadow-xl hover:shadow-emerald-700/30"
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.6, delay: i * 0.15 }}
-                            whileHover={{ scale: 1.03, rotate: 0.3 }}
-                        >
+                <Link href={featured.link} className="block group mb-20">
+                    <motion.div
+                        className="relative rounded-xl overflow-hidden shadow-2xl"
+                        initial={{ opacity: 0, y: 50 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                        whileHover={{ scale: 1.02, rotate: -0.5 }}
+                    >
+                        <div className="relative w-full h-[480px] overflow-hidden rounded-xl">
                             <Image
-                                src={post.image}
-                                alt={post.title}
-                                width={500}
-                                height={350}
-                                className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
+                                src={featured.image}
+                                alt={featured.title}
+                                width={1200}
+                                height={600}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/30 to-transparent flex flex-col justify-end p-6">
-                                <span className="text-sm text-emerald-300 uppercase mb-2">{post.category}</span>
-                                <h4 className="text-2xl font-bold mb-2 transition-colors duration-300 group-hover:text-emerald-400">
-                                    {post.title}
-                                </h4>
-                                <div className="text-gray-300 text-sm">{post.time}</div>
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/40 to-transparent p-10 flex flex-col justify-end">
+                                <span className="text-sm uppercase text-emerald-400 mb-3">Featured</span>
+                                <motion.h3
+                                    className="text-4xl font-bold mb-4"
+                                    initial={{ color: '#ffffff' }}
+                                    whileHover={{ color: '#34d399' }} // emerald-400
+                                    transition={{ duration: 0.3 }}
+                                >
+                                    {featured.title}
+                                </motion.h3>
+                                <p className="text-gray-300 mb-6 max-w-2xl">{featured.excerpt}</p>
+                                <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                                    <span className="bg-emerald-800 px-3 py-1 rounded-full">{featured.category}</span>
+                                    <span>{featured.time}</span>
+                                </div>
+                                <div className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-full font-semibold transition w-fit">
+                                    Read More →
+                                </div>
                             </div>
-                            {/* Hover shimmer */}
+                            {/* Hover shimmer bar */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                        </motion.div>
-                    
+                        </div>
+                    </motion.div>
+                </Link>
+
+                {/* Overlapping Smaller Cards */}
+                <div className="relative grid md:grid-cols-2 gap-8 -mt-28 z-20">
+                    {posts.map((post, i) => (
+                        <Link key={i} href={post.link} className="block group">
+                            <motion.div
+                                className="relative rounded-xl overflow-hidden shadow-xl hover:shadow-emerald-700/30"
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: i * 0.15 }}
+                                whileHover={{ scale: 1.03, rotate: 0.3 }}
+                            >
+                                <Image
+                                    src={post.image}
+                                    alt={post.title}
+                                    width={500}
+                                    height={350}
+                                    className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                                {/* Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/30 to-transparent flex flex-col justify-end p-6">
+                                    <span className="text-sm text-emerald-300 uppercase mb-2">{post.category}</span>
+                                    <motion.h4
+                                        className="text-2xl font-bold mb-2"
+                                        initial={{ color: '#ffffff' }}
+                                        whileHover={{ color: '#34d399' }} // emerald-400
+                                        transition={{ duration: 0.3 }}
+                                    >
+                                        {post.title}
+                                    </motion.h4>
+                                    <div className="text-gray-300 text-sm">{post.time}</div>
+                                </div>
+                                {/* Hover shimmer */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
 
