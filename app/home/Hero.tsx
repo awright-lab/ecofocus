@@ -7,7 +7,7 @@ import FloatingOrbs from '@/components/FloatingOrbs'; // Reusable accent orbs
 
 export default function Hero() {
     return (
-        <section className="relative min-h-[55vh] flex items-center overflow-hidden">
+        <section className="relative min-h-[65vh] flex items-center overflow-hidden">
             {/* Background Video */}
             <video
                 autoPlay
@@ -16,7 +16,7 @@ export default function Hero() {
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150"
             >
-                <source src="/videos/hero.mp4" type="video/mp4" />
+                <source src="/videos/hero-3.mp4" type="video/mp4" />
             </video>
 
             {/* Dark Overlay */}

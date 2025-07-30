@@ -19,11 +19,9 @@ export default function HomePage() {
     <main>
       <Header />
       <Hero />
-      <QuickStats />
       <FeaturedReport />
       <CoreServices />
       <EcoNuggetInsights />
-      <WhyChoose />
       <TrustedBy />
       <CallToAction />
       <Footer />
