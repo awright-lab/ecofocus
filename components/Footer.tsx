@@ -32,7 +32,7 @@ export default function Footer() {
           transition={{ duration: 0.6 }}
         >
           <Image
-            src="/images/ef-logo-2.png" // Replace with your logo path
+            src="/images/ef-logo-2.png"
             alt="EcoFocus Research"
             width={180}
             height={60}
@@ -45,15 +45,13 @@ export default function Footer() {
           </p>
           {/* Social Icons */}
           <div className="flex space-x-4 mt-6">
-            {['linkedin-fill', 'twitter-x-fill', 'facebook-fill'].map((icon, i) => (
-              <a
-                key={i}
-                href="#"
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gradient-to-r from-emerald-500 to-blue-500 transition"
-              >
-                <i className={`ri-${icon} text-lg text-white`}></i>
-              </a>
-            ))}
+            <a
+              href="#"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gradient-to-r from-emerald-500 to-blue-500 transition"
+              aria-label="LinkedIn"
+            >
+              <i className="ri-linkedin-fill text-lg text-white"></i>
+            </a>
           </div>
         </motion.div>
 
@@ -125,9 +123,11 @@ export default function Footer() {
             />
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white py-3 rounded-lg font-semibold shadow hover:opacity-90 transition"
+              className="relative inline-block w-full px-6 py-3 text-sm font-semibold text-white rounded-lg bg-emerald-600 overflow-hidden transition-all duration-300
+              before:absolute before:inset-0 before:rounded-lg before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+              before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
             >
-              Subscribe
+              <span className="relative z-10">Subscribe</span>
             </button>
           </form>
         </motion.div>
@@ -147,7 +147,7 @@ export default function Footer() {
         {/* Back to Top Button */}
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"
+          className="fixed bottom-7 right-6 w-12 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"
           aria-label="Back to Top"
         >
           <i className="ri-arrow-up-line text-white text-xl"></i>
@@ -156,3 +156,4 @@ export default function Footer() {
     </footer>
   );
 }
+
