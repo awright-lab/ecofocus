@@ -27,9 +27,10 @@ export default function Hero() {
             <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-500 to-blue-500 transform -skew-y-6 opacity-30"></div>
 
             {/* Main Content */}
-            <div className="relative z-10 max-w-7xl mx-auto px-6 flex justify-start">
+            <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+                {/* Left Column: Glass Container */}
                 <motion.div
-                    className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 md:p-10 w-full max-w-3xl"
+                    className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 md:p-10 w-full"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -45,7 +46,7 @@ export default function Hero() {
                         </span>
                     </h1>
 
-                    <p className="text-lg text-gray-200 mb-8 max-w-2xl">
+                    <p className="text-lg text-gray-200 mb-8 max-w-xl">
                         Unlock 90,000+ data points on consumer sustainability attitudes—accessible 24/7 through our interactive dashboard.
                     </p>
 
@@ -68,10 +69,14 @@ export default function Hero() {
                         </motion.div>
                     </div>
                 </motion.div>
+
+                {/* Right Column: Reserved for visual or left empty */}
+                <div></div>
             </div>
         </section>
     );
 }
+
 
 
 
