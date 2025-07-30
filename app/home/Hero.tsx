@@ -28,7 +28,6 @@ export default function Hero() {
 
             {/* Main Content */}
             <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-                {/* Left Column: Glass Container */}
                 <motion.div
                     className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 md:p-10 w-full"
                     initial={{ opacity: 0, y: 30 }}
@@ -37,62 +36,42 @@ export default function Hero() {
                     transition={{ duration: 0.8 }}
                 >
                     <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                        <span className="block">Your Sustainability Data.</span>
+                        <span className="block">Turn Sustainability Insights</span>
                         <span className="block">
-                            On{' '}
-                            <span
-                                className="bg-clip-text text-transparent
-                                bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400
-                                bg-[length:200%_auto]
-                                animate-[gradientMove_6s_linear_infinite]"
-                            >
-                                Demand.
+                            Into{' '}
+                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
+                                Action.
                             </span>
                         </span>
                     </h1>
+
                     <p className="text-lg text-gray-200 mb-8 max-w-xl">
-                        Unlock 90,000+ data points on consumer sustainability attitudes—accessible 24/7 through our interactive dashboard.
+                        Empower your strategy with data that drives meaningful change. Explore trends, uncover opportunities, and move faster with insights at your fingertips.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                        {/* Button 1: Circular Gradient Fill */}
-                        <motion.div whileHover={{ scale: 1.02 }}>
-                            <Link
-                                href="/dashboard"
-                                className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white
-                                bg-emerald-600 transition-all duration-300
-                                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-100
-                                before:z-0"
-                            >
-                                <span className="relative z-10">Explore Dashboard Demo</span>
-                            </Link>
-                        </motion.div>
-
-                        {/* Button 2: White Button with Circular Gradient */}
-                        <motion.div whileHover={{ scale: 1.02 }}>
-                            <Link
-                                href="/solutions"
-                                className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-gray-900
-                                bg-white border border-gray-300 transition-all duration-300
-                                hover:border-transparent hover:text-white
-                                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-100
-                                before:z-0"
-                            >
-                                <span className="relative z-10">Add Our Data to Your Lake</span>
-                            </Link>
-
-                        </motion.div>
+                        <Link
+                            href="/dashboard"
+                            className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-emerald-600 transition-all duration-300 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                        >
+                            <span className="relative z-10">Explore Dashboard Demo</span>
+                        </Link>
+                        <Link
+                            href="/solutions"
+                            className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-gray-900 bg-white border border-gray-300 hover:border-transparent transition-all duration-300 hover:text-white before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                        >
+                            <span className="relative z-10">How We Can Help</span>
+                        </Link>
                     </div>
                 </motion.div>
 
-                {/* Right Column: Empty for future visuals */}
+                {/* Optional Right Column (empty or visual later) */}
                 <div></div>
             </div>
         </section>
     );
 }
+
 
 
 
