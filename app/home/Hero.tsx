@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import FloatingOrbs from '@/components/FloatingOrbs'; // Reusable accent orbs
+import FloatingOrbs from '@/components/FloatingOrbs';
 
 export default function Hero() {
     return (
@@ -15,7 +15,7 @@ export default function Hero() {
                 playsInline
                 className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150"
             >
-                <source src="/videos/hero-3.mp4" type="video/mp4" />
+                <source src="/videos/hero-4.mp4" type="video/mp4" />
             </video>
 
             {/* Dark Overlay */}
@@ -30,10 +30,11 @@ export default function Hero() {
             {/* Angled Accent Bar */}
             <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-emerald-500 to-blue-500 transform -skew-y-6 opacity-30"></div>
 
-            {/* Glass Container */}
-            <div className="relative z-10 max-w-4xl mx-auto px-6">
+            {/* Main Container */}
+            <div className="relative z-10 max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+                {/* Left: Glass Text Block */}
                 <motion.div
-                    className="w-full bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-10 text-center"
+                    className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-8 md:p-10"
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -49,11 +50,11 @@ export default function Hero() {
                         </span>
                     </h1>
 
-                    <p className="text-lg text-gray-200 mb-8 max-w-2xl mx-auto">
+                    <p className="text-lg text-gray-200 mb-8 max-w-xl">
                         Unlock 90,000+ data points on consumer sustainability attitudes—accessible 24/7 through our interactive dashboard.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-4">
                         <motion.div whileHover={{ scale: 1.05 }}>
                             <Link
                                 href="/dashboard"
@@ -72,10 +73,14 @@ export default function Hero() {
                         </motion.div>
                     </div>
                 </motion.div>
+
+                {/* Right Column (Reserved for future visuals or stats) */}
+                <div className="hidden md:block"></div>
             </div>
         </section>
     );
 }
+
 
 
 
