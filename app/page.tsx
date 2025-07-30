@@ -20,16 +20,11 @@ export default function HomePage() {
     <main>
       <Header />
       <Hero />
-      <div className="relative">
-        {/* Featured Dashboard */}
-        <FeaturedDashboard />
-
-        {/* Accent Bar - Placed Between Sections */}
-        <div className="absolute left-0 w-full h-32 bg-gradient-to-l from-emerald-500 to-blue-500 transform skew-y-6 opacity-30 z-0" style={{ top: 'calc(100% - 4rem)' }}></div>
-
-        {/* Core Services */}
-        <CoreServices />
-      </div>
+      <FeaturedDashboard />
+      <section className="relative w-full h-24 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-l from-emerald-500 to-blue-500 transform skew-y-6 opacity-30"></div>
+      </section>
+      <CoreServices />
       <EcoNuggetInsights />
       <TrustedBy />
       <CallToAction />
