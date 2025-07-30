@@ -7,6 +7,7 @@ import StickyButtons from '../components/StickyButtons';
 import Hero from './home/Hero';
 import QuickStats from './home/QuickStats';
 import FeaturedReport from './home/FeaturedReport';
+import FeaturedDashboard from './home/FeaturedDashboard';
 import CoreServices from './home/CoreServices';
 import WhyChoose from './home/WhyChoose';
 import TrustedBy from './home/TrustedBy';
@@ -19,7 +20,7 @@ export default function HomePage() {
     <main>
       <Header />
       <Hero />
-      <FeaturedReport />
+      <FeaturedDashboard />
       <CoreServices />
       <EcoNuggetInsights />
       <TrustedBy />
