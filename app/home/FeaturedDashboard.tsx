@@ -10,13 +10,14 @@ export default function FeaturedDashboard() {
             <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
                 {/* Left Content */}
                 <motion.div
-                    initial={{ opacity: 0, x: -40 }}
-                    whileInView={{ opacity: 1, x: 0 }}
+                    className="mb-6"
+                    initial={{ opacity: 0, y: -10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.8 }}
+                    transition={{ duration: 0.6 }}
                 >
                     <div className="mb-4">
-                        <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full border border-emerald-200">
+                        <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
                             Dashboard Highlight
                         </span>
                     </div>
