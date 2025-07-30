@@ -48,7 +48,7 @@ export default function CoreServices() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full border border-emerald-200">
+                    <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
                         Solutions
                     </span>
                 </motion.div>
@@ -77,7 +77,7 @@ export default function CoreServices() {
                     {services.map((service, i) => (
                         <motion.div
                             key={i}
-                            className="flex flex-col justify-between h-full p-8 bg-white/70 backdrop-blur-lg rounded-xl border border-white/30 shadow-lg hover:shadow-xl transition-transform hover:scale-105 relative overflow-hidden"
+                            className="group flex flex-col justify-between h-full p-8 bg-white rounded-xl border border-gray-100 shadow-md hover:shadow-xl transition-transform hover:scale-105 relative overflow-hidden"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -85,16 +85,20 @@ export default function CoreServices() {
                         >
                             <div>
                                 <div
-                                    className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4`}
+                                    className={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4`}
                                 >
-                                    <i className={`${service.icon} text-3xl text-white`}></i>
+                                    <i className={`${service.icon} text-2xl text-white`}></i>
                                 </div>
-                                <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+                                <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
                                 <p className="text-gray-600 mb-6">{service.text}</p>
                             </div>
+
+                            {/* Explore Button */}
                             <Link
                                 href={`/solutions#${service.title.replace(/\s+/g, '-').toLowerCase()}`}
-                                className="relative overflow-hidden inline-block rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 transition-all duration-300 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                                className="relative overflow-hidden inline-block rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 transition-all duration-300
+                                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                                before:scale-0 before:transition-transform before:duration-500 group-hover:before:scale-110 before:z-0"
                             >
                                 <span className="relative z-10">Explore</span>
                             </Link>
@@ -105,6 +109,7 @@ export default function CoreServices() {
         </section>
     );
 }
+
 
 
 
