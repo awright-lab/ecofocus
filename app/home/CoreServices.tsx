@@ -34,7 +34,7 @@ export default function CoreServices() {
 
     return (
         <section className="relative py-20 bg-gray-50 overflow-hidden">
-            {/* Floating Orbs */}
+            {/* Floating Orbs Background */}
             <div className="absolute inset-0 z-0">
                 <FloatingOrbs />
             </div>
@@ -80,16 +80,22 @@ export default function CoreServices() {
                             className="group flex flex-col justify-between h-full p-8 bg-white rounded-xl border border-gray-100 shadow-md relative overflow-hidden"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
-                            whileHover={{ scale: 1.05 }} // ✅ Add Framer Motion hover scaling
+                            whileHover={{ scale: 1.05 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.3 }}
-                        >                    
+                        >
                             <div>
+                                {/* Animated Icon */}
                                 <div
-                                    className={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4`}
+                                    className={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4 relative overflow-hidden`}
                                 >
-                                    <i className={`${service.icon} text-2xl text-white`}></i>
+                                    <i
+                                        className={`${service.icon} text-2xl text-white relative z-10`}
+                                    ></i>
+                                    {/* Gradient shimmer overlay */}
+                                    <span className="absolute inset-0 bg-gradient-to-r from-white/30 to-transparent animate-shimmer"></span>
                                 </div>
+
                                 <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
                                 <p className="text-gray-600 mb-6">{service.text}</p>
                             </div>
@@ -107,9 +113,25 @@ export default function CoreServices() {
                     ))}
                 </div>
             </div>
+
+            {/* Custom CSS for shimmer animation */}
+            <style jsx>{`
+                @keyframes shimmer {
+                    0% {
+                        transform: translateX(-100%);
+                    }
+                    100% {
+                        transform: translateX(100%);
+                    }
+                }
+                .animate-shimmer {
+                    animation: shimmer 2s linear infinite;
+                }
+            `}</style>
         </section>
     );
 }
+
 
 
 
