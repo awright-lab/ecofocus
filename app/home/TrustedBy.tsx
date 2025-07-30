@@ -25,7 +25,7 @@ export default function TrustedBy() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    <span className="uppercase text-xs tracking-wide bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200 mb-4 inline-block">
+                    <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
                         Partners
                     </span>
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -59,8 +59,8 @@ export default function TrustedBy() {
                     ))}
                 </div>
 
-                {/* CTA Button */}
-                <div className="mt-14">
+                {/* CTA Button (Centered) */}
+                <div className="text-center mt-14">
                     <Link
                         href="/partners"
                         className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
