@@ -41,15 +41,15 @@ export default function Hero() {
                         <span className="block">
                             On{' '}
                             <span
-                                className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400
-                                bg-[length:200%_200%] animate-[gradientMove_3s_linear_infinite]"
+                                className="bg-clip-text text-transparent
+                                bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400
+                                bg-[length:200%_auto]
+                                animate-[gradientMove_6s_linear_infinite]"
                             >
                                 Demand.
                             </span>
                         </span>
                     </h1>
-
-
                     <p className="text-lg text-gray-200 mb-8 max-w-xl">
                         Unlock 90,000+ data points on consumer sustainability attitudes—accessible 24/7 through our interactive dashboard.
                     </p>
