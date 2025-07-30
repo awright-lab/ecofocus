@@ -94,7 +94,7 @@ export default function EcoNuggetInsights() {
                     {posts.map((post, i) => (
                         <motion.div
                             key={i}
-                            className="relative rounded-xl overflow-hidden group shadow-lg"
+                            className="relative rounded-xl overflow-hidden group shadow-xl hover:shadow-emerald-700/30"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -108,15 +108,17 @@ export default function EcoNuggetInsights() {
                                 height={350}
                                 className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
                             />
-                            {/* Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/30 to-transparent flex flex-col justify-end p-6">
                                 <span className="text-sm text-emerald-300 uppercase mb-2">{post.category}</span>
-                                <h4 className="text-2xl font-bold mb-2">{post.title}</h4>
+                                <h4 className="text-2xl font-bold mb-2 transition-colors duration-300 group-hover:text-emerald-400">
+                                    {post.title}
+                                </h4>
                                 <div className="text-gray-300 text-sm">{post.time}</div>
                             </div>
-                            {/* Hover shimmer effect */}
+                            {/* Hover shimmer */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                         </motion.div>
+                    
                     ))}
                 </div>
 
