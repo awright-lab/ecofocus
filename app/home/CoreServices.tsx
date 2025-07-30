@@ -39,9 +39,6 @@ export default function CoreServices() {
                 <FloatingOrbs />
             </div>
 
-            {/* Accent Bar */}
-            <div className="absolute top-0 right-0 w-full h-24 bg-gradient-to-l from-emerald-500 to-blue-500 transform skew-y-6 opacity-30"></div>
-
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 {/* Category Tag */}
                 <motion.div
