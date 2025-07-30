@@ -40,7 +40,7 @@ export default function CoreServices() {
             </div>
 
             {/* Accent Bar */}
-            <div className="absolute top-[-40px] right-[-20%] w-[150%] h-32 bg-gradient-to-l from-emerald-500 to-blue-500 opacity-30 rounded-full rotate-[-8deg]"></div>
+            <div className="absolute top-[-60px] right-[-30%] w-[200%] h-32 bg-gradient-to-l from-emerald-500 to-blue-500 opacity-30 rounded-full rotate-[-15deg]"></div>
 
             <div className="relative z-10 max-w-6xl mx-auto px-6">
                 {/* Category Tag */}
