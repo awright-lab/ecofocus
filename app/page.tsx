@@ -21,18 +21,14 @@ export default function HomePage() {
       <Header />
       <Hero />
       <div className="relative">
-        {/* Accent Bar */}
-        <div className="absolute top-[calc(100%-4rem)] left-0 w-full h-32 bg-gradient-to-l from-emerald-500 to-blue-500 transform skew-y-6 opacity-30 z-0"></div>
-
         {/* Featured Dashboard */}
-        <div className="relative z-10">
-          <FeaturedDashboard />
-        </div>
+        <FeaturedDashboard />
+
+        {/* Accent Bar - Placed Between Sections */}
+        <div className="absolute left-0 w-full h-32 bg-gradient-to-l from-emerald-500 to-blue-500 transform skew-y-6 opacity-30 z-0" style={{ top: 'calc(100% - 4rem)' }}></div>
 
         {/* Core Services */}
-        <div className="relative z-10">
-          <CoreServices />
-        </div>
+        <CoreServices />
       </div>
       <EcoNuggetInsights />
       <TrustedBy />
