@@ -29,15 +29,24 @@ export default function FeaturedDashboard() {
                         Instantly access over <strong>90,000 sustainability data points</strong>. Segment by demographics, compare trends, and build custom insights in real time — all in one place.
                     </p>
 
-                    <ul className="text-gray-700 space-y-3 mb-8">
-                        <li className="flex items-start gap-2">
-                            ✅ Real-time filtering by demographics & behaviors
+                    <ul className="space-y-4 mb-8">
+                        <li className="flex items-center gap-3">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-xs font-bold shadow-md">
+                                ✓
+                            </span>
+                            <span className="text-gray-700">Real-time filtering by demographics & behaviors</span>
                         </li>
-                        <li className="flex items-start gap-2">
-                            ✅ Custom crosstabs & chart generation
+                        <li className="flex items-center gap-3">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-xs font-bold shadow-md">
+                                ✓
+                            </span>
+                            <span className="text-gray-700">Custom crosstabs & chart generation</span>
                         </li>
-                        <li className="flex items-start gap-2">
-                            ✅ Export-ready insights & visualizations
+                        <li className="flex items-center gap-3">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-xs font-bold shadow-md">
+                                ✓
+                            </span>
+                            <span className="text-gray-700">Export-ready insights & visualizations</span>
                         </li>
                     </ul>
 
