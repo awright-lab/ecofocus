@@ -32,8 +32,12 @@ export default function EcoNuggetInsights() {
     ];
 
     return (
-        <section className="py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white relative">
-            <div className="max-w-6xl mx-auto px-6">
+        <section className="relative py-24 bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white overflow-hidden">
+            {/* Floating Gradient Orbs */}
+            <div className="absolute top-10 left-[-150px] w-[300px] h-[300px] bg-emerald-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-[-150px] right-[-100px] w-[250px] h-[250px] bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+
+            <div className="max-w-6xl mx-auto px-6 relative z-10">
                 {/* Header */}
                 <motion.div
                     className="mb-4"
@@ -47,20 +51,20 @@ export default function EcoNuggetInsights() {
                     </span>
                 </motion.div>
 
-                <h2 className="text-3xl md:text-4xl font-bold mb-10 text-left">
+                <h2 className="text-3xl md:text-4xl font-bold mb-12">
                     Fresh Insights with <span className="text-emerald-400">EcoNuggets</span>
                 </h2>
 
                 {/* Featured Card */}
                 <motion.div
-                    className="relative rounded-xl overflow-hidden mb-12 group shadow-2xl"
-                    initial={{ opacity: 0, y: 40 }}
+                    className="relative rounded-xl overflow-hidden mb-20 group shadow-2xl"
+                    initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                     whileHover={{ scale: 1.02, rotate: -0.5 }}
                 >
-                    <div className="relative w-full h-[500px] overflow-hidden rounded-xl">
+                    <div className="relative w-full h-[480px] overflow-hidden rounded-xl">
                         <Image
                             src={featured.image}
                             alt={featured.title}
@@ -84,17 +88,17 @@ export default function EcoNuggetInsights() {
                                 Read More →
                             </Link>
                         </div>
-                        {/* Gradient shimmer overlay for hover */}
+                        {/* Hover shimmer bar */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                     </div>
                 </motion.div>
 
-                {/* Two Smaller Cards (Magazine-style layout with overlap) */}
-                <div className="grid md:grid-cols-2 gap-8 relative z-10">
+                {/* Overlapping Smaller Cards */}
+                <div className="relative grid md:grid-cols-2 gap-8 -mt-28 z-20">
                     {posts.map((post, i) => (
                         <motion.div
                             key={i}
-                            className="relative rounded-xl overflow-hidden group shadow-lg"
+                            className="relative rounded-xl overflow-hidden group shadow-xl hover:shadow-emerald-700/30"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -114,7 +118,7 @@ export default function EcoNuggetInsights() {
                                 <h4 className="text-2xl font-bold mb-2">{post.title}</h4>
                                 <div className="text-gray-300 text-sm">{post.time}</div>
                             </div>
-                            {/* Hover shimmer effect */}
+                            {/* Hover shimmer */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                         </motion.div>
                     ))}
@@ -133,6 +137,7 @@ export default function EcoNuggetInsights() {
         </section>
     );
 }
+
 
 
 
