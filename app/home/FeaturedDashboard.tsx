@@ -43,7 +43,7 @@ export default function FeaturedDashboard() {
 
                     <Link
                         href="/dashboard"
-                        className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-emerald-600 transition-all duration-300 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                        className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-emerald-600 transition-all duration-300 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-100 before:z-0"
                     >
                         <span className="relative z-10">View Dashboard Demo</span>
                     </Link>
@@ -61,7 +61,7 @@ export default function FeaturedDashboard() {
                     <div className="absolute w-[300px] h-[300px] bg-gradient-to-br from-emerald-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
 
                     <Image
-                        src="/images/dashboard-preview.png"
+                        src="/images/dashboard.png"
                         alt="EcoFocus Interactive Dashboard Preview"
                         width={500}
                         height={350}
