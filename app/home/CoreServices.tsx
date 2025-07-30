@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import FloatingOrbs from '@/components/FloatingOrbs';
+import Link from 'next/link';
 
 export default function CoreServices() {
     const services = [
@@ -76,25 +77,27 @@ export default function CoreServices() {
                     {services.map((service, i) => (
                         <motion.div
                             key={i}
-                            className="group p-8 bg-white/70 backdrop-blur-lg rounded-xl border border-white/30 shadow-lg hover:shadow-xl transition-transform hover:scale-105 relative overflow-hidden"
+                            className="flex flex-col justify-between h-full p-8 bg-white/70 backdrop-blur-lg rounded-xl border border-white/30 shadow-lg hover:shadow-xl transition-transform hover:scale-105 relative overflow-hidden"
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6, delay: i * 0.15 }}
                         >
-                            {/* Gradient Glow Behind Icon */}
-                            <div
-                                className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                            ></div>
-
-                            <div
-                                className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4 animate-pulse-slow`}
-                            >
-                                <i className={`${service.icon} text-3xl text-white`}></i>
+                            <div>
+                                <div
+                                    className={`w-16 h-16 bg-gradient-to-br ${service.color} rounded-full flex items-center justify-center mb-4`}
+                                >
+                                    <i className={`${service.icon} text-3xl text-white`}></i>
+                                </div>
+                                <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
+                                <p className="text-gray-600 mb-6">{service.text}</p>
                             </div>
-
-                            <h3 className="text-xl font-semibold mb-2">{service.title}</h3>
-                            <p className="text-gray-600">{service.text}</p>
+                            <Link
+                                href={`/solutions#${service.title.replace(/\s+/g, '-').toLowerCase()}`}
+                                className="relative overflow-hidden inline-block rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 transition-all duration-300 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                            >
+                                <span className="relative z-10">Explore</span>
+                            </Link>
                         </motion.div>
                     ))}
                 </div>
@@ -102,6 +105,7 @@ export default function CoreServices() {
         </section>
     );
 }
+
 
 
 
