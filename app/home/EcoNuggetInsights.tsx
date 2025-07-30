@@ -56,14 +56,13 @@ export default function EcoNuggetInsights() {
                 </h2>
 
                 {/* Featured Card */}
-                <Link href={featured.link} className="block group mb-20">
+                <Link href={featured.link} className="block group mb-16">
                     <motion.div
                         className="relative rounded-xl overflow-hidden shadow-2xl"
                         initial={{ opacity: 0, y: 50 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        whileHover={{ scale: 1.02, rotate: -0.5 }}
                     >
                         <div className="relative w-full h-[480px] overflow-hidden rounded-xl">
                             <Image
@@ -76,14 +75,7 @@ export default function EcoNuggetInsights() {
                             {/* Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/40 to-transparent p-10 flex flex-col justify-end">
                                 <span className="text-sm uppercase text-emerald-400 mb-3">Featured</span>
-                                <motion.h3
-                                    className="text-4xl font-bold mb-4"
-                                    initial={{ color: '#ffffff' }}
-                                    whileHover={{ color: '#34d399' }} // emerald-400
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    {featured.title}
-                                </motion.h3>
+                                <h3 className="text-4xl font-bold mb-4">{featured.title}</h3>
                                 <p className="text-gray-300 mb-6 max-w-2xl">{featured.excerpt}</p>
                                 <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
                                     <span className="bg-emerald-800 px-3 py-1 rounded-full">{featured.category}</span>
@@ -99,8 +91,8 @@ export default function EcoNuggetInsights() {
                     </motion.div>
                 </Link>
 
-                {/* Overlapping Smaller Cards */}
-                <div className="relative grid md:grid-cols-2 gap-8 -mt-28 z-20">
+                {/* Secondary Cards */}
+                <div className="grid md:grid-cols-2 gap-8">
                     {posts.map((post, i) => (
                         <Link key={i} href={post.link} className="block group">
                             <motion.div
@@ -109,26 +101,18 @@ export default function EcoNuggetInsights() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                                whileHover={{ scale: 1.03, rotate: 0.3 }}
                             >
                                 <Image
                                     src={post.image}
                                     alt={post.title}
                                     width={500}
                                     height={350}
-                                    className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110"
+                                    className="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
                                 {/* Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/30 to-transparent flex flex-col justify-end p-6">
                                     <span className="text-sm text-emerald-300 uppercase mb-2">{post.category}</span>
-                                    <motion.h4
-                                        className="text-2xl font-bold mb-2"
-                                        initial={{ color: '#ffffff' }}
-                                        whileHover={{ color: '#34d399' }} // emerald-400
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        {post.title}
-                                    </motion.h4>
+                                    <h4 className="text-2xl font-bold mb-2">{post.title}</h4>
                                     <div className="text-gray-300 text-sm">{post.time}</div>
                                 </div>
                                 {/* Hover shimmer */}
@@ -151,6 +135,7 @@ export default function EcoNuggetInsights() {
         </section>
     );
 }
+
 
 
 
