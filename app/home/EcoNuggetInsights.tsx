@@ -46,7 +46,7 @@ export default function EcoNuggetInsights() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <span className="uppercase text-xs tracking-wide bg-emerald-500/10 text-emerald-300 px-4 py-1 rounded-full border border-emerald-500/20">
+                    <span className="uppercase text-[10px] tracking-wide bg-emerald-500/10 text-emerald-300 px-3 py-0.5 rounded-full border border-emerald-500/20">
                         EcoNuggets
                     </span>
                 </motion.div>
@@ -81,9 +81,15 @@ export default function EcoNuggetInsights() {
                                     <span className="bg-emerald-800 px-3 py-1 rounded-full">{featured.category}</span>
                                     <span>{featured.time}</span>
                                 </div>
-                                <div className="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-full font-semibold transition w-fit">
-                                    Read More →
-                                </div>
+                                {/* Button with animated hover effect */}
+                                <Link
+                                    href={featured.link}
+                                    className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
+                                    before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                                    before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                                >
+                                    <span className="relative z-10">Read More →</span>
+                                </Link>
                             </div>
                             {/* Hover shimmer bar */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
@@ -112,7 +118,9 @@ export default function EcoNuggetInsights() {
                                 {/* Overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/80 via-emerald-800/30 to-transparent flex flex-col justify-end p-6">
                                     <span className="text-sm text-emerald-300 uppercase mb-2">{post.category}</span>
-                                    <h4 className="text-2xl font-bold mb-2">{post.title}</h4>
+                                    <h4 className="text-2xl font-bold mb-2 transition-colors duration-300 group-hover:text-emerald-400">
+                                        {post.title}
+                                    </h4>
                                     <div className="text-gray-300 text-sm">{post.time}</div>
                                 </div>
                                 {/* Hover shimmer */}
@@ -126,15 +134,19 @@ export default function EcoNuggetInsights() {
                 <div className="text-center mt-14">
                     <Link
                         href="/blog"
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-4 rounded-full font-semibold transition"
+                        className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
+                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                     >
-                        See All Insights
+                        <span className="relative z-10">See All Insights</span>
                     </Link>
                 </div>
             </div>
         </section>
     );
 }
+
+
 
 
 
