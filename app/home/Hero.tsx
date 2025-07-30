@@ -51,31 +51,43 @@ export default function Hero() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <motion.div whileHover={{ scale: 1.05 }}>
+                        {/* Button 1: Green Gradient Fill */}
+                        <motion.div whileHover={{ scale: 1.02 }}>
                             <Link
                                 href="/dashboard"
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-full text-sm md:text-base font-semibold shadow-lg transition-transform whitespace-nowrap"
+                                className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white
+                                bg-emerald-600 transition-all duration-300
+                                before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500 before:to-blue-500
+                                before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100
+                                before:z-0"
                             >
-                                Explore Dashboard Demo
+                                <span className="relative z-10">Explore Dashboard Demo</span>
                             </Link>
                         </motion.div>
-                        <motion.div whileHover={{ scale: 1.05 }}>
+
+                        {/* Button 2: White Button with Gradient Hover */}
+                        <motion.div whileHover={{ scale: 1.02 }}>
                             <Link
                                 href="/solutions"
-                                className="bg-white text-gray-900 border border-gray-300 hover:border-emerald-500 px-6 py-3 rounded-full text-sm md:text-base font-semibold shadow hover:shadow-lg transition-transform whitespace-nowrap"
+                                className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-gray-900
+                                bg-white border border-gray-300 hover:border-transparent transition-all duration-300
+                                before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500 before:to-blue-500
+                                before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100
+                                before:z-0 hover:text-white"
                             >
-                                Add Our Data to Your Lake
+                                <span className="relative z-10">Add Our Data to Your Lake</span>
                             </Link>
                         </motion.div>
                     </div>
                 </motion.div>
 
-                {/* Right Column: Reserved for visual or left empty */}
+                {/* Right Column (Empty for alignment or future visuals) */}
                 <div></div>
             </div>
         </section>
     );
 }
+
 
 
 
