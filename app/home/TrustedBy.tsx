@@ -17,7 +17,7 @@ export default function TrustedBy() {
     return (
         <section className="py-20 bg-gray-50 relative">
             <div className="max-w-6xl mx-auto px-6">
-                {/* Heading */}
+                {/* Category Tag */}
                 <motion.div
                     className="mb-12"
                     initial={{ opacity: 0, y: -20 }}
@@ -28,13 +28,21 @@ export default function TrustedBy() {
                     <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
                         Partners
                     </span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                        Trusted By <span className="text-emerald-600">Leading Organizations</span>
-                    </h2>
-                    <p className="text-gray-600 text-base md:text-lg max-w-2xl">
-                        We work with forward-thinking companies and industry leaders to accelerate sustainability initiatives and drive measurable impact.
-                    </p>
-                </motion.div>
+                  </motion.div>
+                
+                {/* Heading */}
+                <motion.h2
+                    className="text-3xl md:text-4xl font-bold text-gray-900 mb-6"
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
+                    Trusted By{' '}
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-400">
+                        Leading Organizations
+                    </span>
+                </motion.h2>
 
                 {/* Logo Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
