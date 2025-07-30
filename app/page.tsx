@@ -21,9 +21,6 @@ export default function HomePage() {
       <Header />
       <Hero />
       <FeaturedDashboard />
-      <section className="relative w-full h-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-l from-emerald-500 to-blue-500 transform skew-y-6 opacity-30"></div>
-      </section>
       <CoreServices />
       <EcoNuggetInsights />
       <TrustedBy />
