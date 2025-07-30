@@ -51,28 +51,28 @@ export default function Hero() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4">
-                        {/* Button 1: Green Gradient Fill */}
+                        {/* Button 1: Circular Gradient Fill */}
                         <motion.div whileHover={{ scale: 1.02 }}>
                             <Link
                                 href="/dashboard"
                                 className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white
                                 bg-emerald-600 transition-all duration-300
-                                before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500 before:to-blue-500
-                                before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100
+                                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-150
                                 before:z-0"
                             >
                                 <span className="relative z-10">Explore Dashboard Demo</span>
                             </Link>
                         </motion.div>
 
-                        {/* Button 2: White Button with Gradient Hover */}
+                        {/* Button 2: White Button with Circular Gradient */}
                         <motion.div whileHover={{ scale: 1.02 }}>
                             <Link
                                 href="/solutions"
                                 className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-gray-900
                                 bg-white border border-gray-300 hover:border-transparent transition-all duration-300
-                                before:absolute before:inset-0 before:bg-gradient-to-r before:from-emerald-500 before:to-blue-500
-                                before:scale-x-0 before:origin-left before:transition-transform before:duration-300 hover:before:scale-x-100
+                                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-150
                                 before:z-0 hover:text-white"
                             >
                                 <span className="relative z-10">Add Our Data to Your Lake</span>
@@ -81,12 +81,13 @@ export default function Hero() {
                     </div>
                 </motion.div>
 
-                {/* Right Column (Empty for alignment or future visuals) */}
+                {/* Right Column: Empty for future visuals */}
                 <div></div>
             </div>
         </section>
     );
 }
+
 
 
 
