@@ -77,20 +77,21 @@ export default function EcoNuggetInsights() {
                                 <span className="text-sm uppercase text-emerald-400 mb-3">Featured</span>
                                 <h3 className="text-4xl font-bold mb-4">{featured.title}</h3>
                                 <p className="text-gray-300 mb-6 max-w-2xl">{featured.excerpt}</p>
-                                <div className="flex items-center gap-4 text-sm text-gray-400 mb-4">
+                                <div className="flex items-center gap-4 text-sm text-gray-400 mb-6">
                                     <span className="bg-emerald-800 px-3 py-1 rounded-full">{featured.category}</span>
                                     <span>{featured.time}</span>
                                 </div>
-                                {/* Button with animated hover effect */}
-                                <Link
-                                    href={featured.link}
-                                    className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                                    before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                                    before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                                >
-                                    <span className="relative z-10">Read More →</span>
-                                </Link>
-
+                                {/* Button */}
+                                <div className="flex justify-start">
+                                    <Link
+                                        href={featured.link}
+                                        className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
+                                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                                    >
+                                        <span className="relative z-10">Read More →</span>
+                                    </Link>
+                                </div>
                             </div>
                             {/* Hover shimmer bar */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
@@ -146,6 +147,7 @@ export default function EcoNuggetInsights() {
         </section>
     );
 }
+
 
 
 
