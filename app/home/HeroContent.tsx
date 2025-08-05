@@ -49,11 +49,11 @@ export default function HeroContent({ heroData }: HeroContentProps) {
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
             {heroData ? (
               <>
-                <span className="block">{heroData.headline}</span>
+                <span className="block">{heroData.headline || 'Turn Sustainability Insights'}</span>
                 <span className="block">
-                  {heroData.subheadline}{' '}
+                  {heroData.subheadline || 'Into'}
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
-                    Action.
+                    {heroData.highlightedWord || 'Action.'}
                   </span>
                 </span>
               </>

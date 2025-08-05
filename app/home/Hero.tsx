@@ -3,6 +3,7 @@ import HeroContent from './HeroContent';
 export interface HeroData {
   headline: string;
   subheadline: string;
+  highlightedWord: string;
   description: string;
   backgroundImage?: { url: string };
   backgroundVideo?: { url: string };
