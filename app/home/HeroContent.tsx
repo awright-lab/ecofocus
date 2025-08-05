@@ -18,13 +18,31 @@ export default function HeroContent({ heroData }: HeroContentProps) {
     <section className="relative min-h-[70vh] flex items-center overflow-hidden">
       {/* Background Media */}
       {bgVideo ? (
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150"
+        >
           <source src={bgVideo} type="video/mp4" />
         </video>
       ) : bgImage ? (
-        <Image src={bgImage} alt="Hero Background" fill priority className="object-cover object-bottom brightness-150" />
+        <Image
+          src={bgImage}
+          alt="Hero Background"
+          fill
+          priority
+          className="object-cover object-bottom brightness-150"
+        />
       ) : (
-        <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover object-bottom brightness-150"
+        >
           <source src="/videos/hero-4.mp4" type="video/mp4" />
         </video>
       )}
@@ -48,42 +66,51 @@ export default function HeroContent({ heroData }: HeroContentProps) {
         >
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
             {heroData ? (
-                 <>
-                 <span className="block">{heroData.headline}</span>
-                    <span className="block">
-                     {heroData.subheadline}{' '}
-                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
+              <>
+                <span className="block">{heroData.headline}</span>
+                <span className="block">
+                  {heroData.subheadline}{' '}
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
                     {heroData.highlightedWord || 'Action.'}
-                    </span>
-                    </span>
-    </>
-  ) : (
-    <>
-      <span className="block opacity-0">Loading</span>
-      <span className="block opacity-0">Loading</span>
-    </>
-  )}
-</h1>
-
+                  </span>
+                </span>
+              </>
+            ) : (
+              <>
+                {/* Placeholder to prevent hydration mismatch */}
+                <span className="block opacity-0">Loading headline</span>
+                <span className="block opacity-0">Loading subheadline</span>
+              </>
+            )}
+          </h1>
 
           <p className="text-lg text-gray-200 mb-8 max-w-xl">
-            {heroData?.description || 'Empower your strategy with data that drives meaningful change.'}
+            {heroData?.description || '\u00A0' /* Non-breaking space to keep layout */}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            {(heroData?.ctaButtons || []).map((btn) => (
-              <Link
-                key={btn.id}
-                href={btn.url}
-                className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-emerald-600"
-              >
-                <span className="relative z-10">{btn.label}</span>
-              </Link>
-            ))}
+            {heroData?.ctaButtons && heroData.ctaButtons.length > 0 ? (
+              heroData.ctaButtons.map((btn) => (
+                <Link
+                  key={btn.id}
+                  href={btn.url}
+                  className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-emerald-600"
+                >
+                  <span className="relative z-10">{btn.label}</span>
+                </Link>
+              ))
+            ) : (
+              <>
+                {/* Placeholder buttons */}
+                <span className="block w-32 h-10 bg-gray-700 rounded-full opacity-0"></span>
+                <span className="block w-32 h-10 bg-gray-700 rounded-full opacity-0"></span>
+              </>
+            )}
           </div>
         </motion.div>
       </div>
     </section>
   );
 }
+
 
