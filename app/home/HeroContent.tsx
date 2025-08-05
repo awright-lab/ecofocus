@@ -48,19 +48,23 @@ export default function HeroContent({ heroData }: HeroContentProps) {
         >
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
             {heroData ? (
-              <>
-                <span className="block">{heroData.headline || 'Turn Sustainability Insights'}</span>
-                <span className="block">
-                  {heroData.subheadline || 'Into'}
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
+                 <>
+                 <span className="block">{heroData.headline}</span>
+                    <span className="block">
+                     {heroData.subheadline}{' '}
+                     <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
                     {heroData.highlightedWord || 'Action.'}
-                  </span>
-                </span>
-              </>
-            ) : (
-              <span>No content available</span>
-            )}
-          </h1>
+                    </span>
+                    </span>
+    </>
+  ) : (
+    <>
+      <span className="block opacity-0">Loading</span>
+      <span className="block opacity-0">Loading</span>
+    </>
+  )}
+</h1>
+
 
           <p className="text-lg text-gray-200 mb-8 max-w-xl">
             {heroData?.description || 'Empower your strategy with data that drives meaningful change.'}
