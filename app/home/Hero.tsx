@@ -1,11 +1,7 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import FloatingOrbs from '@/components/FloatingOrbs';
-import { getCMSData } from '@/lib/api';
 
 interface Media {
   url: string;
@@ -26,32 +22,29 @@ interface HeroData {
   ctaButtons?: CTAButton[];
 }
 
-export default function Hero() {
-  const [heroData, setHeroData] = useState<HeroData | null>(null);
-  const [loading, setLoading] = useState(true);
+async function getHeroData(): Promise<HeroData | null> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_CMS_URL}/api/hero-section?limit=1`, {
+    headers: {
+      Authorization: `Bearer ${process.env.CMS_API_TOKEN}`,
+    },
+    cache: 'no-store', // always fetch fresh data for SSR
+  });
 
-  useEffect(() => {
-    async function fetchHero() {
-      try {
-        const data = await getCMSData('hero-section?limit=1');
-        if (data.docs && data.docs.length > 0) {
-          setHeroData(data.docs[0]);
-        }
-      } catch (error) {
-        console.error('Error fetching hero data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchHero();
-  }, []);
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  return data.docs?.[0] || null;
+}
+
+export default async function Hero() {
+  const heroData = await getHeroData();
 
   const bgVideo = heroData?.backgroundVideo?.url;
   const bgImage = heroData?.backgroundImage?.url;
 
   return (
     <section className="relative min-h-[70vh] flex items-center overflow-hidden">
-      {/* Background Video or Optimized Image */}
+      {/* Background Media */}
       {bgVideo ? (
         <video
           autoPlay
@@ -100,18 +93,18 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
-            {loading ? (
-              <span>Loading...</span>
-            ) : (
+            {heroData ? (
               <>
-                <span className="block">{heroData?.headline || 'Turn Sustainability Insights'}</span>
+                <span className="block">{heroData.headline}</span>
                 <span className="block">
-                  {heroData?.subheadline || 'Into '}
+                  {heroData.subheadline}{' '}
                   <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-emerald-400 bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
                     Action.
                   </span>
                 </span>
               </>
+            ) : (
+              <span>No content available</span>
             )}
           </h1>
 
@@ -149,13 +142,11 @@ export default function Hero() {
             )}
           </div>
         </motion.div>
-
-        {/* Optional Right Column */}
-        <div></div>
       </div>
     </section>
   );
 }
+
 
 
 
