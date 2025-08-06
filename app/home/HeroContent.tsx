@@ -24,7 +24,7 @@ export default function HeroContent({ heroData }: HeroContentProps) {
             loop
             muted
             playsInline
-            className="w-full h-full object-cover brightness-[0.4]"
+            className="w-full h-full object-cover brightness-100"
           >
             <source src={bgVideo} type="video/mp4" />
           </video>
@@ -34,7 +34,7 @@ export default function HeroContent({ heroData }: HeroContentProps) {
             alt="Hero Background"
             fill
             priority
-            className="object-cover brightness-[0.4]"
+            className="object-cover brightness-100"
           />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/30 via-[#2C7FB8]/20 to-black/50" />
