@@ -91,21 +91,24 @@ export default function HeroContent({ heroData }: HeroContentProps) {
             <p className="text-lg text-gray-200 mb-8">{heroData.description}</p>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            {heroData?.ctaButtons?.length ? (
-              heroData.ctaButtons.map((btn) => (
-                <Link
-                  key={btn.id}
-                  href={btn.url}
-                  className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] hover:scale-105 transition-transform duration-300"
-                >
-                  {btn.label}
-                </Link>
-              ))
-            ) : (
-              <span className="text-gray-400">Loading actions...</span>
-            )}
-          </div>
+        <div className="flex flex-col sm:flex-row gap-4">
+        {heroData?.ctaButtons?.length ? (
+            heroData.ctaButtons.map((btn) => (
+            <Link
+             key={btn.id}
+            href={btn.url}
+            className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-[#4CAF50] overflow-hidden transition-all duration-300
+            before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#4CAF50,_#2C7FB8)]
+            before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+            >
+            <span className="relative z-10">{btn.label}</span>
+            </Link>
+            ))
+  ) : (
+    <span className="text-gray-400">Loading actions...</span>
+  )}
+</div>
+
         </motion.div>
       </div>
     </section>

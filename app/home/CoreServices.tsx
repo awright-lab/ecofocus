@@ -109,11 +109,14 @@ export default function CoreServices() {
 
               {/* Explore Button */}
               <Link
-                href={`/solutions#${service.title.replace(/\s+/g, '-').toLowerCase()}`}
-                className="relative overflow-hidden inline-block rounded-full px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] hover:scale-105 transition-transform duration-300"
-              >
-                Explore
-              </Link>
+  href={`/solutions#${service.title.replace(/\s+/g, '-').toLowerCase()}`}
+  className="relative inline-block px-6 py-2 text-sm font-semibold text-white rounded-full bg-[#4CAF50] overflow-hidden transition-all duration-300
+    before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#4CAF50,_#2C7FB8)]
+    before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+>
+  <span className="relative z-10">Explore</span>
+</Link>
+
             </motion.div>
           ))}
         </div>
