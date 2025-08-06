@@ -23,27 +23,28 @@ async function getHeroData(): Promise<HeroData | null> {
     }
 
     const data = await res.json();
-    console.log('[Hero] Raw API response:', data);
+    console.log('[Hero] Raw API response:', JSON.stringify(data, null, 2));
 
     if (!data?.docs?.length) return null;
 
     const doc = data.docs[0];
 
-    // ✅ Normalize to ensure `backgroundVideo.url` and `backgroundImage.url` exist
+    // ✅ Handle both ID and object
+    const normalizeMedia = (media: any) => {
+      if (media && typeof media === 'object' && media.url) {
+        return { url: media.url };
+      }
+      return null;
+    };
+
     const heroData: HeroData = {
       headline: doc.headline,
       subheadline: doc.subheadline,
       highlightedWord: doc.highlightedWord,
       description: doc.description,
-      backgroundImage:
-        doc.backgroundImage && typeof doc.backgroundImage === 'object'
-          ? { url: doc.backgroundImage.url }
-          : null,
-      backgroundVideo:
-        doc.backgroundVideo && typeof doc.backgroundVideo === 'object'
-          ? { url: doc.backgroundVideo.url }
-          : null,
-      ctaButtons: doc.ctaButtons || []
+      backgroundImage: normalizeMedia(doc.backgroundImage),
+      backgroundVideo: normalizeMedia(doc.backgroundVideo),
+      ctaButtons: doc.ctaButtons || [],
     };
 
     console.log('[Hero] Normalized HeroData:', heroData);
@@ -67,6 +68,7 @@ export default async function Hero() {
 
   return <HeroContent heroData={heroData} />;
 }
+
 
 
 
