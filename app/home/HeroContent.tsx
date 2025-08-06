@@ -37,7 +37,7 @@ export default function HeroContent({ heroData }: HeroContentProps) {
             className="object-cover brightness-100"
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/30 via-[#2C7FB8]/20 to-black/50" />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-none" />
       </div>
 
       <FloatingOrbs />
