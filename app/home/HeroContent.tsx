@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import FloatingOrbs from '@/components/FloatingOrbs';
-import { HeroData } from './Hero';
+import { HeroData } from './hero';
 
 interface HeroContentProps {
   heroData: HeroData | null;
@@ -15,17 +15,16 @@ export default function HeroContent({ heroData }: HeroContentProps) {
   const bgImage = heroData?.backgroundImage?.url || null;
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-between bg-black text-white overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-neutral-950 text-white">
       {/* Background Media */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 -z-10">
         {bgVideo ? (
           <video
             autoPlay
             loop
             muted
             playsInline
-            aria-label="Hero background video"
-            className="w-full h-full object-cover brightness-[0.6]"
+            className="w-full h-full object-cover brightness-[0.4]"
           >
             <source src={bgVideo} type="video/mp4" />
           </video>
@@ -35,36 +34,41 @@ export default function HeroContent({ heroData }: HeroContentProps) {
             alt="Hero Background"
             fill
             priority
-            className="object-cover object-center brightness-[0.6]"
+            className="object-cover brightness-[0.4]"
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/30 via-[#2C7FB8]/20 to-transparent z-0" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/30 via-[#2C7FB8]/20 to-black/50" />
       </div>
 
       <FloatingOrbs />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-32 grid md:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
         <motion.div
-          className="bg-white/10 backdrop-blur-xl p-10 rounded-3xl border border-white/20 shadow-xl"
-          initial={{ opacity: 0, y: 40 }}
+          className="md:col-span-7"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-            {heroData?.headline && <span className="block">{heroData.headline}</span>}
-            {heroData?.subheadline && (
-              <span className="block">
-                {heroData.subheadline}{' '}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">
-                  {heroData.highlightedWord || 'Action.'}
-                </span>
-              </span>
-            )}
-          </h1>
-          {heroData?.description && (
-            <p className="text-lg text-gray-200 mb-8 max-w-xl">{heroData.description}</p>
+          {heroData?.headline && (
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-4">
+              {heroData.headline}
+            </h1>
           )}
+          {heroData?.subheadline && (
+            <h2 className="text-2xl md:text-3xl font-medium text-white mb-6">
+              {heroData.subheadline}{' '}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">
+                {heroData.highlightedWord || 'Action.'}
+              </span>
+            </h2>
+          )}
+          {heroData?.description && (
+            <p className="text-lg text-gray-300 mb-10 max-w-2xl">
+              {heroData.description}
+            </p>
+          )}
+
           <div className="flex flex-wrap gap-4">
             {heroData?.ctaButtons?.map((btn) => (
               <Link
@@ -79,10 +83,28 @@ export default function HeroContent({ heroData }: HeroContentProps) {
             ))}
           </div>
         </motion.div>
+
+        <motion.div
+          className="hidden md:block md:col-span-5"
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <div className="relative w-full aspect-square">
+            <Image
+              src="/images/hero-graphic.png"
+              alt="EcoFocus Visual Insight"
+              fill
+              className="object-contain"
+            />
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
+
 
 
 
