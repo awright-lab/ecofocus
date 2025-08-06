@@ -85,8 +85,8 @@ export default function EcoNuggetInsights() {
                                 <div className="flex justify-start">
                                     <Link
                                         href={featured.link}
-                                        className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                                        className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
+                                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
                                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                                     >
                                         <span className="relative z-10">Read More →</span>
@@ -136,8 +136,8 @@ export default function EcoNuggetInsights() {
                 <div className="text-center mt-14">
                     <Link
                         href="/blog"
-                        className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                        className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
+                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                     >
                         <span className="relative z-10">See All Insights</span>
