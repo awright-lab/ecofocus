@@ -49,14 +49,14 @@ export default function HeroContent({ heroData }: HeroContentProps) {
           </video>
         )}
         <div className="absolute inset-0 bg-black/50"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-[#5C7F3D]/25 via-[#3C7A89]/20 to-[#5C7F3D]/25"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/25 via-[#2C7FB8]/20 to-[#4CAF50]/25"></div>
       </div>
 
       {/* Floating Orbs */}
       <FloatingOrbs />
 
       {/* Accent Top Bar */}
-      <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-[#5C7F3D] to-[#3C7A89] transform -skew-y-6 opacity-20"></div>
+      <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] transform -skew-y-6 opacity-20"></div>
 
       {/* Main Hero Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
@@ -70,13 +70,11 @@ export default function HeroContent({ heroData }: HeroContentProps) {
           <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-6">
             {heroData ? (
               <>
-                {heroData.headline && (
-                  <span className="block">{heroData.headline}</span>
-                )}
+                {heroData.headline && <span className="block">{heroData.headline}</span>}
                 {heroData.subheadline && (
                   <span className="block">
                     {heroData.subheadline}{' '}
-                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#5C7F3D] via-[#3C7A89] to-[#5C7F3D] bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
+                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] via-[#2C7FB8] to-[#4CAF50] bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
                       {heroData.highlightedWord || 'Action.'}
                     </span>
                   </span>
@@ -99,7 +97,7 @@ export default function HeroContent({ heroData }: HeroContentProps) {
                 <Link
                   key={btn.id}
                   href={btn.url}
-                  className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-gradient-to-r from-[#5C7F3D] to-[#3C7A89] hover:scale-105 transition-transform duration-300"
+                  className="relative overflow-hidden rounded-full px-6 py-3 text-sm md:text-base font-semibold text-white bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] hover:scale-105 transition-transform duration-300"
                 >
                   {btn.label}
                 </Link>

@@ -10,25 +10,25 @@ export default function CoreServices() {
     {
       title: 'Syndicated Research',
       icon: 'ri-bar-chart-box-line',
-      color: 'from-[#5C7F3D] to-[#3C7A89]',
+      color: 'from-[#4CAF50] to-[#2C7FB8]',
       text: 'Comprehensive annual studies capturing sustainability trends and consumer behaviors.',
     },
     {
       title: 'Custom Research',
       icon: 'ri-search-line',
-      color: 'from-[#3C7A89] to-[#5C7F3D]',
+      color: 'from-[#2C7FB8] to-[#4CAF50]',
       text: 'Tailored qualitative and quantitative research for B2C and B2B insights.',
     },
     {
       title: 'Data Infusion',
       icon: 'ri-database-2-line',
-      color: 'from-[#5C7F3D] to-[#3C7A89]',
+      color: 'from-[#4CAF50] to-[#2C7FB8]',
       text: 'Enrich your existing datasets with sustainability intelligence for deeper context.',
     },
     {
       title: 'Consulting',
       icon: 'ri-user-settings-line',
-      color: 'from-[#5C7F3D] to-[#3C7A89]',
+      color: 'from-[#4CAF50] to-[#2C7FB8]',
       text: 'Expert guidance and strategic consulting to help you meet sustainability goals.',
     },
   ];
@@ -49,7 +49,7 @@ export default function CoreServices() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="uppercase text-[11px] tracking-wide bg-[#e6ede3] text-[#5C7F3D] px-3 py-0.5 rounded-full border border-[#cdd9c7]">
+          <span className="uppercase text-[11px] tracking-wide bg-[#d5f1d9] text-[#4CAF50] px-3 py-0.5 rounded-full border border-[#c3e6c6]">
             Solutions
           </span>
         </motion.div>
@@ -63,12 +63,11 @@ export default function CoreServices() {
           transition={{ duration: 0.8 }}
         >
           Powerful Solutions to Drive{' '}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#5C7F3D] to-[#3C7A89] bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] bg-[length:200%_auto] animate-[gradientMove_6s_linear_infinite]">
             Sustainability Success
           </span>
         </motion.h2>
 
-        {/* Subtitle */}
         <p className="text-lg text-gray-600 mb-12 max-w-2xl">
           Explore a range of research-driven services designed to position your brand at the forefront of sustainability.
         </p>
@@ -83,7 +82,7 @@ export default function CoreServices() {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#5C7F3D]/50 via-[#3C7A89]/30 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#4CAF50]/50 via-[#2C7FB8]/30 to-transparent"></div>
         </div>
 
         {/* Service Grid */}
@@ -111,7 +110,7 @@ export default function CoreServices() {
               {/* Explore Button */}
               <Link
                 href={`/solutions#${service.title.replace(/\s+/g, '-').toLowerCase()}`}
-                className="relative overflow-hidden inline-block rounded-full px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#5C7F3D] to-[#3C7A89] hover:scale-105 transition-transform duration-300"
+                className="relative overflow-hidden inline-block rounded-full px-6 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] hover:scale-105 transition-transform duration-300"
               >
                 Explore
               </Link>
@@ -122,6 +121,7 @@ export default function CoreServices() {
     </section>
   );
 }
+
 
 
 
