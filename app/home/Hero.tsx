@@ -38,7 +38,7 @@ async function fetchMediaItem(id: number | string) {
 
 async function getHeroData(): Promise<HeroData | null> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_CMS_URL}/api/hero-section?limit=1&depth=1`;
+    const url = `${process.env.NEXT_PUBLIC_CMS_URL}/api/hero-section?limit=1&depth=2`;
 
     console.log('[Hero] Fetching Hero data...');
     console.log('[Hero] Using CMS URL:', process.env.NEXT_PUBLIC_CMS_URL);
