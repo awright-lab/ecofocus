@@ -12,6 +12,7 @@ import CallToAction from './home/CallToAction';
 //import Newsletter from './home/Newsletter';
 import EcoNuggetInsights from './home/EcoNuggetInsights';
 import QuickStats from './home/QuickStats';
+import DashboardPromo from './home/DashboardPromo';
 
 export default function HomePage() {
   return (
@@ -21,6 +22,7 @@ export default function HomePage() {
       <CoreServices />
       <QuickStats />
       <FeaturedDashboard />
+      <DashboardPromo />
       <EcoNuggetInsights />
       <TrustedBy />
       <CallToAction />
