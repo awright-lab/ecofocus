@@ -7,11 +7,11 @@ export interface HeroData {
   highlightedWord?: string;
   description: string;
   backgroundImage?: {
-    id: number | string;
+    id: string | number;
     url: string;
   } | null;
   backgroundVideo?: {
-    id: number | string;
+    id: string | number;
     url: string;
   } | null;
   ctaButtons?: {
@@ -21,17 +21,18 @@ export interface HeroData {
   }[];
 }
 
-async function fetchMediaItem(id: number | string) {
+async function fetchMedia(id: number | string) {
   try {
-    const mediaRes = await fetch(
-      `${process.env.NEXT_PUBLIC_CMS_URL}/api/media/${id}`,
-      { cache: 'no-store', headers: { Accept: 'application/json' } }
-    );
-    if (!mediaRes.ok) return null;
-    const mediaData = await mediaRes.json();
-    return mediaData || null;
+    const res = await fetch(`${process.env.NEXT_PUBLIC_CMS_URL}/api/media/${id}`);
+    if (!res.ok) {
+      console.error(`[Hero] Failed to fetch media for ID ${id}. Status: ${res.status}`);
+      return null;
+    }
+    const media = await res.json();
+    console.log(`[Hero] Loaded media for ID ${id}:`, media.url || '(no url)');
+    return media;
   } catch (err) {
-    console.error('[Hero] Error fetching media item:', err);
+    console.error(`[Hero] Error fetching media for ID ${id}:`, err);
     return null;
   }
 }
@@ -40,51 +41,47 @@ async function getHeroData(): Promise<HeroData | null> {
   try {
     const url = `${process.env.NEXT_PUBLIC_CMS_URL}/api/hero-section?limit=1&depth=2`;
 
-    console.log('[Hero] Fetching Hero data...');
-    console.log('[Hero] Using CMS URL:', process.env.NEXT_PUBLIC_CMS_URL);
-    console.log('[Hero] Full request URL:', url);
+    console.log('[Hero] Fetching Hero data from:', url);
 
     const res = await fetch(url, {
       cache: 'no-store',
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+      },
     });
 
-    console.log('[Hero] Fetch status:', res.status);
-
     if (!res.ok) {
-      console.error('[Hero] Failed to fetch Hero data.');
+      console.error(`[Hero] Failed to fetch Hero data. Status: ${res.status}`);
       return null;
     }
 
     const data = await res.json();
-    console.log('[Hero] Raw API response:', JSON.stringify(data, null, 2));
+    if (!data?.docs?.length) {
+      console.warn('[Hero] No hero data found.');
+      return null;
+    }
 
-    if (!data?.docs?.length) return null;
+    let heroData: HeroData = data.docs[0];
+    console.log('[Hero] Initial HeroData from API:', heroData);
 
-    const heroData: HeroData = data.docs[0];
-
-    // ✅ Normalize backgroundVideo and backgroundImage
-    if (typeof heroData.backgroundVideo === 'number') {
-      const videoObj = await fetchMediaItem(heroData.backgroundVideo);
-      if (videoObj?.url) {
-        heroData.backgroundVideo = {
-          id: videoObj.id,
-          url: videoObj.url,
-        };
+    // ✅ Normalize backgroundVideo
+    if (heroData.backgroundVideo && typeof heroData.backgroundVideo === 'number') {
+      const videoData = await fetchMedia(heroData.backgroundVideo);
+      if (videoData?.url) {
+        heroData = { ...heroData, backgroundVideo: videoData };
       }
     }
 
-    if (typeof heroData.backgroundImage === 'number') {
-      const imageObj = await fetchMediaItem(heroData.backgroundImage);
-      if (imageObj?.url) {
-        heroData.backgroundImage = {
-          id: imageObj.id,
-          url: imageObj.url,
-        };
+    // ✅ Normalize backgroundImage
+    if (heroData.backgroundImage && typeof heroData.backgroundImage === 'number') {
+      const imageData = await fetchMedia(heroData.backgroundImage);
+      if (imageData?.url) {
+        heroData = { ...heroData, backgroundImage: imageData };
       }
     }
 
-    console.log('[Hero] Normalized HeroData:', heroData);
+    console.log('[Hero] Final normalized HeroData:', heroData);
+
     return heroData;
   } catch (err) {
     console.error('[Hero] Error fetching Hero data:', err);
@@ -105,6 +102,7 @@ export default async function Hero() {
 
   return <HeroContent heroData={heroData} />;
 }
+
 
 
 
