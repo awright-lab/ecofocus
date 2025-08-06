@@ -11,7 +11,9 @@ interface HeroContentProps {
 }
 
 export default function HeroContent({ heroData }: HeroContentProps) {
-  const bgVideo = heroData?.backgroundVideo?.url;
+    const bgVideo = typeof heroData?.backgroundVideo === 'object'
+    ? heroData.backgroundVideo?.url
+    : null;
   const bgImage = heroData?.backgroundImage?.url;
 
   // Debug logs
