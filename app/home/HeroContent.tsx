@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import FloatingOrbs from '@/components/FloatingOrbs';
-import { HeroData } from './hero';
+import { HeroData } from './Hero';
 
 interface HeroContentProps {
   heroData: HeroData | null;
