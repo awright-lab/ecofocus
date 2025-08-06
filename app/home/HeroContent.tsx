@@ -56,9 +56,10 @@ export default function HeroContent({ heroData }: HeroContentProps) {
             {heroData?.subheadline && (
               <span className="block">
                 {heroData.subheadline}{' '}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">
-                  {heroData.highlightedWord || 'Action.'}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-900 to-slate-900 gradientMove bg-[length:200%_200%]">
+                    {heroData.highlightedWord || 'Action.'}
                 </span>
+
               </span>
             )}
           </h1>
@@ -70,9 +71,7 @@ export default function HeroContent({ heroData }: HeroContentProps) {
               <Link
                 key={btn.id}
                 href={btn.url}
-                className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-[#4CAF50] overflow-hidden transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#4CAF50,_#2C7FB8)]
-                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                className="inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-md transition-transform hover:scale-105"
               >
                 <span className="relative z-10">{btn.label}</span>
               </Link>

@@ -42,7 +42,7 @@ export default function CoreServices() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          Your Gateway to <span className="text-[#2F5D3A]">Sustainability Intelligence</span>
+          Your Gateway to <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-900 to-slate-900 gradientMove bg-[length:200%_200%]">Sustainability Intelligence</span>
         </motion.h2>
 
         <motion.p

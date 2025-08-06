@@ -22,7 +22,7 @@ export default function FeaturedReport() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <span className="uppercase text-xs tracking-wider bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full border border-emerald-200 shadow-sm">
+            <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
               Report Highlight
             </span>
           </motion.div>

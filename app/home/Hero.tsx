@@ -70,7 +70,7 @@ export default async function Hero() {
   return (
     <section>
       {!heroData ? (
-        <div className="min-h-[70vh] flex items-center justify-center bg-gray-900 text-white">
+        <div className="max-h-[55vh] flex items-center justify-center bg-gray-900 text-white">
           <p>Loading hero section...</p>
         </div>
       ) : (
