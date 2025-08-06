@@ -14,6 +14,12 @@ export default function HeroContent({ heroData }: HeroContentProps) {
   const bgVideo = heroData?.backgroundVideo?.url;
   const bgImage = heroData?.backgroundImage?.url;
 
+  // Debug logs
+  console.log('HeroContent Debug:');
+  console.log('Hero Data:', heroData);
+  console.log('Background Video URL:', bgVideo || 'None');
+  console.log('Background Image URL:', bgImage || 'None');
+
   return (
     <section className="relative min-h-[70vh] flex items-center overflow-hidden">
       {/* Background Media */}
@@ -28,13 +34,16 @@ export default function HeroContent({ heroData }: HeroContentProps) {
           <source src={bgVideo} type="video/mp4" />
         </video>
       ) : bgImage ? (
-        <Image
-          src={bgImage}
-          alt="Hero Background"
-          fill
-          priority
-          className="object-cover object-bottom brightness-150"
-        />
+        <div className="absolute inset-0">
+          <Image
+            src={bgImage}
+            alt="Hero Background"
+            fill
+            priority
+            className="object-cover object-bottom brightness-150"
+            onError={() => console.error('Failed to load image:', bgImage)}
+          />
+        </div>
       ) : (
         <video
           autoPlay
@@ -77,7 +86,6 @@ export default function HeroContent({ heroData }: HeroContentProps) {
               </>
             ) : (
               <>
-                {/* Placeholder to prevent hydration mismatch */}
                 <span className="block opacity-0">Loading headline</span>
                 <span className="block opacity-0">Loading subheadline</span>
               </>
@@ -85,7 +93,7 @@ export default function HeroContent({ heroData }: HeroContentProps) {
           </h1>
 
           <p className="text-lg text-gray-200 mb-8 max-w-xl">
-            {heroData?.description || '\u00A0' /* Non-breaking space to keep layout */}
+            {heroData?.description || '\u00A0'}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -101,7 +109,6 @@ export default function HeroContent({ heroData }: HeroContentProps) {
               ))
             ) : (
               <>
-                {/* Placeholder buttons */}
                 <span className="block w-32 h-10 bg-gray-700 rounded-full opacity-0"></span>
                 <span className="block w-32 h-10 bg-gray-700 rounded-full opacity-0"></span>
               </>
