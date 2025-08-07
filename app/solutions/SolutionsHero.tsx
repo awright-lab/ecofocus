@@ -1,74 +1,95 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function SolutionsHero() {
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-        {/* Left Content */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-neutral-950 text-white">
+      {/* Background Video */}
+      <div className="absolute inset-0 -z-10">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover brightness-[0.4]"
+        >
+          <source src="/videos/solutions-bg.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      {/* Diagonal Gradient Overlay */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <div className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80 clip-diagonal" />
+      </div>
+
+      {/* Content */}
+      <div className="relative z-20 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          className="md:col-span-7"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.8 }}
         >
-          {/* Category Tag */}
-          <div className="mb-4">
-            <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
-              Solutions Overview
-            </span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/20 text-sm text-white mb-6">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            Solutions for a Sustainable Future
           </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-            Tailored Solutions for{' '}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">
-              Sustainability-Driven Brands
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-4">
+            Expert-Led Sustainability <br className="hidden md:inline" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] animate-gradient">
+              Research & Strategy
             </span>
           </h1>
 
-          {/* Subheadline */}
-          <p className="text-lg text-gray-600 mb-8">
-            EcoFocus offers a suite of research-backed solutions that help brands decode consumer behavior, uncover new trends, and build smarter sustainability strategies.
+          <p className="text-lg text-gray-300 mb-10 max-w-2xl">
+            We empower brands with syndicated research, custom studies, and data infusion strategies
+            to make sustainability your competitive edge.
           </p>
 
-          {/* CTA */}
-          <Link
-            href="#solutions"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform hover:scale-105"
-          >
-            Explore Our Solutions
-          </Link>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="#syndicated"
+              className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-[#4CAF50] overflow-hidden transition-all duration-300
+                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#4CAF50,_#2C7FB8)]
+                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+            >
+              <span className="relative z-10">Explore Solutions</span>
+            </Link>
+            <Link
+              href="/contact"
+              className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full border border-white/30 hover:bg-white/10 transition-all"
+            >
+              <span className="relative z-10">Start a Conversation</span>
+            </Link>
+          </div>
         </motion.div>
 
-        {/* Right Image */}
         <motion.div
-          className="relative flex justify-center"
+          className="hidden md:block md:col-span-5"
           initial={{ opacity: 0, x: 40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {/* Soft Glow */}
-          <div className="absolute w-[300px] h-[300px] bg-gradient-to-br from-emerald-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
-
-          {/* Hero Image */}
-          <Image
-            src="/images/solutions-hero.png"
-            alt="EcoFocus Solutions Graphic"
-            width={500}
-            height={350}
-            className="rounded-xl shadow-2xl relative z-10"
-            priority
-          />
+          <div className="relative w-full aspect-square">
+            <Image
+              src="/images/solutions-hero-graphic.png"
+              alt="EcoFocus Solutions Visual"
+              fill
+              className="object-contain"
+            />
+          </div>
         </motion.div>
       </div>
     </section>
   );
 }
+
 
 
 
