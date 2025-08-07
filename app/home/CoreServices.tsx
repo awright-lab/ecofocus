@@ -6,28 +6,28 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const services = [
-  {
-    title: 'Syndicated Research',
-    description:
-      'Annual study with 4000+ U.S. consumers covering sustainability trends.',
-    icon: 'icons/research.svg',
-    link: '/solutions#syndicated-research'
-  },
-  {
-    title: 'Custom Research',
-    description:
-      'Tailored studies designed to answer your brand-specific questions.',
-    icon: 'icons/custom.svg',
-    link: '/solutions#custom-research'
-  },
-  {
-    title: 'Data Infusion',
-    description:
-      'Blend your existing data with our insights for deeper sustainability context.',
-    icon: 'icons/infusion.svg',
-    link: '/solutions#data-infusion'
-  }
-];
+    {
+      title: 'Syndicated Research',
+      description: 'Annual study with 4000+ U.S. consumers covering key sustainability trends.',
+      link: '/solutions/syndicated',
+      image: '/images/solutions-syndicated.png',
+      overlayColor: 'bg-[#00767a]/30', // deep teal
+    },
+    {
+      title: 'Custom Research',
+      description: 'Tailored studies designed to answer your brand-specific questions.',
+      link: '/solutions/custom',
+      image: '/images/solutions-custom.png',
+      overlayColor: 'bg-[#dd803e]/30', // warm orange
+    },
+    {
+      title: 'Data Infusion',
+      description: 'Blend your internal data with EcoFocus insights for enhanced sustainability context.',
+      link: '/solutions/data-infusion',
+      image: '/images/solutions-infusion.png',
+      overlayColor: 'bg-[#9bbd3f]/30', // green
+    },
+  ];
 
 export default function CoreServices() {
   return (
@@ -65,9 +65,17 @@ export default function CoreServices() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
-              <div className="w-14 h-14 mb-4">
-                <Image src={`/${service.icon}`} alt={service.title} width={56} height={56} />
-              </div>
+              <div className="relative w-full h-48 md:h-56">
+                              <Image
+                                src={service.image}
+                                alt={service.title}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 33vw"
+                              />
+                              <div className={`absolute inset-0 ${service.overlayColor} mix-blend-multiply`}></div>
+                              <div className="absolute inset-0 bg-black/20"></div> {/* optional dark overlay */}
+                            </div>
               <h3 className="text-xl font-semibold text-neutral-800 mb-2">
                 {service.title}
               </h3>
