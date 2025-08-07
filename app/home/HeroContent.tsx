@@ -15,7 +15,7 @@ export default function HeroContent({ heroData }: HeroContentProps) {
   const bgImage = heroData?.backgroundImage?.url || null;
 
   return (
-    <section className="relative max-h-[55vh] flex flex-col justify-between bg-black text-white overflow-hidden">
+    <section className="relative max-h-[60vh] flex flex-col justify-between bg-black text-white overflow-hidden">
       {/* Background Media */}
       <div className="absolute inset-0">
         {bgVideo ? (
