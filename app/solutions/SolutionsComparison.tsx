@@ -59,7 +59,7 @@ export default function SolutionsComparison() {
 
         {/* Desktop Table */}
         <div className="hidden md:block">
-          <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+          <div className="overflow-visible rounded-2xl border border-gray-200 shadow-sm">
             {/* Column Headers */}
             <div className="grid grid-cols-4 bg-gray-50">
               <div className="p-4 text-sm font-semibold text-gray-600">Benefits & Features</div>
@@ -69,7 +69,7 @@ export default function SolutionsComparison() {
                     {c.label}
                   </div>
                   {c.featured && (
-                    <div className="absolute -top-3 right-4 inline-flex items-center gap-1 rounded-full bg-emerald-600/90 px-3 py-1 text-[11px] font-semibold text-white shadow">
+                    <div className="absolute -top-3 right-4 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-600/90 px-3 py-1 text-[11px] font-semibold text-white shadow">
                       <Sparkles className="w-3.5 h-3.5" />
                       Most Versatile
                     </div>
