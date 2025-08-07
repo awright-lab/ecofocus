@@ -1,73 +1,82 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function SolutionsHero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-neutral-950 text-white">
-      {/* Animated Background Accents */}
+    <section className="relative min-h-screen flex items-center justify-center bg-neutral-950 text-white overflow-hidden">
+      {/* Glowing Animated Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-br from-blue-400/30 to-blue-600/30 rounded-full blur-2xl animate-pulse" />
-        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-emerald-400/30 to-emerald-600/30 rounded-full blur-xl animate-pulse delay-100" />
-        <div className="absolute bottom-40 left-20 w-40 h-40 bg-gradient-to-br from-cyan-400/30 to-cyan-600/30 rounded-full blur-2xl animate-pulse delay-200" />
-        <div className="absolute bottom-20 right-40 w-28 h-28 bg-gradient-to-br from-teal-400/30 to-teal-600/30 rounded-full blur-xl animate-pulse delay-300" />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4CAF50]/10 via-[#2C7FB8]/10 to-transparent" />
+        <div className="absolute top-10 left-20 w-64 h-64 bg-gradient-to-br from-emerald-400/20 to-blue-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-emerald-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-6 z-10 py-28">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-sm text-gray-200">
-              <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-              Expert Consulting Services
-            </div>
-          </div>
+      <div className="container mx-auto px-6 py-32 text-center relative z-10">
+        {/* Section Tag */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-sm text-white mb-6"
+        >
+          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
+          EcoFocus Solutions
+        </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Tailored Solutions for <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] via-[#2C7FB8] to-[#124734] animate-gradient-x bg-[length:200%_200%]">
-              Sustainability Leaders
-            </span>
-          </h1>
+        {/* Main Heading */}
+        <motion.h1
+          className="text-4xl md:text-6xl font-bold leading-tight mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <span className="block">Strategic Research</span>
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] via-[#2C7FB8] to-[#4CAF50] animate-gradient-x">
+            Tailored for Sustainability
+          </span>
+        </motion.h1>
 
-          <p className="text-xl md:text-2xl mb-10 text-gray-300 max-w-3xl mx-auto leading-relaxed">
-            At EcoFocus, we provide expert guidance for businesses looking to stay ahead in a rapidly changing sustainability landscape. Whether youre exploring consumer trends or developing custom research projects, we offer strategic solutions to drive informed decision-making.
-          </p>
+        {/* Description */}
+        <motion.p
+          className="text-lg text-gray-300 max-w-3xl mx-auto mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          Explore custom solutions designed to help your organization lead in sustainability. From syndicated studies to proprietary data projects, EcoFocus delivers insights with impact.
+        </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Link href="/contact" className="group bg-[#4CAF50] text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
-              <span className="flex items-center gap-2">
-                Start Your Project
-                <i className="ri-arrow-right-line group-hover:translate-x-1 transition-transform"></i>
-              </span>
-            </Link>
-            <Link href="/reports" className="group border-2 border-white/20 text-white px-8 py-4 rounded-full text-lg font-semibold hover:border-emerald-400 transition-all shadow-md hover:shadow-xl">
-              <span className="flex items-center gap-2">
-                View Our Research
-                <i className="ri-eye-line group-hover:scale-110 transition-transform"></i>
-              </span>
-            </Link>
-          </div>
+        {/* CTA Buttons */}
+        <motion.div
+          className="flex flex-wrap justify-center gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+        >
+          <Link
+            href="/contact"
+            className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-[#4CAF50] overflow-hidden transition-all duration-300
+              before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#4CAF50,_#2C7FB8)]
+              before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+          >
+            <span className="relative z-10">Work With Us</span>
+          </Link>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto text-white">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">15+</div>
-              <div className="text-sm text-gray-300">Years Experience</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400 mb-2">90K+</div>
-              <div className="text-sm text-gray-300">Data Points</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-teal-400 mb-2">100%</div>
-              <div className="text-sm text-gray-300">Custom Solutions</div>
-            </div>
-          </div>
-        </div>
+          <Link
+            href="/reports"
+            className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-white/10 border border-white/20 backdrop-blur-sm hover:bg-white/20 transition"
+          >
+            <span className="relative z-10">See Our Research</span>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
 }
+
 
