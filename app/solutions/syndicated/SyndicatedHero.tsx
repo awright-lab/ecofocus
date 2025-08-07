@@ -14,14 +14,14 @@ export default function SyndicatedHero() {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover brightness-[0.4]"
+          className="w-full h-full object-cover brightness-100"
         >
           <source src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4" type="video/mp4" />
         </video>
       </div>
 
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80 clip-diagonal-flip" />
+        <div className="w-full h-full bg-gradient-to-br from-emerald-900/30 to-blue-900/30 clip-diagonal-flip" />
       </div>
 
       {/* Content */}
