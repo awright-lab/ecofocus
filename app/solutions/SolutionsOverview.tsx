@@ -10,19 +10,22 @@ export default function SolutionsOverview() {
       title: 'Syndicated Research',
       description: 'Annual study with 4000+ U.S. consumers covering key sustainability trends.',
       link: '/solutions/syndicated',
-      image: '/images/solution-syndicated.jpg',
+      image: '/images/solutions-syndicated.png',
+      overlayColor: 'bg-[#00767a]/60', // deep teal
     },
     {
       title: 'Custom Research',
       description: 'Tailored studies designed to answer your brand-specific questions.',
       link: '/solutions/custom',
-      image: '/images/solution-custom.jpg',
+      image: '/images/solutions-custom.png',
+      overlayColor: 'bg-[#dd803e]/60', // warm orange
     },
     {
       title: 'Data Infusion',
       description: 'Blend your internal data with EcoFocus insights for enhanced sustainability context.',
       link: '/solutions/data-infusion',
-      image: '/images/solution-infusion.jpg',
+      image: '/images/solutions-infusion.png',
+      overlayColor: 'bg-[#9bbd3f]/60', // green
     },
   ];
 
@@ -46,13 +49,13 @@ export default function SolutionsOverview() {
           {solutions.map((solution, index) => (
             <motion.div
               key={index}
-              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all flex flex-col"
+              className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all flex flex-col"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="relative w-full h-40 md:h-48">
+              <div className="relative w-full h-48 md:h-56">
                 <Image
                   src={solution.image}
                   alt={solution.title}
@@ -60,6 +63,8 @@ export default function SolutionsOverview() {
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
+                <div className={`absolute inset-0 ${solution.overlayColor} mix-blend-multiply`}></div>
+                <div className="absolute inset-0 bg-black/20"></div> {/* optional dark overlay */}
               </div>
               <div className="p-6 flex-1 flex flex-col justify-between text-left">
                 <div>
@@ -68,7 +73,9 @@ export default function SolutionsOverview() {
                 </div>
                 <Link
                   href={solution.link}
-                  className="inline-block text-sm font-semibold text-emerald-600 hover:text-emerald-700"
+                  className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
+                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
+                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                 >
                   Learn More →
                 </Link>
