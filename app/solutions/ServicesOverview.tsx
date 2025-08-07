@@ -1,84 +1,83 @@
-
 'use client';
 
-export default function ServicesOverview() {
-  const services = [
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
+
+export default function SolutionsOverview() {
+  const solutions = [
     {
-      icon: 'ri-lightbulb-line',
-      title: 'Strategic Insights',
-      description: 'Armed with more than a decade of consumer data, EcoFocus is uniquely positioned to provide valuable research-based insights and trends on the evolving world of consumer attitudes and behaviors toward sustainability.',
-      features: ['Consumer behavior analysis', 'Sustainability trend forecasting', 'Market opportunity identification', 'Data-driven recommendations']
+      title: 'Syndicated Research',
+      description: 'Annual study with 4000+ U.S. consumers covering key sustainability trends.',
+      image: '/images/solutions/syndicated.jpg', // placeholder path
+      link: '/solutions/syndicated',
     },
     {
-      icon: 'ri-line-chart-line',
-      title: 'Trend Analysis',
-      description: 'Only EcoFocus has multiple years of data available at our fingertips to spot upward and downward attitude and behavioral shifts. We can see what changes are occurring and what areas need more work.',
-      features: ['Historical data analysis', 'Trend identification', 'Behavioral pattern recognition', 'Future prediction modeling']
+      title: 'Custom Research',
+      description: 'Tailored studies designed to answer your brand-specific questions.',
+      image: '/images/solutions/custom.jpg', // placeholder path
+      link: '/solutions/custom',
     },
     {
-      icon: 'ri-search-line',
-      title: 'Custom Research - B2C & B2B',
-      description: 'We offer customized research solutions designed to address your unique business challenges. Our experienced team can dive right in and design custom research to answer your specific questions.',
-      features: ['Tailored research design', 'B2C and B2B studies', 'Custom methodologies', 'Actionable insights delivery']
+      title: 'Data Infusion',
+      description: 'Blend your internal data with EcoFocus insights for enhanced sustainability context.',
+      image: '/images/solutions/data-infusion.jpg', // placeholder path
+      link: '/solutions/data-infusion',
     },
-    {
-      icon: 'ri-user-settings-line',
-      title: 'Expert Consulting',
-      description: 'The EcoFocus team of experts are available to help you with your research project, large or small. From one-day strategy sessions to multi-week projects, we provide comprehensive support.',
-      features: ['Strategy development', 'Implementation guidance', 'Expert consultation', 'Project management']
-    },
-    {
-      icon: 'ri-database-2-line',
-      title: 'Data Integration',
-      description: 'Combine EcoFocus data with your existing insights for a comprehensive view of consumer sustainability behaviors and market opportunities.',
-      features: ['Data synthesis', 'Custom analytics', 'Integrated reporting', 'Cross-platform insights']
-    },
-    {
-      icon: 'ri-presentation-line',
-      title: 'Market Intelligence',
-      description: 'Stay ahead of the competition with our comprehensive market intelligence reports and competitive analysis in the sustainability space.',
-      features: ['Competitive analysis', 'Market positioning', 'Industry benchmarking', 'Strategic planning']
-    }
   ];
 
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full text-sm text-blue-700 mb-4">
-            <i className="ri-service-line text-blue-500"></i>
-            Our Services
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Comprehensive Sustainability Solutions
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            From strategic insights to custom research, we offer end-to-end solutions designed to meet your organization's unique sustainability challenges and opportunities.
-          </p>
-        </div>
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6 text-center">
+        <motion.h2
+          className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          Our Core Solutions
+        </motion.h2>
+        <p className="text-gray-600 text-lg mb-16">
+          Explore how EcoFocus helps brands harness the power of data to lead in sustainability.
+        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <div key={index} className="bg-white/80 backdrop-blur-sm p-8 rounded-xl border border-gray-100 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl mb-6 group-hover:scale-110 transition-transform">
-                <i className={`${service.icon} text-white text-2xl`}></i>
+        <div className="grid md:grid-cols-3 gap-10">
+          {solutions.map((solution, index) => (
+            <motion.div
+              key={index}
+              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all flex flex-col"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              {/* Image */}
+              <div className="relative h-48 w-full">
+                <Image
+                  src={solution.image}
+                  alt={solution.title}
+                  fill
+                  className="object-cover"
+                />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">{service.title}</h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">{service.description}</p>
-              <ul className="space-y-3">
-                {service.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-start gap-3 text-sm text-gray-700">
-                    <div className="w-5 h-5 flex items-center justify-center bg-emerald-100 rounded-full flex-shrink-0 mt-0.5">
-                      <i className="ri-check-line text-emerald-600 text-xs"></i>
-                    </div>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+
+              {/* Text Content */}
+              <div className="p-6 text-left flex flex-col justify-between flex-grow">
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{solution.title}</h3>
+                <p className="text-gray-600 mb-6">{solution.description}</p>
+                <Link
+                  href={solution.link}
+                  className="inline-block text-sm font-semibold text-emerald-600 hover:text-emerald-700 mt-auto"
+                >
+                  Learn More →
+                </Link>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
     </section>
   );
 }
+
