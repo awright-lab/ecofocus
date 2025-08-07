@@ -16,15 +16,15 @@ export default function SolutionsHero() {
           playsInline
           className="w-full h-full object-cover brightness-[0.4]"
         >
-          <source src="/videos/hero-5.mp4" type="video/mp4" />
+          <source src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-5.mp4" type="video/mp4" />
         </video>
       </div>
 
 
-      {/* Diagonal Gradient Overlay 
+      {/* Diagonal Gradient Overlay */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80 clip-diagonal" />
-      </div> */}
+      </div>
 
       {/* Content */}
       <div className="relative z-20 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
