@@ -1,54 +1,69 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import Link from 'next/link';
-//import Image from 'next/image';
 
 export default function SolutionsHero() {
   return (
-    <section className="relative bg-white py-28 overflow-hidden">
-      {/* Animated Glow Background */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50 via-white to-blue-50 z-0"></div>
-      <div className="absolute top-0 left-0 w-[300px] h-[300px] bg-gradient-to-br from-emerald-300/20 to-blue-300/20 rounded-full blur-3xl z-0"></div>
-      <div className="absolute bottom-0 right-0 w-[250px] h-[250px] bg-gradient-to-br from-blue-400/20 to-cyan-300/20 rounded-full blur-2xl z-0"></div>
-
-      <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
-        <motion.h1
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-4xl md:text-6xl font-bold leading-tight text-gray-900 mb-6"
-        >
-          Solutions That Power <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-blue-600">Purpose-Driven Growth</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mb-10"
-        >
-          From syndicated research to fully custom projects and proprietary data infusion, our solutions are designed to give your brand the sustainability edge.
-        </motion.p>
-
+    <section className="py-24 bg-white relative overflow-hidden">
+      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+        {/* Left Content */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-col sm:flex-row justify-center gap-4"
+          initial={{ opacity: 0, y: -10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
         >
+          {/* Category Tag */}
+          <div className="mb-4">
+            <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
+              Solutions Overview
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            Tailored Solutions for{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">
+              Sustainability-Driven Brands
+            </span>
+          </h1>
+
+          {/* Subheadline */}
+          <p className="text-lg text-gray-600 mb-8">
+            EcoFocus offers a suite of research-backed solutions that help brands decode consumer behavior, uncover new trends, and build smarter sustainability strategies.
+          </p>
+
+          {/* CTA */}
           <Link
-            href="#solutions-overview"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-4 rounded-full shadow-lg transition-transform hover:scale-105"
+            href="#solutions"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-full font-semibold shadow-lg transition-transform hover:scale-105"
           >
             Explore Our Solutions
           </Link>
-          <Link
-            href="/contact"
-            className="bg-white border-2 border-emerald-600 text-emerald-700 font-semibold px-8 py-4 rounded-full shadow-md hover:bg-emerald-50 transition-transform hover:scale-105"
-          >
-            Start a Project
-          </Link>
+        </motion.div>
+
+        {/* Right Image */}
+        <motion.div
+          className="relative flex justify-center"
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          {/* Soft Glow */}
+          <div className="absolute w-[300px] h-[300px] bg-gradient-to-br from-emerald-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
+
+          {/* Hero Image */}
+          <Image
+            src="/images/solutions-hero.png"
+            alt="EcoFocus Solutions Graphic"
+            width={500}
+            height={350}
+            className="rounded-xl shadow-2xl relative z-10"
+            priority
+          />
         </motion.div>
       </div>
     </section>
