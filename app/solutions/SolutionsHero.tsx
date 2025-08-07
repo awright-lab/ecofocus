@@ -16,7 +16,7 @@ export default function SolutionsHero() {
           playsInline
           className="w-full h-full object-cover brightness-[0.4]"
         >
-          <source src="/videos/hero-4.mp4" type="video/mp4" />
+          <source src="/videos/hero-5.mp4" type="video/mp4" />
         </video>
       </div>
 
