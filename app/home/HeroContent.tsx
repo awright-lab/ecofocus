@@ -64,9 +64,12 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
           <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-4 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
             {headline}{' '}
             {highlightedWord && (
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">
-                {highlightedWord}
-              </span>
+              <span
+              className="bg-clip-text text-transparent animate-gradient 
+                         bg-gradient-to-r from-[#FFC107] via-[#FFD54F] to-[#FFA000]"
+            >
+              {highlightedWord}
+            </span>            
             )}
           </h1>
 
