@@ -6,7 +6,7 @@ import DataSnapshotPreview from './DataSnapshotPreview';
 import DifferentiatorsGrid from './DifferentiatorsGrid';
 import SyndicatedBenefits from './SyndicatedBenefits';
 import SyndicatedHero from './SyndicatedHero';
-import SyndicatedOverview from './SyndicatedOVerview';
+import SyndicatedOverview from './SyndicatedOverview';
 import SyndicatedReportHighlight from './SyndicatedReportHighlight';
 import TopicsGrid from './TopicsGrid';
 import UseCasesGrid from './UseCasesGrid';
