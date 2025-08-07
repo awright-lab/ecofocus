@@ -29,7 +29,7 @@ export default function SolutionsHero() {
         <div
           className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80"
           style={{
-            clipPath: 'polygon(0% 0%, 50% 0%, 100% 100%, 0% 100%)'
+            clipPath: 'polygon(0% 0%, 40% 0%, 70% 100%, 0% 100%)'
           }}
         />
       </div>
