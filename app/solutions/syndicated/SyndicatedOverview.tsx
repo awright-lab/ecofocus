@@ -24,19 +24,19 @@ export default function SyndicatedOverview() {
           </p>
           <ul className="space-y-4">
             <li className="flex gap-3 items-start">
-              <span className="mt-1 w-3 h-3 bg-emerald-600 rounded-full"></span>
+              <span className="mt-1 w-3 h-3 bg-emerald-600 shrink-0 rounded-full"></span>
               <span className="text-gray-700">
                 Updated annually to reflect current sustainability sentiment and shifting behaviors
               </span>
             </li>
             <li className="flex gap-3 items-start">
-              <span className="mt-1 w-3 h-3 bg-blue-600 rounded-full"></span>
+              <span className="mt-1 w-3 h-3 bg-blue-600 shrink-0 rounded-full"></span>
               <span className="text-gray-700">
                 Ideal for benchmarking, trendspotting, and identifying whitespace opportunities
               </span>
             </li>
             <li className="flex gap-3 items-start">
-              <span className="mt-1 w-3 h-3 bg-cyan-600 rounded-full"></span>
+              <span className="mt-1 w-3 h-3 bg-cyan-600 shrink-0 rounded-full"></span>
               <span className="text-gray-700">
                 Trusted by brands, agencies, packaging firms, and NGOs
               </span>
@@ -53,7 +53,7 @@ export default function SyndicatedOverview() {
         >
           <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
             <Image
-              src="/images/syndicated-overview.jpg" // Replace with real asset path
+              src="/images/syndicated-overview.png" // Replace with real asset path
               alt="Syndicated Research Overview"
               fill
               className="object-cover"

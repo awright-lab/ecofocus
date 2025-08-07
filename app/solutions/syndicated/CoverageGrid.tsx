@@ -1,28 +1,33 @@
-// Next Section: Coverage Grid
+'use client';
 
 import { motion } from 'framer-motion';
-import Image from 'next/image';
+import {
+  Users,
+  Boxes,
+  PackageCheck,
+  BadgeCheck
+} from 'lucide-react';
 
 const coverageAreas = [
   {
     title: 'Consumer Lifestyles',
     description: 'Uncover how sustainability values influence everyday choices and brand loyalty.',
-    image: '/images/icons/lifestyle.png',
+    icon: <Users className="w-8 h-8 text-emerald-600" />,
   },
   {
     title: 'Product Categories',
     description: 'Gain insight into sustainability expectations across key food, beverage, and household sectors.',
-    image: '/images/icons/categories.png',
+    icon: <Boxes className="w-8 h-8 text-blue-600" />,
   },
   {
     title: 'Packaging Preferences',
     description: 'See what materials, claims, and formats resonate with eco-conscious consumers.',
-    image: '/images/icons/packaging.png',
+    icon: <PackageCheck className="w-8 h-8 text-cyan-600" />,
   },
   {
     title: 'Sustainability Labels',
     description: 'Explore the impact of certifications, eco-labels, and third-party trustmarks.',
-    image: '/images/icons/labels.png',
+    icon: <BadgeCheck className="w-8 h-8 text-teal-700" />,
   },
 ];
 
@@ -50,7 +55,7 @@ export default function CoverageGrid() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               <div className="w-16 h-16 bg-white rounded-lg border flex items-center justify-center">
-                <Image src={item.image} alt={item.title} width={32} height={32} />
+                {item.icon}
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-1">{item.title}</h3>
