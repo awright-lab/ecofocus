@@ -39,7 +39,7 @@ export default function SolutionsOverview() {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          Our Core Solutions
+          Which Ecofocus Solution Is Right for You?
         </motion.h2>
         <p className="text-gray-600 text-lg mb-16">
           Explore how EcoFocus helps brands harness the power of data to lead in sustainability.

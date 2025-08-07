@@ -3,12 +3,11 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import StickyButtons from '../../components/StickyButtons';
 import SolutionsHero from './SolutionsHero';
-//import ServicesOverview from './ServicesOverview';
-import ProcessSection from './ProcessSection';
-import IndustriesSection from './IndustriesSection';
-import TechnologySection from './TechnologySection';
-import CTASection from './CTASection';
+import FinalCTA from './FinalCTA';
 import SolutionsOverview from './SolutionsOverview';
+import SolutionsHighlights from './SolutionsHighlights';
+import SolutionsComparison from './SolutionsComparison';
+import TrustSection from './TrustSection';
 
 export default function SolutionsPage() {
   return (
@@ -16,10 +15,10 @@ export default function SolutionsPage() {
       <Header />
       <SolutionsHero />
       <SolutionsOverview />
-      <ProcessSection />
-      <IndustriesSection />
-      <TechnologySection />
-      <CTASection />
+      <SolutionsHighlights />
+      <SolutionsComparison />
+      <TrustSection />
+      <FinalCTA />
       <Footer />
       <StickyButtons />
     </div>

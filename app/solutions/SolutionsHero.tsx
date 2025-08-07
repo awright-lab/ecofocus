@@ -45,13 +45,13 @@ export default function SolutionsHero() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/20 text-sm text-white mb-6">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            Solutions for a Sustainable Future
+            Solutions That Power
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-4">
             Expert-Led Sustainability <br className="hidden md:inline" />
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] animate-gradient">
-              Research & Strategy
+              Purpose-Driven Growth
             </span>
           </h1>
 
@@ -67,13 +67,13 @@ export default function SolutionsHero() {
                 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
                 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
             >
-              <span className="relative z-10">Explore Solutions</span>
+              <span className="relative z-10">Explore our Solutions</span>
             </Link>
             <Link
               href="/contact"
               className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full border border-white/30 hover:bg-white/10 transition-all"
             >
-              <span className="relative z-10">Start a Conversation</span>
+              <span className="relative z-10">Get in Touch</span>
             </Link>
           </div>
         </motion.div>
