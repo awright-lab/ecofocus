@@ -21,7 +21,7 @@ export default function SyndicatedHero() {
       </div>
 
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-br from-emerald-900/30 to-blue-900/30 clip-diagonal-flip" />
+        {/* <div className="w-full h-full bg-gradient-to-br from-emerald-900/30 to-blue-900/30 clip-diagonal-flip" /> */}
       </div>
 
       {/* Content */}
