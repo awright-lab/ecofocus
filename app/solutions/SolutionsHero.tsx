@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function SolutionsHero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-neutral-950 text-white">
+    <section className="relative max-h-[65vh] flex items-center justify-center overflow-hidden bg-neutral-950 text-white">
       {/* Background Video */}
       <div className="absolute inset-0 -z-10">
         <video
