@@ -28,9 +28,9 @@ export default function SolutionsOverview() {
 
   return (
     <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6 text-center">
         <motion.h2
-          className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center"
+          className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -38,32 +38,34 @@ export default function SolutionsOverview() {
         >
           Our Core Solutions
         </motion.h2>
-        <p className="text-gray-600 text-lg mb-16 text-center">
+        <p className="text-gray-600 text-lg mb-16">
           Explore how EcoFocus helps brands harness the power of data to lead in sustainability.
         </p>
 
-        <div className="grid gap-12">
+        <div className="grid md:grid-cols-3 gap-10">
           {solutions.map((solution, index) => (
             <motion.div
               key={index}
-              className="flex flex-col md:flex-row bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all border border-gray-100"
+              className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all flex flex-col"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <div className="md:w-1/2 h-64 md:h-auto relative">
+              <div className="relative w-full h-40 md:h-48">
                 <Image
                   src={solution.image}
                   alt={solution.title}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 768px) 100vw, 33vw"
                 />
               </div>
-              <div className="md:w-1/2 p-8 flex flex-col justify-center">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-3">{solution.title}</h3>
-                <p className="text-gray-600 mb-6">{solution.description}</p>
+              <div className="p-6 flex-1 flex flex-col justify-between text-left">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{solution.title}</h3>
+                  <p className="text-gray-600 mb-4">{solution.description}</p>
+                </div>
                 <Link
                   href={solution.link}
                   className="inline-block text-sm font-semibold text-emerald-600 hover:text-emerald-700"
@@ -78,4 +80,5 @@ export default function SolutionsOverview() {
     </section>
   );
 }
+
 
