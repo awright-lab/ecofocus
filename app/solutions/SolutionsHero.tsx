@@ -20,10 +20,11 @@ export default function SolutionsHero() {
         </video>
       </div>
 
-      {/* Diagonal Gradient Overlay */}
+
+      {/* Diagonal Gradient Overlay 
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80 clip-diagonal" />
-      </div>
+      </div> */}
 
       {/* Content */}
       <div className="relative z-20 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
