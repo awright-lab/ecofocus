@@ -6,30 +6,32 @@ import Image from 'next/image';
 
 export default function SyndicatedHero() {
   return (
-    <section className="relative max-h-[65vh] flex items-center justify-center overflow-hidden bg-neutral-950 text-white">
-      {/* Background Video */}
-      <div className="absolute inset-0 -z-20">
+    <section className="relative max-h-[65vh] flex items-center justify-center overflow-hidden bg-neutral-950 text-white z-0">
+      {/* ✅ Background Video */}
+      <div className="absolute inset-0 z-0">
         <video
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-cover brightness-100"
+          preload="auto"
+          className="w-full h-full object-cover brightness-[0.4]"
         >
           <source
             src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
             type="video/mp4"
           />
+          Your browser does not support the video tag.
         </video>
       </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-br from-emerald-900/30 to-blue-900/30 clip-diagonal-flip" />
+      {/* ✅ Full Gradient Overlay (No Clipping) */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <div className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80" />
       </div>
 
-      {/* Foreground Content */}
-      <div className="relative z-10 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
+      {/* ✅ Foreground Content */}
+      <div className="relative z-20 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
         <motion.div
           className="md:col-span-7"
           initial={{ opacity: 0, y: 30 }}
@@ -57,7 +59,7 @@ export default function SyndicatedHero() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="#benefits"
-              className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
+              className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
                 before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
                 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
             >
@@ -72,6 +74,7 @@ export default function SyndicatedHero() {
           </div>
         </motion.div>
 
+        {/* ✅ Optional Right Visual */}
         <motion.div
           className="hidden md:block md:col-span-5"
           initial={{ opacity: 0, x: 40 }}
@@ -92,4 +95,5 @@ export default function SyndicatedHero() {
     </section>
   );
 }
+
 
