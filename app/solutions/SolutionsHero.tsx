@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
+//import Image from 'next/image';
 
 export default function SolutionsHero() {
   return (
@@ -16,7 +16,7 @@ export default function SolutionsHero() {
           playsInline
           className="w-full h-full object-cover brightness-[0.4]"
         >
-          <source src="/videos/solutions-bg.mp4" type="video/mp4" />
+          <source src="/videos/hero-4.mp4" type="video/mp4" />
         </video>
       </div>
 
@@ -77,12 +77,7 @@ export default function SolutionsHero() {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="relative w-full aspect-square">
-            <Image
-              src="/images/solutions-hero-graphic.png"
-              alt="EcoFocus Solutions Visual"
-              fill
-              className="object-contain"
-            />
+           
           </div>
         </motion.div>
       </div>
