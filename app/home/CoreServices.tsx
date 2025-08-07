@@ -69,17 +69,17 @@ export default function CoreServices() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               {/* Image fills top half */}
-              <div className="relative w-full h-64 md:h-[50%]">
+              <div className="relative w-full h-64 md:h-72">
                 <Image
-                  src={service.image}
-                  alt={service.title}
-                  fill
-                  className="object-cover brightness-110 saturate-125"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                    src={service.image}
+                    alt={service.title}
+                    fill
+                    className="object-cover brightness-110 saturate-125"
+                    sizes="(max-width: 768px) 100vw, 33vw"
                 />
                 <div className={`absolute inset-0 ${service.overlayColor} mix-blend-multiply`}></div>
                 <div className="absolute inset-0 bg-black/5"></div>
-              </div>
+            </div>
 
               {/* Text + CTA */}
               <div className="p-8 flex flex-col flex-grow">
