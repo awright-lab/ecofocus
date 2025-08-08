@@ -10,22 +10,13 @@ export default function FeaturedDashboard() {
       className="
         relative overflow-hidden py-28
         bg-[linear-gradient(180deg,#F0F9FF_0%,#FFFFFF_85%)]
+        /* diagonal divider (white) */
+        before:content-[''] before:absolute before:inset-x-0 before:top-0 before:h-16 before:bg-white
+        before:[clip-path:polygon(0_100%,100%_0,100%_100%)]
+        before:pointer-events-none
       "
       aria-labelledby="dashboard-highlight"
     >
-      {/* Diagonal divider at top */}
-      <svg
-        className="pointer-events-none absolute -top-[1px] left-0 w-full h-16"
-        viewBox="0 0 1440 80"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          fill="#ffffff"
-          d="M0,80 L1440,0 L1440,80 Z"
-        />
-      </svg>
-
       {/* soft blue glow behind image */}
       <div className="absolute right-[-120px] bottom-[-120px] w-[420px] h-[420px] rounded-full bg-sky-300/20 blur-3xl" />
 
@@ -100,6 +91,7 @@ export default function FeaturedDashboard() {
     </section>
   );
 }
+
 
 
 
