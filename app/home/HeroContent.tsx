@@ -66,7 +66,7 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
             {highlightedWord && (
               <span
               className="bg-clip-text text-transparent animate-gradient 
-                         bg-gradient-to-r from-[#FFC107] via-[#FFD54F] to-[#FFA000]"
+                         bg-gradient-to-r from-[#110d89] via-[#245292] to-[#00dfff]"
             >
               {highlightedWord}
             </span>            
