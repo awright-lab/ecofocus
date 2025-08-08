@@ -1,47 +1,40 @@
 'use client';
 
-import { motion } from "framer-motion";
-import React, { useMemo, useRef, useLayoutEffect, useState } from "react";
+import { motion } from 'framer-motion';
+import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
 
 type Item = { id: string; title: string; body?: string };
-
 type Point = { x: number; y: number };
 
-function bezierPath(a: Point, b: Point) {
-  const dx = (b.x - a.x) * 0.35; // curve control strength
-  const c1: Point = { x: a.x + dx, y: a.y };
-  const c2: Point = { x: b.x - dx, y: b.y };
+function snakeBezier(a: Point, b: Point, wave: number) {
+  // wave controls S-curve vertical bend (positive then negative, alternating)
+  const dx = (b.x - a.x) * 0.35;
+  const c1: Point = { x: a.x + dx, y: a.y + wave };
+  const c2: Point = { x: b.x - dx, y: b.y - wave };
   return `M ${a.x},${a.y} C ${c1.x},${c1.y} ${c2.x},${c2.y} ${b.x},${b.y}`;
 }
 
 export default function SnakeValueChain() {
-  const items = React.useMemo<Item[]>(() => [
-    {
-      id: "1",
-      title: "Market Research",
-      body: "Syndicated & custom studies uncover real attitudes and drivers."
-    },
-    {
-      id: "2",
-      title: "Data",
-      body: "Validated, census-balanced data with rigorous methodology."
-    },
-    {
-      id: "3",
-      title: "Knowledge",
-      body: "Insights that separate intent from action — the say–do gap."
-    },
-    {
-      id: "4",
-      title: "Informed Decisions",
-      body: "Clear moves for product, packaging, and go-to-market."
-    }
-  ], []);
+  const items = useMemo<Item[]>(
+    () => [
+      {
+        id: '1',
+        title: 'Market Research',
+        body: 'Syndicated & custom studies uncover real attitudes and drivers.',
+      },
+      { id: '2', title: 'Data', body: 'Validated, census-balanced data with rigorous methodology.' },
+      { id: '3', title: 'Knowledge', body: 'Insights that separate intent from action — the say–do gap.' },
+      { id: '4', title: 'Informed Decisions', body: 'Clear moves for product, packaging, and go-to-market.' },
+    ],
+    []
+  );
 
-
+  // Layout constants
   const cardWidth = 320;
-  const cardGapY = 120; // tighter spacing
+  const cardHeight = 140;      // visual height used for layout math
+  const verticalGap = 120;     // distance between card centers
   const lineStroke = 3;
+  const cardEdgeInset = 12;    // pulls the line slightly inside card edge so it visually "touches"
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const [svgSize, setSvgSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -50,24 +43,28 @@ export default function SnakeValueChain() {
     const el = wrapRef.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      setSvgSize({ w: el.clientWidth, h: el.clientHeight });
+      // Height = last card center + half card + some breathing room
+      const lastRow = (items.length - 1) * verticalGap + 40;
+      const neededHeight = lastRow + cardHeight / 2 + 60;
+      setSvgSize({ w: el.clientWidth, h: Math.max(neededHeight, el.clientHeight) });
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
+  }, [items.length]);
 
-  // card positions alternating left/right
+  // Compute left/right card centers
   const positions = useMemo(() => {
     const padX = 24;
     const leftX = padX + cardWidth / 2;
     const rightX = (svgSize.w || 800) - padX - cardWidth / 2;
+
     return items.map((_, i) => {
       const isLeft = i % 2 === 0;
       const x = isLeft ? leftX : rightX;
-      const y = 40 + i * cardGapY;
+      const y = 40 + i * verticalGap;
       return { x, y, isLeft };
     });
-  }, [items, svgSize.w, cardWidth, cardGapY]);
+  }, [items, svgSize.w]);
 
   return (
     <section className="relative py-16 bg-white" aria-labelledby="snake-value-chain">
@@ -82,10 +79,10 @@ export default function SnakeValueChain() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            From{" "}
+            From{' '}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-teal-600">
               Research
-            </span>{" "}
+            </span>{' '}
             to Action
           </motion.h2>
           <motion.p
@@ -99,19 +96,39 @@ export default function SnakeValueChain() {
           </motion.p>
         </div>
 
-        {/* Snake Path Container */}
-        <div ref={wrapRef} className="relative w-full" style={{ padding: "20px 0" }}>
-          {/* connectors */}
+        {/* Path + Cards */}
+        <div
+          ref={wrapRef}
+          className="relative w-full overflow-visible pb-20" // ensure no clipping
+          style={{ minHeight: positions.length ? positions.at(-1)!.y + cardHeight : 240 }}
+        >
+          {/* SVG connectors */}
           <svg
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none overflow-visible"
             width="100%"
             height={svgSize.h}
-            viewBox={`0 0 ${Math.max(svgSize.w, 800)} ${Math.max(svgSize.h, 200)}`}
+            viewBox={`0 0 ${Math.max(svgSize.w, 800)} ${svgSize.h || 200}`}
             preserveAspectRatio="none"
           >
+            <defs>
+              <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#047857" />
+                <stop offset="100%" stopColor="#0d9488" />
+              </linearGradient>
+            </defs>
+
             {positions.slice(0, -1).map((p, i) => {
               const n = positions[i + 1];
-              const path = bezierPath(p, n);
+
+              // Start/end on the **edge** of the cards
+              const startX = p.isLeft ? p.x + cardWidth / 2 - cardEdgeInset : p.x - cardWidth / 2 + cardEdgeInset;
+              const endX = n.isLeft ? n.x - cardWidth / 2 + cardEdgeInset : n.x + cardWidth / 2 - cardEdgeInset;
+
+              // Alternate vertical bend to create an S pattern
+              const wave = (i % 2 === 0 ? 1 : -1) * 60; // tweak 60 for more/less curve
+
+              const path = snakeBezier({ x: startX, y: p.y }, { x: endX, y: n.y }, wave);
+
               return (
                 <motion.path
                   key={`path-${i}`}
@@ -125,59 +142,36 @@ export default function SnakeValueChain() {
                   viewport={{ once: true, amount: 0.4 }}
                   transition={{
                     duration: 0.9,
-                    ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-                    delay: i * 0.15
+                    ease: [0.22, 1, 0.36, 1],
+                    delay: i * 0.12,
                   }}
                 />
               );
             })}
-            <defs>
-              <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#047857" />
-                <stop offset="100%" stopColor="#0d9488" />
-              </linearGradient>
-            </defs>
           </svg>
 
-          {/* cards */}
+          {/* Cards */}
           {positions.map((pos, i) => {
-            const x = pos.x - cardWidth / 2;
-            const y = pos.y - 60; // adjust to card height
+            const left = pos.x - cardWidth / 2;
+            const top = pos.y - cardHeight / 2;
 
             return (
               <motion.div
                 key={items[i].id}
                 className="absolute bg-white rounded-2xl shadow-lg p-5 border border-gray-200"
-                style={{
-                  width: cardWidth,
-                  left: x,
-                  top: y,
-                  transformOrigin: pos.isLeft ? "left center" : "right center",
-                }}
-                initial={{
-                  opacity: 0,
-                  y: 20,
-                  scale: 0.96,
-                  rotate: pos.isLeft ? -2 : 2
-                }}
+                style={{ width: cardWidth, left, top, transformOrigin: pos.isLeft ? 'left center' : 'right center' }}
+                initial={{ opacity: 0, y: 20, scale: 0.96, rotate: pos.isLeft ? -2 : 2 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
-                  delay: i * 0.08
-                }}
+                transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1], delay: i * 0.08 }}
                 whileHover={{
                   y: -6,
-                  boxShadow: "0 12px 40px rgba(0,0,0,0.12)",
-                  transition: {
-                    duration: 0.25,
-                    ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-                  }
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
+                  transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
                 }}
               >
                 <div className="text-sm font-bold uppercase tracking-wide bg-gradient-to-r from-emerald-700 to-teal-600 bg-clip-text text-transparent">
-                  {String(i + 1).padStart(2, "0")}
+                  {String(i + 1).padStart(2, '0')}
                 </div>
                 <h3 className="text-lg font-semibold mt-1 text-gray-900">{items[i].title}</h3>
                 {items[i].body && <p className="text-gray-600 mt-2">{items[i].body}</p>}
@@ -189,4 +183,5 @@ export default function SnakeValueChain() {
     </section>
   );
 }
+
 
