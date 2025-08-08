@@ -81,21 +81,30 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
           )}
 
           {/* CTAs */}
-          {ctaButtons?.length ? (
-            <div className="flex flex-wrap gap-4">
-              {ctaButtons.map((b) => (
-                <Link
-                  key={b.id}
-                  href={b.url}
-                  className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                >
-                  <span className="relative z-10">{b.label}</span>
-                </Link>
-              ))}
-            </div>
-          ) : null}
+{ctaButtons?.length ? (
+  <div className="flex flex-wrap gap-4">
+    {ctaButtons.map((b, i) => {
+      const isPrimary = i === 0;
+      return (
+        <Link
+          key={b.id}
+          href={b.url}
+          className={`relative inline-block px-5 py-2 text-sm font-semibold rounded-full overflow-hidden transition-all duration-300
+            ${isPrimary
+              ? 'text-white bg-emerald-600 before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]'
+              : 'text-neutral-900 bg-[#FFC107] before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]'
+            }
+            before:absolute before:inset-0 before:rounded-full
+            before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0`}
+        >
+          <span className="relative z-10">{b.label}</span>
+        </Link>
+      );
+    })}
+  </div>
+) : null}
+
+
         </motion.div>
       </div>
     </section>
