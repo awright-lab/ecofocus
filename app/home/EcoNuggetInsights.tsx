@@ -40,17 +40,22 @@ export default function EcoNuggetInsights() {
             <div className="max-w-6xl mx-auto px-6 relative z-10">
                 {/* Header */}
                 <motion.div
-                    className="mb-4"
-                    initial={{ opacity: 0, y: -10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/25 bg-white/10 text-xs md:text-sm mb-5"
+                initial={{ opacity: 0, y: -10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
                 >
-                    <span className="uppercase text-[10px] tracking-wide bg-emerald-500/10 text-emerald-300 px-3 py-0.5 rounded-full border border-emerald-500/20">
-                        EcoNuggets
-                    </span>
+                {/* Pulsing dot */}
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+
+                {/* Label text */}
+                <span className="text-emerald-300">
+                    EcoNuggets
+                </span>
                 </motion.div>
 
+                
                 <h2 className="text-3xl md:text-4xl font-bold mb-12">
                     Fresh Insights with <span className="bg-clip-text text-transparent animate-gradient 
                          bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500">EcoNuggets</span>

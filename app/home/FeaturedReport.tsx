@@ -10,22 +10,23 @@ export default function FeaturedReport() {
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
         {/* Left Content */}
         <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
+        initial={{ opacity: 0, x: -40 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
         >
-          <motion.div
-            className="mb-4"
+        <motion.div
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/25 bg-white/10 text-xs md:text-sm mb-4"
             initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-          >
-            <span className="uppercase text-[10px] tracking-wide bg-emerald-100 text-emerald-700 px-3 py-0.5 rounded-full border border-emerald-200">
-              Report Highlight
-            </span>
-          </motion.div>
+        >
+            {/* dot (swap to bg-amber-400 for marigold accent) */}
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+
+            <span className="text-emerald-300">Report Highlight</span>
+        </motion.div>
 
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
             Sustainability Insights Report
