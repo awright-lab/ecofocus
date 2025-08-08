@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { Microscope, BarChart3, Brain, Target, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
@@ -8,8 +8,7 @@ type Step = {
   label: string;
   sub: string;
   icon: React.ElementType;
-  // Tailwind gradient classes for each tile
-  gradient: string;
+  gradient: string; // Tailwind gradient classes
 };
 
 const STEPS: Step[] = [
@@ -39,24 +38,33 @@ const STEPS: Step[] = [
   },
 ];
 
-const container = {
+const container: Variants = {
   hidden: { opacity: 0, y: 12 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { staggerChildren: 0.12, duration: 0.5, ease: 'easeOut' },
+    transition: {
+      when: 'beforeChildren',
+      staggerChildren: 0.12,
+    },
   },
 };
 
-const item = {
+const item: Variants = {
   hidden: { opacity: 0, y: 16, scale: 0.98 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: 'easeOut' } },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    // Use a cubic-bezier for strict typing (avoids the string 'easeOut' issue)
+    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+  },
 };
 
 export default function DominoValueChain() {
   return (
     <section aria-labelledby="domino-value-chain" className="relative py-20 bg-white">
-      {/* soft background wash */}
+      {/* Soft background wash */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="h-full w-full bg-gradient-to-b from-amber-50/40 via-emerald-50/40 to-white" />
       </div>
@@ -72,7 +80,11 @@ export default function DominoValueChain() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            From <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#dd9e37] via-[#FFC107] to-[#dd803e] animate-gradient">Research</span> to Action
+            From{' '}
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#dd9e37] via-[#FFC107] to-[#dd803e] animate-gradient">
+              Research
+            </span>{' '}
+            to Action
           </motion.h2>
           <motion.p
             className="text-gray-600 mt-3 max-w-2xl mx-auto"
@@ -99,13 +111,10 @@ export default function DominoValueChain() {
 
             return (
               <div key={s.label} className="flex-1">
-                <motion.div
-                  variants={item}
-                  className="group relative h-full"
-                >
-                  {/* tile */}
+                <motion.div variants={item} className="group relative h-full">
+                  {/* Tile */}
                   <div className="h-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                    {/* gradient header */}
+                    {/* Gradient header */}
                     <div className={`relative px-5 py-4 bg-gradient-to-r ${s.gradient} text-white`}>
                       <div className="flex items-center gap-3">
                         <div className="rounded-xl bg-white/15 p-2.5 backdrop-blur-sm">
@@ -113,23 +122,19 @@ export default function DominoValueChain() {
                         </div>
                         <div className="text-base md:text-lg font-semibold">{s.label}</div>
                       </div>
-
-                      {/* subtle animated stripe */}
                       <div className="absolute inset-x-0 bottom-0 h-px bg-white/30" />
                     </div>
 
-                    {/* body */}
+                    {/* Body */}
                     <div className="p-5">
-                      <p className="text-sm text-gray-700">
-                        {s.sub}
-                      </p>
+                      <p className="text-sm text-gray-700">{s.sub}</p>
                     </div>
 
-                    {/* hover reveal */}
+                    {/* Hover ring */}
                     <div className="absolute inset-0 rounded-2xl ring-1 ring-transparent group-hover:ring-emerald-300/70 transition" />
                   </div>
 
-                  {/* connector arrow (desktop only) */}
+                  {/* Connector arrow (desktop) */}
                   {!isLast && (
                     <div className="hidden md:flex items-center justify-center">
                       <motion.div
@@ -146,7 +151,7 @@ export default function DominoValueChain() {
                   )}
                 </motion.div>
 
-                {/* connector arrow for mobile (vertical) */}
+                {/* Connector arrow (mobile) */}
                 {!isLast && (
                   <div className="md:hidden flex justify-center" aria-hidden="true">
                     <ChevronRight className="rotate-90 w-6 h-6 text-emerald-700/60" />
@@ -157,7 +162,7 @@ export default function DominoValueChain() {
           })}
         </motion.div>
 
-        {/* Optional CTA row (can remove if not needed) */}
+        {/* Optional CTA row */}
         <div className="mt-10 flex flex-wrap gap-3 justify-center">
           <Link
             href="/solutions"
@@ -176,3 +181,4 @@ export default function DominoValueChain() {
     </section>
   );
 }
+
