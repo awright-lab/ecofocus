@@ -2,8 +2,9 @@
 
 import { motion } from 'framer-motion';
 import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
+import { Search, Database, Lightbulb, TrendingUp } from 'lucide-react'; // Example icons
 
-type Item = { id: string; title: string; body?: string };
+type Item = { id: string; title: string; body?: string; icon: React.ReactNode };
 type Point = { x: number; y: number };
 
 function snakeBezier(a: Point, b: Point, wave: number) {
@@ -20,16 +21,32 @@ export default function SnakeValueChain() {
         id: '1',
         title: 'Market Research',
         body: 'Syndicated & custom studies uncover real attitudes and drivers.',
+        icon: <Search className="w-8 h-8 text-emerald-700" />,
       },
-      { id: '2', title: 'Data', body: 'Validated, census-balanced data with rigorous methodology.' },
-      { id: '3', title: 'Knowledge', body: 'Insights that separate intent from action — the say–do gap.' },
-      { id: '4', title: 'Informed Decisions', body: 'Clear moves for product, packaging, and go-to-market.' },
+      {
+        id: '2',
+        title: 'Data',
+        body: 'Validated, census-balanced data with rigorous methodology.',
+        icon: <Database className="w-8 h-8 text-teal-600" />,
+      },
+      {
+        id: '3',
+        title: 'Knowledge',
+        body: 'Insights that separate intent from action — the say–do gap.',
+        icon: <Lightbulb className="w-8 h-8 text-cyan-500" />,
+      },
+      {
+        id: '4',
+        title: 'Informed Decisions',
+        body: 'Clear moves for product, packaging, and go-to-market.',
+        icon: <TrendingUp className="w-8 h-8 text-emerald-500" />,
+      },
     ],
     []
   );
 
   const cardWidth = 320;
-  const cardHeight = 140;
+  const cardHeight = 160;
   const verticalGap = 120;
   const lineStroke = 4;
   const cardEdgeInset = 12;
@@ -107,17 +124,10 @@ export default function SnakeValueChain() {
             preserveAspectRatio="none"
           >
             <defs>
-              {/* Multi-stop animated gradient */}
               <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#047857">
-                  <animate attributeName="stop-color" values="#047857;#0d9488;#06b6d4;#047857" dur="6s" repeatCount="indefinite" />
-                </stop>
-                <stop offset="50%" stopColor="#0d9488">
-                  <animate attributeName="stop-color" values="#0d9488;#06b6d4;#047857;#0d9488" dur="6s" repeatCount="indefinite" />
-                </stop>
-                <stop offset="100%" stopColor="#06b6d4">
-                  <animate attributeName="stop-color" values="#06b6d4;#047857;#0d9488;#06b6d4" dur="6s" repeatCount="indefinite" />
-                </stop>
+                <stop offset="0%" stopColor="#047857" />
+                <stop offset="50%" stopColor="#0d9488" />
+                <stop offset="100%" stopColor="#06b6d4" />
               </linearGradient>
               <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
@@ -166,15 +176,12 @@ export default function SnakeValueChain() {
             return (
               <motion.div
                 key={items[i].id}
-                className="absolute rounded-2xl p-5 border border-transparent bg-white/70 backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300"
+                className="absolute bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300"
                 style={{
                   width: cardWidth,
                   left,
                   top,
                   transformOrigin: pos.isLeft ? 'left center' : 'right center',
-                  borderImage: 'linear-gradient(to right, #047857, #0d9488, #06b6d4) 1',
-                  borderWidth: '1px',
-                  borderStyle: 'solid',
                 }}
                 initial={{ opacity: 0, y: 20, scale: 0.96, rotate: pos.isLeft ? -2 : 2 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
@@ -185,11 +192,12 @@ export default function SnakeValueChain() {
                   boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                 }}
               >
-                <div className="text-sm font-bold uppercase tracking-wide bg-gradient-to-r from-emerald-700 to-teal-600 bg-clip-text text-transparent">
-                  {String(i + 1).padStart(2, '0')}
+                {/* Icon */}
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-emerald-700 to-cyan-500 text-white mb-4">
+                  {items[i].icon}
                 </div>
-                <h3 className="text-lg font-semibold mt-1 text-gray-900">{items[i].title}</h3>
-                {items[i].body && <p className="text-gray-700 mt-2 leading-relaxed">{items[i].body}</p>}
+                <h3 className="text-lg font-semibold text-gray-900">{items[i].title}</h3>
+                {items[i].body && <p className="text-gray-600 mt-2">{items[i].body}</p>}
               </motion.div>
             );
           })}
@@ -198,6 +206,7 @@ export default function SnakeValueChain() {
     </section>
   );
 }
+
 
 
 
