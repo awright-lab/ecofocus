@@ -1,14 +1,17 @@
 'use client';
 
-import { motion, type Variants } from 'framer-motion';
+import { useEffect } from 'react';
+import { motion, useAnimation, Variants } from 'framer-motion';
 import { Microscope, BarChart3, Brain, Target, ChevronRight } from 'lucide-react';
+import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
+import React from 'react';
 
 type Step = {
   label: string;
   sub: string;
   icon: React.ElementType;
-  gradient: string; // Tailwind gradient classes
+  gradient: string;
 };
 
 const STEPS: Step[] = [
@@ -38,33 +41,47 @@ const STEPS: Step[] = [
   },
 ];
 
-const container: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      when: 'beforeChildren',
-      staggerChildren: 0.12,
-    },
-  },
+/**
+ * Keyframes to simulate a topple:
+ * - start upright
+ * - tip forward
+ * - overshoot slightly
+ * - settle
+ */
+const toppleKeyframes = {
+  rotate: [0, -12, -16, -10, 0],
+  x: [0, 4, 6, 2, 0],
+  y: [0, 0, 1, 0, 0],
 };
 
-const item: Variants = {
-  hidden: { opacity: 0, y: 16, scale: 0.98 },
-  show: {
+//const easeBezier: number[] = [0.22, 1, 0.36, 1]; // nice "out" feel
+
+const cardVariants: Variants = {
+  initial: { opacity: 0, rotate: 0, x: 0, y: 8 },
+  visible: (i: number) => ({
     opacity: 1,
-    y: 0,
-    scale: 1,
-    // Use a cubic-bezier for strict typing (avoids the string 'easeOut' issue)
-    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-  },
+    rotate: toppleKeyframes.rotate,
+    x: toppleKeyframes.x,
+    y: toppleKeyframes.y,
+    transition: {
+      delay: i * 0.18, // domino delay
+      duration: 0.9,
+      ease: [0.68, -0.55, 0.27, 1.55]
+    },
+  }),
 };
 
 export default function DominoValueChain() {
+  const controls = useAnimation();
+  const { ref, inView } = useInView({ threshold: 0.25, triggerOnce: true });
+
+  useEffect(() => {
+    if (inView) controls.start('visible');
+  }, [inView, controls]);
+
   return (
     <section aria-labelledby="domino-value-chain" className="relative py-20 bg-white">
-      {/* Soft background wash */}
+      {/* soft background wash */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="h-full w-full bg-gradient-to-b from-amber-50/40 via-emerald-50/40 to-white" />
       </div>
@@ -86,6 +103,7 @@ export default function DominoValueChain() {
             </span>{' '}
             to Action
           </motion.h2>
+
           <motion.p
             className="text-gray-600 mt-3 max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
@@ -98,71 +116,58 @@ export default function DominoValueChain() {
         </div>
 
         {/* Domino chain */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-20% 0px -10% 0px' }}
-          className="flex flex-col md:flex-row items-stretch md:items-center gap-6"
+        <div
+          ref={ref}
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 items-stretch"
         >
           {STEPS.map((s, idx) => {
             const Icon = s.icon;
             const isLast = idx === STEPS.length - 1;
 
             return (
-              <div key={s.label} className="flex-1">
-                <motion.div variants={item} className="group relative h-full">
-                  {/* Tile */}
-                  <div className="h-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-                    {/* Gradient header */}
-                    <div className={`relative px-5 py-4 bg-gradient-to-r ${s.gradient} text-white`}>
-                      <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-white/15 p-2.5 backdrop-blur-sm">
-                          <Icon className="w-5 h-5" aria-hidden="true" />
-                        </div>
-                        <div className="text-base md:text-lg font-semibold">{s.label}</div>
+              <motion.div
+                key={s.label}
+                className="relative"
+                custom={idx}
+                variants={cardVariants}
+                initial="initial"
+                animate={controls}
+                // little hover micro-wobble
+                whileHover={{ rotate: -3, x: 2, transition: { duration: 0.25, ease: [0.68, -0.55, 0.27, 1.55] as [number, number, number, number]  } }}
+                style={{ transformOrigin: 'left center' }}
+              >
+                <div className="h-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                  {/* gradient header */}
+                  <div className={`relative px-5 py-4 bg-gradient-to-r ${s.gradient} text-white`}>
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-xl bg-white/15 p-2.5 backdrop-blur-sm">
+                        <Icon className="w-5 h-5" aria-hidden="true" />
                       </div>
-                      <div className="absolute inset-x-0 bottom-0 h-px bg-white/30" />
+                      <div className="text-base md:text-lg font-semibold">{s.label}</div>
                     </div>
-
-                    {/* Body */}
-                    <div className="p-5">
-                      <p className="text-sm text-gray-700">{s.sub}</p>
-                    </div>
-
-                    {/* Hover ring */}
-                    <div className="absolute inset-0 rounded-2xl ring-1 ring-transparent group-hover:ring-emerald-300/70 transition" />
+                    <div className="absolute inset-x-0 bottom-0 h-px bg-white/30" />
                   </div>
 
-                  {/* Connector arrow (desktop) */}
-                  {!isLast && (
-                    <div className="hidden md:flex items-center justify-center">
-                      <motion.div
-                        initial={{ opacity: 0, x: -8 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 + idx * 0.05, duration: 0.35 }}
-                        className="mx-auto -mt-3 md:mt-4"
-                        aria-hidden="true"
-                      >
-                        <ChevronRight className="w-8 h-8 text-emerald-700/70" />
-                      </motion.div>
-                    </div>
-                  )}
-                </motion.div>
+                  {/* body */}
+                  <div className="p-5">
+                    <p className="text-sm text-gray-700">{s.sub}</p>
+                  </div>
 
-                {/* Connector arrow (mobile) */}
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-transparent hover:ring-emerald-300/70 transition" />
+                </div>
+
+                {/* connector arrow (desktop only) */}
                 {!isLast && (
-                  <div className="md:hidden flex justify-center" aria-hidden="true">
-                    <ChevronRight className="rotate-90 w-6 h-6 text-emerald-700/60" />
+                  <div className="hidden md:block" aria-hidden="true">
+                    <ChevronRight className="absolute top-1/2 -right-4 -translate-y-1/2 w-8 h-8 text-emerald-700/70" />
                   </div>
                 )}
-              </div>
+              </motion.div>
             );
           })}
-        </motion.div>
+        </div>
 
-        {/* Optional CTA row */}
+        {/* CTA row */}
         <div className="mt-10 flex flex-wrap gap-3 justify-center">
           <Link
             href="/solutions"
