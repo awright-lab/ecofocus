@@ -37,7 +37,7 @@ export default function SayDoGapSection({
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            Closing the <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#dd9e37] via-[#FFC107] to-[#dd803e] animate-gradient">Say–Do Gap</span> in Sustainability
+            Closing the <span className="bg-clip-text text-transparent animate-gradient bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500">Say–Do Gap</span> in Sustainability
           </motion.h2>
           <motion.p
             className="text-gray-600 mt-3 max-w-2xl mx-auto"
@@ -102,7 +102,9 @@ export default function SayDoGapSection({
             <div className="mt-6">
               <Link
                 href={ctaHref}
-                className="inline-flex items-center gap-2 rounded-full bg-[#124734] text-white px-5 py-2 text-sm font-semibold hover:opacity-95 transition"
+                className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
+                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
               >
                 {ctaLabel}
                 <ArrowRight className="w-4 h-4" />
