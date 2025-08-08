@@ -29,7 +29,7 @@ export default function SnakeValueChain() {
         title: 'Data',
         body: 'Validated, census-balanced data with rigorous methodology.',
         icon: <Database className="w-6 h-6 text-white" />,
-        gradient: 'from-teal-600 to-cyan-500',
+        gradient: 'from-teal-500 to-cyan-500',
       },
       {
         id: '3',
@@ -43,7 +43,7 @@ export default function SnakeValueChain() {
         title: 'Informed Decisions',
         body: 'Clear moves for product, packaging, and go-to-market.',
         icon: <TrendingUp className="w-6 h-6 text-white" />,
-        gradient: 'from-amber-400 to-emerald-500', // marigold accent
+        gradient: 'from-emerald-500 to-amber-400', // marigold accent
       },
     ],
     []
