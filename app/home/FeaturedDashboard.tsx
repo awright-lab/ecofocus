@@ -37,8 +37,8 @@ export default function FeaturedDashboard() {
               'Export-ready insights & visualizations',
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="mt-1 w-4 h-4 rounded-full border-2 border-[#124734] bg-white flex items-center justify-center">
-                  <span className="w-2 h-2 rounded-full bg-[#124734]" />
+                <span className="mt-1 w-4 h-4 rounded-full border-2 border-[#ef9601] bg-white flex items-center justify-center">
+                  <span className="w-2 h-2 rounded-full bg-[#ef9601]" />
                 </span>
                 <span className="text-gray-700">{item}</span>
               </li>

@@ -39,7 +39,7 @@ export default function TrustedBy() {
             transition={{ duration: 0.6 }}
         >
         Trusted by{' '}
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] via-[#2C7FB8] to-[#124734] animate-gradient-x bg-[length:200%_200%]">
+        <span className="bg-clip-text text-transparent animate-gradient bg-gradient-to-r from-[#ffbf2f] via-[#FFA000] to-[#ef9601]">
         Leading Organizations
         </span>
         </motion.h2>

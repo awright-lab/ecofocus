@@ -53,9 +53,9 @@ export default function CallToAction() {
                     {/* Secondary Button */}
                     <Link
                         href="/solutions"
-                        className="relative inline-block px-5 py-2 text-sm font-semibold text-gray-900 rounded-full border border-gray-300 bg-gray-100 hover:text-white overflow-hidden transition-all duration-300
-                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
-                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                        className="relative inline-block px-5 py-2 text-sm font-semibold text-black rounded-full bg-[#FFC107] overflow-hidden transition-all duration-300
+                                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
+                                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                     >
                         <span className="relative z-10">Explore Solutions</span>
                     </Link>

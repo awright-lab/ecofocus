@@ -43,7 +43,7 @@ export default function CoreServices() {
           transition={{ duration: 0.6 }}
         >
           Your Gateway to{' '}
-          <span className="bg-clip-text text-transparent animate-gradient bg-gradient-to-r from-[#FFC107] via-[#FFD54F] to-[#FFA000]">
+          <span className="bg-clip-text text-transparent animate-gradient bg-gradient-to-r from-[#ffbf2f] via-[#FFA000] to-[#ef9601]">
             Sustainability Intelligence
           </span>
         </motion.h2>
