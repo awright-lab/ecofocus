@@ -1,178 +1,208 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
+import { Microscope, BarChart3, Brain, Target, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowRight, BrainCircuit, ShoppingCart } from 'lucide-react';
+import React from 'react';
 
-type Props = {
-  // Example stat — tweak these from CMS if you want
-  sayPct?: number; // % who say they prefer sustainable products
-  doPct?: number;  // % who actually buy them
-  ctaHref?: string;
-  ctaLabel?: string;
+type Step = {
+  label: string;
+  sub: string;
+  icon: React.ElementType;
+  gradient: string; // Tailwind gradient classes
 };
 
-export default function SayDoGapSection({
-  sayPct = 78,
-  doPct = 31,
-  ctaHref = '/solutions/syndicated#methodology',
-  ctaLabel = 'See How We Measure What Matters',
-}: Props) {
-  const gap = Math.max(0, sayPct - doPct);
+const STEPS: Step[] = [
+  {
+    label: 'Market Research',
+    sub: 'Syndicated & custom studies uncover real attitudes and drivers.',
+    icon: Microscope,
+    gradient: 'from-emerald-700 to-emerald-500',
+  },
+  {
+    label: 'Data',
+    sub: 'Validated, census-balanced data with rigorous methodology.',
+    icon: BarChart3,
+    gradient: 'from-[#00767a] to-[#2C7FB8]',
+  },
+  {
+    label: 'Knowledge',
+    sub: 'Insights that separate intent from action—the say–do gap.',
+    icon: Brain,
+    gradient: 'from-[#dd9e37] to-[#FFC107]',
+  },
+  {
+    label: 'Informed Decisions',
+    sub: 'Clear moves for product, packaging, and go‑to‑market.',
+    icon: Target,
+    gradient: 'from-[#0f5132] to-[#56a96f]',
+  },
+];
 
+const container: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      // Use a cubic-bezier to satisfy TS types
+      ease: [0.22, 1, 0.36, 1],
+      duration: 0.5,
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const item: Variants = {
+  hidden: { opacity: 0, y: 28, scale: 0.96 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      ease: [0.22, 1, 0.36, 1],
+      duration: 0.5,
+    },
+  },
+};
+
+export default function DominoValueChain() {
   return (
-    <section className="relative py-20 bg-white">
-      {/* Soft background gradient */}
+    <section aria-labelledby="domino-value-chain" className="relative py-20 bg-white">
+      {/* soft background wash */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="h-full w-full bg-gradient-to-b from-amber-50/50 via-emerald-50/40 to-white" />
+        <div className="h-full w-full bg-gradient-to-b from-amber-50/40 via-emerald-50/40 to-white" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6">
         {/* Heading */}
         <div className="text-center mb-12">
           <motion.h2
+            id="domino-value-chain"
             className="text-3xl md:text-4xl font-bold text-gray-900"
-            initial={{ opacity: 0, y: -12 }}
+            initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            Closing the <span className="bg-clip-text text-transparent animate-gradient bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500">Say–Do Gap</span> in Sustainability
+            From{' '}
+            <span className="bg-clip-text text-transparent bg-[length:200%_200%] bg-gradient-to-r from-[#dd9e37] via-[#FFC107] to-[#dd803e] animate-[gradientMove_8s_ease_infinite]">
+              Research
+            </span>{' '}
+            to Action
           </motion.h2>
           <motion.p
             className="text-gray-600 mt-3 max-w-2xl mx-auto"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.15, duration: 0.5 }}
+            viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
+            transition={{ delay: 0.15, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            Consumers often tell one story and act out another. We blend stated attitudes with real behaviors to reveal the
-            truth that drives market change.
+            MARKET RESEARCH = DATA → DATA = KNOWLEDGE → KNOWLEDGE = INFORMED DECISIONS
           </motion.p>
         </div>
 
-        {/* Content grid */}
-        <div className="grid md:grid-cols-12 gap-8 items-stretch">
-          {/* Left: Copy points */}
-          <motion.div
-            className="md:col-span-6 bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+        {/* Domino chain */}
+        <motion.div
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-20% 0px -10% 0px' }}
+          className="flex flex-col md:flex-row items-stretch md:items-center gap-6"
+        >
+          {STEPS.map((s, idx) => {
+            const Icon = s.icon;
+            const isLast = idx === STEPS.length - 1;
+
+            return (
+              <div key={s.label} className="flex-1">
+                <motion.div variants={item} className="group relative h-full">
+                  {/* tile */}
+                  <div className="h-full rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                    {/* gradient header */}
+                    <div className={`relative px-5 py-4 bg-gradient-to-r ${s.gradient} text-white`}>
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-xl bg-white/15 p-2.5 backdrop-blur-sm">
+                          <Icon className="w-5 h-5" aria-hidden="true" />
+                        </div>
+                        <div className="text-base md:text-lg font-semibold">{s.label}</div>
+                      </div>
+
+                      {/* animated shimmer stripe */}
+                      <motion.div
+                        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] bg-white/30"
+                        initial={{ x: '-100%' }}
+                        whileInView={{ x: '100%' }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.4, repeat: Infinity, repeatType: 'loop', ease: [0.22, 1, 0.36, 1] }}
+                        style={{
+                          background:
+                            'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.9) 50%, rgba(255,255,255,0) 100%)',
+                        }}
+                      />
+                    </div>
+
+                    {/* body */}
+                    <div className="p-5">
+                      <p className="text-sm text-gray-700">{s.sub}</p>
+                    </div>
+
+                    {/* hover reveal */}
+                    <div className="absolute inset-0 rounded-2xl ring-1 ring-transparent group-hover:ring-emerald-300/70 transition" />
+                  </div>
+
+                  {/* connector arrow (desktop only) */}
+                  {!isLast && (
+                    <motion.div
+                      initial={{ opacity: 0, x: -8 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.1 + idx * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                      className="hidden md:flex items-center justify-center"
+                      aria-hidden="true"
+                    >
+                      <ChevronRight className="w-8 h-8 text-emerald-700/70 md:mt-4" />
+                    </motion.div>
+                  )}
+                </motion.div>
+
+                {/* connector arrow for mobile (vertical) */}
+                {!isLast && (
+                  <div className="md:hidden flex justify-center" aria-hidden="true">
+                    <ChevronRight className="rotate-90 w-6 h-6 text-emerald-700/60" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </motion.div>
+
+        {/* Optional CTA row */}
+        <div className="mt-10 flex flex-wrap gap-3 justify-center">
+          <Link
+            href="/solutions"
+            className="relative inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold text-white bg-[#124734] hover:opacity-95 transition"
           >
-            <ul className="space-y-4">
-              <li className="flex gap-3">
-                <div className="mt-1 shrink-0">
-                  <BrainCircuit className="w-5 h-5 text-emerald-600" />
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900">Attitudes + Actions</div>
-                  <p className="text-sm text-gray-600">
-                    Surveys capture what people <em>say</em>. Behavioral data shows what they <em>do</em>. EcoFocus integrates both.
-                  </p>
-                </div>
-              </li>
-
-              <li className="flex gap-3">
-                <div className="mt-1 shrink-0">
-                  <ShoppingCart className="w-5 h-5 text-amber-600" />
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900">Fewer False Positives</div>
-                  <p className="text-sm text-gray-600">
-                    Avoid strategies built on aspirational claims or social desirability bias. We quantify where intent falls short.
-                  </p>
-                </div>
-              </li>
-
-              <li className="flex gap-3">
-                <div className="mt-1 shrink-0">
-                  <ArrowRight className="w-5 h-5 text-sky-600" />
-                </div>
-                <div>
-                  <div className="font-semibold text-gray-900">Actionable Levers</div>
-                  <p className="text-sm text-gray-600">
-                    Identify price, convenience, availability, and messaging levers that convert intent into purchase.
-                  </p>
-                </div>
-              </li>
-            </ul>
-
-            <div className="mt-6">
-              <Link
-                href={ctaHref}
-                className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-              >
-                {ctaLabel}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </motion.div>
-
-          {/* Right: Mini “Say vs Do” visual */}
-          <motion.div
-            className="md:col-span-6 bg-white rounded-2xl border border-gray-200 shadow-sm p-6"
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            Explore Solutions
+          </Link>
+          <Link
+            href="/reports/latest"
+            className="relative inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold text-neutral-900 bg-[#dd9e37] hover:opacity-95 transition"
           >
-            <div className="mb-4">
-              <div className="text-sm font-semibold text-gray-900">Say vs. Do (example)</div>
-              <div className="text-xs text-gray-500">
-                Percentage of consumers who say they prefer eco‑friendly options vs. those who actually purchase them
-              </div>
-            </div>
-
-            {/* Bars */}
-            <div className="space-y-5">
-              {/* SAY */}
-              <div>
-                <div className="flex items-end justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">Say</span>
-                  <span className="text-xs text-gray-500">{sayPct}%</span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-[#dd9e37] via-[#FFC107] to-[#dd803e]"
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${sayPct}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, ease: 'easeOut' }}
-                  />
-                </div>
-              </div>
-
-              {/* DO */}
-              <div>
-                <div className="flex items-end justify-between mb-1">
-                  <span className="text-xs font-medium text-gray-700">Do</span>
-                  <span className="text-xs text-gray-500">{doPct}%</span>
-                </div>
-                <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600"
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${doPct}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Gap callout */}
-            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50/60 p-4">
-              <div className="text-sm text-gray-800">
-                <span className="font-semibold">{gap}% gap</span> between intention and action. EcoFocus helps quantify it and close it.
-              </div>
-            </div>
-          </motion.div>
+            View Latest Report
+          </Link>
         </div>
       </div>
+
+      {/* keyframes for the animated gradient in the heading */}
+      <style jsx>{`
+        @keyframes gradientMove {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+      `}</style>
     </section>
   );
 }
+
