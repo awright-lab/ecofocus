@@ -46,14 +46,14 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
           }}
         />
       </div>
-      
+
       {/* Full gradient scrim for readability (no glass box) */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="h-full w-full bg-gradient-to-br from-black/45 via-emerald-950/35 to-blue-950/45" />
       </div>
 
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-28">
+      <div className="relative max-w-7xl z-20 mx-auto px-6 py-24 md:py-28">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
