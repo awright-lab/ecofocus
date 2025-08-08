@@ -12,6 +12,7 @@ import CallToAction from './home/CallToAction';
 import EcoNuggetInsights from './home/EcoNuggetInsights';
 import QuickStats from './home/QuickStats';
 import FeaturedReport from './home/FeaturedReport';
+import SayDoGapSection from './home/SayDoGapSection';
 
 
 export default function HomePage() {
@@ -21,6 +22,7 @@ export default function HomePage() {
       <Hero />
       <CoreServices />
       <QuickStats />
+      <SayDoGapSection />
       <FeaturedDashboard />
       <EcoNuggetInsights />
       <FeaturedReport />
