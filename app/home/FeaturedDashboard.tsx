@@ -10,10 +10,13 @@ export default function FeaturedDashboard() {
       className="
         relative overflow-hidden py-28
         bg-[linear-gradient(180deg,#F0F9FF_0%,#FFFFFF_85%)]
-        /* diagonal divider (white) */
+        /* TOP diagonal (white) — slopes down L→R */
         before:content-[''] before:absolute before:inset-x-0 before:top-0 before:h-16 before:bg-white
-        before:[clip-path:polygon(0_100%,100%_0,100%_100%)]
+        before:[clip-path:polygon(0_0,100%_0,0_100%)]
         before:pointer-events-none
+        /* BOTTOM handoff (optional) — uncomment to add a matching exit slope */
+        /* after:content-[''] after:absolute after:inset-x-0 after:bottom-0 after:h-16 after:bg-white
+           after:[clip-path:polygon(100%_0,100%_100%,0_100%)] after:pointer-events-none */
       "
       aria-labelledby="dashboard-highlight"
     >
