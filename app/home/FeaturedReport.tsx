@@ -56,7 +56,7 @@ export default function FeaturedReport() {
           transition={{ duration: 0.8, delay: 0.2 }}
         >
           {/* Soft glow behind the image */}
-          <div className="absolute w-[280px] h-[280px] bg-gradient-to-br from-emerald-400/20 to-blue-400/20 rounded-full blur-3xl" />
+          <div className="absolute w-[280px] h-[280px]" />
 
           <Image
             src="/images/report-cover.png"
