@@ -53,7 +53,7 @@ export default function EcoNuggetInsights() {
 
                 <h2 className="text-3xl md:text-4xl font-bold mb-12">
                     Fresh Insights with <span className="bg-clip-text text-transparent animate-gradient 
-                         bg-gradient-to-r from-[#FFC107] via-[#FFD54F] to-[#FFA000]">EcoNuggets</span>
+                         bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500">EcoNuggets</span>
                 </h2>
 
                 {/* Featured Card */}
