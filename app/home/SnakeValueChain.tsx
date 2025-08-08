@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
-import { Search, Database, Lightbulb, TrendingUp } from 'lucide-react'; // Example icons
+import { Search, Database, Lightbulb, TrendingUp } from 'lucide-react';
 
 type Item = { id: string; title: string; body?: string; icon: React.ReactNode };
 type Point = { x: number; y: number };
@@ -21,25 +21,25 @@ export default function SnakeValueChain() {
         id: '1',
         title: 'Market Research',
         body: 'Syndicated & custom studies uncover real attitudes and drivers.',
-        icon: <Search className="w-8 h-8 text-emerald-700" />,
+        icon: <Search className="w-6 h-6 text-white" />,
       },
       {
         id: '2',
         title: 'Data',
         body: 'Validated, census-balanced data with rigorous methodology.',
-        icon: <Database className="w-8 h-8 text-teal-600" />,
+        icon: <Database className="w-6 h-6 text-white" />,
       },
       {
         id: '3',
         title: 'Knowledge',
         body: 'Insights that separate intent from action — the say–do gap.',
-        icon: <Lightbulb className="w-8 h-8 text-cyan-500" />,
+        icon: <Lightbulb className="w-6 h-6 text-white" />,
       },
       {
         id: '4',
         title: 'Informed Decisions',
         body: 'Clear moves for product, packaging, and go-to-market.',
-        icon: <TrendingUp className="w-8 h-8 text-emerald-500" />,
+        icon: <TrendingUp className="w-6 h-6 text-white" />,
       },
     ],
     []
@@ -129,13 +129,6 @@ export default function SnakeValueChain() {
                 <stop offset="50%" stopColor="#0d9488" />
                 <stop offset="100%" stopColor="#06b6d4" />
               </linearGradient>
-              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
             </defs>
 
             {positions.slice(0, -1).map((p, i) => {
@@ -154,7 +147,6 @@ export default function SnakeValueChain() {
                   strokeWidth={lineStroke}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  filter="url(#glow)"
                   initial={{ pathLength: 0, opacity: 0 }}
                   whileInView={{ pathLength: 1, opacity: 1 }}
                   viewport={{ once: true, amount: 0.4 }}
@@ -176,7 +168,7 @@ export default function SnakeValueChain() {
             return (
               <motion.div
                 key={items[i].id}
-                className="absolute bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300"
+                className="absolute bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
                 style={{
                   width: cardWidth,
                   left,
@@ -192,12 +184,19 @@ export default function SnakeValueChain() {
                   boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                 }}
               >
-                {/* Icon */}
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r from-emerald-700 to-cyan-500 text-white mb-4">
+                {/* Header strip */}
+                <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-emerald-700 via-teal-600 to-cyan-500">
+                  <span className="text-sm font-bold text-white">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
                   {items[i].icon}
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">{items[i].title}</h3>
-                {items[i].body && <p className="text-gray-600 mt-2">{items[i].body}</p>}
+
+                {/* Content */}
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900">{items[i].title}</h3>
+                  {items[i].body && <p className="text-gray-600 mt-2">{items[i].body}</p>}
+                </div>
               </motion.div>
             );
           })}
@@ -206,6 +205,7 @@ export default function SnakeValueChain() {
     </section>
   );
 }
+
 
 
 
