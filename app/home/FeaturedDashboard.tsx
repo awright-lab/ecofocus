@@ -9,24 +9,25 @@ export default function FeaturedDashboard() {
     <section
       className="
         relative overflow-hidden py-28
-        bg-[linear-gradient(180deg,#FFFBEB_0%,#FFFFFF_85%)]
+        bg-[linear-gradient(180deg,#F0F9FF_0%,#FFFFFF_85%)]
       "
       aria-labelledby="dashboard-highlight"
     >
-      {/* Top white curve divider (separates from the white section above) */}
+      {/* Diagonal divider at top */}
       <svg
-        className="pointer-events-none absolute -top-10 left-0 w-full h-20"
+        className="pointer-events-none absolute -top-[1px] left-0 w-full h-16"
         viewBox="0 0 1440 80"
+        preserveAspectRatio="none"
         aria-hidden="true"
       >
         <path
           fill="#ffffff"
-          d="M0,64 C180,32 360,16 540,24 C720,32 900,64 1080,64 C1260,64 1350,48 1440,40 L1440,0 L0,0 Z"
+          d="M0,80 L1440,0 L1440,80 Z"
         />
       </svg>
 
-      {/* subtle marigold highlight behind image */}
-      <div className="absolute right-[-120px] bottom-[-120px] w-[420px] h-[420px] rounded-full bg-amber-200/20 blur-3xl" />
+      {/* soft blue glow behind image */}
+      <div className="absolute right-[-120px] bottom-[-120px] w-[420px] h-[420px] rounded-full bg-sky-300/20 blur-3xl" />
 
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
         {/* Left Content */}
@@ -85,7 +86,7 @@ export default function FeaturedDashboard() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className="absolute w-[300px] h-[300px] bg-gradient-to-br from-emerald-400/15 to-amber-300/20 rounded-full blur-3xl" />
+          <div className="absolute w-[300px] h-[300px] bg-gradient-to-br from-emerald-400/15 to-sky-300/20 rounded-full blur-3xl" />
           <Image
             src="/images/dashboard.png"
             alt="EcoFocus Interactive Dashboard Preview"
@@ -99,5 +100,6 @@ export default function FeaturedDashboard() {
     </section>
   );
 }
+
 
 
