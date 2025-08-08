@@ -7,7 +7,6 @@ type Item = { id: string; title: string; body?: string };
 type Point = { x: number; y: number };
 
 function snakeBezier(a: Point, b: Point, wave: number) {
-  // wave controls S-curve vertical bend (positive then negative, alternating)
   const dx = (b.x - a.x) * 0.35;
   const c1: Point = { x: a.x + dx, y: a.y + wave };
   const c2: Point = { x: b.x - dx, y: b.y - wave };
@@ -29,12 +28,11 @@ export default function SnakeValueChain() {
     []
   );
 
-  // Layout constants
   const cardWidth = 320;
-  const cardHeight = 140;      // visual height used for layout math
-  const verticalGap = 120;     // distance between card centers
-  const lineStroke = 3;
-  const cardEdgeInset = 12;    // pulls the line slightly inside card edge so it visually "touches"
+  const cardHeight = 140;
+  const verticalGap = 120;
+  const lineStroke = 4;
+  const cardEdgeInset = 12;
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const [svgSize, setSvgSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
@@ -43,7 +41,6 @@ export default function SnakeValueChain() {
     const el = wrapRef.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      // Height = last card center + half card + some breathing room
       const lastRow = (items.length - 1) * verticalGap + 40;
       const neededHeight = lastRow + cardHeight / 2 + 60;
       setSvgSize({ w: el.clientWidth, h: Math.max(neededHeight, el.clientHeight) });
@@ -52,7 +49,6 @@ export default function SnakeValueChain() {
     return () => ro.disconnect();
   }, [items.length]);
 
-  // Compute left/right card centers
   const positions = useMemo(() => {
     const padX = 24;
     const leftX = padX + cardWidth / 2;
@@ -80,7 +76,7 @@ export default function SnakeValueChain() {
             transition={{ duration: 0.5 }}
           >
             From{' '}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-teal-600">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 via-teal-600 to-cyan-500">
               Research
             </span>{' '}
             to Action
@@ -99,7 +95,7 @@ export default function SnakeValueChain() {
         {/* Path + Cards */}
         <div
           ref={wrapRef}
-          className="relative w-full overflow-visible pb-20" // ensure no clipping
+          className="relative w-full overflow-visible pb-20"
           style={{ minHeight: positions.length ? positions.at(-1)!.y + cardHeight : 240 }}
         >
           {/* SVG connectors */}
@@ -111,22 +107,32 @@ export default function SnakeValueChain() {
             preserveAspectRatio="none"
           >
             <defs>
+              {/* Multi-stop animated gradient */}
               <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#047857" />
-                <stop offset="100%" stopColor="#0d9488" />
+                <stop offset="0%" stopColor="#047857">
+                  <animate attributeName="stop-color" values="#047857;#0d9488;#06b6d4;#047857" dur="6s" repeatCount="indefinite" />
+                </stop>
+                <stop offset="50%" stopColor="#0d9488">
+                  <animate attributeName="stop-color" values="#0d9488;#06b6d4;#047857;#0d9488" dur="6s" repeatCount="indefinite" />
+                </stop>
+                <stop offset="100%" stopColor="#06b6d4">
+                  <animate attributeName="stop-color" values="#06b6d4;#047857;#0d9488;#06b6d4" dur="6s" repeatCount="indefinite" />
+                </stop>
               </linearGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
             </defs>
 
             {positions.slice(0, -1).map((p, i) => {
               const n = positions[i + 1];
-
-              // Start/end on the **edge** of the cards
               const startX = p.isLeft ? p.x + cardWidth / 2 - cardEdgeInset : p.x - cardWidth / 2 + cardEdgeInset;
               const endX = n.isLeft ? n.x - cardWidth / 2 + cardEdgeInset : n.x + cardWidth / 2 - cardEdgeInset;
-
-              // Alternate vertical bend to create an S pattern
-              const wave = (i % 2 === 0 ? 1 : -1) * 60; // tweak 60 for more/less curve
-
+              const wave = (i % 2 === 0 ? 1 : -1) * 60;
               const path = snakeBezier({ x: startX, y: p.y }, { x: endX, y: n.y }, wave);
 
               return (
@@ -137,6 +143,8 @@ export default function SnakeValueChain() {
                   stroke="url(#lineGradient)"
                   strokeWidth={lineStroke}
                   strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter="url(#glow)"
                   initial={{ pathLength: 0, opacity: 0 }}
                   whileInView={{ pathLength: 1, opacity: 1 }}
                   viewport={{ once: true, amount: 0.4 }}
@@ -158,23 +166,30 @@ export default function SnakeValueChain() {
             return (
               <motion.div
                 key={items[i].id}
-                className="absolute bg-white rounded-2xl shadow-lg p-5 border border-gray-200"
-                style={{ width: cardWidth, left, top, transformOrigin: pos.isLeft ? 'left center' : 'right center' }}
+                className="absolute rounded-2xl p-5 border border-transparent bg-white/70 backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300"
+                style={{
+                  width: cardWidth,
+                  left,
+                  top,
+                  transformOrigin: pos.isLeft ? 'left center' : 'right center',
+                  borderImage: 'linear-gradient(to right, #047857, #0d9488, #06b6d4) 1',
+                  borderWidth: '1px',
+                  borderStyle: 'solid',
+                }}
                 initial={{ opacity: 0, y: 20, scale: 0.96, rotate: pos.isLeft ? -2 : 2 }}
                 whileInView={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1], delay: i * 0.08 }}
                 whileHover={{
                   y: -6,
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.12)',
-                  transition: { duration: 0.25, ease: [0.22, 1, 0.36, 1] },
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                 }}
               >
                 <div className="text-sm font-bold uppercase tracking-wide bg-gradient-to-r from-emerald-700 to-teal-600 bg-clip-text text-transparent">
                   {String(i + 1).padStart(2, '0')}
                 </div>
                 <h3 className="text-lg font-semibold mt-1 text-gray-900">{items[i].title}</h3>
-                {items[i].body && <p className="text-gray-600 mt-2">{items[i].body}</p>}
+                {items[i].body && <p className="text-gray-700 mt-2 leading-relaxed">{items[i].body}</p>}
               </motion.div>
             );
           })}
@@ -183,5 +198,6 @@ export default function SnakeValueChain() {
     </section>
   );
 }
+
 
 
