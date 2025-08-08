@@ -22,7 +22,7 @@ export default function QuickStats() {
             transition={{ duration: 0.6, delay: i * 0.1 }}
           >
             <div className="flex flex-col items-center justify-center">
-              <i className={`${stat.icon} text-3xl text-[#ef9601] mb-2`} />
+              <i className={`${stat.icon} text-3xl text-[#ffd863] mb-2`} />
               <div className="text-2xl font-bold text-white">{stat.value}</div>
               <div className="text-sm text-white/80 mt-1">{stat.label}</div>
             </div>
