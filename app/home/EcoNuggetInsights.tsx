@@ -52,7 +52,8 @@ export default function EcoNuggetInsights() {
                 </motion.div>
 
                 <h2 className="text-3xl md:text-4xl font-bold mb-12">
-                    Fresh Insights with <span className="text-emerald-400">EcoNuggets</span>
+                    Fresh Insights with <span className="bg-clip-text text-transparent animate-gradient 
+                         bg-gradient-to-r from-[#FFC107] via-[#FFD54F] to-[#FFA000]">EcoNuggets</span>
                 </h2>
 
                 {/* Featured Card */}
@@ -85,8 +86,8 @@ export default function EcoNuggetInsights() {
                                 <div className="flex justify-start">
                                     <Link
                                         href={featured.link}
-                                        className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
-                                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
+                                        className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#FFC107] overflow-hidden transition-all duration-300
+                                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
                                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                                     >
                                         <span className="relative z-10">Read More →</span>
@@ -136,9 +137,9 @@ export default function EcoNuggetInsights() {
                 <div className="text-center mt-14">
                     <Link
                         href="/blog"
-                        className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
-                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
-                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                        className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#FFC107] overflow-hidden transition-all duration-300
+                                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
+                                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                     >
                         <span className="relative z-10">See All Insights</span>
                     </Link>

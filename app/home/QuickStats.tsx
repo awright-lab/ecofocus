@@ -10,7 +10,7 @@ export default function QuickStats() {
   ];
 
   return (
-    <section className="bg-[#124734] py-10">
+    <section className="bg-emerald-600 py-10">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
         {stats.map((stat, i) => (
           <motion.div

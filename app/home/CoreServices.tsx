@@ -43,7 +43,7 @@ export default function CoreServices() {
           transition={{ duration: 0.6 }}
         >
           Your Gateway to{' '}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-900 to-slate-900 gradientMove bg-[length:200%_200%]">
+          <span className="bg-clip-text text-transparent animate-gradient bg-gradient-to-r from-[#FFC107] via-[#FFD54F] to-[#FFA000]">
             Sustainability Intelligence
           </span>
         </motion.h2>
@@ -91,9 +91,9 @@ export default function CoreServices() {
                 </p>
                 <Link
                   href={service.link}
-                  className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
-                    before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
-                    before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                  className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
+                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                 >
                   <span className="relative z-10">Learn More</span>
                 </Link>
