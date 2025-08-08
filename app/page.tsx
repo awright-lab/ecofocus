@@ -13,6 +13,7 @@ import EcoNuggetInsights from './home/EcoNuggetInsights';
 import QuickStats from './home/QuickStats';
 import FeaturedReport from './home/FeaturedReport';
 import SayDoGapSection from './home/SayDoGapSection';
+import DominoValueChain from './home/DominoValueChain';
 
 
 export default function HomePage() {
@@ -25,6 +26,7 @@ export default function HomePage() {
       <SayDoGapSection />
       <FeaturedDashboard />
       <EcoNuggetInsights />
+      <DominoValueChain />
       <FeaturedReport />
       <TrustedBy />
       <CallToAction />
