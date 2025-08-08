@@ -100,15 +100,15 @@ export default function SayDoGapSection({
             </ul>
 
             <div className="mt-6">
-              <Link
+            <Link
                 href={ctaHref}
-                className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-              >
-                {ctaLabel}
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+                className="relative inline-flex items-center gap-2 px-6 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
+                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+            >
+                <span className="relative z-10">{ctaLabel}</span>
+                <ArrowRight className="relative z-10 w-4 h-4" />
+            </Link>
             </div>
           </motion.div>
 
