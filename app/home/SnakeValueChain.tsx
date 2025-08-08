@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
 import { Search, Database, Lightbulb, TrendingUp } from 'lucide-react';
 
-type Item = { id: string; title: string; body?: string; icon: React.ReactNode };
+type Item = { id: string; title: string; body?: string; icon: React.ReactNode; gradient: string };
 type Point = { x: number; y: number };
 
 function snakeBezier(a: Point, b: Point, wave: number) {
@@ -22,24 +22,28 @@ export default function SnakeValueChain() {
         title: 'Market Research',
         body: 'Syndicated & custom studies uncover real attitudes and drivers.',
         icon: <Search className="w-6 h-6 text-white" />,
+        gradient: 'from-emerald-700 to-teal-500',
       },
       {
         id: '2',
         title: 'Data',
         body: 'Validated, census-balanced data with rigorous methodology.',
         icon: <Database className="w-6 h-6 text-white" />,
+        gradient: 'from-teal-600 to-cyan-500',
       },
       {
         id: '3',
         title: 'Knowledge',
         body: 'Insights that separate intent from action — the say–do gap.',
         icon: <Lightbulb className="w-6 h-6 text-white" />,
+        gradient: 'from-cyan-500 to-emerald-500',
       },
       {
         id: '4',
         title: 'Informed Decisions',
         body: 'Clear moves for product, packaging, and go-to-market.',
         icon: <TrendingUp className="w-6 h-6 text-white" />,
+        gradient: 'from-amber-400 to-emerald-500', // marigold accent
       },
     ],
     []
@@ -184,8 +188,8 @@ export default function SnakeValueChain() {
                   boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
                 }}
               >
-                {/* Header strip */}
-                <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-emerald-700 via-teal-600 to-cyan-500">
+                {/* Header strip - unique gradient per card */}
+                <div className={`flex items-center justify-between px-4 py-2 bg-gradient-to-r ${items[i].gradient}`}>
                   <span className="text-sm font-bold text-white">
                     {String(i + 1).padStart(2, '0')}
                   </span>
@@ -205,6 +209,7 @@ export default function SnakeValueChain() {
     </section>
   );
 }
+
 
 
 
