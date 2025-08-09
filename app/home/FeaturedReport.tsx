@@ -16,7 +16,7 @@ export default function FeaturedReport() {
         transition={{ duration: 0.8 }}
         >
         <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-black/5 bg-gray-400 text-xs md:text-sm mb-4"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-black/5 bg-gray-100 text-xs md:text-sm mb-4"
             initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
