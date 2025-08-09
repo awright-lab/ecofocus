@@ -9,7 +9,7 @@ export default function FeaturedDashboard() {
     <section
       className="
         relative overflow-hidden py-28 isolate
-        bg-[linear-gradient(180deg,white_0%,#F0F9FF_100%)]
+        bg-[linear-gradient(180deg,white_0%,#E0F4FF_80%)]
       "
       aria-labelledby="dashboard-highlight"
     >

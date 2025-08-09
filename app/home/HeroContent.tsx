@@ -40,7 +40,7 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
        {/* ✅ Diagonal Gradient Overlay */}
       <div className="absolute inset-0 z-10 pointer-events-none">
         <div
-          className="w-full h-full bg-gradient-to-br from-emerald-900/90 to-blue-900/90"
+          className="w-full h-full bg-gradient-to-br from-emerald-900/95 to-blue-900/95"
           style={{
             clipPath: 'polygon(0% 0%, 40% 0%, 70% 100%, 0% 100%)'
           }}
