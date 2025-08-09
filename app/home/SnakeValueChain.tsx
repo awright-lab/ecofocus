@@ -84,7 +84,7 @@ export default function SnakeValueChain() {
   }, [items, svgSize.w]);
 
   return (
-    <section className="relative py-16 bg-[linear-gradient(180deg,#E0F4FF_80%,white_0%)]" aria-labelledby="snake-value-chain">
+    <section className="relative py-16 isolate bg-[linear-gradient(180deg,#E0F4FF_80%,white_0%)]" aria-labelledby="snake-value-chain">
       <div className="max-w-7xl mx-auto px-6">
         {/* Heading */}
         <div className="text-center mb-12">
