@@ -9,15 +9,7 @@ export default function FeaturedDashboard() {
     <section
       className="
         relative overflow-hidden py-28 isolate
-        /* solid light-blue tint (no fade to white at bottom) */
-        bg-[linear-gradient(180deg,#F0F9FF_0%,#E7F4FF_100%)]
-        /* TOP diagonal (white) — slopes down L→R */
-        before:content-[''] before:absolute before:inset-x-0 before:top-0 before:h-16 before:bg-white
-        before:[clip-path:polygon(0_0,100%_0,0_100%)] before:pointer-events-none
-        /* BOTTOM diagonal (blue) — slopes down R→L to remove white wedge */
-        after:content-[''] after:absolute after:inset-x-0 after:bottom-0 after:h-16
-        after:bg-[linear-gradient(180deg,#E7F4FF,#E7F4FF)]
-        after:[clip-path:polygon(100%_0,0_100%,100%_100%)] after:pointer-events-none
+        bg-[linear-gradient(180deg,white_0%,#F0F9FF_100%)]
       "
       aria-labelledby="dashboard-highlight"
     >
@@ -95,6 +87,7 @@ export default function FeaturedDashboard() {
     </section>
   );
 }
+
 
 
 
