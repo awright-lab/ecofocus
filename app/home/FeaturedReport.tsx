@@ -1,77 +1,89 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function FeaturedReport() {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-        {/* Left Content */}
-        <motion.div
-        initial={{ opacity: 0, x: -40 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
-        >
-        <motion.div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-black/5 bg-gray-100 text-xs md:text-sm mb-4"
-            initial={{ opacity: 0, y: -10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-        >
-            {/* dot (swap to bg-amber-400 for marigold accent) */}
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-
-            <span className="text-black/50">Report Highlight</span>
-        </motion.div>
-
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-            Sustainability Insights Report
-          </h2>
-
-          <p className="text-lg text-gray-600 mb-8 max-w-xl">
-            Our latest report dives deep into consumer behavior and sustainability
-            trends shaping the market in 2024 and beyond. Gain the knowledge you
-            need to stay ahead of the curve.
-          </p>
-
-          <Link
-            href="/reports"
-            className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+    <section
+      aria-labelledby="featured-report-heading"
+      className="relative overflow-hidden bg-white"
+    >
+      {/* spacing */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
+          {/* Image: first on mobile, second on desktop */}
+          <motion.div
+            className="relative order-1 md:order-2 md:col-span-6 flex md:justify-end"
+            initial={reduceMotion ? false : { opacity: 0, x: 40 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
           >
-            <span className="relative z-10">Get the Report</span>
-          </Link>
-        </motion.div>
+            {/* subtle glow */}
+            <div className="pointer-events-none absolute -right-8 -bottom-6 h-64 w-64 rounded-full bg-emerald-300/15 blur-3xl md:h-80 md:w-80" />
 
-        {/* Right Image */}
-        <motion.div
-          className="relative flex justify-center"
-          initial={{ opacity: 0, x: 40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          {/* Soft glow behind the image */}
-          <div className="absolute w-[280px] h-[280px]" />
+            {/* aspect wrapper prevents layout shift */}
+            <div className="relative z-10 mx-auto w-full max-w-[560px] overflow-hidden rounded-xl shadow-2xl">
+              <div className="relative aspect-[5/3]">
+                <Image
+                  src="/images/report-cover.png" // swap for CMS URL if needed
+                  alt="EcoFocus Sustainability Insights Report cover"
+                  fill
+                  priority={false}
+                  sizes="(min-width: 1024px) 42vw, (min-width: 768px) 50vw, 92vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </motion.div>
 
-          <Image
-            src="/images/report-cover.png"
-            alt="EcoFocus Featured Sustainability Report"
-            width={500}
-            height={350}
-            className="rounded-xl shadow-2xl relative z-10 object-cover"
-            priority
-          />
-        </motion.div>
+          {/* Copy/CTA */}
+          <motion.div
+            className="order-2 md:order-1 md:col-span-6"
+            initial={reduceMotion ? false : { opacity: 0, x: -40 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.7 }}
+          >
+            <div className="mb-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] uppercase tracking-wide text-black/60">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                Report Highlight
+              </span>
+            </div>
+
+            <h2
+              id="featured-report-heading"
+              className="mb-4 font-bold leading-tight text-gray-900 text-[clamp(1.75rem,5.5vw,2.5rem)] md:mb-6"
+            >
+              Sustainability Insights Report
+            </h2>
+
+            <p className="mb-6 max-w-xl text-sm text-gray-700 sm:text-base md:mb-8">
+              Our latest report dives deep into consumer behavior and sustainability trends shaping the market
+              in 2024 and beyond. Gain the knowledge you need to stay ahead of the curve.
+            </p>
+
+            <Link
+              href="/reports"
+              className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                         before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+              aria-label="Get the Sustainability Insights Report"
+            >
+              <span className="relative z-10">Get the Report</span>
+            </Link>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
+
 
 
 

@@ -1,34 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [showTop, setShowTop] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const year = new Date().getFullYear();
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  function handleNewsletterSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log('Newsletter signup:', email);
+    // TODO: wire to your email provider (HubSpot, Mailchimp, etc.)
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setMsg('Please enter a valid email.');
+      return;
+    }
+    setMsg('Thanks! You’re subscribed.');
     setEmail('');
-  };
+    setTimeout(() => setMsg(null), 3500);
+  }
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 320);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
-    <footer className="bg-gray-950 text-white relative overflow-hidden">
+    <footer className="relative overflow-hidden bg-gray-950 text-white">
       {/* Gradient Top Border */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500"></div>
+      <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
 
-      <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
-        {/* Logo & About */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-12 sm:px-6 md:grid-cols-4 md:gap-12 md:py-16 relative z-10">
+        {/* Brand / About */}
+        <motion.section
+          aria-label="About EcoFocus"
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.6 }}
         >
           <Image
@@ -36,124 +54,161 @@ export default function Footer() {
             alt="EcoFocus Research"
             width={180}
             height={60}
-            className="mb-6"
+            sizes="180px"
+            className="mb-6 h-auto w-[180px]"
             priority
           />
-          <p className="text-gray-400 text-sm leading-relaxed">
+          <p className="text-sm leading-relaxed text-gray-400">
             Turning sustainability data into actionable strategies for over a decade.
             Trusted by leading brands worldwide.
           </p>
-          {/* Social Icons */}
-          <div className="flex space-x-4 mt-6">
+
+          {/* Social */}
+          <div className="mt-6 flex space-x-4">
             <a
-              href="#"
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gradient-to-r from-emerald-500 to-blue-500 transition"
+              href="https://www.linkedin.com/" // swap to your real page
+              target="_blank"
+              rel="noopener noreferrer"
+              className="grid h-10 w-10 place-items-center rounded-full bg-gray-800 transition hover:bg-gradient-to-r hover:from-emerald-500 hover:to-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
               aria-label="LinkedIn"
             >
-              <i className="ri-linkedin-fill text-lg text-white"></i>
+              <i className="ri-linkedin-fill text-lg text-white" aria-hidden="true" />
             </a>
           </div>
-        </motion.div>
+        </motion.section>
 
         {/* Quick Links */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+        <motion.nav
+          aria-label="Quick links"
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <h3 className="text-lg font-semibold mb-6">Quick Links</h3>
+          <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
           <ul className="space-y-3 text-sm">
-            {['About', 'Solutions', 'Reports & Store', 'Blog', 'Contact'].map((item, i) => (
-              <li key={i}>
+            {[
+              { label: 'About', href: '/about' },
+              { label: 'Solutions', href: '/solutions' },
+              { label: 'Reports & Store', href: '/reports' },
+              { label: 'Blog', href: '/blog' },
+              { label: 'Contact', href: '/contact' },
+            ].map((link) => (
+              <li key={link.label}>
                 <Link
-                  href={`/${item.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-gray-400 hover:text-emerald-400 transition"
+                  href={link.href}
+                  className="text-gray-400 transition hover:text-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
                 >
-                  {item}
+                  {link.label}
                 </Link>
               </li>
             ))}
           </ul>
-        </motion.div>
+        </motion.nav>
 
         {/* Services */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+        <motion.nav
+          aria-label="Services"
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h3 className="text-lg font-semibold mb-6">Services</h3>
+          <h3 className="mb-4 text-lg font-semibold">Services</h3>
           <ul className="space-y-3 text-sm">
             {[
-              'Syndicated Research',
-              'Custom Research',
-              'Specialized Reports',
-              'Consulting Services'
-            ].map((service, i) => (
-              <li key={i}>
-                <a href="#" className="text-gray-400 hover:text-emerald-400 transition">
-                  {service}
-                </a>
+              { label: 'Syndicated Research', href: '/solutions#syndicated' },
+              { label: 'Custom Research', href: '/solutions#custom' },
+              { label: 'Specialized Reports', href: '/reports' },
+              { label: 'Consulting Services', href: '/solutions#consulting' },
+            ].map((s) => (
+              <li key={s.label}>
+                <Link
+                  href={s.href}
+                  className="text-gray-400 transition hover:text-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
+                >
+                  {s.label}
+                </Link>
               </li>
             ))}
           </ul>
-        </motion.div>
+        </motion.nav>
 
         {/* Newsletter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+        <motion.section
+          aria-label="Newsletter signup"
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <h3 className="text-lg font-semibold mb-6">Stay Updated</h3>
-          <p className="text-gray-400 text-sm mb-4">
+          <h3 className="mb-4 text-lg font-semibold">Stay Updated</h3>
+          <p className="mb-4 text-sm text-gray-400">
             Get the latest sustainability insights delivered to your inbox.
           </p>
-          <form onSubmit={handleNewsletterSubmit} className="space-y-4">
+
+          <form onSubmit={handleNewsletterSubmit} className="space-y-3" noValidate>
+            <label htmlFor="footer-email" className="sr-only">
+              Email address
+            </label>
             <input
+              id="footer-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:border-emerald-500 text-sm"
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-400 focus:border-emerald-500 focus:outline-none"
               required
+              aria-describedby={msg ? 'footer-msg' : undefined}
             />
             <button
               type="submit"
-              className="relative inline-block w-full px-6 py-3 text-sm font-semibold text-white rounded-lg bg-emerald-600 overflow-hidden transition-all duration-300
-              before:absolute before:inset-0 before:rounded-lg before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-              before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+              className="relative inline-flex w-full items-center justify-center overflow-hidden rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition
+                         before:absolute before:inset-0 before:rounded-lg before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                         before:z-0 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
             >
               <span className="relative z-10">Subscribe</span>
             </button>
+
+            {msg && (
+              <p id="footer-msg" className="text-xs text-gray-300">
+                {msg}
+              </p>
+            )}
           </form>
-        </motion.div>
+        </motion.section>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-gray-800 mt-12 py-6 flex flex-col md:flex-row justify-between items-center px-6">
-        <p className="text-gray-400 text-sm">
-          © 2025 EcoFocus Research. All rights reserved.
-        </p>
-        <div className="flex space-x-6 mt-4 md:mt-0">
-          <a href="#" className="text-gray-400 hover:text-white text-sm transition">Privacy Policy</a>
-          <a href="#" className="text-gray-400 hover:text-white text-sm transition">Terms</a>
-          <a href="#" className="text-gray-400 hover:text-white text-sm transition">Cookies</a>
+      {/* Bottom bar */}
+      <div className="mt-4 border-t border-gray-800">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:px-6 md:flex-row">
+          <p className="text-sm text-gray-400">© {year} EcoFocus Research. All rights reserved.</p>
+          <nav aria-label="Legal" className="flex gap-6">
+            <Link href="/privacy" className="text-sm text-gray-400 transition hover:text-white">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-sm text-gray-400 transition hover:text-white">
+              Terms
+            </Link>
+            <Link href="/cookies" className="text-sm text-gray-400 transition hover:text-white">
+              Cookies
+            </Link>
+          </nav>
         </div>
+      </div>
 
-        {/* Back to Top Button */}
+      {/* Back to Top */}
+      {showTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-7 right-6 w-12 h-12 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition"
-          aria-label="Back to Top"
+          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 grid h-12 w-12 place-items-center rounded-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-lg transition hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+          aria-label="Back to top"
         >
-          <i className="ri-arrow-up-line text-white text-xl"></i>
+          <i className="ri-arrow-up-line text-xl" aria-hidden="true" />
         </button>
-      </div>
+      )}
     </footer>
   );
 }
+
 

@@ -1,110 +1,146 @@
+// components/sections/SolutionsSection.tsx
 'use client';
 
-import { motion } from 'framer-motion';
-import FloatingOrbs from '@/components/FloatingOrbs';
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 
-const services = [
+type Card = {
+  title: string;
+  image: { src: string; alt: string; objectPosition?: string }; // supports focal point
+  bullets: string[];
+  cta: { label: string; href: string; external?: boolean };
+  footnote?: React.ReactNode;
+};
+
+const CARDS: Card[] = [
   {
     title: 'Syndicated Research',
-    description: 'Annual study with 4000+ U.S. consumers covering key sustainability trends.',
-    link: '/solutions/syndicated',
-    image: '/images/solutions-syndicated.png',
-    overlayColor: 'bg-[#00767a]/20', // lighter teal overlay
+    image: { src: '/images/solutions/syndicated.png', alt: 'Analyst reviewing sustainability dashboards', objectPosition: '50% 35%' },
+    bullets: [
+      'Annual U.S. study (n=4,000), Census-balanced',
+      'Trends since 2010 across attitudes & behaviors',
+      'Interactive dashboard with instant crosstabs',
+    ],
+    cta: { label: 'Learn More', href: '/solutions/syndicated', external: true },
   },
   {
     title: 'Custom Research',
-    description: 'Tailored studies designed to answer your brand-specific questions.',
-    link: '/solutions/custom',
-    image: '/images/solutions-custom.png',
-    overlayColor: 'bg-[#dd803e]/20', // lighter orange overlay
+    image: { src: '/images/solutions/custom.png', alt: 'Workshop with stakeholder sticky notes' },
+    bullets: [
+      'B2C & B2B: qual + quant',
+      'Questionnaire, sample & analysis',
+      'Executive summary & workshop',
+    ],
+    cta: { label: 'Learn More', href: '/solutions' },
   },
   {
     title: 'Data Infusion',
-    description: 'Blend your internal data with EcoFocus insights for enhanced sustainability context.',
-    link: '/solutions/data-infusion',
-    image: '/images/solutions-infusion.png',
-    overlayColor: 'bg-[#9bbd3f]/20', // lighter green overlay
+    image: { src: '/images/solutions/datainfusion.png', alt: 'Data visualization showing customer segments', objectPosition: '50% 45%' },
+    bullets: [
+      'Enrich your data with EcoFocus context',
+      'Personas with a sustainability lens',
+      'Frictionless BI integration',
+    ],
+    cta: { label: 'Learn More', href: '/solutions' },
+  },
+  {
+    title: 'Consulting & Enablement',
+    image: { src: '/images/solutions/consulting.png', alt: 'Team collaboration for strategy activation' },
+    bullets: [
+      'Strategy activation & change management',
+      'Team enablement, training & adoption',
+      'Program rollouts / PMO support',
+    ],
+    cta: { label: 'Learn More', href: '/solutions', external: true },
+    footnote: (
+      <span className="text-xs text-slate-500">
+        Delivered with our consulting partner{' '}
+        <a className="underline hover:text-slate-700" href="https://fwdfocus.com/" target="_blank" rel="noopener noreferrer">
+          ForwardFocus
+        </a>.
+      </span>
+    ),
   },
 ];
 
-export default function CoreServices() {
+export default function SolutionsSection() {
   return (
-    <section className="relative bg-neutral-50 py-24 overflow-hidden">
-      <FloatingOrbs />
+    <section aria-labelledby="solutions-heading" className="py-12 md:py-16">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <header className="mb-6 md:mb-8">
+          <h2 id="solutions-heading" className="font-semibold leading-tight text-[clamp(1.4rem,3vw,2rem)]">
+            Solutions
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm text-slate-600 md:text-base">
+            Choose the path that fits your goals—then scale from insights to action.
+          </p>
+        </header>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-        <motion.h2
-          className="text-3xl md:text-4xl font-bold text-center text-neutral-800 mb-6"
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          Your Gateway to{' '}
-          <span className="bg-clip-text text-transparent animate-gradient bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500">
-            Sustainability Intelligence
-          </span>
-        </motion.h2>
-
-        <motion.p
-          className="text-lg text-neutral-600 text-center max-w-2xl mx-auto mb-16"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          Discover the research solutions that power brand success in a purpose-driven world.
-        </motion.p>
-
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              className="bg-white rounded-2xl shadow-xl p-0 border border-neutral-200 hover:shadow-2xl transition-shadow flex flex-col overflow-hidden"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {CARDS.map((card) => (
+            <article
+              key={card.title}
+              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
             >
-              {/* Image fills top half */}
-              <div className="relative w-full h-64 md:h-72">
+              {/* Image */}
+              <div className="relative aspect-[16/10] bg-slate-100">
                 <Image
-                    src={service.image}
-                    alt={service.title}
-                    fill
-                    className="object-cover brightness-110 saturate-125"
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                  src={card.image.src}
+                  alt={card.image.alt}
+                  fill
+                  sizes="(min-width: 1024px) 25vw, (min-width: 768px) 45vw, 95vw"
+                  className="object-cover"
+                  style={card.image.objectPosition ? { objectPosition: card.image.objectPosition } : undefined}
+                  priority={false}
                 />
-                <div className={`absolute inset-0 ${service.overlayColor} mix-blend-multiply`}></div>
-                <div className="absolute inset-0 bg-black/5"></div>
-            </div>
-
-              {/* Text + CTA */}
-              <div className="p-8 flex flex-col flex-grow">
-                <h3 className="text-xl font-semibold text-neutral-800 mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-neutral-600 mb-4 text-sm leading-relaxed flex-grow">
-                  {service.description}
-                </p>
-                <Link
-                  href={service.link}
-                  className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-emerald-600 overflow-hidden transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                >
-                  <span className="relative z-10">Learn More</span>
-                </Link>
+                {/* subtle gradient for legibility if you overlay labels later */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-transparent opacity-90" />
               </div>
-            </motion.div>
+
+              {/* Body */}
+              <div className="p-5">
+                <h3 className="text-base font-semibold md:text-lg">{card.title}</h3>
+                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-slate-700">
+                  {card.bullets.map((b, i) => (
+                    <li key={i}>{b}</li>
+                  ))}
+                </ul>
+
+                <div className="mt-4 flex items-center justify-between">
+                  {card.cta.external ? (
+                    <a
+                      href={card.cta.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+                      aria-label={`${card.title}: ${card.cta.label}`}
+                    >
+                      {card.cta.label}
+                      <ArrowRight className="h-4 w-4" />
+                    </a>
+                  ) : (
+                    <Link
+                      href={card.cta.href}
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
+                      aria-label={`${card.title}: ${card.cta.label}`}
+                    >
+                      {card.cta.label}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  )}
+                </div>
+
+                {card.footnote ? <div className="mt-3">{card.footnote}</div> : null}
+              </div>
+            </article>
           ))}
         </div>
       </div>
     </section>
   );
 }
+
 
 
 

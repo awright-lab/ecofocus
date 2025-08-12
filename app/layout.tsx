@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Script from 'next/script';
-import AppWrapper from '@/components/AppWrapper';
+//import AppWrapper from '@/components/AppWrapper';
 
 export const metadata: Metadata = {
   title: 'EcoFocus Research | Sustainability Insights & Reports',
@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="text-gray-900 dark:text-white">
-        <AppWrapper>{children}</AppWrapper>
+        {children}
       </body>
     </html>
   );
