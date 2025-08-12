@@ -1,16 +1,28 @@
+// app/hooks/useIsMobile.ts
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function useIsMobile() {
-    const [isMobile, setIsMobile] = useState(false);
+export default function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState<boolean | null>(null); // null until we know
 
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth <= 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
 
-    return isMobile;
+    // Initialize
+    setIsMobile(mql.matches);
+
+    // Listen
+    if (mql.addEventListener) mql.addEventListener('change', onChange);
+    else mql.addListener(onChange); // Safari fallback
+
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener('change', onChange);
+      else mql.removeListener(onChange);
+    };
+  }, [breakpoint]);
+
+  return isMobile; // null | boolean
 }
+
 
