@@ -24,7 +24,8 @@ export default function AboutHero({
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative isolate overflow-hidden text-white" aria-labelledby="about-hero">
+    <section className="relative isolate overflow-hidden text-white min-h-[60svh] md:min-h-[70vh] lg:min-h-[80vh]"
+    aria-labelledby="about-hero">
       {/* Background media */}
       <div className="absolute inset-0 -z-20">
         {!reduceMotion ? (
