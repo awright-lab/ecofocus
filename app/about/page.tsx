@@ -1,27 +1,22 @@
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import StickyButtons from '../../components/StickyButtons';
-import AboutHero from './AboutHero';
-import MissionSection from './MissionSection';
-import TeamSection from './TeamSection';
-import StatsSection from './StatsSection';
-import ValuesSection from './ValuesSection';
-import CTASection from './CTASection';
+// app/about/page.tsx
+import AboutHero from '@/components/about/AboutHero';
+import SnapshotBand from '@/components/about/SnapshotBand';
+import MissionApproach from '@/components/about/MissionApproach';
+import Leadership from '@/components/about/Leadership';
+import MethodologyHighlights from '@/components/about/MethodologyHighlights';
+import PartnersBand from '@/components/about/PartnersBand';
+import BottomCTA from '@/components/about/BottomCTA';
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <main>
-        <AboutHero />
-        <MissionSection />
-        <StatsSection />
-        <ValuesSection />
-        <TeamSection />
-        <CTASection />
-      </main>
-      <Footer />
-      <StickyButtons />
-    </div>
+    <main id="main" className="bg-white">
+      <AboutHero />
+      <SnapshotBand />
+      <MissionApproach />
+      <Leadership />
+      <MethodologyHighlights />
+      <PartnersBand />
+      <BottomCTA />
+    </main>
   );
 }

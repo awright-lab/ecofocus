@@ -78,7 +78,6 @@ export default function CoreServices() {
           </p>
         </header>
 
-        {/* Equal-height cards + bottom-aligned buttons */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
           {cards.map((c, i) => (
             <motion.article
@@ -105,20 +104,24 @@ export default function CoreServices() {
               <div className="flex flex-1 flex-col p-6">
                 <h3 className="text-lg font-semibold text-gray-900">{c.title}</h3>
 
-                <ul className="mt-3 space-y-2 text-sm text-gray-600">
+                {/* ✅ Perfect round markers + more breathing room */}
+                <ul role="list" className="mt-3 space-y-2.5 text-sm text-gray-700">
                   {c.bullets.map((b) => (
-                    <li key={b} className="flex gap-2">
-                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                    <li key={b} className="flex items-start gap-3">
+                      <span
+                        aria-hidden="true"
+                        className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+                      />
                       <span>{b}</span>
                     </li>
                   ))}
                 </ul>
 
-                {/* Spacer pushes CTA area down */}
+                {/* Spacer pushes CTA to bottom */}
                 <div className="grow" />
 
-                {/* Button pinned to the same baseline across cards */}
-                <div>
+                {/* ✅ Guaranteed gap above the button */}
+                <div className="mt-6 md:mt-8">
                   <Link
                     href={c.href}
                     className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition
@@ -131,7 +134,7 @@ export default function CoreServices() {
                   </Link>
                 </div>
 
-                {/* Footnote has a fixed min height so it never lifts the button */}
+                {/* Footnote keeps height consistent across cards */}
                 <div className="mt-3 min-h-[2.5rem] text-xs leading-snug text-gray-500">
                   {c.footnote || null}
                 </div>
@@ -143,6 +146,7 @@ export default function CoreServices() {
     </section>
   );
 }
+
 
 
 
