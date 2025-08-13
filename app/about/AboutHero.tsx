@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function AboutHero({
-  videoMp4 = '/videos/about-hero.mp4',
+  videoMp4 = 'https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-7.mp4',
   videoWebm = '/videos/about-hero.webm',
   poster = '/images/about/hero-poster.jpg',
 }: Props) {
