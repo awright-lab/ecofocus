@@ -67,7 +67,7 @@ export default function AboutHero({
       </div>
 
       {/* Content */}
-      <div className="relative z-20 mx-auto max-w-7xl px-4 sm:px-6 py-14 sm:py-16 md:py-20">
+      <div className="relative z-20 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 24 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
