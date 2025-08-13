@@ -19,10 +19,7 @@ export default function CoreServices() {
     {
       title: 'Syndicated Research',
       href: '/solutions/syndicated',
-      image: {
-        src: '/images/solutions/solutions-syndicated.png',
-        alt: 'Analyst reviewing sustainability dashboards',
-      },
+      image: { src: '/images/solutions-syndicated.png', alt: 'Analyst reviewing sustainability dashboards' },
       bullets: [
         'Annual U.S. study (n=4,000), Census-balanced',
         'Trends since 2010 across attitudes & behaviors',
@@ -32,10 +29,7 @@ export default function CoreServices() {
     {
       title: 'Custom Research',
       href: '/solutions/custom',
-      image: {
-        src: '/images/solutions/solutions-custom.png',
-        alt: 'Workshop with stakeholder sticky notes',
-      },
+      image: { src: '/images/solutions-custom.png', alt: 'Workshop with stakeholder sticky notes' },
       bullets: [
         'B2C & B2B: qual + quant',
         'Questionnaire, sample & analysis',
@@ -45,10 +39,7 @@ export default function CoreServices() {
     {
       title: 'Data Infusion',
       href: '/solutions/infusion',
-      image: {
-        src: '/images/solutions/solutions-infusion.png',
-        alt: 'Data visualization showing customer segments',
-      },
+      image: { src: '/images/solutions-infusion.png', alt: 'Data visualization showing customer segments' },
       bullets: [
         'Enrich your data with EcoFocus context',
         'Personas with a sustainability lens',
@@ -58,10 +49,7 @@ export default function CoreServices() {
     {
       title: 'Consulting & Enablement',
       href: '/solutions/consulting',
-      image: {
-        src: '/images/solutions/solutions-consulting.png',
-        alt: 'Team collaboration for strategy activation',
-      },
+      image: { src: '/images/solutions-consulting.png', alt: 'Team collaboration for strategy activation' },
       bullets: [
         'Strategy activation & change management',
         'Team enablement, training & adoption',
@@ -70,15 +58,9 @@ export default function CoreServices() {
       footnote: (
         <>
           Delivered with our consulting partner{' '}
-          <a
-            href="https://fwdfocus.com/"
-            target="_blank"
-            rel="noreferrer"
-            className="underline"
-          >
+          <a href="https://fwdfocus.com/" target="_blank" rel="noreferrer" className="underline">
             ForwardFocus
-          </a>
-          .
+          </a>.
         </>
       ),
     },
@@ -88,10 +70,7 @@ export default function CoreServices() {
     <section className="bg-white" aria-labelledby="solutions-heading">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <header className="mb-8 md:mb-10">
-          <h2
-            id="solutions-heading"
-            className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
-          >
+          <h2 id="solutions-heading" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
             Solutions
           </h2>
           <p className="mt-2 text-sm sm:text-base text-gray-600">
@@ -99,7 +78,7 @@ export default function CoreServices() {
           </p>
         </header>
 
-        {/* Equal-height cards + bottom-aligned CTAs */}
+        {/* Equal-height cards + bottom-aligned buttons */}
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
           {cards.map((c, i) => (
             <motion.article
@@ -135,8 +114,11 @@ export default function CoreServices() {
                   ))}
                 </ul>
 
-                {/* CTA area pinned to bottom; min-h for footnote keeps buttons aligned */}
-                <div className="mt-auto pt-6">
+                {/* Spacer pushes CTA area down */}
+                <div className="grow" />
+
+                {/* Button pinned to the same baseline across cards */}
+                <div>
                   <Link
                     href={c.href}
                     className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition
@@ -147,11 +129,11 @@ export default function CoreServices() {
                     <span className="relative z-10">Learn More</span>
                     <i className="ri-arrow-right-s-line ml-1 text-base" aria-hidden="true" />
                   </Link>
+                </div>
 
-                  {/* Reserve space so all CTAs align even if only some cards show a note */}
-                  <div className="mt-3 min-h-[1.25rem] text-xs text-gray-500">
-                    {c.footnote || null}
-                  </div>
+                {/* Footnote has a fixed min height so it never lifts the button */}
+                <div className="mt-3 min-h-[2.5rem] text-xs leading-snug text-gray-500">
+                  {c.footnote || null}
                 </div>
               </div>
             </motion.article>
@@ -161,6 +143,7 @@ export default function CoreServices() {
     </section>
   );
 }
+
 
 
 
