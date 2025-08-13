@@ -1,145 +1,167 @@
-// components/sections/SolutionsSection.tsx
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 type Card = {
   title: string;
-  image: { src: string; alt: string; objectPosition?: string }; // supports focal point
+  href: string;
+  image: { src: string; alt: string };
   bullets: string[];
-  cta: { label: string; href: string; external?: boolean };
   footnote?: React.ReactNode;
 };
 
-const CARDS: Card[] = [
-  {
-    title: 'Syndicated Research',
-    image: { src: '/images/solutions/syndicated.png', alt: 'Analyst reviewing sustainability dashboards', objectPosition: '50% 35%' },
-    bullets: [
-      'Annual U.S. study (n=4,000), Census-balanced',
-      'Trends since 2010 across attitudes & behaviors',
-      'Interactive dashboard with instant crosstabs',
-    ],
-    cta: { label: 'Learn More', href: '/solutions/syndicated', external: true },
-  },
-  {
-    title: 'Custom Research',
-    image: { src: '/images/solutions/custom.png', alt: 'Workshop with stakeholder sticky notes' },
-    bullets: [
-      'B2C & B2B: qual + quant',
-      'Questionnaire, sample & analysis',
-      'Executive summary & workshop',
-    ],
-    cta: { label: 'Learn More', href: '/solutions' },
-  },
-  {
-    title: 'Data Infusion',
-    image: { src: '/images/solutions/datainfusion.png', alt: 'Data visualization showing customer segments', objectPosition: '50% 45%' },
-    bullets: [
-      'Enrich your data with EcoFocus context',
-      'Personas with a sustainability lens',
-      'Frictionless BI integration',
-    ],
-    cta: { label: 'Learn More', href: '/solutions' },
-  },
-  {
-    title: 'Consulting & Enablement',
-    image: { src: '/images/solutions/consulting.png', alt: 'Team collaboration for strategy activation' },
-    bullets: [
-      'Strategy activation & change management',
-      'Team enablement, training & adoption',
-      'Program rollouts / PMO support',
-    ],
-    cta: { label: 'Learn More', href: '/solutions', external: true },
-    footnote: (
-      <span className="text-xs text-slate-500">
-        Delivered with our consulting partner{' '}
-        <a className="underline hover:text-slate-700" href="https://fwdfocus.com/" target="_blank" rel="noopener noreferrer">
-          ForwardFocus
-        </a>.
-      </span>
-    ),
-  },
-];
+export default function CoreServices() {
+  const reduceMotion = useReducedMotion();
 
-export default function SolutionsSection() {
+  const cards: Card[] = [
+    {
+      title: 'Syndicated Research',
+      href: '/solutions/syndicated',
+      image: {
+        src: '/images/solutions/solutions-syndicated.png',
+        alt: 'Analyst reviewing sustainability dashboards',
+      },
+      bullets: [
+        'Annual U.S. study (n=4,000), Census-balanced',
+        'Trends since 2010 across attitudes & behaviors',
+        'Interactive dashboard with instant crosstabs',
+      ],
+    },
+    {
+      title: 'Custom Research',
+      href: '/solutions/custom',
+      image: {
+        src: '/images/solutions/solutions-custom.png',
+        alt: 'Workshop with stakeholder sticky notes',
+      },
+      bullets: [
+        'B2C & B2B: qual + quant',
+        'Questionnaire, sample & analysis',
+        'Executive summary & workshop',
+      ],
+    },
+    {
+      title: 'Data Infusion',
+      href: '/solutions/infusion',
+      image: {
+        src: '/images/solutions/solutions-infusion.png',
+        alt: 'Data visualization showing customer segments',
+      },
+      bullets: [
+        'Enrich your data with EcoFocus context',
+        'Personas with a sustainability lens',
+        'Frictionless BI integration',
+      ],
+    },
+    {
+      title: 'Consulting & Enablement',
+      href: '/solutions/consulting',
+      image: {
+        src: '/images/solutions/solutions-consulting.png',
+        alt: 'Team collaboration for strategy activation',
+      },
+      bullets: [
+        'Strategy activation & change management',
+        'Team enablement, training & adoption',
+        'Program rollouts / PMO support',
+      ],
+      footnote: (
+        <>
+          Delivered with our consulting partner{' '}
+          <a
+            href="https://fwdfocus.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            ForwardFocus
+          </a>
+          .
+        </>
+      ),
+    },
+  ];
+
   return (
-    <section aria-labelledby="solutions-heading" className="py-12 md:py-16">
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        <header className="mb-6 md:mb-8">
-          <h2 id="solutions-heading" className="font-semibold leading-tight text-[clamp(1.4rem,3vw,2rem)]">
+    <section className="bg-white" aria-labelledby="solutions-heading">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <header className="mb-8 md:mb-10">
+          <h2
+            id="solutions-heading"
+            className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
+          >
             Solutions
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-slate-600 md:text-base">
+          <p className="mt-2 text-sm sm:text-base text-gray-600">
             Choose the path that fits your goals—then scale from insights to action.
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {CARDS.map((card) => (
-            <article
-              key={card.title}
-              className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
+        {/* Equal-height cards + bottom-aligned CTAs */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 auto-rows-fr">
+          {cards.map((c, i) => (
+            <motion.article
+              key={c.title}
+              initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.45, delay: i * 0.06 }}
+              className="flex h-full flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
             >
-              {/* Image */}
-              <div className="relative aspect-[16/10] bg-slate-100">
+              {/* Media */}
+              <div className="relative aspect-[16/9]">
                 <Image
-                  src={card.image.src}
-                  alt={card.image.alt}
+                  src={c.image.src}
+                  alt={c.image.alt}
                   fill
-                  sizes="(min-width: 1024px) 25vw, (min-width: 768px) 45vw, 95vw"
+                  sizes="(min-width:1024px) 22vw, (min-width:640px) 45vw, 92vw"
                   className="object-cover"
-                  style={card.image.objectPosition ? { objectPosition: card.image.objectPosition } : undefined}
-                  priority={false}
                 />
-                {/* subtle gradient for legibility if you overlay labels later */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-transparent opacity-90" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/10 to-transparent" />
               </div>
 
-              {/* Body */}
-              <div className="p-5">
-                <h3 className="text-base font-semibold md:text-lg">{card.title}</h3>
-                <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm text-slate-700">
-                  {card.bullets.map((b, i) => (
-                    <li key={i}>{b}</li>
+              {/* Content */}
+              <div className="flex flex-1 flex-col p-6">
+                <h3 className="text-lg font-semibold text-gray-900">{c.title}</h3>
+
+                <ul className="mt-3 space-y-2 text-sm text-gray-600">
+                  {c.bullets.map((b) => (
+                    <li key={b} className="flex gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                      <span>{b}</span>
+                    </li>
                   ))}
                 </ul>
 
-                <div className="mt-4 flex items-center justify-between">
-                  {card.cta.external ? (
-                    <a
-                      href={card.cta.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
-                      aria-label={`${card.title}: ${card.cta.label}`}
-                    >
-                      {card.cta.label}
-                      <ArrowRight className="h-4 w-4" />
-                    </a>
-                  ) : (
-                    <Link
-                      href={card.cta.href}
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white"
-                      aria-label={`${card.title}: ${card.cta.label}`}
-                    >
-                      {card.cta.label}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  )}
-                </div>
+                {/* CTA area pinned to bottom; min-h for footnote keeps buttons aligned */}
+                <div className="mt-auto pt-6">
+                  <Link
+                    href={c.href}
+                    className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition
+                               before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                               before:z-0 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110"
+                    aria-label={`Learn more about ${c.title}`}
+                  >
+                    <span className="relative z-10">Learn More</span>
+                    <i className="ri-arrow-right-s-line ml-1 text-base" aria-hidden="true" />
+                  </Link>
 
-                {card.footnote ? <div className="mt-3">{card.footnote}</div> : null}
+                  {/* Reserve space so all CTAs align even if only some cards show a note */}
+                  <div className="mt-3 min-h-[1.25rem] text-xs text-gray-500">
+                    {c.footnote || null}
+                  </div>
+                </div>
               </div>
-            </article>
+            </motion.article>
           ))}
         </div>
       </div>
     </section>
   );
 }
+
 
 
 
