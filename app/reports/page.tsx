@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { ShoppingCart, Filter, X } from 'lucide-react';
+import { Filter, X } from 'lucide-react';
 
 // If your site uses global Header/Footer, you can remove these imports.
 import Header from '@/components/Header';
@@ -230,26 +230,49 @@ export default function ReportsStorefront() {
         <section id="bundles" className="container mx-auto px-4 py-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {catalog.filter(p => p.category === 'Bundles').map(p => (
-              <motion.article
-                key={p.id}
-                whileHover={{ y: -4 }}
-                className="rounded-2xl border bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-md"
-              >
-                <div className="relative aspect-[4/3]">
-                  <Image src={p.img} alt={p.title} fill className="object-cover" />
+            <motion.article
+              key={p.id}
+              whileHover={{ y: -4 }}
+              className="rounded-2xl border bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-md"
+            >
+              <div className="relative aspect-[4/3]">
+                {/* NEW/FEATURED badge for 2025 buy-in */}
+                {p.id === 'buyin-2025' && (
+                  <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-emerald-600/95 px-3 py-1 text-xs font-semibold text-white shadow">
+                    NEW • 2025
+                  </span>
+                )}
+                <Image src={p.img} alt={p.title} fill className="object-cover" />
+              </div>
+              <div className="p-5">
+                <h3 className="text-lg font-semibold">{p.title}</h3>
+                <p className="text-sm text-gray-700">{p.subtitle}</p>
+                <div className="mt-2 text-2xl font-bold">${p.price.toLocaleString()}</div>
+                {p.variantNote && <p className="mt-1 text-xs text-gray-600">{p.variantNote}</p>}
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {/* Customize CTA copy per card */}
+                  {p.id === 'buyin-2025' ? (
+                    <Link
+                      href={`/reports/${p.id}`}
+                      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow-sm hover:bg-emerald-700"
+                    >
+                      Learn how to participate
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => addToCart(p.id)}
+                      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-white font-semibold shadow-sm hover:bg-emerald-700"
+                    >
+                      Add to cart
+                    </button>
+                  )}
+                  <Link href={`/reports/${p.id}`} className="inline-flex items-center justify-center rounded-full border px-5 py-2.5 font-semibold text-gray-900 hover:bg-gray-50">
+                    Details
+                  </Link>
                 </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <p className="text-sm text-gray-700">{p.subtitle}</p>
-                  <div className="mt-2 text-2xl font-bold">${p.price.toLocaleString()}</div>
-                  {p.variantNote && <p className="mt-1 text-xs text-gray-600">{p.variantNote}</p>}
-                  <div className="mt-4 flex gap-3">
-                    <button onClick={() => addToCart(p.id)} className="rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow-sm hover:bg-emerald-700">Add to cart</button>
-                    <Link href={`/reports/${p.id}`} className="rounded-full border px-4 py-2 font-semibold text-gray-900 hover:bg-gray-50">Details</Link>
-                  </div>
-                </div>
-              </motion.article>
-            ))}
+              </div>
+            </motion.article>
+          ))}
           </div>
         </section>
 
@@ -293,21 +316,32 @@ export default function ReportsStorefront() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {pageSlice.map(p => (
-                <article key={p.id} className="rounded-xl border bg-white shadow-sm overflow-hidden">
-                  <div className="relative aspect-[4/3]">
-                    <Image src={p.img} alt={p.title} fill className="object-cover" />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="text-base font-semibold leading-tight">{p.title}</h3>
-                    <div className="mt-1 text-sm text-gray-600">{p.year}</div>
-                    <div className="mt-2 text-emerald-700 font-bold">${p.price.toLocaleString()}</div>
-                    <div className="mt-3 flex gap-2">
-                      <button onClick={() => addToCart(p.id)} className="rounded-full bg-emerald-600 px-4 py-2 text-white text-sm font-semibold"><ShoppingCart className="h-4 w-4" /> Add</button>
-                      <Link href={`/reports/${p.id}`} className="rounded-full border px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50">Details</Link>
-                    </div>
-                  </div>
-                </article>
-              ))}
+            <article key={p.id} className="rounded-xl border bg-white shadow-sm overflow-hidden">
+              <div className="relative aspect-[4/3]">
+                <Image src={p.img} alt={p.title} fill className="object-cover" />
+              </div>
+              <div className="p-4">
+                <h3 className="text-base font-semibold leading-tight">{p.title}</h3>
+                <div className="mt-1 text-sm text-gray-600">{p.year}</div>
+                <div className="mt-2 text-emerald-700 font-bold">${p.price.toLocaleString()}</div>
+                {/* Consistent button sizing/alignment */}
+                <div className="mt-3 flex items-center gap-2">
+                  <button
+                    onClick={() => addToCart(p.id)}
+                    className="inline-flex h-9 items-center justify-center rounded-full bg-emerald-600 px-4 text-sm font-semibold text-white hover:bg-emerald-700"
+                  >
+                    Add
+                  </button>
+                  <Link
+                    href={`/reports/${p.id}`}
+                    className="inline-flex h-9 items-center justify-center rounded-full border px-4 text-sm font-semibold text-gray-900 hover:bg-gray-50"
+                  >
+                    Details
+                  </Link>
+                </div>
+              </div>
+            </article>
+          ))}
             </div>
           )}
 
