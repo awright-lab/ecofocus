@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ShoppingCart, Filter, X } from 'lucide-react';
 
 // If your site uses global Header/Footer, you can remove these imports.
@@ -388,6 +388,7 @@ export default function ReportsStorefront() {
     </>
   );
 }
+
 
 
 
