@@ -152,27 +152,75 @@ export default function ReportsStorefront() {
       <Header />
 
       <main className="min-h-screen bg-white">
-        {/* HERO */}
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(1200px_600px_at_80%_-10%,#C8F5E7_0%,transparent_60%)]" />
-          <div className="container mx-auto px-4 pt-28 pb-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-              <div>
-                <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-3xl md:text-5xl font-bold leading-tight">
-                  Reports & Store
-                </motion.h1>
-                <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-700">
-                  Subscribe, buy individual reports, or participate in our next syndicated study. Dashboard access is bundled with eligible purchases.
-                </p>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link href="#bundles" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 font-semibold text-white shadow hover:shadow-md">Featured bundles</Link>
-                  <Link href="#reports" className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-5 py-2.5 font-semibold text-gray-900 hover:bg-gray-50">Small reports</Link>
-                </div>
+        {/* HERO (video-based, inspired by homepage) */}
+        <section
+          aria-labelledby="reports-hero"
+          className="relative isolate overflow-hidden text-white min-h-[60svh] md:min-h-[70vh] lg:min-h-[80vh] flex items-center"
+        >
+          {/* Background media */}
+          <div className="absolute inset-0 -z-20">
+            {/* Respect reduced motion */}
+            {(() => {
+              const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+              if (!reduce) {
+                return (
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    poster="/images/storefront-hero-poster.jpg"
+                    className="h-full w-full object-cover object-[30%_50%] brightness-[1.1] contrast-[1.05] saturate-[1.05]"
+                  >
+                    <source src="/videos/storefront-hero.webm" type="video/webm" />
+                    <source src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-7.mp4" type="video/mp4" />
+                  </video>
+                );
+              }
+              return (
+                <Image
+                  src="/images/storefront-hero-poster.jpg"
+                  alt=""
+                  fill
+                  priority
+                  className="object-cover object-[30%_50%] brightness-[1.08] contrast-[1.05] saturate-[1.05]"
+                />
+              );
+            })()}
+          </div>
+
+          {/* Diagonal overlay */}
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <div
+              className="h-full w-full bg-gradient-to-br from-emerald-900/95 to-blue-900/95 [clip-path:polygon(0%_0%,_46%_0%,_74%_100%,_0%_100%)] md:[clip-path:polygon(0%_0%,_36%_0%,_58%_100%,_0%_100%)] lg:[clip-path:polygon(0%_0%,_28%_0%,_50%_100%,_0%_100%)]"
+            />
+          </div>
+
+          {/* Soft scrim */}
+          <div className="absolute inset-0 -z-10 pointer-events-none">
+            <div className="h-full w-full bg-gradient-to-br from-black/45 via-emerald-950/35 to-blue-950/45" />
+          </div>
+
+          {/* Content */}
+          <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 py-14 sm:py-16 md:py-20">
+            <div className="max-w-[52rem]">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs sm:text-sm">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                Storefront
               </div>
-              <div className="relative">
-                <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl ring-1 ring-gray-200 shadow">
-                  <Image src="/images/report_cover_placeholder.webp" alt="EcoFocus storefront preview" fill className="object-cover" />
-                </div>
+
+              <h1 id="reports-hero" className="mb-3 font-bold leading-[1.05] text-[clamp(2rem,6vw,3.5rem)] [text-wrap:balance] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                Sustainability intelligence, packaged for action.
+              </h1>
+
+              <p className="max-w-[40rem] text-gray-100/90">
+                Explore flagship studies, enhance your data, or pick focused subsections. Eligible purchases include Interactive Dashboard access.
+              </p>
+
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href="#bundles" className="rounded-full bg-white/90 px-5 py-2.5 text-emerald-900 font-semibold shadow hover:bg-white">Featured bundles</Link>
+                <Link href="#reports" className="rounded-full border border-white/60 bg-white/10 px-5 py-2.5 font-semibold text-white hover:bg-white/20">Small reports</Link>
               </div>
             </div>
           </div>
@@ -318,6 +366,7 @@ export default function ReportsStorefront() {
     </>
   );
 }
+
 
 
 
