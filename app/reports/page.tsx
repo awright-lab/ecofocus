@@ -41,6 +41,9 @@ export default function ReportsStorefront() {
   const [page, setPage] = useState(1); // pagination for small reports
   const PAGE_SIZE = 6; // 2 x 3 grid
 
+  const reduceMotion = useReducedMotion();
+
+
   const catalog: Product[] = useMemo(() => ([
     // --- FEATURED BUNDLES (hero cards) ---
     {
@@ -152,49 +155,40 @@ export default function ReportsStorefront() {
       <Header />
 
       <main className="min-h-screen bg-white">
-        {/* HERO (video-based, inspired by homepage) */}
+        {/* HERO (homepage-inspired, video + diagonal overlay) */}
         <section
           aria-labelledby="reports-hero"
           className="relative isolate overflow-hidden text-white min-h-[60svh] md:min-h-[70vh] lg:min-h-[80vh] flex items-center"
         >
           {/* Background media */}
           <div className="absolute inset-0 -z-20">
-            {/* Respect reduced motion */}
-            {(() => {
-              const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-              if (!reduce) {
-                return (
-                  <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    poster="/images/storefront-hero-poster.jpg"
-                    className="h-full w-full object-cover object-[30%_50%] brightness-[1.1] contrast-[1.05] saturate-[1.05]"
-                  >
-                    <source src="/videos/storefront-hero.webm" type="video/webm" />
-                    <source src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-7.mp4" type="video/mp4" />
-                  </video>
-                );
-              }
-              return (
-                <Image
-                  src="/images/storefront-hero-poster.jpg"
-                  alt=""
-                  fill
-                  priority
-                  className="object-cover object-[30%_50%] brightness-[1.08] contrast-[1.05] saturate-[1.05]"
-                />
-              );
-            })()}
+            {!reduceMotion ? (
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                poster="/images/storefront-hero-poster.jpg"
+                className="h-full w-full object-cover object-[30%_50%] brightness-[1.1] contrast-[1.05] saturate-[1.05]"
+              >
+                <source src="/videos/storefront-hero.webm" type="video/webm" />
+                <source src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-7.mp4" type="video/mp4" />
+              </video>
+            ) : (
+              <Image
+                src="/images/storefront-hero-poster.jpg"
+                alt=""
+                fill
+                priority
+                className="object-cover object-[30%_50%] brightness-[1.08] contrast-[1.05] saturate-[1.05]"
+              />
+            )}
           </div>
 
           {/* Diagonal overlay */}
           <div className="absolute inset-0 z-10 pointer-events-none">
-            <div
-              className="h-full w-full bg-gradient-to-br from-emerald-900/95 to-blue-900/95 [clip-path:polygon(0%_0%,_46%_0%,_74%_100%,_0%_100%)] md:[clip-path:polygon(0%_0%,_36%_0%,_58%_100%,_0%_100%)] lg:[clip-path:polygon(0%_0%,_28%_0%,_50%_100%,_0%_100%)]"
-            />
+            <div className="h-full w-full bg-gradient-to-br from-emerald-900/95 to-blue-900/95 [clip-path:polygon(0%_0%,_46%_0%,_74%_100%,_0%_100%)] md:[clip-path:polygon(0%_0%,_36%_0%,_58%_100%,_0%_100%)] lg:[clip-path:polygon(0%_0%,_28%_0%,_50%_100%,_0%_100%)]" />
           </div>
 
           {/* Soft scrim */}
@@ -204,14 +198,20 @@ export default function ReportsStorefront() {
 
           {/* Content */}
           <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 py-14 sm:py-16 md:py-20">
-            <div className="max-w-[52rem]">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="max-w-[52rem]"
+            >
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs sm:text-sm">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
                 Storefront
               </div>
 
               <h1 id="reports-hero" className="mb-3 font-bold leading-[1.05] text-[clamp(2rem,6vw,3.5rem)] [text-wrap:balance] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
-                Sustainability intelligence, packaged for action.
+                Sustainability intelligence, <span className="bg-gradient-to-r from-blue-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">packaged for action</span>.
               </h1>
 
               <p className="max-w-[40rem] text-gray-100/90">
@@ -222,7 +222,7 @@ export default function ReportsStorefront() {
                 <Link href="#bundles" className="rounded-full bg-white/90 px-5 py-2.5 text-emerald-900 font-semibold shadow hover:bg-white">Featured bundles</Link>
                 <Link href="#reports" className="rounded-full border border-white/60 bg-white/10 px-5 py-2.5 font-semibold text-white hover:bg-white/20">Small reports</Link>
               </div>
-            </div>
+            </motion.div>
           </div>
         </section>
 
@@ -230,7 +230,11 @@ export default function ReportsStorefront() {
         <section id="bundles" className="container mx-auto px-4 py-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {catalog.filter(p => p.category === 'Bundles').map(p => (
-              <article key={p.id} className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+              <motion.article
+                key={p.id}
+                whileHover={{ y: -4 }}
+                className="rounded-2xl border bg-white shadow-sm overflow-hidden transition-shadow hover:shadow-md"
+              >
                 <div className="relative aspect-[4/3]">
                   <Image src={p.img} alt={p.title} fill className="object-cover" />
                 </div>
@@ -240,11 +244,11 @@ export default function ReportsStorefront() {
                   <div className="mt-2 text-2xl font-bold">${p.price.toLocaleString()}</div>
                   {p.variantNote && <p className="mt-1 text-xs text-gray-600">{p.variantNote}</p>}
                   <div className="mt-4 flex gap-3">
-                    <button onClick={() => addToCart(p.id)} className="rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold"><ShoppingCart className="h-4 w-4" /> Add</button>
+                    <button onClick={() => addToCart(p.id)} className="rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold shadow-sm hover:bg-emerald-700">Add to cart</button>
                     <Link href={`/reports/${p.id}`} className="rounded-full border px-4 py-2 font-semibold text-gray-900 hover:bg-gray-50">Details</Link>
                   </div>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
         </section>
@@ -261,6 +265,24 @@ export default function ReportsStorefront() {
               <option value="All">All years</option>
               {yearsAvailable.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
+          </div>
+        </section>
+
+        {/* METRICS STRIP (homepage-style) */}
+        <section className="border-y border-gray-200 bg-gray-50">
+          <div className="container mx-auto grid grid-cols-3 gap-4 px-4 py-6 text-center">
+            <div>
+              <div className="text-2xl font-bold">13+</div>
+              <div className="text-sm text-gray-600">Years of Trend Data</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold">90,000+</div>
+              <div className="text-sm text-gray-600">Data Points Collected</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold">± 1.55%</div>
+              <div className="text-sm text-gray-600">Margin of Error</div>
+            </div>
           </div>
         </section>
 
