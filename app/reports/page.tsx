@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Filter, Check, X, ChevronDown, ArrowRight, BadgePercent, Gift } from 'lucide-react';
+import { ShoppingCart, Filter, X } from 'lucide-react';
 
 type BuyerProfile = 'Brand / Other' | 'Agency' | 'Enterprise';
 
@@ -37,7 +37,7 @@ export default function ReportsStorefront() {
   const catalog: Product[] = useMemo(() => ([
     {
       id: 'buyin-2025',
-      title: '2025 Syndicated Study — Buy‑In',
+      title: '2025 Syndicated Study — Buy-In',
       subtitle: 'Add your proprietary questions + receive the full study',
       price: 30000,
       img: '/images/store_2025_buyin.webp',
@@ -72,17 +72,10 @@ export default function ReportsStorefront() {
       subtitle: 'Focused subsection from SIR',
       price: 2000,
       img: `/images/store_sr${i + 1}.webp`,
-      category: 'Reports',
+      category: 'Reports' as const,
       includes: ['Section PDF', 'Key charts pack', 'Usage license']
     }))
   ]), []);
-
-  const filtered = catalog.filter(p => {
-    const catOk = activeCategory === 'All' || p.category === activeCategory;
-    const q = query.trim().toLowerCase();
-    const qOk = !q || p.title.toLowerCase().includes(q) || p.subtitle?.toLowerCase().includes(q) || p.tags?.some(t => t.toLowerCase().includes(q));
-    return catOk && qOk;
-  });
 
   const addToCart = (id: string) => {
     setCart(prev => {
@@ -111,6 +104,14 @@ export default function ReportsStorefront() {
     'Brand / Other': 'Dashboard access — seats matched to org size (2–5 typical).',
     'Agency': 'Agency bundle includes dashboard; seats scale with agency size.',
     'Enterprise': 'Enterprise bundle includes dashboard; higher seat caps available.'
+  };
+
+  // helper to filter by activeCategory/query for each section
+  const matchesFilters = (p: Product) => {
+    const catOk = activeCategory === 'All' || p.category === activeCategory;
+    const q = query.trim().toLowerCase();
+    const qOk = !q || p.title.toLowerCase().includes(q) || p.subtitle?.toLowerCase().includes(q) || p.tags?.some(t => t.toLowerCase().includes(q));
+    return catOk && qOk;
   };
 
   return (
@@ -145,7 +146,7 @@ export default function ReportsStorefront() {
       {/* FEATURED BUNDLES */}
       <section className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {catalog.filter(p => p.category === 'Bundles').map(p => (
+          {catalog.filter(p => p.category === 'Bundles').filter(matchesFilters).map(p => (
             <article key={p.id} className="rounded-2xl border bg-white shadow-sm overflow-hidden">
               <div className="relative aspect-[4/3]">
                 <Image src={p.img} alt={p.title} fill className="object-cover" />
@@ -154,7 +155,7 @@ export default function ReportsStorefront() {
                 <h3 className="text-lg font-semibold">{p.title}</h3>
                 <p className="text-sm text-gray-700">{p.subtitle}</p>
                 <div className="mt-2 text-2xl font-bold">${p.price.toLocaleString()}</div>
-                <p className="mt-1 text-xs text-gray-600">{p.variantNote}</p>
+                {p.variantNote && <p className="mt-1 text-xs text-gray-600">{p.variantNote}</p>}
                 <div className="mt-4 flex gap-3">
                   <button onClick={() => addToCart(p.id)} className="rounded-full bg-emerald-600 px-4 py-2 text-white font-semibold"><ShoppingCart className="h-4 w-4" /> Add</button>
                   <Link href={`/reports/${p.id}`} className="rounded-full border px-4 py-2 font-semibold text-gray-900 hover:bg-gray-50">Details</Link>
@@ -169,7 +170,7 @@ export default function ReportsStorefront() {
       <section className="container mx-auto px-4 pb-16">
         <h2 className="text-xl font-bold mb-4">Small Reports</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {catalog.filter(p => p.category === 'Reports').map(p => (
+          {catalog.filter(p => p.category === 'Reports').filter(matchesFilters).map(p => (
             <article key={p.id} className="rounded-xl border bg-white shadow-sm overflow-hidden">
               <div className="relative aspect-square">
                 <Image src={p.img} alt={p.title} fill className="object-cover" />
@@ -238,5 +239,6 @@ export default function ReportsStorefront() {
     </main>
   );
 }
+
 
 
