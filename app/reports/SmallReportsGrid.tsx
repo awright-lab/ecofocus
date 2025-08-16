@@ -11,17 +11,25 @@ type Props = {
 };
 
 export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
-  // ---- Tags (from catalog.ts) ------------------------------------------------
+  // ---- Tags from catalog.ts (exclude year tags like "2024"/"2025") ----------
   const allTags = useMemo(() => {
     const s = new Set<string>();
-    for (const p of pageSlice) (p.tags ?? []).forEach((t) => s.add(t));
+    for (const p of pageSlice) {
+      (p.tags ?? [])
+        .filter((t) => !/^\d{4}$/.test(t)) // remove year tags
+        .forEach((t) => s.add(t));
+    }
     return Array.from(s).sort((a, b) => a.localeCompare(b));
   }, [pageSlice]);
 
   const tagCounts = useMemo(() => {
     const m = new Map<string, number>();
     allTags.forEach((t) => m.set(t, 0));
-    for (const p of pageSlice) for (const t of (p.tags ?? [])) m.set(t, (m.get(t) || 0) + 1);
+    for (const p of pageSlice) {
+      for (const t of (p.tags ?? []).filter((t) => !/^\d{4}$/.test(t))) {
+        m.set(t, (m.get(t) || 0) + 1);
+      }
+    }
     return m;
   }, [pageSlice, allTags]);
 
@@ -33,10 +41,8 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
   // Keep selection in sync if data/tags change
   useEffect(() => {
     setSelected((prev) => {
-      // re-add any new tags; remove tags that disappeared
       const next = new Set<string>();
       for (const t of allTags) if (prev.size === 0 || prev.has(t)) next.add(t);
-      // default to "all" if previous was empty and tags changed
       return next.size ? next : new Set(allTags);
     });
   }, [allTags]);
@@ -49,18 +55,24 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
   const toggleTag = (t: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(t)) next.delete(t);
-      else next.add(t);
+      if (next.has(t)) {
+        next.delete(t);
+      } else {
+        next.add(t);
+      }
       return next;
     });
   };
+  
   const selectAll = () => setSelected(new Set(allTags));
   const clearAll = () => setSelected(new Set());
 
   // ---- Filtering + 3×2 grid enforcement -------------------------------------
   const filtered = useMemo(() => {
     if (selected.size === 0) return [];
-    return pageSlice.filter((p) => (p.tags ?? []).some((t) => selected.has(t)));
+    return pageSlice.filter((p) =>
+      (p.tags ?? []).some((t) => !/^\d{4}$/.test(t) && selected.has(t))
+    );
   }, [pageSlice, selected]);
 
   const visibleReports = filtered.slice(0, 6); // 3 columns × 2 rows
@@ -93,15 +105,15 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
             <span className="text-xs text-gray-500">{filtered.length} matching</span>
           </div>
 
-          {/* Search */}
+          {/* Pill-shaped search */}
           <div className="mt-3 relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="text"
               placeholder="Search categories"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-lg border px-8 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/50"
+              className="w-full rounded-full border px-9 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-500/40"
             />
           </div>
 
@@ -123,35 +135,34 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
             </button>
           </div>
 
-          {/* Checkbox list */}
-          <div className="mt-3 max-h-72 overflow-auto pr-1">
+          {/* Checkbox list — no scroll, full height */}
+          <ul className="mt-3 space-y-2">
             {visibleTagList.length === 0 ? (
-              <p className="text-sm text-gray-500">No categories found.</p>
+              <li className="text-sm text-gray-500">No categories found.</li>
             ) : (
-              <ul className="space-y-2">
-                {visibleTagList.map((t) => {
-                  const checked = selected.has(t);
-                  const count = tagCounts.get(t) ?? 0;
-                  return (
-                    <li key={t} className="flex items-center justify-between gap-2">
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                          checked={checked}
-                          onChange={() => toggleTag(t)}
-                        />
-                        <span className="text-gray-800">{t}</span>
-                      </label>
-                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-600">
-                        {count}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
+              visibleTagList.map((t) => {
+                const checked = selected.has(t);
+                const count = tagCounts.get(t) ?? 0;
+                return (
+                  <li key={t} className="flex items-center justify-between gap-2">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleTag(t)}
+                        // Brand the checkbox + focus
+                        className="h-4 w-4 rounded border-gray-300 accent-emerald-600 focus:ring-2 focus:ring-emerald-500/40"
+                      />
+                      <span className="text-gray-800">{t}</span>
+                    </label>
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-100">
+                      {count}
+                    </span>
+                  </li>
+                );
+              })
             )}
-          </div>
+          </ul>
         </aside>
 
         {/* Grid (locked to 3 columns on desktop) */}
