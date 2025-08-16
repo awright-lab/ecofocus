@@ -81,7 +81,7 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
     <section id="reports" className="container mx-auto px-4 py-10">
       {/* Header + mobile filter toggle */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Small Reports</h2>
+        <h2 className="text-xl font-semibold"></h2>
         <button
           type="button"
           onClick={() => setShowFilters((s) => !s)}

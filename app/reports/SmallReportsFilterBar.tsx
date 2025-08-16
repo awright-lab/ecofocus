@@ -18,7 +18,7 @@ export default function SmallReportsFilterBar({
   yearsAvailable: number[];
 }) {
   return (
-    <section className="border-y border-gray-200 bg-white/70">
+    <section className="bg-white/70">
       <div className="container mx-auto px-4 py-4 flex flex-wrap items-center gap-3">
         <div className="text-sm font-semibold text-gray-900"></div>
 

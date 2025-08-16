@@ -45,7 +45,7 @@ const SUBSECTION_TOPICS = [
 function makeYearSubs(year: 2025 | 2024): Product[] {
   return SUBSECTION_TOPICS.map((t, i) => ({
     id: `sr-${year}-${i + 1}`,
-    title: `SIR Subsection — ${t.title} (${year})`,
+    title: `Focused Insight — ${t.title} (${year})`,
     subtitle: 'Focused subsection from SIR',
     price: 2000,
     img: t.img,

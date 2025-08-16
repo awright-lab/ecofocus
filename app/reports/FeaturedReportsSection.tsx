@@ -76,7 +76,7 @@ export default function FeaturedReportsSection({
       {/* Section header with accent strip */}
       <div className="mb-6 max-w-3xl">
         <div className="h-1.5 w-28 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
-        <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Featured Bundles</h2>
+        <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Flagship Offerings</h2>
         <p className="mt-2 text-gray-700">
           High-value packages for teams that need deeper access: participate in this year’s study,
           integrate last year’s data, or get the full 2024 report.
