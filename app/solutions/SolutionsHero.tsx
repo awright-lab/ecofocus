@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export default function SolutionsHero() {
   return (
-    <section className="relative max-h-[65vh] flex items-center justify-center overflow-hidden bg-neutral-950 text-white z-0">
+    <section className="relative min-h-[60svh] md:min-h-[70vh] lg:min-h-[80vh] flex items-center justify-center overflow-hidden bg-neutral-950 text-white z-0">
       {/* ✅ Background Video */}
       <div className="absolute inset-0 z-0">
         <video
@@ -14,10 +14,10 @@ export default function SolutionsHero() {
           muted
           playsInline
           preload="auto"
-          className="w-full h-full object-cover brightness-[0.4]"
+          className="w-full h-full object-cover brightness-[0.9]"
         >
           <source
-            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-5.mp4"
+            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-9.mp4"
             type="video/mp4"
           />
           Your browser does not support the video tag.

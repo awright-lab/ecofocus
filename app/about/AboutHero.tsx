@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function AboutHero({
-  videoMp4 = 'https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-7.mp4',
+  videoMp4 = 'https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-8.mp4',
   videoWebm = '/videos/about-hero.webm',
   poster = '/images/about/hero-poster.jpg',
 }: Props) {
@@ -52,15 +52,17 @@ export default function AboutHero({
         )}
       </div>
 
-      {/* Diagonal overlay — responsive clip-path so it doesn’t eat the layout */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
+      {/* Diagonal color wash (lighter on mobile; clipped, stronger on md+) */}
+      <div className="pointer-events-none absolute inset-0 z-10">
         <div
-          className="
-            h-full w-full bg-gradient-to-br from-emerald-900/95 to-blue-900/95
-            [clip-path:polygon(0%_0%,_46%_0%,_74%_100%,_0%_100%)]
-            md:[clip-path:polygon(0%_0%,_36%_0%,_58%_100%,_0%_100%)]
-            lg:[clip-path:polygon(0%_0%,_28%_0%,_50%_100%,_0%_100%)]
-          "
+          className={[
+            // mobile: softer wash, no clip
+            'h-full w-full bg-gradient-to-br from-emerald-900/50 to-blue-900/50',
+            // md+: apply diagonal wedge and deepen opacity
+            'md:from-emerald-900/90 md:to-blue-900/90',
+            // Tailwind arbitrary property for clip-path (JIT required)
+            'md:[clip-path:polygon(0%_0%,_40%_0%,_70%_100%,_0%_100%)]',
+          ].join(' ')}
         />
       </div>
 
