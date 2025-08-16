@@ -14,7 +14,7 @@ export default function StoreHero() {
           muted
           playsInline
           preload="auto"
-          className="w-full h-full object-cover brightness-[0.4]"
+          className="w-full h-full object-cover brightness-[0.9]"
           poster="/images/storefront-hero-poster.jpg"
         >
           <source
