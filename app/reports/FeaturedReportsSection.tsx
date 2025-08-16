@@ -2,13 +2,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  BarChart2,
-  Users,
-  ShieldCheck,
-  ArrowRight,
-  BadgeDollarSign,
-} from "lucide-react";
+import { BarChart2, Users, ShieldCheck, ArrowRight, BadgeDollarSign } from "lucide-react";
+
+// ✅ import from your catalog
+import { CATALOG } from "@/lib/catalog"; // or { BUNDLES } if you exported it
 
 type Card = {
   id: "buyin-2025" | "enhance-2024" | "sir-2024";
@@ -17,7 +14,7 @@ type Card = {
   price: number;
   imageSrc: string;
   note?: string;
-  badge?: string;                 // e.g., "NEW • 2025"
+  badge?: string;
   primary: {
     label: string;
     href?: string;
@@ -36,63 +33,43 @@ export default function FeaturedReportsSection({
 }: {
   onAddToCart?: (id: Card["id"]) => void;
 }) {
-  const CARDS: Card[] = [
-    {
-      id: "buyin-2025",
-      title: "2025 Syndicated Study — Buy-In",
-      subtitle: "Add your proprietary questions + receive the full study.",
-      price: 30000,
-      imageSrc: "/images/store_2025_buyin.webp",
-      note: "Dashboard included — seats scale by org size",
-      badge: "NEW • 2025",
-      primary: {
-        label: "Learn how to participate",
-        href: "/reports/buyin-2025",
-        variant: "primary",
-      },
-      secondary: {
-        label: "Details",
-        href: "/reports/buyin-2025",
-        variant: "outline",
-      },
-    },
-    {
-      id: "enhance-2024",
-      title: "Enhance Your Data — 2024",
-      subtitle: "Blend EcoFocus 2024 data with your own datasets.",
-      price: 20000,
-      imageSrc: "/images/store_enhance2024.webp",
-      note: "Dashboard included with license",
-      primary: {
-        label: "Add to cart",
-        onClick: () => onAddToCart?.("enhance-2024"),
-        variant: "primary",
-      },
-      secondary: {
-        label: "Details",
-        href: "/reports/enhance-2024",
-        variant: "outline",
-      },
-    },
-    {
-      id: "sir-2024",
-      title: "Sustainability Insights Report — 2024",
-      subtitle: "Flagship 2024 SIR deliverable.",
-      price: 10000,
-      imageSrc: "/images/store_sir2024.webp",
-      note: "Dashboard read-only included",
-      primary: {
-        label: "Add to cart",
-        onClick: () => onAddToCart?.("sir-2024"),
-        variant: "primary",
-      },
-      secondary: {
-        label: "Details",
-        href: "/reports/sir-2024",
-        variant: "outline",
-      },
-    },
-  ];
+  // Pick the three bundle items from the catalog (IDs must match your catalog)
+  const source = CATALOG.filter((p) =>
+    ["buyin-2025", "enhance-2024", "sir-2024"].includes(p.id)
+  );
+
+  // Map catalog products → Card shape the UI expects
+  const CARDS: Card[] = source.map((p) => {
+    // sensible defaults per bundle
+    const isBuyIn = p.id === "buyin-2025";
+    const isEnhance = p.id === "enhance-2024";
+ 
+    const primary: Card["primary"] =
+      isBuyIn
+        ? { label: "Learn how to participate", href: "/reports/buyin-2025", variant: "primary" }
+        : isEnhance
+        ? { label: "Add to cart", onClick: () => onAddToCart?.("enhance-2024"), variant: "primary" }
+        : { label: "Add to cart", onClick: () => onAddToCart?.("sir-2024"), variant: "primary" };
+
+    const secondary: Card["secondary"] =
+      isBuyIn
+        ? { label: "Details", href: "/reports/buyin-2025", variant: "outline" }
+        : isEnhance
+        ? { label: "Details", href: "/reports/enhance-2024", variant: "outline" }
+        : { label: "Details", href: "/reports/sir-2024", variant: "outline" };
+
+    return {
+      id: p.id as Card["id"],
+      title: p.title,
+      subtitle: p.subtitle ?? "",
+      price: p.price,
+      imageSrc: p.img,           // <- catalog uses `img`
+      note: p.variantNote,       // <- catalog uses `variantNote`
+      badge: p.badge,
+      primary,
+      secondary,
+    };
+  }) as Card[];
 
   return (
     <section id="bundles" className="container mx-auto px-4 py-10">
@@ -101,7 +78,8 @@ export default function FeaturedReportsSection({
         <div className="h-1.5 w-28 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
         <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Featured Bundles</h2>
         <p className="mt-2 text-gray-700">
-          High-value packages for teams that need deeper access: participate in this year’s study, integrate last year’s data, or get the full 2024 report.
+          High-value packages for teams that need deeper access: participate in this year’s study,
+          integrate last year’s data, or get the full 2024 report.
         </p>
       </div>
 
