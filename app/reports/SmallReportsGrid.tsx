@@ -1,81 +1,69 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Product } from '@/lib/storeTypes';
 import { ArrowRight, BadgeDollarSign, Filter, Search } from 'lucide-react';
 
 type Props = {
-  pageSlice: Product[];
+  pageSlice: Product[];           // pass SMALL_REPORTS or any subset
   addToCart: (id: string) => void;
 };
 
-const UNCATEGORIZED = 'Uncategorized';
-
 export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
-  // Build unique category list from products (fallback to "Uncategorized")
-  const allCategories = useMemo(() => {
-    const set = new Set<string>();
-    for (const p of pageSlice) {
-      const cats = (p as any).categories as string[] | undefined;
-      if (Array.isArray(cats) && cats.length) {
-        cats.forEach((c) => set.add(c));
-      } else {
-        set.add(UNCATEGORIZED);
-      }
-    }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  // ---- Tags (from catalog.ts) ------------------------------------------------
+  const allTags = useMemo(() => {
+    const s = new Set<string>();
+    for (const p of pageSlice) (p.tags ?? []).forEach((t) => s.add(t));
+    return Array.from(s).sort((a, b) => a.localeCompare(b));
   }, [pageSlice]);
 
-  // Category counts (for badges)
-  const categoryCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const c of allCategories) counts.set(c, 0);
-    for (const p of pageSlice) {
-      const cats = (p as any).categories as string[] | undefined;
-      const list = Array.isArray(cats) && cats.length ? cats : [UNCATEGORIZED];
-      for (const c of list) counts.set(c, (counts.get(c) || 0) + 1);
-    }
-    return counts;
-  }, [pageSlice, allCategories]);
+  const tagCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    allTags.forEach((t) => m.set(t, 0));
+    for (const p of pageSlice) for (const t of (p.tags ?? [])) m.set(t, (m.get(t) || 0) + 1);
+    return m;
+  }, [pageSlice, allTags]);
 
-  // Selections
-  const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(allCategories) // default: all selected
-  );
+  // ---- Sidebar state ---------------------------------------------------------
+  const [selected, setSelected] = useState<Set<string>>(() => new Set(allTags)); // default: all
   const [query, setQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false); // mobile toggle
 
-  const visibleCategoryList = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return allCategories.filter((c) => (q ? c.toLowerCase().includes(q) : true));
-  }, [allCategories, query]);
+  // Keep selection in sync if data/tags change
+  useEffect(() => {
+    setSelected((prev) => {
+      // re-add any new tags; remove tags that disappeared
+      const next = new Set<string>();
+      for (const t of allTags) if (prev.size === 0 || prev.has(t)) next.add(t);
+      // default to "all" if previous was empty and tags changed
+      return next.size ? next : new Set(allTags);
+    });
+  }, [allTags]);
 
-  const toggleCategory = (c: string) => {
+  const visibleTagList = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return allTags.filter((t) => (q ? t.toLowerCase().includes(q) : true));
+  }, [allTags, query]);
+
+  const toggleTag = (t: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(c)) next.delete(c);
-      else next.add(c);
+      if (next.has(t)) next.delete(t);
+      else next.add(t);
       return next;
     });
   };
-
-  const selectAll = () => setSelected(new Set(allCategories));
+  const selectAll = () => setSelected(new Set(allTags));
   const clearAll = () => setSelected(new Set());
 
-  // Filter products by selected categories
+  // ---- Filtering + 3×2 grid enforcement -------------------------------------
   const filtered = useMemo(() => {
     if (selected.size === 0) return [];
-    return pageSlice.filter((p) => {
-      const cats = (p as any).categories as string[] | undefined;
-      const list = Array.isArray(cats) && cats.length ? cats : [UNCATEGORIZED];
-      // include if any product category is selected
-      return list.some((c) => selected.has(c));
-    });
+    return pageSlice.filter((p) => (p.tags ?? []).some((t) => selected.has(t)));
   }, [pageSlice, selected]);
 
-  // Enforce 3×2 (six items)
-  const visibleReports = filtered.slice(0, 6);
+  const visibleReports = filtered.slice(0, 6); // 3 columns × 2 rows
 
   return (
     <section id="reports" className="container mx-auto px-4 py-10">
@@ -92,7 +80,7 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
         </button>
       </div>
 
-      {/* 2-column layout on desktop: sidebar + grid */}
+      {/* Layout: sidebar + grid */}
       <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
         {/* Sidebar */}
         <aside
@@ -137,23 +125,23 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
 
           {/* Checkbox list */}
           <div className="mt-3 max-h-72 overflow-auto pr-1">
-            {visibleCategoryList.length === 0 ? (
+            {visibleTagList.length === 0 ? (
               <p className="text-sm text-gray-500">No categories found.</p>
             ) : (
               <ul className="space-y-2">
-                {visibleCategoryList.map((c) => {
-                  const checked = selected.has(c);
-                  const count = categoryCounts.get(c) || 0;
+                {visibleTagList.map((t) => {
+                  const checked = selected.has(t);
+                  const count = tagCounts.get(t) ?? 0;
                   return (
-                    <li key={c} className="flex items-center justify-between gap-2">
+                    <li key={t} className="flex items-center justify-between gap-2">
                       <label className="flex items-center gap-2 text-sm">
                         <input
                           type="checkbox"
                           className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                           checked={checked}
-                          onChange={() => toggleCategory(c)}
+                          onChange={() => toggleTag(t)}
                         />
-                        <span className="text-gray-800">{c}</span>
+                        <span className="text-gray-800">{t}</span>
                       </label>
                       <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-600">
                         {count}
@@ -166,7 +154,7 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
           </div>
         </aside>
 
-        {/* Grid (lock to 3 columns on desktop) */}
+        {/* Grid (locked to 3 columns on desktop) */}
         {visibleReports.length === 0 ? (
           <div className="rounded-xl border bg-white p-6 text-gray-600">
             No small reports match your selected categories.
@@ -175,9 +163,7 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {visibleReports.map((p) => {
               const yearLabel =
-                (p as any).year !== undefined && (p as any).year !== null
-                  ? String((p as any).year)
-                  : undefined;
+                p.year !== undefined && p.year !== null ? String(p.year) : undefined;
 
               return (
                 <article
@@ -250,6 +236,7 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
     </section>
   );
 }
+
 
 
 
