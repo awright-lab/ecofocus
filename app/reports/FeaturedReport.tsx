@@ -42,6 +42,7 @@ export default function FeaturedReport({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+        {/* Left card: Report */}
         <article className="rounded-xl border bg-white shadow-sm overflow-hidden">
           <div className="relative aspect-[16/9]">
             {badge && (
@@ -101,7 +102,7 @@ export default function FeaturedReport({
           </div>
         </article>
 
-        {/* Right column: bullets / promo content */}
+        {/* Right column: Promo content */}
         <div className="rounded-xl border bg-gray-50 p-4">
           <h4 className="font-semibold text-base">What’s inside</h4>
           <ul className="mt-2 grid gap-1 text-sm text-gray-800">
@@ -121,5 +122,6 @@ export default function FeaturedReport({
     </section>
   );
 }
+
 
 
