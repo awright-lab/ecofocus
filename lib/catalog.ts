@@ -4,42 +4,43 @@ import type { Product } from './storeTypes';
 // Reusable topical taxonomy for SIR subsections
 const SUBSECTION_TOPICS = [
   {
-    key: 'recycling-packaging',
-    title: 'Recycling & Packaging',
-    tags: ['Recycling', 'Packaging'],
+    key: 'green-mindset',
+    title: 'The Green Mindset',
+    tags: ['Consumer Attitudes', 'Behaviors'],
     img: '/images/store_sr1.webp',
   },
   {
-    key: 'pet-household',
-    title: 'Pet Supplies & Household Goods',
-    tags: ['Pet Supplies', 'Household Goods'],
+    key: 'packaging-spotlight',
+    title: 'Packaging in the Spotlight',
+    tags: ['Packaging', 'Preferences'],
     img: '/images/store_sr2.webp',
   },
   {
-    key: 'consumer-attitudes',
-    title: 'Consumer Attitudes & Behaviors',
-    tags: ['Consumer Attitudes', 'Behaviors'],
+    key: 'trust-accountability',
+    title: 'Trust & Accountability',
+    tags: ['Corporate Responsibility', 'Retail Responsibility'],
     img: '/images/store_sr3.webp',
   },
   {
-    key: 'generational-trends',
-    title: 'Generational & Demographic Trends',
-    tags: ['Generational Trends', 'Demographics'],
+    key: 'recycling-reality',
+    title: 'The Recycling Reality',
+    tags: ['Recycling', 'Barriers'],
     img: '/images/store_sr4.webp',
   },
   {
-    key: 'corporate-trust',
-    title: 'Corporate Sustainability & Brand Trust',
-    tags: ['Corporate Sustainability', 'Brand Trust'],
+    key: 'price-of-green',
+    title: 'The Price of Green',
+    tags: ['Value Perceptions', 'Affordability'],
     img: '/images/store_sr5.webp',
   },
   {
-    key: 'policy-financial',
-    title: 'Policy & Financial Barriers',
-    tags: ['Policy', 'Financial Barriers'],
+    key: 'knowledge-power',
+    title: 'Knowledge is Power',
+    tags: ['Environmental Knowledge', 'Information Sources'],
     img: '/images/store_sr6.webp',
   },
 ] as const;
+
 
 function makeYearSubs(year: 2025 | 2024): Product[] {
   return SUBSECTION_TOPICS.map((t, i) => ({
