@@ -120,6 +120,8 @@ export default function ReportsPage() {
         onAddToCart={(id) => addToCart(id)}
       />
 
+      <MetricsStrip />
+
       {/* Small Reports block */}
       <SmallReportsHeader />
       <SmallReportsFilterBar
@@ -129,7 +131,6 @@ export default function ReportsPage() {
         onYear={handleYear}
         yearsAvailable={yearsAvailable}
       />
-      <MetricsStrip />
 
       <ReportsGrid
         pageSlice={pageSlice}
