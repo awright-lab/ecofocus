@@ -1,41 +1,36 @@
 // app/api/checkout/route.ts
-import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
-import { PRICE_ID_BY_PRODUCT } from '@/lib/stripe-prices';
+import { NextResponse } from "next/server";
+import { getStripe } from "@/lib/stripe";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { items, metadata } = await req.json() as {
-      items: Array<{ id: string; qty?: number }>;
-      metadata?: Record<string, string>;
-    };
+    const stripe = getStripe();
 
-    if (!items?.length) {
-      return NextResponse.json({ error: 'No items' }, { status: 400 });
-    }
+    const { items, metadata } = await req.json();
+    // items: [{ id: 'sir-2024', qty: 1 }, ...]
 
-    const line_items = items.map(({ id, qty }) => {
-      const price = PRICE_ID_BY_PRODUCT[id];
-      if (!price) throw new Error(`Missing Stripe price for ${id}`);
-      return { price, quantity: Math.max(1, qty ?? 1) };
-    });
+    // Map your catalog IDs -> Stripe price IDs (or use Lookup Keys)
+    const line_items = (items ?? []).map((it: any) => ({
+      // Replace with your real price IDs
+      price: process.env[`STRIPE_PRICE_${String(it.id).toUpperCase().replace(/[-.]/g, "_")}`],
+      quantity: it.qty ?? 1,
+    }));
 
     const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
+      mode: "payment",
       line_items,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
-      // optional: capture who/what this was for
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cart`,
       metadata,
-      // optional: turn on invoice/receipt emails, tax, etc.
-      // automatic_tax: { enabled: true },
-      // billing_address_collection: 'auto',
-      // customer_creation: 'always',
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url }, { status: 200 });
   } catch (err: any) {
-    console.error(err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    // During build, if env is missing, this returns 500 instead of crashing build
+    return NextResponse.json({ error: err.message ?? "Checkout error" }, { status: 500 });
   }
 }
+
