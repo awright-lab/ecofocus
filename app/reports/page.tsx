@@ -16,35 +16,20 @@ import ReportsGrid from '@/app/reports/SmallReportsGrid';
 import Pagination from '@/app/reports/Pagination';
 import CustomOption from '@/app/reports/CustomOption';
 
-// If you already split types/data:
-//   import type { Product } from '@/lib/storeTypes';
-//   import { CATALOG } from '@/lib/catalog';
-// Otherwise, temporarily use this minimal type and bring your data in here.
-type Product = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  price: number;
-  img: string;
-  category: 'Bundles' | 'Reports';
-  year?: number;
-};
-
-// TODO: replace with your real data import from '@/lib/catalog'
-import { CATALOG } from '@/lib/catalog'; // ← comment this in when available
+// ✅ Use your real types + data
+import type { Product } from '@/lib/storeTypes';
+import { CATALOG } from '@/lib/catalog';
 
 export default function ReportsPage() {
   // ----- Cart wiring (replace with your real cart integration) -----
   const addToCart = (id: string) => {
-    // Hook this to your cart drawer/provider
+    // Hook this to your cart drawer/provider OR replace with startCheckout
     console.log('Add to cart:', id);
   };
 
   // ----- Catalog + Derived Small Reports -----
   const catalog: Product[] = useMemo(() => {
-    // If you don't have CATALOG yet, you can inline your array or import it.
-    // return YOUR_LOCAL_ARRAY;
-    return CATALOG as Product[]; // assumes same shape
+    return CATALOG as Product[]; // same shape
   }, []);
 
   const smallReports = useMemo(
@@ -110,15 +95,15 @@ export default function ReportsPage() {
         price={10000}
         imageSrc="/images/store_sir2024.webp"
         note="Includes read-only Dashboard access"
+        // If you want Stripe here, swap to startCheckout([{ id: 'sir-2024', qty: 1 }])
         ctaPrimary={{ label: 'Add to cart', onClick: () => addToCart('sir-2024'), variant: 'primary' }}
-        ctaSecondary={{ label: 'View sample pages', href: '/reports/sir-2024', variant: 'outline' }}
-        // badge="FEATURED"
+        // Make sure this route exists; if you followed earlier structure, use /offerings/sir-2024
+        ctaSecondary={{ label: 'View sample pages', href: '/offerings/sir-2024', variant: 'outline' }}
       />
 
-      {/* Three-card Featured Bundles row */}
-      <FeaturedReportsSection
-        onAddToCart={(id) => addToCart(id)}
-      />
+      {/* Three-card Core Offerings row */}
+      {/* ⬇️ Removed the unused onAddToCart prop */}
+      <FeaturedReportsSection />
 
       <MetricsStrip />
 
@@ -132,10 +117,7 @@ export default function ReportsPage() {
         yearsAvailable={yearsAvailable}
       />
 
-      <ReportsGrid
-        pageSlice={pageSlice}
-        addToCart={addToCart}
-      />
+      <ReportsGrid pageSlice={pageSlice} addToCart={addToCart} />
 
       <Pagination
         currentPage={currentPage}
@@ -152,6 +134,7 @@ export default function ReportsPage() {
     </main>
   );
 }
+
 
 
 

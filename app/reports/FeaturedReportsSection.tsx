@@ -1,14 +1,17 @@
 "use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { BarChart2, Users, ShieldCheck, ArrowRight, BadgeDollarSign } from "lucide-react";
 
-// ✅ import from your catalog
-import { CATALOG } from "@/lib/catalog"; // or { BUNDLES } if you exported it
+import { CATALOG } from "@/lib/catalog";
+import { startCheckout } from "@/lib/checkout";
+
+type CardId = "buyin-2025" | "enhance-2024" | "sir-2024";
 
 type Card = {
-  id: "buyin-2025" | "enhance-2024" | "sir-2024";
+  id: CardId;
   title: string;
   subtitle: string;
   price: number;
@@ -28,58 +31,61 @@ type Card = {
   };
 };
 
-export default function FeaturedReportsSection({
-  onAddToCart,
-}: {
-  onAddToCart?: (id: Card["id"]) => void;
-}) {
-  // Pick the three bundle items from the catalog (IDs must match your catalog)
+export default function FeaturedReportsSection() {
+  // Pull the three offerings by ID
   const source = CATALOG.filter((p) =>
     ["buyin-2025", "enhance-2024", "sir-2024"].includes(p.id)
   );
 
-  // Map catalog products → Card shape the UI expects
-  const CARDS: Card[] = source.map((p) => {
-    // sensible defaults per bundle
-    const isBuyIn = p.id === "buyin-2025";
-    const isEnhance = p.id === "enhance-2024";
- 
-    const primary: Card["primary"] =
-      isBuyIn
-        ? { label: "Learn how to participate", href: "/reports/buyin-2025", variant: "primary" }
-        : isEnhance
-        ? { label: "Add to cart", onClick: () => onAddToCart?.("enhance-2024"), variant: "primary" }
-        : { label: "Add to cart", onClick: () => onAddToCart?.("sir-2024"), variant: "primary" };
+  const labelFor = (id: CardId) =>
+    id === "buyin-2025" ? "Program" : id === "enhance-2024" ? "Service" : "Report";
 
-    const secondary: Card["secondary"] =
-      isBuyIn
-        ? { label: "Details", href: "/reports/buyin-2025", variant: "outline" }
-        : isEnhance
-        ? { label: "Details", href: "/reports/enhance-2024", variant: "outline" }
-        : { label: "Details", href: "/reports/sir-2024", variant: "outline" };
+  const CARDS: Card[] = source.map((p) => {
+    const id = p.id as CardId;
+    const isBuyIn = id === "buyin-2025";
+    const isEnhance = id === "enhance-2024";
+
+    const primary: Card["primary"] = isBuyIn
+      ? { label: "Learn how to participate", href: "/offerings/buyin-2025", variant: "primary" }
+      : isEnhance
+      ? {
+          label: "Buy now",
+          onClick: () => startCheckout([{ id: "enhance-2024", qty: 1 }], { kind: "service" }),
+          variant: "primary",
+        }
+      : {
+          label: "Buy now",
+          onClick: () => startCheckout([{ id: "sir-2024", qty: 1 }], { kind: "report" }),
+          variant: "primary",
+        };
+
+    const secondary: Card["secondary"] = isBuyIn
+      ? { label: "Details", href: "/offerings/buyin-2025", variant: "outline" }
+      : isEnhance
+      ? { label: "Details", href: "/offerings/enhance-2024", variant: "outline" }
+      : { label: "Details", href: "/offerings/sir-2024", variant: "outline" };
 
     return {
-      id: p.id as Card["id"],
+      id,
       title: p.title,
       subtitle: p.subtitle ?? "",
       price: p.price,
-      imageSrc: p.img,           // <- catalog uses `img`
-      note: p.variantNote,       // <- catalog uses `variantNote`
+      imageSrc: p.img,
+      note: p.variantNote,
       badge: p.badge,
       primary,
       secondary,
     };
-  }) as Card[];
+  });
 
   return (
-    <section id="bundles" className="container mx-auto px-4 py-10">
-      {/* Section header with accent strip */}
+    <section id="offerings" className="container mx-auto px-4 py-10">
+      {/* Header */}
       <div className="mb-6 max-w-3xl">
-        <div className="h-1.5 w-28 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
-        <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Flagship Offerings</h2>
+        <div className="h-1.5 w-28 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-marigold-500" />
+        <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Core Offerings</h2>
         <p className="mt-2 text-gray-700">
-          High-value packages for teams that need deeper access: participate in this year’s study,
-          integrate last year’s data, or get the full 2024 report.
+          Participate in this year’s study, enhance your internal data with EcoFocus, or get the full report.
         </p>
       </div>
 
@@ -90,13 +96,13 @@ export default function FeaturedReportsSection({
             whileHover={{ y: -4 }}
             className="group relative rounded-2xl border bg-white/90 shadow-sm overflow-hidden transition-all hover:shadow-md"
           >
-            {/* Gradient border on hover */}
-            <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-black/5 group-hover:ring-emerald-500/30" />
+            {/* Hover ring */}
+            <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-black/5 group-hover:ring-marigold-300/40" />
 
-            {/* Corner ribbon for best value */}
+            {/* Ribbon */}
             {p.id === "buyin-2025" && (
               <div className="absolute -right-10 top-4 z-20 rotate-45 select-none">
-                <span className="bg-emerald-600 text-white text-[11px] font-semibold px-10 py-1 shadow-sm">
+                <span className="bg-marigold-500 text-white text-[11px] font-semibold px-10 py-1 shadow-sm">
                   Best Value
                 </span>
               </div>
@@ -112,10 +118,10 @@ export default function FeaturedReportsSection({
               <Image src={p.imageSrc} alt={p.title} fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/0 to-black/0" />
 
-              {/* Floating price pill */}
+              {/* Price pill */}
               <div className="absolute -bottom-4 left-4 z-20">
-                <div className="rounded-xl bg-white shadow-md border px-4 py-2">
-                  <span className="text-[11px] text-gray-500">Bundle</span>
+                <div className="rounded-xl bg-white shadow-md border px-4 py-2 border-marigold-100">
+                  <span className="text-[11px] text-gray-500">{labelFor(p.id)}</span>
                   <div className="text-lg font-bold text-emerald-700 leading-5">
                     ${p.price.toLocaleString()}
                   </div>
@@ -128,7 +134,7 @@ export default function FeaturedReportsSection({
               <h3 className="text-base md:text-lg font-semibold tracking-tight">{p.title}</h3>
               <p className="mt-1 text-sm text-gray-700">{p.subtitle}</p>
 
-              {/* Compact density strip */}
+              {/* Density strip */}
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                 <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-gray-700">
                   <BarChart2 className="h-3.5 w-3.5" />
@@ -170,11 +176,7 @@ export default function FeaturedReportsSection({
                     }`}
                   >
                     {p.primary.label}
-                    {p.primary.variant !== "outline" ? (
-                      <BadgeDollarSign className="h-4 w-4" />
-                    ) : (
-                      <ArrowRight className="h-4 w-4" />
-                    )}
+                    <BadgeDollarSign className="h-4 w-4" />
                   </button>
                 )}
 
@@ -198,3 +200,5 @@ export default function FeaturedReportsSection({
     </section>
   );
 }
+
+
