@@ -1,42 +1,160 @@
 // app/reports/[id]/page.tsx
-import { CATALOG } from '@/lib/catalog';
 import Image from 'next/image';
-import PurchaseCard from './PurchaseCard.client';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { CATALOG, SMALL_REPORTS } from '@/lib/catalog';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import PurchaseCard from './PurchaseCard';
+import {
+  CheckCircle2,
+  Users,
+  BarChart2,
+  LineChart,
+  BadgeCheck,
+} from 'lucide-react';
 
-export default async function ReportDetail({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+// Pre-generate static paths so next export / Netlify has these pages
+export async function generateStaticParams() {
+  return SMALL_REPORTS.map((r) => ({ id: r.id }));
+}
 
-  const product = CATALOG.find(p => p.id === id);
-  if (!product || product.category !== 'Reports') {
-    return <section className="container mx-auto px-4 py-16">Report not found.</section>;
+// Optional: SEO
+export function generateMetadata({ params }: { params: { id: string } }) {
+  const product = CATALOG.find((x) => x.id === params.id);
+  if (!product || product.category !== 'Reports') return {};
+  return {
+    title: `${product.title} — EcoFocus`,
+    description:
+      product.subtitle ??
+      'Focused sustainability insight with slide‑ready charts and clear takeaways.',
+  };
+}
+
+export default function ReportDetailPage({ params }: { params: { id: string } }) {
+  const p = CATALOG.find((x) => x.id === params.id);
+  if (!p || p.category !== 'Reports' || typeof p.year !== 'number') {
+    notFound();
   }
+  const product = p; // narrowed
+
+  // naive related: same year, not itself
+  const related = SMALL_REPORTS
+    .filter((r) => r.year === product.year && r.id !== product.id)
+    .slice(0, 3);
 
   return (
-    <section className="container mx-auto px-4 py-12">
-      <div className="grid gap-8 md:grid-cols-[1fr_380px]">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">{product.title}</h1>
-          {product.subtitle && <p className="mt-2 text-gray-700">{product.subtitle}</p>}
-          {product.img && (
-            <div className="mt-6 relative aspect-[16/9] rounded-xl overflow-hidden border">
-              <Image src={product.img} alt={product.title} fill className="object-cover" />
-            </div>
-          )}
-          {product.includes?.length ? (
-            <ul className="mt-6 grid gap-2 text-sm text-gray-800">
-              {product.includes.map(x => <li key={x}>• {x}</li>)}
-            </ul>
-          ) : null}
-        </div>
+    <main className="bg-white">
+      <Header />
 
-        <PurchaseCard productId={product.id} price={product.price} />
-      </div>
-    </section>
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-900 via-emerald-800 to-emerald-700 text-white">
+        <div className="pointer-events-none absolute inset-0 [background-image:radial-gradient(rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:18px_18px]" />
+        <div className="container mx-auto px-6 py-16 md:py-20 relative z-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs backdrop-blur">
+            <BadgeCheck className="h-4 w-4" />
+            Focused Insight — {product.year}
+          </div>
+
+          <h1 className="mt-4 text-3xl md:text-5xl font-bold tracking-tight">{product.title}</h1>
+          {product.subtitle ? (
+            <p className="mt-3 max-w-3xl text-white/80 text-base md:text-lg">{product.subtitle}</p>
+          ) : null}
+
+          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
+              <Users className="h-4 w-4" />
+              Cohort comparisons
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
+              <BarChart2 className="h-4 w-4" />
+              Slide‑ready charts
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
+              <LineChart className="h-4 w-4" />
+              Clear takeaways
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* MAIN */}
+      <section className="container mx-auto px-4 py-10 md:py-12">
+        <div className="grid gap-8 md:grid-cols-[1fr_360px]">
+          {/* LEFT */}
+          <div>
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border bg-white">
+              <Image src={product.img} alt={product.title} fill className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+            </div>
+
+            {product.includes?.length ? (
+              <div className="mt-10">
+                <div className="h-1.5 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-marigold-500" />
+                <h2 className="mt-3 text-xl font-semibold">What’s included</h2>
+                <ul className="mt-4 grid gap-2 text-sm text-gray-800">
+                  {product.includes.map((x) => (
+                    <li key={x} className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600" />
+                      <span>{x}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            {/* Overview */}
+            <div className="mt-10">
+              <div className="h-1.5 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-marigold-500" />
+              <h2 className="mt-3 text-xl font-semibold">Overview</h2>
+              <p className="mt-3 text-sm text-gray-700">
+                This focused insight explores how sustainability attitudes and behaviors shape category
+                expectations and trade‑offs. Use it to inform product claims, positioning, packaging
+                decisions, and channel messaging.
+              </p>
+            </div>
+
+            {/* Related */}
+            {related.length ? (
+              <div className="mt-12">
+                <div className="h-1.5 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-marigold-500" />
+                <h2 className="mt-3 text-xl font-semibold">You might also like</h2>
+                <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                  {related.map((r) => (
+                    <Link
+                      href={`/reports/${r.id}`}
+                      key={r.id}
+                      className="group overflow-hidden rounded-xl border hover:shadow-sm transition"
+                    >
+                      <div className="relative aspect-[16/10]">
+                        <Image src={r.img} alt={r.title} fill className="object-cover" />
+                      </div>
+                      <div className="p-3">
+                        <div className="text-sm font-semibold group-hover:underline line-clamp-2">
+                          {r.title}
+                        </div>
+                        <div className="mt-1 text-xs text-gray-600">
+                          ${r.price.toLocaleString()}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* RIGHT: purchase (client button inside) */}
+          <PurchaseCard id={product.id} price={product.price} />
+        </div>
+      </section>
+
+      <Footer />
+    </main>
   );
 }
+
+
+
 
 

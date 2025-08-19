@@ -1,6 +1,4 @@
 // lib/storeTypes.ts
-
-export type BuyerProfile = 'Brand / Other' | 'Agency' | 'Enterprise';
 export type ProductCategory = 'Bundles' | 'Reports';
 
 export type Product = {
@@ -8,17 +6,17 @@ export type Product = {
   title: string;
   subtitle?: string;
   price: number;
-  img: string;                // public path under /public/images/...
+  img: string;
   category: ProductCategory;
-  year?: number;              // required for small reports, omitted for bundles
+  year?: number;         // keep optional for bundles
   tags?: string[];
   includes?: string[];
-  badge?: string;             // e.g. "NEW • 2025"
-  variantNote?: string;       // e.g. dashboard seat note
+  badge?: string;
+  variantNote?: string;
 };
 
-export type CartItem = {
-  id: string;                 // must match a Product.id
-  qty: number;
-  buyer: BuyerProfile;
+// Narrow type for small reports (helpful for detail pages)
+export type SmallReport = Product & {
+  category: 'Reports';
+  year: number;
 };
