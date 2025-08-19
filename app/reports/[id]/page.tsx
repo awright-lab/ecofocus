@@ -14,21 +14,22 @@ import {
   BadgeCheck,
 } from 'lucide-react';
 
-// --- Types ---------------------------------------------------------------
-type ReportPageParams = { id: string };
-type ReportPageProps = {
-  params: ReportPageParams;                 // ✅ plain object, not a Promise
-  searchParams?: Record<string, string | string[] | undefined>;
-};
+// --- Types (route-local) -------------------------------------------------
+type RouteParams = { id: string };
 
 // --- Static params for SSG/Export ---------------------------------------
-export async function generateStaticParams(): Promise<ReportPageParams[]> {
+export async function generateStaticParams(): Promise<RouteParams[]> {
   return SMALL_REPORTS.map((r) => ({ id: r.id }));
 }
 
-// --- Metadata (optional) -------------------------------------------------
-export function generateMetadata({ params }: { params: ReportPageParams }) {
-  const product = CATALOG.find((x) => x.id === params.id);
+// --- Metadata (align with Promise-wrapped params) ------------------------
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<RouteParams>;
+}) {
+  const { id } = await params;
+  const product = CATALOG.find((x) => x.id === id);
   if (!product || product.category !== 'Reports') return {};
   return {
     title: `${product.title} — EcoFocus`,
@@ -38,15 +39,19 @@ export function generateMetadata({ params }: { params: ReportPageParams }) {
   };
 }
 
-// --- Page ----------------------------------------------------------------
-export default async function ReportDetailPage({ params }: ReportPageProps) {
-  const { id } = params;
+// --- Page (align with Promise-wrapped params) ----------------------------
+export default async function ReportDetailPage({
+  params,
+}: {
+  params: Promise<RouteParams>;
+}) {
+  const { id } = await params;
 
   const p = CATALOG.find((x) => x.id === id);
   if (!p || p.category !== 'Reports' || typeof p.year !== 'number') {
     notFound();
   }
-  const product = p; // narrowed
+  const product = p;
 
   // naive related: same year, not itself
   const related = SMALL_REPORTS
@@ -154,7 +159,7 @@ export default async function ReportDetailPage({ params }: ReportPageProps) {
             ) : null}
           </div>
 
-          {/* RIGHT: purchase (client button inside) */}
+          {/* RIGHT: purchase */}
           <PurchaseCard id={product.id} price={product.price} />
         </div>
       </section>
@@ -163,6 +168,7 @@ export default async function ReportDetailPage({ params }: ReportPageProps) {
     </main>
   );
 }
+
 
 
 
