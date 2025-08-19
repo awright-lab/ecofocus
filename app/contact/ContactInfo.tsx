@@ -35,7 +35,7 @@ export default function ContactInfo() {
             <div>
               <h3 className="font-semibold text-gray-900 mb-1">Email</h3>
               <p className="text-gray-600">info@ecofocus.com</p>
-              <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
+              <p className="text-sm text-gray-500">We&apos;ll respond within 24 hours</p>
             </div>
           </div>
 

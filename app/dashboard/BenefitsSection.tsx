@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 export default function BenefitsSection() {
   return (
     <section className="py-24 bg-gradient-to-br from-emerald-50 to-cyan-50">
@@ -41,7 +43,7 @@ export default function BenefitsSection() {
                     <h3 className="text-xl font-bold text-gray-900">Uncover Hidden Insights</h3>
                   </div>
                   <p className="text-gray-600 leading-relaxed">
-                    Discover patterns and trends that aren't visible in traditional reports. Our interactive tools help you ask the right questions and find meaningful answers.
+                    {"Discover patterns and trends that aren't visible in traditional reports. Our interactive tools help you ask the right questions and find meaningful answers."}
                   </p>
                 </div>
 
@@ -61,11 +63,16 @@ export default function BenefitsSection() {
 
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 rounded-2xl transform rotate-2"></div>
-              <img
-                src="https://readdy.ai/api/search-image?query=Business%20team%20collaborating%20around%20a%20large%20monitor%20displaying%20sustainability%20dashboard%20with%20environmental%20data%20charts%2C%20graphs%2C%20and%20ESG%20metrics%2C%20modern%20office%20environment%20with%20diverse%20professionals%20analyzing%20real-time%20data%2C%20pointing%20at%20interactive%20visualizations%2C%20contemporary%20workspace%20with%20natural%20lighting%20and%20plants%2C%20collaborative%20meeting%20atmosphere&width=600&height=500&seq=team-collaboration&orientation=portrait"
-                alt="Team using sustainability dashboard"
-                className="relative w-full h-auto rounded-2xl shadow-xl object-cover object-top"
-              />
+              <div className="relative w-full h-auto rounded-2xl shadow-xl overflow-hidden">
+                <Image
+                  src="https://readdy.ai/api/search-image?query=Business%20team%20collaborating%20around%20a%20large%20monitor%20displaying%20sustainability%20dashboard%20with%20environmental%20data%20charts%2C%20graphs%2C%20and%20ESG%20metrics%2C%20modern%20office%20environment%20with%20diverse%20professionals%20analyzing%20real-time%20data%2C%20pointing%20at%20interactive%20visualizations%2C%20contemporary%20workspace%20with%20natural%20lighting%20and%20plants%2C%20collaborative%20meeting%20atmosphere&width=600&height=500&seq=team-collaboration&orientation=portrait"
+                  alt="Team using sustainability dashboard"
+                  width={600}
+                  height={500}
+                  className="w-full h-auto object-cover object-top"
+                  priority={false}
+                />
+              </div>
             </div>
           </div>
 

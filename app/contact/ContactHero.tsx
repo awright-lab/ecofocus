@@ -1,7 +1,6 @@
 
 'use client';
 
-import Link from 'next/link';
 
 export default function ContactHero() {
   return (
@@ -40,11 +39,11 @@ export default function ContactHero() {
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight bg-gradient-to-r from-gray-900 via-emerald-800 to-blue-900 bg-clip-text text-transparent">
             Get in Touch
             <br />
-            <span className="text-emerald-600">Let's Transform Together</span>
+            <span className="text-emerald-600">Let&apos;s Transform Together</span>
           </h1>
 
           <p className="text-xl md:text-2xl mb-10 text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Ready to transform your sustainability strategy? Let's discuss how our research and insights can drive your organization forward.
+            Ready to transform your sustainability strategy? Let&apos;s discuss how our research and insights can drive your organization forward.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
