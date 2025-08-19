@@ -14,13 +14,20 @@ import {
   BadgeCheck,
 } from 'lucide-react';
 
-// Pre-generate static paths so next export / Netlify has these pages
-export async function generateStaticParams() {
+// --- Types ---------------------------------------------------------------
+type ReportPageParams = { id: string };
+type ReportPageProps = {
+  params: ReportPageParams;                 // ✅ plain object, not a Promise
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+// --- Static params for SSG/Export ---------------------------------------
+export async function generateStaticParams(): Promise<ReportPageParams[]> {
   return SMALL_REPORTS.map((r) => ({ id: r.id }));
 }
 
-// Optional: SEO
-export function generateMetadata({ params }: { params: { id: string } }) {
+// --- Metadata (optional) -------------------------------------------------
+export function generateMetadata({ params }: { params: ReportPageParams }) {
   const product = CATALOG.find((x) => x.id === params.id);
   if (!product || product.category !== 'Reports') return {};
   return {
@@ -31,8 +38,11 @@ export function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-export default function ReportDetailPage({ params }: { params: { id: string } }) {
-  const p = CATALOG.find((x) => x.id === params.id);
+// --- Page ----------------------------------------------------------------
+export default async function ReportDetailPage({ params }: ReportPageProps) {
+  const { id } = params;
+
+  const p = CATALOG.find((x) => x.id === id);
   if (!p || p.category !== 'Reports' || typeof p.year !== 'number') {
     notFound();
   }
