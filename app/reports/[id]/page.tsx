@@ -6,13 +6,10 @@ import { CATALOG, SMALL_REPORTS } from '@/lib/catalog';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import PurchaseCard from './PurchaseCard';
-import {
-  CheckCircle2,
-  Users,
-  BarChart2,
-  LineChart,
-  BadgeCheck,
-} from 'lucide-react';
+import { CheckCircle2, Users, BarChart2, LineChart, BadgeCheck } from 'lucide-react';
+
+// Lock to statically generated ids (nice for static export)
+export const dynamicParams = false;
 
 // --- Types (route-local) -------------------------------------------------
 type RouteParams = { id: string };
@@ -35,7 +32,7 @@ export async function generateMetadata({
     title: `${product.title} — EcoFocus`,
     description:
       product.subtitle ??
-      'Focused sustainability insight with slide‑ready charts and clear takeaways.',
+      'Focused sustainability insight with slide-ready charts and clear takeaways.',
   };
 }
 
@@ -83,7 +80,7 @@ export default async function ReportDetailPage({
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
               <BarChart2 className="h-4 w-4" />
-              Slide‑ready charts
+              Slide-ready charts
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
               <LineChart className="h-4 w-4" />
@@ -124,7 +121,7 @@ export default async function ReportDetailPage({
               <h2 className="mt-3 text-xl font-semibold">Overview</h2>
               <p className="mt-3 text-sm text-gray-700">
                 This focused insight explores how sustainability attitudes and behaviors shape category
-                expectations and trade‑offs. Use it to inform product claims, positioning, packaging
+                expectations and trade-offs. Use it to inform product claims, positioning, packaging
                 decisions, and channel messaging.
               </p>
             </div>
@@ -149,7 +146,7 @@ export default async function ReportDetailPage({
                           {r.title}
                         </div>
                         <div className="mt-1 text-xs text-gray-600">
-                          ${r.price.toLocaleString()}
+                          {typeof r.price === 'number' ? `$${r.price.toLocaleString()}` : '—'}
                         </div>
                       </div>
                     </Link>

@@ -8,12 +8,14 @@ import SolutionsOverview from './SolutionsOverview';
 import SolutionsHighlights from './SolutionsHighlights';
 import SolutionsComparison from './SolutionsComparison';
 import TrustSection from './TrustSection';
+import SolutionsFeaturedOfferings from './SolutionsFeaturedOfferings'; // <-- add
 
 export default function SolutionsPage() {
   return (
     <div className="min-h-screen">
       <Header />
       <SolutionsHero />
+      <SolutionsFeaturedOfferings /> {/* <-- add here */}
       <SolutionsOverview />
       <SolutionsHighlights />
       <SolutionsComparison />
@@ -24,3 +26,4 @@ export default function SolutionsPage() {
     </div>
   );
 }
+

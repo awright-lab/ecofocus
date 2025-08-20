@@ -6,12 +6,13 @@ import { CheckCircle2, BarChart2, Layers, PackageOpen, ArrowRight, ShieldCheck, 
 type FeaturedReportProps = {
   title: string;
   subtitle?: string;
-  price?: number;
-  imageSrc?: string; // can be undefined; we’ll show a skeleton
+  price?: number;                         // may be omitted for contact-first
+  imageSrc?: string;
+  purchaseType?: "direct" | "contact";    // ✅ NEW (optional)
   ctaPrimary?: {
     label: string;
-    onClick?: () => void;
-    href?: string;
+    onClick?: () => void;                 // used for direct purchase
+    href?: string;                        // used for contact-first / navigation
     variant?: "primary" | "outline";
   };
   ctaSecondary?: {
@@ -19,8 +20,8 @@ type FeaturedReportProps = {
     href: string;
     variant?: "primary" | "outline";
   };
-  badge?: string; // e.g., "NEW • 2025"
-  note?: string;  // e.g., "Includes read-only dashboard access"
+  badge?: string;
+  note?: string;
 };
 
 export default function FeaturedReport({
@@ -28,11 +29,16 @@ export default function FeaturedReport({
   subtitle,
   price,
   imageSrc,
+  purchaseType,
   ctaPrimary,
   ctaSecondary,
   badge,
   note,
 }: FeaturedReportProps) {
+  // Derive mode: if not provided, treat as contact-first when price is missing
+  const isContact = (purchaseType ?? (typeof price !== "number" ? "contact" : "direct")) === "contact";
+  const priceText = typeof price === "number" ? `$${price.toLocaleString()}` : undefined;
+
   return (
     <section id="featured-report" className="container mx-auto px-4 py-10">
       {/* Section heading with subtle gradient strip */}
@@ -46,9 +52,7 @@ export default function FeaturedReport({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* LEFT: Hero report card */}
-        <article
-          className="group relative rounded-2xl border bg-white/90 shadow-sm overflow-hidden transition-shadow hover:shadow-md"
-        >
+        <article className="group relative rounded-2xl border bg-white/90 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
           {/* Media */}
           <div className="relative aspect-[16/9]">
             {badge && (
@@ -57,11 +61,9 @@ export default function FeaturedReport({
               </span>
             )}
 
-            {/* Image or skeleton */}
             {imageSrc ? (
               <>
                 <Image src={imageSrc} alt={title} fill className="object-cover" />
-                {/* Soft overlay for legibility */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/0 to-black/0" />
               </>
             ) : (
@@ -70,24 +72,20 @@ export default function FeaturedReport({
               </div>
             )}
 
-            {/* Floating price pill (if price provided) */}
-            {typeof price === "number" && (
-              <div className="absolute -bottom-4 left-4 z-10">
-                <div className="rounded-xl bg-white shadow-md border px-4 py-2">
-                  <span className="text-sm text-gray-500">Report</span>
-                  <div className="text-xl font-bold text-emerald-700 leading-5">
-                    ${price.toLocaleString()}
-                  </div>
+            {/* Price/Type pill */}
+            <div className="absolute -bottom-4 left-4 z-10">
+              <div className="rounded-xl bg-white shadow-md border px-4 py-2">
+                <span className="text-sm text-gray-500">Report</span>
+                <div className="text-xl font-bold text-emerald-700 leading-5">
+                  {isContact ? (priceText ? `Starting at ${priceText}` : "Contact") : priceText ?? "—"}
                 </div>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Body */}
-          <div className="p-5 pt-7"> {/* extra top space for price pill overlap */}
-            <h3 className="text-lg md:text-xl font-semibold tracking-tight">
-              {title}
-            </h3>
+          <div className="p-5 pt-7">
+            <h3 className="text-lg md:text-xl font-semibold tracking-tight">{title}</h3>
             {subtitle && <p className="mt-1 text-sm text-gray-700">{subtitle}</p>}
 
             {/* At-a-glance metrics strip */}
@@ -114,6 +112,7 @@ export default function FeaturedReport({
                 (ctaPrimary.href ? (
                   <Link
                     href={ctaPrimary.href}
+                    aria-label={ctaPrimary.label}
                     className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-semibold shadow-sm transition-transform hover:-translate-y-0.5 ${
                       ctaPrimary.variant === "outline"
                         ? "border text-gray-900 hover:bg-gray-50"
@@ -126,6 +125,7 @@ export default function FeaturedReport({
                 ) : (
                   <button
                     onClick={ctaPrimary.onClick}
+                    aria-label={ctaPrimary.label}
                     className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-sm font-semibold shadow-sm transition-transform hover:-translate-y-0.5 ${
                       ctaPrimary.variant === "outline"
                         ? "border text-gray-900 hover:bg-gray-50"
@@ -153,15 +153,13 @@ export default function FeaturedReport({
           </div>
         </article>
 
-        {/* RIGHT: Dense, zero-dead-space info panel */}
+        {/* RIGHT: Info panel */}
         <aside className="rounded-2xl border bg-gradient-to-b from-gray-50 to-white p-5 shadow-sm">
-          {/* Headline */}
           <div className="flex items-center justify-between">
             <h4 className="font-semibold text-base">What’s inside</h4>
             <span className="text-[11px] font-medium text-gray-500">Compact overview</span>
           </div>
 
-          {/* Icon bullets (tight grid) */}
           <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-800">
             <li className="flex items-start gap-2">
               <CheckCircle2 className="mt-0.5 h-4 w-4 text-emerald-600 shrink-0" />
@@ -181,7 +179,6 @@ export default function FeaturedReport({
             </li>
           </ul>
 
-          {/* Mini “What you get” grid */}
           <div className="mt-4 grid grid-cols-3 gap-2">
             <div className="rounded-lg border bg-white p-3">
               <Layers className="h-4 w-4 text-emerald-600" />
@@ -200,20 +197,12 @@ export default function FeaturedReport({
             </div>
           </div>
 
-          {/* Chips strip to kill whitespace */}
           <div className="mt-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs text-gray-700">
-              PDF + PPTX
-            </span>
-            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs text-gray-700">
-              Commercial license
-            </span>
-            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs text-gray-700">
-              Team sharing OK
-            </span>
+            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs text-gray-700">PDF + PPTX</span>
+            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs text-gray-700">Commercial license</span>
+            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs text-gray-700">Team sharing OK</span>
           </div>
 
-          {/* Compact CTA row */}
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
               href="#reports"
@@ -230,18 +219,16 @@ export default function FeaturedReport({
             </Link>
           </div>
 
-          {/* Tiny reassurance bar */}
           <div className="mt-4 flex items-center gap-2 rounded-lg border bg-white px-3 py-2">
             <ShieldCheck className="h-4 w-4 text-emerald-600" />
-            <p className="text-[12px] text-gray-700">
-              Data collected from 4,000 US adults (MOE ±1.55%).
-            </p>
+            <p className="text-[12px] text-gray-700">Data collected from 4,000 US adults (MOE ±1.55%).</p>
           </div>
         </aside>
       </div>
     </section>
   );
 }
+
 
 
 

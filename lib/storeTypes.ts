@@ -1,22 +1,21 @@
-// lib/storeTypes.ts
-export type ProductCategory = 'Bundles' | 'Reports';
+// storeTypes.ts
+export type PurchaseType = 'direct' | 'contact';
 
 export type Product = {
   id: string;
   title: string;
   subtitle?: string;
-  price: number;
+  price?: number;                 // keep optional so contact-first items don't need a price
   img: string;
-  category: ProductCategory;
-  year?: number;         // keep optional for bundles
+  category: 'Reports' | 'Bundles';
+  year?: number;
   tags?: string[];
   includes?: string[];
   badge?: string;
   variantNote?: string;
-};
 
-// Narrow type for small reports (helpful for detail pages)
-export type SmallReport = Product & {
-  category: 'Reports';
-  year: number;
+  // NEW (optional)
+  purchaseType?: PurchaseType;    // 'direct' (default) or 'contact'
+  contactPath?: string;           // where to send users for discovery
+  ctaLabel?: string;              // optional override for contact CTA text
 };

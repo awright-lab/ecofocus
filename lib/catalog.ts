@@ -44,24 +44,26 @@ function makeYearSubs(year: 2025 | 2024): Product[] {
   return SUBSECTION_TOPICS.map((t, i) => ({
     id: `sr-${year}-${i + 1}`,
     title: `Focused Insight — ${t.title} (${year})`,
-    subtitle: 'A concentrated, slide‑ready insight to accelerate decisions.',
+    subtitle: 'A concentrated, slide-ready insight to accelerate decisions.',
     price: 2000,
     img: t.img,
     category: 'Reports' as const,
     year,
     tags: [...t.tags, String(year)],
     includes: ['Section PDF', 'Key charts pack', 'Usage license'],
+    // Small Reports are direct-purchase
+    purchaseType: 'direct',
   }));
 }
 
 // ---- MASTER CATALOG ----
 export const CATALOG: Product[] = [
-  // Flagship / service offerings
+  // Core offerings: contact-first (no one-click checkout)
   {
     id: 'buyin-2025',
-    title: '2025 Syndicated Study — Buy‑In',
+    title: '2025 Syndicated Study — Buy-In',
     subtitle: 'Add your proprietary questions + receive the full study.',
-    price: 30000,
+    price: 30000, // can be shown as "starting at" in UI if you want
     img: '/images/store_2025_buyin.webp',
     category: 'Bundles',
     badge: 'Now in Development • 2025',
@@ -72,6 +74,9 @@ export const CATALOG: Product[] = [
       'Dashboard access (seats scale)',
     ],
     variantNote: 'Dashboard included — seats scale by org size',
+    purchaseType: 'contact',
+    contactPath: '/contact?topic=syndicated-2025',
+    ctaLabel: 'Schedule discovery',
   },
   {
     id: 'enhance-2024',
@@ -86,7 +91,12 @@ export const CATALOG: Product[] = [
       'Dashboard access (licensed)',
     ],
     variantNote: 'Dashboard included with license',
+    purchaseType: 'contact',
+    contactPath: '/contact?topic=data-enrichment',
+    ctaLabel: 'Talk to an expert',
   },
+
+  // SIR can remain direct-purchase (or flip to contact by adding purchaseType: 'contact')
   {
     id: 'sir-2024',
     title: 'Sustainability Insights Report — 2024',
@@ -97,9 +107,10 @@ export const CATALOG: Product[] = [
     includes: [
       'Full 2024 SIR (PDF + charts)',
       'Methodology & implications',
-      'Read‑only dashboard seats',
+      'Read-only dashboard seats',
     ],
-    variantNote: 'Dashboard read‑only included',
+    variantNote: 'Dashboard read-only included',
+    purchaseType: 'direct',
   },
 
   // Small reports (stable topical slices by year)
@@ -117,5 +128,6 @@ export const getYearsAvailable = () =>
     .sort((a, b) => (b as number) - (a as number)) as number[];
 
 export const getProductById = (id: string) => CATALOG.find((p) => p.id === id);
+
 
 

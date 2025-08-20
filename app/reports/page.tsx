@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 
 import StoreHero from '@/app/reports/StoreHero';
 import FeaturedReport from '@/app/reports/FeaturedReport';
-import FeaturedReportsSection from '@/app/reports/FeaturedReportsSection';
+// ⛔ Removed: FeaturedReportsSection (core offerings now live under /solutions)
 
 import SmallReportsHeader from '@/app/reports/SmallReportsHeader';
 import SmallReportsFilterBar from '@/app/reports/SmallReportsFilterBar';
@@ -16,7 +16,6 @@ import ReportsGrid from '@/app/reports/SmallReportsGrid';
 import Pagination from '@/app/reports/Pagination';
 import CustomOption from '@/app/reports/CustomOption';
 
-// ✅ Use your real types + data
 import type { Product } from '@/lib/storeTypes';
 import { CATALOG } from '@/lib/catalog';
 
@@ -28,19 +27,14 @@ export default function ReportsPage() {
   };
 
   // ----- Catalog + Derived Small Reports -----
-  const catalog: Product[] = useMemo(() => {
-    return CATALOG as Product[]; // same shape
-  }, []);
-
+  const catalog: Product[] = useMemo(() => CATALOG as Product[], []);
   const smallReports = useMemo(
     () => catalog.filter((p) => p.category === 'Reports'),
     [catalog]
   );
 
   const yearsAvailable = useMemo(() => {
-    const yrs = Array.from(
-      new Set(smallReports.map((r) => r.year).filter(Boolean))
-    ) as number[];
+    const yrs = Array.from(new Set(smallReports.map((r) => r.year).filter(Boolean))) as number[];
     return yrs.sort((a, b) => b - a);
   }, [smallReports]);
 
@@ -88,7 +82,17 @@ export default function ReportsPage() {
       {/* HERO */}
       <StoreHero />
 
-      {/* Single Featured Report (directly under hero) */}
+      {/* Soft pointer to Solutions for program/services */}
+      <div className="container mx-auto px-4">
+        <div className="mb-6 rounded-xl border bg-gradient-to-r from-emerald-50 to-white p-3 text-sm">
+          Looking for the <b>2025 Study Buy-In</b> or <b>Data Enrichment</b>?&nbsp;
+          <a href="/solutions" className="text-emerald-700 font-semibold underline">
+            See Solutions &rarr;
+          </a>
+        </div>
+      </div>
+
+      {/* Single Featured Report (SIR) */}
       <FeaturedReport
         title="Sustainability Insights Report — 2024"
         subtitle="Comprehensive US consumer sustainability attitudes and behaviors with demographic breakouts."
@@ -97,13 +101,9 @@ export default function ReportsPage() {
         note="Includes read-only Dashboard access"
         // If you want Stripe here, swap to startCheckout([{ id: 'sir-2024', qty: 1 }])
         ctaPrimary={{ label: 'Add to cart', onClick: () => addToCart('sir-2024'), variant: 'primary' }}
-        // Make sure this route exists; if you followed earlier structure, use /offerings/sir-2024
-        ctaSecondary={{ label: 'View sample pages', href: '/offerings/sir-2024', variant: 'outline' }}
+        // Use a safe contact link so this never 404s
+        ctaSecondary={{ label: 'Request sample pages', href: '/contact?product=sir-2024', variant: 'outline' }}
       />
-
-      {/* Three-card Core Offerings row */}
-      {/* ⬇️ Removed the unused onAddToCart prop */}
-      <FeaturedReportsSection />
 
       <MetricsStrip />
 
@@ -134,6 +134,7 @@ export default function ReportsPage() {
     </main>
   );
 }
+
 
 
 

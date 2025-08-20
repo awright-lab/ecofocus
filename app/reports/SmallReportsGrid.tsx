@@ -55,15 +55,12 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
   const toggleTag = (t: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      if (next.has(t)) {
-        next.delete(t);
-      } else {
-        next.add(t);
-      }
+      if (next.has(t)) next.delete(t);
+      else next.add(t);
       return next;
     });
   };
-  
+
   const selectAll = () => setSelected(new Set(allTags));
   const clearAll = () => setSelected(new Set());
 
@@ -150,7 +147,6 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggleTag(t)}
-                        // Brand the checkbox + focus
                         className="h-4 w-4 rounded border-gray-300 accent-emerald-600 focus:ring-2 focus:ring-emerald-500/40"
                       />
                       <span className="text-gray-800">{t}</span>
@@ -176,12 +172,20 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
               const yearLabel =
                 p.year !== undefined && p.year !== null ? String(p.year) : undefined;
 
+              // NEW: derive purchase mode (default: Reports -> direct, Bundles -> contact)
+              const isDirect =
+                (p.purchaseType ??
+                  (p.category === 'Reports' ? 'direct' : 'contact')) === 'direct';
+
+              const priceText =
+                typeof p.price === 'number' ? `$${p.price.toLocaleString()}` : undefined;
+
               return (
                 <article
                   key={p.id}
                   className="group relative rounded-xl border bg-white/90 shadow-[0_1px_6px_rgba(0,0,0,0.05)] overflow-hidden transition-shadow hover:shadow-[0_2px_10px_rgba(0,0,0,0.08)]"
                 >
-                  {/* Media (short, secondary) */}
+                  {/* Media */}
                   <div className="relative aspect-[16/10]">
                     {yearLabel && (
                       <span className="absolute left-2 top-2 z-20 inline-flex items-center gap-1 rounded-full bg-emerald-600/95 px-2.5 py-0.5 text-[10px] font-semibold text-white shadow">
@@ -205,30 +209,45 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
                       </div>
                     )}
 
-                    {/* Price pill (small) */}
+                    {/* Price/Type pill */}
                     <div className="absolute -bottom-3 left-3 z-20">
                       <div className="rounded-lg bg-white shadow border px-3 py-1.5">
-                        <span className="text-[10px] text-gray-500">Report</span>
+                        <span className="text-[10px] text-gray-500">
+                          {p.category === 'Reports' ? 'Report' : 'Service'}
+                        </span>
                         <div className="text-base font-bold text-emerald-700 leading-4">
-                          ${p.price.toLocaleString()}
+                          {isDirect && priceText ? priceText : 'Contact'}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Body (compact) */}
+                  {/* Body */}
                   <div className="p-3 pt-6">
                     <h3 className="text-sm font-semibold leading-snug line-clamp-2">{p.title}</h3>
 
                     {/* Actions */}
                     <div className="mt-2 flex items-center gap-1.5">
-                      <button
-                        onClick={() => addToCart(p.id)}
-                        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full bg-emerald-600 px-3 text-[13px] font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-emerald-700"
-                      >
-                        Add
-                        <BadgeDollarSign className="h-4 w-4" />
-                      </button>
+                      {isDirect ? (
+                        <button
+                          onClick={() => addToCart(p.id)}
+                          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full bg-emerald-600 px-3 text-[13px] font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-emerald-700"
+                          aria-label={`Buy ${p.title}`}
+                        >
+                          Buy now
+                          <BadgeDollarSign className="h-4 w-4" />
+                        </button>
+                      ) : (
+                        <Link
+                          href={p.contactPath ?? `/contact?product=${p.id}`}
+                          className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full border px-3 text-[13px] font-semibold text-gray-900 transition-colors hover:bg-gray-50"
+                          aria-label={`Contact about ${p.title}`}
+                        >
+                          {p.ctaLabel ?? 'Schedule discovery'}
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      )}
+
                       <Link
                         href={`/reports/${p.id}`}
                         className="inline-flex h-8 items-center justify-center gap-1.5 rounded-full border px-3 text-[13px] font-semibold text-gray-900 transition-colors hover:bg-gray-50"
@@ -247,6 +266,7 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
     </section>
   );
 }
+
 
 
 
