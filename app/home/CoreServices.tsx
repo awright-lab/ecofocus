@@ -44,10 +44,10 @@ export default function CoreServices({ services }: Props) {
       icon: 'ri-dashboard-3-line',
       image: '/images/services/dashboard.jpg',
     },
-    // { title: 'Consulting', ... } // intentionally omitted
+    // Consulting intentionally omitted
   ];
 
-  // 🚫 Filter out any item titled exactly "Consulting" (case-insensitive)
+  // Filter out any item titled exactly "Consulting" (case-insensitive)
   const items = (services ?? fallback).filter(s => !/^\s*consulting\s*$/i.test(s.title));
 
   return (
@@ -66,16 +66,16 @@ export default function CoreServices({ services }: Props) {
         </motion.div>
 
         <h2 id="core-services-heading" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
-        Solutions
+          Solutions
         </h2>
         <p className="mt-2 text-sm sm:text-base text-gray-600">
-            Choose the path that fits your goals—then scale from insights to action.
+          Choose the path that fits your goals—then scale from insights to action.
         </p>
 
         {/* ======= MOBILE: Carousel / Slideshow (md:hidden) ======= */}
         <MobileCarousel items={items} />
 
-        {/* ======= DESKTOP/TABLET: your existing grid (unchanged) ======= */}
+        {/* ======= DESKTOP/TABLET: grid with IMAGE AS TOP HALF ======= */}
         <div className="hidden md:grid grid-cols-3 gap-6 md:gap-8 mt-8">
           {items.map((s, i) => (
             <motion.article
@@ -84,42 +84,64 @@ export default function CoreServices({ services }: Props) {
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.45, delay: i * 0.06 }}
-              className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:border-emerald-300 hover:shadow-md"
+              className="
+                group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm
+                transition hover:border-emerald-300 hover:shadow-md
+                grid grid-rows-[1fr_1fr] h-[460px]
+              "
             >
-              <div className="flex items-start gap-3">
-                {s.icon ? (
-                  <i aria-hidden="true" className={`${s.icon} text-3xl text-emerald-600`} />
+              {/* Top half = image */}
+              <div className="relative overflow-hidden">
+                {s.image ? (
+                  <Image
+                    src={s.image}
+                    alt={s.title}
+                    fill
+                    sizes="(min-width: 1024px) 28vw, (min-width: 768px) 33vw"
+                    className="object-cover"
+                  />
                 ) : (
-                  <span className="mt-1 h-6 w-6 rounded-md bg-emerald-600" aria-hidden="true" />
+                  <div className="h-full w-full bg-emerald-50" />
                 )}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{s.title}</h3>
-                  <p className="mt-1 text-sm text-gray-700">{s.description}</p>
-                </div>
               </div>
 
-              {s.image && (
-                <div className="relative mt-4 aspect-[16/9] overflow-hidden rounded-lg">
-                  <Image src={s.image} alt="" fill sizes="(min-width: 768px) 33vw, 90vw" className="object-cover" />
+              {/* Bottom half = body */}
+              <div className="p-5 flex flex-col">
+                <div className="flex items-start gap-3">
+                  {s.icon ? (
+                    <i aria-hidden="true" className={`${s.icon} text-3xl text-emerald-600`} />
+                  ) : (
+                    <span className="mt-1 h-6 w-6 rounded-md bg-emerald-600" aria-hidden="true" />
+                  )}
+                  <h3 className="text-lg font-semibold text-gray-900">{s.title}</h3>
                 </div>
-              )}
 
-              {s.bullets && s.bullets.length > 0 && (
-                <ul className="mt-4 space-y-2">
-                  {s.bullets.map((b) => (
-                    <li key={b} className="flex gap-2 text-sm text-gray-700">
-                      <span className="mt-1 h-2 w-2 rounded-full bg-[#ef9601]" />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                <p className="mt-2 text-sm text-gray-700 line-clamp-3">
+                  {s.description}
+                </p>
 
-              {s.href && (
-                <Link href={s.href} className="mt-5 inline-block text-sm font-semibold text-emerald-700" aria-label={`Learn more about ${s.title}`}>
-                  Learn more →
-                </Link>
-              )}
+                {/* Optional bullets — keep compact to avoid overflow */}
+                {s.bullets && s.bullets.length > 0 && (
+                  <ul className="mt-3 space-y-1.5">
+                    {s.bullets.slice(0, 3).map((b) => (
+                      <li key={b} className="flex gap-2 text-sm text-gray-700">
+                        <span className="mt-1 h-2 w-2 rounded-full bg-[#ef9601]" />
+                        <span className="line-clamp-1">{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {s.href && (
+                  <Link
+                    href={s.href}
+                    className="mt-auto inline-block text-sm font-semibold text-emerald-700"
+                    aria-label={`Learn more about ${s.title}`}
+                  >
+                    Learn more →
+                  </Link>
+                )}
+              </div>
             </motion.article>
           ))}
         </div>
@@ -160,10 +182,9 @@ function MobileCarousel({ items }: { items: Service[] }) {
   const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!trackRef.current || startX.current === null) return;
 
-    // Release capture (fixes eslint unused param & avoids stuck drag)
     try { trackRef.current.releasePointerCapture(e.pointerId); } catch {}
 
-    const threshold = 50; // px swipe threshold
+    const threshold = 50;
     if (deltaX.current > threshold) prev();
     else if (deltaX.current < -threshold) next();
 
@@ -214,7 +235,7 @@ function MobileCarousel({ items }: { items: Service[] }) {
               aria-label={`Slide ${i + 1} of ${count}: ${s.title}`}
             >
               <article className="overflow-hidden">
-                {/* Image */}
+                {/* Image as top section */}
                 {s.image && (
                   <div className="relative aspect-[16/9]">
                     <Image src={s.image} alt={s.title} fill sizes="92vw" className="object-cover" />
@@ -283,6 +304,7 @@ function MobileCarousel({ items }: { items: Service[] }) {
     </div>
   );
 }
+
 
 
 
