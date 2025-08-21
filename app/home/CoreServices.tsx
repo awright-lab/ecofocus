@@ -66,8 +66,11 @@ export default function CoreServices({ services }: Props) {
         </motion.div>
 
         <h2 id="core-services-heading" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
-          What we deliver
+        Solutions
         </h2>
+        <p className="mt-2 text-sm sm:text-base text-gray-600">
+            Choose the path that fits your goals—then scale from insights to action.
+        </p>
 
         {/* ======= MOBILE: Carousel / Slideshow (md:hidden) ======= */}
         <MobileCarousel items={items} />
