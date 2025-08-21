@@ -27,7 +27,6 @@ function useIsMdUp() {
 }
 
 export default function SnakeValueChain() {
-  // Option A: coerce to a real boolean
   const reduceMotion = !!useReducedMotion();
   const isMdUp = useIsMdUp();
 
@@ -72,7 +71,7 @@ export default function SnakeValueChain() {
         className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]"
         aria-labelledby="snake-value-chain"
       >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12">
           <div className="mb-8 text-center sm:mb-10">
             <h2
               id="snake-value-chain"
@@ -89,30 +88,46 @@ export default function SnakeValueChain() {
             </p>
           </div>
 
-          {/* Vertical timeline */}
+          {/* Vertical timeline with connected cards */}
           <ol className="relative mx-auto max-w-2xl border-l border-emerald-200 pl-5">
             {items.map((it, i) => (
               <motion.li
                 key={it.id}
-                initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+                initial={reduceMotion ? false : { opacity: 0, y: 14 }}
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.5 }}
                 transition={{ duration: 0.45, delay: i * 0.06 }}
-                className="mb-6 last:mb-0"
+                className="mb-5 last:mb-0"
               >
+                {/* Timeline dot */}
                 <div className="absolute -left-2.5 grid h-5 w-5 place-items-center rounded-full bg-white ring-2 ring-emerald-400">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 </div>
 
-                <article className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                  <div
-                    className={`mb-3 flex items-center justify-between rounded-xl bg-gradient-to-r ${it.gradient} px-4 py-2`}
-                  >
+                {/* Card */}
+                <article className="relative rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  {/* CONNECTOR BAR (from timeline into the card header) */}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute -left-6 top-8 h-1 w-6 rounded-full bg-gradient-to-r ${it.gradient}`}
+                  />
+
+                  {/* Gradient header band */}
+                  <div className={`mb-3 flex items-center justify-between rounded-xl bg-gradient-to-r ${it.gradient} px-4 py-2`}>
                     <span className="text-sm font-bold text-white">{String(i + 1).padStart(2, '0')}</span>
                     {it.icon}
                   </div>
+
                   <h3 className="text-lg font-semibold text-gray-900">{it.title}</h3>
                   {it.body && <p className="mt-1 text-sm text-gray-600">{it.body}</p>}
+
+                  {/* DOWNWARD TAIL to hint connection to next step */}
+                  {i !== items.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute left-1/2 -bottom-3 h-5 w-0.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-400 to-cyan-400 opacity-70"
+                    />
+                  )}
                 </article>
               </motion.li>
             ))}
@@ -122,7 +137,7 @@ export default function SnakeValueChain() {
     );
   }
 
-  // md+ : snake layout
+  // md+ : snake layout (unchanged)
   return <SnakeDesktop items={items} reduceMotion={reduceMotion} />;
 }
 
@@ -232,6 +247,8 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
 
           {/* Cards */}
           {positions.map((pos, i) => {
+            const CARD_W = Math.max(260, Math.min(360, svgSize.w * 0.38));
+            const CARD_H = 160;
             const left = pos.x - CARD_W / 2;
             const top = pos.y - CARD_H / 2;
             const it = items[i];
@@ -263,6 +280,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
     </section>
   );
 }
+
 
 
 
