@@ -11,53 +11,44 @@ type Service = {
   description: string;
   href?: string;
   icon?: string;        // remix icon class (optional)
-  image?: string;       // optional, if you show an image on cards
+  image?: string;       // image URL/path
   bullets?: string[];   // optional list
 };
 
 interface Props {
-  services?: Service[]; // if you already fetch from CMS, pass them in
+  services?: Service[];
 }
 
 export default function CoreServices({ services }: Props) {
   const reduceMotion = useReducedMotion();
 
-  // If you pass services from CMS, we’ll use those; otherwise a sensible fallback.
   const fallback: Service[] = [
-    { title: 'Syndicated Research', description: 'Annual EcoFocus study with 4,000+ respondents and 13 years of trends.', href: '/services/syndicated', icon: 'ri-bar-chart-2-line' },
-    { title: 'Custom Research', description: 'Audience-specific surveys, concept tests, and packaging claims validation.', href: '/services/custom', icon: 'ri-flask-line' },
-    { title: 'Dashboard Access', description: 'Self-serve, real-time cross tabs and charts across 90k+ data points.', href: '/dashboard', icon: 'ri-dashboard-3-line' },
-    // { title: 'Consulting', ... }  <-- deliberately omitted
+    {
+      title: 'Syndicated Research',
+      description: 'Annual EcoFocus study with 4,000+ respondents and 13 years of trends.',
+      href: '/services/syndicated',
+      icon: 'ri-bar-chart-2-line',
+      image: '/images/services/syndicated.jpg',
+    },
+    {
+      title: 'Custom Research',
+      description: 'Audience-specific surveys, concept tests, and packaging claims validation.',
+      href: '/services/custom',
+      icon: 'ri-flask-line',
+      image: '/images/services/custom.jpg',
+    },
+    {
+      title: 'Dashboard Access',
+      description: 'Self-serve, real-time cross tabs and charts across 90k+ data points.',
+      href: '/dashboard',
+      icon: 'ri-dashboard-3-line',
+      image: '/images/services/dashboard.jpg',
+    },
+    // { title: 'Consulting', ... } // intentionally omitted
   ];
 
-  // 🚫 Remove any item named “Consulting” (case-insensitive)
+  // 🚫 Filter out any item titled exactly "Consulting" (case-insensitive)
   const items = (services ?? fallback).filter(s => !/^\s*consulting\s*$/i.test(s.title));
-
-  // Inline collapsible (used only on mobile cards to hide long bullet lists)
-  function CollapsibleList({ items, initial = 2 }: { items: string[]; initial?: number }) {
-    const [open, setOpen] = React.useState(false);
-    const visible = open ? items : items.slice(0, initial);
-    return (
-      <div>
-        <ul className="mt-3 space-y-2">
-          {visible.map((t) => (
-            <li key={t} className="flex gap-2 text-sm text-gray-700">
-              <span className="mt-1 h-2 w-2 rounded-full bg-[#ef9601]" />
-              <span className="line-clamp-2">{t}</span>
-            </li>
-          ))}
-        </ul>
-        {items.length > initial && (
-          <button
-            onClick={() => setOpen(v => !v)}
-            className="mt-2 text-sm font-medium text-emerald-700 underline"
-          >
-            {open ? 'Show less' : 'Show more'}
-          </button>
-        )}
-      </div>
-    );
-  }
 
   return (
     <section aria-labelledby="core-services-heading" className="relative bg-white">
@@ -74,56 +65,14 @@ export default function CoreServices({ services }: Props) {
           <span className="text-gray-700">Core Services</span>
         </motion.div>
 
-        <h2
-          id="core-services-heading"
-          className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
-        >
+        <h2 id="core-services-heading" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
           What we deliver
         </h2>
 
-        {/* MOBILE: horizontal snap scroller (md:hidden) */}
-        <div className="md:hidden -mx-4 px-4 mt-6 overflow-x-auto" role="region" aria-label="Core services">
-          <ul className="flex snap-x snap-mandatory gap-4" role="list">
-            {items.map((s, i) => (
-              <li key={s.title} className="min-w-[84%] snap-start">
-                <motion.article
-                  initial={reduceMotion ? false : { opacity: 0, y: 16 }}
-                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.45, delay: i * 0.05 }}
-                  className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    {s.icon ? (
-                      <i aria-hidden="true" className={`${s.icon} text-2xl text-emerald-600`} />
-                    ) : (
-                      <span className="h-5 w-5 rounded-md bg-emerald-600" aria-hidden="true" />
-                    )}
-                    <h3 className="text-base font-semibold text-gray-900">{s.title}</h3>
-                  </div>
+        {/* ======= MOBILE: Carousel / Slideshow (md:hidden) ======= */}
+        <MobileCarousel items={items} />
 
-                  <p className="mt-2 text-sm text-gray-700 line-clamp-3">{s.description}</p>
-
-                  {s.bullets && s.bullets.length > 0 && (
-                    <CollapsibleList items={s.bullets} initial={2} />
-                  )}
-
-                  {s.href && (
-                    <Link
-                      href={s.href}
-                      className="mt-4 inline-block text-sm font-semibold text-emerald-700"
-                      aria-label={`Learn more about ${s.title}`}
-                    >
-                      Learn more →
-                    </Link>
-                  )}
-                </motion.article>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* DESKTOP/TABLET: your regular grid (unchanged visual style) */}
+        {/* ======= DESKTOP/TABLET: your existing grid (unchanged) ======= */}
         <div className="hidden md:grid grid-cols-3 gap-6 md:gap-8 mt-8">
           {items.map((s, i) => (
             <motion.article
@@ -164,11 +113,7 @@ export default function CoreServices({ services }: Props) {
               )}
 
               {s.href && (
-                <Link
-                  href={s.href}
-                  className="mt-5 inline-block text-sm font-semibold text-emerald-700"
-                  aria-label={`Learn more about ${s.title}`}
-                >
+                <Link href={s.href} className="mt-5 inline-block text-sm font-semibold text-emerald-700" aria-label={`Learn more about ${s.title}`}>
                   Learn more →
                 </Link>
               )}
@@ -179,6 +124,164 @@ export default function CoreServices({ services }: Props) {
     </section>
   );
 }
+
+/* ================== Inline Mobile Carousel ================== */
+
+function MobileCarousel({ items }: { items: Service[] }) {
+  const reduceMotion = useReducedMotion();
+  const [index, setIndex] = React.useState(0);
+  const count = items.length;
+
+  const trackRef = React.useRef<HTMLDivElement | null>(null);
+  const startX = React.useRef<number | null>(null);
+  const deltaX = React.useRef(0);
+
+  const goTo = (i: number) => setIndex(Math.max(0, Math.min(count - 1, i)));
+  const next = () => goTo(index + 1);
+  const prev = () => goTo(index - 1);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!trackRef.current) return;
+    trackRef.current.setPointerCapture(e.pointerId);
+    startX.current = e.clientX;
+    deltaX.current = 0;
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (startX.current === null || !trackRef.current) return;
+    deltaX.current = e.clientX - startX.current;
+    trackRef.current.style.transition = 'none';
+    trackRef.current.style.transform = `translateX(calc(${-index * 100}% + ${deltaX.current}px))`;
+  };
+
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!trackRef.current || startX.current === null) return;
+
+    // Release capture (fixes eslint unused param & avoids stuck drag)
+    try { trackRef.current.releasePointerCapture(e.pointerId); } catch {}
+
+    const threshold = 50; // px swipe threshold
+    if (deltaX.current > threshold) prev();
+    else if (deltaX.current < -threshold) next();
+
+    trackRef.current.style.transition = reduceMotion ? 'none' : 'transform 300ms ease';
+    trackRef.current.style.transform = `translateX(-${index * 100}%)`;
+
+    startX.current = null;
+    deltaX.current = 0;
+  };
+
+  const onPointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!trackRef.current) return;
+    try { trackRef.current.releasePointerCapture(e.pointerId); } catch {}
+    trackRef.current.style.transition = reduceMotion ? 'none' : 'transform 300ms ease';
+    trackRef.current.style.transform = `translateX(-${index * 100}%)`;
+    startX.current = null;
+    deltaX.current = 0;
+  };
+
+  React.useEffect(() => {
+    if (!trackRef.current) return;
+    trackRef.current.style.transition = reduceMotion ? 'none' : 'transform 300ms ease';
+    trackRef.current.style.transform = `translateX(-${index * 100}%)`;
+  }, [index, reduceMotion]);
+
+  if (count === 0) return null;
+
+  return (
+    <div className="md:hidden mt-6" role="region" aria-label="Core services carousel">
+      {/* Viewport */}
+      <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white" aria-roledescription="carousel">
+        {/* Track */}
+        <div
+          ref={trackRef}
+          className="flex touch-pan-y select-none"
+          style={{ transform: `translateX(-${index * 100}%)` }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
+        >
+          {items.map((s, i) => (
+            <div
+              key={s.title}
+              className="w-full shrink-0"
+              role="group"
+              aria-roledescription="slide"
+              aria-label={`Slide ${i + 1} of ${count}: ${s.title}`}
+            >
+              <article className="overflow-hidden">
+                {/* Image */}
+                {s.image && (
+                  <div className="relative aspect-[16/9]">
+                    <Image src={s.image} alt={s.title} fill sizes="92vw" className="object-cover" />
+                  </div>
+                )}
+
+                {/* Body */}
+                <div className="p-4">
+                  <div className="flex items-center gap-3">
+                    {s.icon ? (
+                      <i aria-hidden="true" className={`${s.icon} text-2xl text-emerald-600`} />
+                    ) : (
+                      <span className="h-5 w-5 rounded-md bg-emerald-600" aria-hidden="true" />
+                    )}
+                    <h3 className="text-base font-semibold text-gray-900">{s.title}</h3>
+                  </div>
+                  <p className="mt-2 text-sm text-gray-700 line-clamp-3">{s.description}</p>
+
+                  {s.href && (
+                    <Link href={s.href} className="mt-4 inline-block text-sm font-semibold text-emerald-700" aria-label={`Learn more about ${s.title}`}>
+                      Learn more →
+                    </Link>
+                  )}
+                </div>
+              </article>
+            </div>
+          ))}
+        </div>
+
+        {/* Prev / Next */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between px-1">
+          <button
+            type="button"
+            onClick={prev}
+            disabled={index === 0}
+            className="pointer-events-auto flex items-center justify-center rounded-full bg-white/90 text-gray-800 shadow ring-1 ring-gray-200 h-8 w-8 disabled:opacity-40"
+            aria-label="Previous slide"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            disabled={index === count - 1}
+            className="pointer-events-auto flex items-center justify-center rounded-full bg-white/90 text-gray-800 shadow ring-1 ring-gray-200 h-8 w-8 disabled:opacity-40"
+            aria-label="Next slide"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+
+      {/* Dots */}
+      <div className="mt-3 flex items-center justify-center gap-2" role="tablist" aria-label="Slides">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            role="tab"
+            aria-selected={i === index}
+            aria-label={`Go to slide ${i + 1}`}
+            onClick={() => setIndex(i)}
+            className={`h-2.5 w-2.5 rounded-full ${i === index ? 'bg-emerald-600' : 'bg-gray-300'}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
 
 
 
