@@ -1,4 +1,3 @@
-// app/components/FeaturedDashboard.tsx
 'use client';
 
 import * as React from 'react';
@@ -29,7 +28,7 @@ export default function FeaturedDashboard() {
             onClick={() => setOpen((x) => !x)}
             className="mt-3 text-sm font-medium text-emerald-700 underline"
           >
-            {open ? 'Show less' : 'Show more'}
+            {open ? 'Show less' : 'Read more'}
           </button>
         )}
       </div>
@@ -51,7 +50,7 @@ export default function FeaturedDashboard() {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10 md:py-16">
         <div className="grid grid-cols-1 items-center gap-6 md:grid-cols-12 md:gap-10">
-          {/* Content first on mobile; left on desktop */}
+          {/* Content column (left on desktop) */}
           <motion.div
             className="order-1 md:order-1 md:col-span-6"
             initial={reduceMotion ? false : { opacity: 0, y: -10 }}
@@ -72,12 +71,40 @@ export default function FeaturedDashboard() {
               Explore the EcoFocus Interactive Dashboard
             </h2>
 
-            <p className="mb-4 text-sm text-gray-700 sm:text-base">
+            {/* MOBILE image directly under title */}
+            <div className="md:hidden relative z-10 mx-auto mt-2 w-full max-w-[560px] overflow-hidden rounded-xl shadow-2xl">
+              <div className="relative aspect-[5/3]">
+                <Image
+                  src="/images/dashboard.png"
+                  alt="EcoFocus Interactive Dashboard preview"
+                  fill
+                  sizes="92vw"
+                  className="object-cover"
+                />
+              </div>
+            </div>
+
+            <p className="mt-4 mb-4 text-sm text-gray-700 sm:text-base">
               Instantly access over <strong>90,000 sustainability data points</strong>. Segment by demographics,
               compare trends, and build custom insights in real time — all in one place.
             </p>
 
-            <CollapsibleList items={bullets} initial={3} />
+            {/* Mobile: collapsible bullets with 'Read more' */}
+            <div className="md:hidden">
+              <CollapsibleList items={bullets} initial={3} />
+            </div>
+
+            {/* Desktop: all bullets visible */}
+            <ul className="hidden md:block space-y-3 md:mb-2">
+              {bullets.map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span className="mt-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#ef9601] bg-white">
+                    <span className="h-2 w-2 rounded-full bg-[#ef9601]" />
+                  </span>
+                  <span className="text-gray-800 text-base">{item}</span>
+                </li>
+              ))}
+            </ul>
 
             <Link
               href="/dashboard"
@@ -88,9 +115,9 @@ export default function FeaturedDashboard() {
             </Link>
           </motion.div>
 
-          {/* Image second on mobile; right on desktop */}
+          {/* Desktop image column (hidden on mobile) */}
           <motion.div
-            className="relative order-2 md:order-2 md:col-span-6 flex md:justify-end"
+            className="relative order-2 md:order-2 md:col-span-6 hidden md:flex md:justify-end"
             initial={reduceMotion ? false : { opacity: 0, x: 40 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.4 }}
@@ -99,13 +126,13 @@ export default function FeaturedDashboard() {
             <div className="pointer-events-none absolute -right-10 -bottom-8 h-72 w-72 rounded-full bg-sky-300/20 blur-3xl md:h-96 md:w-96" />
             <div className="pointer-events-none absolute -left-6 top-1/2 h-48 w-48 -translate-y-1/2 rounded-full bg-emerald-300/10 blur-3xl md:h-64 md:w-64" />
 
-            <div className="relative z-10 mx-auto mt-4 md:mt-0 w-full max-w-[560px] overflow-hidden rounded-xl shadow-2xl">
+            <div className="relative z-10 w-full max-w-[560px] overflow-hidden rounded-xl shadow-2xl">
               <div className="relative aspect-[5/3]">
                 <Image
                   src="/images/dashboard.png"
                   alt="EcoFocus Interactive Dashboard preview"
                   fill
-                  sizes="(min-width: 1024px) 42vw, (min-width: 768px) 50vw, 92vw"
+                  sizes="(min-width: 1024px) 42vw, (min-width: 768px) 50vw"
                   className="object-cover"
                 />
               </div>
@@ -116,4 +143,5 @@ export default function FeaturedDashboard() {
     </section>
   );
 }
+
 

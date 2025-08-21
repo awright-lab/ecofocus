@@ -28,21 +28,21 @@ export default function CoreServices({ services }: Props) {
       description: 'Annual EcoFocus study with 4,000+ respondents and 13 years of trends.',
       href: '/services/syndicated',
       icon: 'ri-bar-chart-2-line',
-      image: '/images/services/syndicated.jpg',
+      image: '/images/solutions-syndicated.png',
     },
     {
       title: 'Custom Research',
       description: 'Audience-specific surveys, concept tests, and packaging claims validation.',
       href: '/services/custom',
       icon: 'ri-flask-line',
-      image: '/images/services/custom.jpg',
+      image: '/images/solutions-custom.png',
     },
     {
       title: 'Dashboard Access',
       description: 'Self-serve, real-time cross tabs and charts across 90k+ data points.',
       href: '/dashboard',
       icon: 'ri-dashboard-3-line',
-      image: '/images/services/dashboard.jpg',
+      image: '/images/solutions-dashboard.png',
     },
     // Consulting intentionally omitted
   ];
