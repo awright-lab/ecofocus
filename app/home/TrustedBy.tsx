@@ -16,12 +16,14 @@ export default function TrustedBy() {
     { src: '/images/logos/thinkPARALLAX_Logos_RBW-01-bug.png', alt: 'thinkPARALLAX' },
   ];
 
+  const loop = [...logos, ...logos]; // for a seamless marquee
+
   return (
     <section
       aria-labelledby="trusted-by-heading"
       className="relative bg-gradient-to-br from-gray-50 via-white to-gray-100"
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10 md:py-16">
         {/* Tag */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: -10 }}
@@ -49,8 +51,25 @@ export default function TrustedBy() {
           </span>
         </motion.h2>
 
-        {/* Logos Grid */}
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-6">
+        {/* Mobile ticker (md:hidden). Desktop grid remains unchanged below. */}
+        <div className="md:hidden relative overflow-hidden py-3" role="region" aria-label="Partner logos">
+          <div className={`flex items-center gap-10 opacity-80 ${reduceMotion ? '' : 'efw-marquee'}`}>
+            {loop.map((logo, i) => (
+              <Image
+                key={`${logo.alt}-${i}`}
+                src={logo.src}
+                alt={logo.alt}
+                width={120}
+                height={40}
+                className="h-8 w-auto object-contain"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Logos Grid (desktop) */}
+        <div className="hidden md:grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-6">
           {logos.map((logo, i) => (
             <motion.div
               key={logo.alt}
@@ -76,7 +95,7 @@ export default function TrustedBy() {
         </div>
 
         {/* CTA */}
-        <div className="mt-12 text-center">
+        <div className="mt-10 sm:mt-12 text-center">
           <Link
             href="/partners"
             className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
@@ -88,9 +107,19 @@ export default function TrustedBy() {
           </Link>
         </div>
       </div>
+
+      {/* Local marquee keyframes (reduced-motion safe) */}
+      <style jsx global>{`
+        @keyframes efw-marquee-kf { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .efw-marquee { animation: efw-marquee-kf 22s linear infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .efw-marquee { animation: none !important; transform: none !important; }
+        }
+      `}</style>
     </section>
   );
 }
+
 
 
 
