@@ -39,8 +39,8 @@ export default function EcoNuggetInsights() {
       aria-labelledby="econuggets-heading"
     >
       {/* spacing */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16 relative z-10">
-        {/* Header */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10 md:py-16 relative z-10">
+        {/* Header pill */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: -10 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -63,7 +63,7 @@ export default function EcoNuggetInsights() {
         </h2>
 
         {/* Featured Card (entire card clickable; no nested Links) */}
-        <Link href={featured.link} aria-label={`Read: ${featured.title}`} className="group block mb-12 md:mb-16">
+        <Link href={featured.link} aria-label={`Read: ${featured.title}`} className="group block mb-10 sm:mb-12 md:mb-16">
           <motion.article
             initial={reduceMotion ? false : { opacity: 0, y: 40 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -76,7 +76,6 @@ export default function EcoNuggetInsights() {
                 src={featured.image}
                 alt={featured.title}
                 fill
-                priority={false}
                 sizes="(min-width: 1024px) 1100px, (min-width: 768px) 90vw, 92vw"
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
@@ -111,10 +110,36 @@ export default function EcoNuggetInsights() {
           </motion.article>
         </Link>
 
-        {/* Secondary Cards */}
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+        {/* Mobile horizontal scroller; desktop grid remains below */}
+        <div className="md:hidden -mx-4 px-4 overflow-x-auto" role="region" aria-label="Insights scroller">
+          <ul className="flex snap-x snap-mandatory gap-4" role="list">
+            {posts.map((post) => (
+              <li key={post.link} className="min-w-[80%] snap-start">
+                <Link href={post.link} aria-label={`Read: ${post.title}`} className="group block rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+                  <div className="relative aspect-[16/9]">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      sizes="92vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-emerald-900/30 to-transparent" />
+                  </div>
+                  <div className="p-4">
+                    <div className="text-xs opacity-85">{post.category} • {post.time}</div>
+                    <h4 className="mt-1 text-base font-semibold leading-snug line-clamp-2">{post.title}</h4>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Desktop grid (unchanged look) */}
+        <div className="hidden md:grid grid-cols-2 gap-6 md:gap-8">
           {posts.map((post, i) => (
-            <Link key={post.title} href={post.link} aria-label={`Read: ${post.title}`} className="group block">
+            <Link key={post.link} href={post.link} aria-label={`Read: ${post.title}`} className="group block">
               <motion.article
                 initial={reduceMotion ? false : { opacity: 0, y: 24 }}
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -150,7 +175,7 @@ export default function EcoNuggetInsights() {
         </div>
 
         {/* View All Button */}
-        <div className="mt-12 text-center">
+        <div className="mt-10 sm:mt-12 text-center">
           <Link
             href="/blog"
             className="relative inline-flex items-center justify-center rounded-full bg-[#FFC107] px-5 py-2.5 text-sm font-semibold text-black overflow-hidden transition-all duration-300
@@ -177,6 +202,7 @@ export default function EcoNuggetInsights() {
     </section>
   );
 }
+
 
 
 

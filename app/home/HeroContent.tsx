@@ -4,7 +4,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { HeroData } from './Hero'; // uses the type from your server component
+import type { HeroData } from './Hero'; // adjust if your path differs
 
 export default function HeroContent({ heroData }: { heroData: HeroData }) {
   const reduceMotion = useReducedMotion();
@@ -21,8 +21,9 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
 
   return (
     <section className="relative isolate overflow-hidden bg-neutral-950 text-white">
-      {/* Background media */}
+      {/* Background layer (behind content) */}
       <div className="absolute inset-0 -z-10">
+        {/* Media sits at z-0 inside this -z-10 container */}
         {backgroundVideo?.url ? (
           <video
             autoPlay
@@ -30,7 +31,8 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
             muted
             playsInline
             preload="auto"
-            className="h-full w-full object-cover"
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
           >
             <source src={backgroundVideo.url} />
           </video>
@@ -41,27 +43,34 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
             fill
             priority
             sizes="100vw"
-            className="object-cover"
+            aria-hidden="true"
+            className="absolute inset-0 object-cover"
           />
         ) : null}
 
-        {/* 🔷 Gradient overlay with diagonal wedge on md+ (your original block) */}
+        {/* Gradient overlay ABOVE media but BELOW content */}
         <div
+          aria-hidden="true"
           className={[
+            'absolute inset-0', // ensure it covers
             // mobile: softer wash, no clip
-            'absolute inset-0 h-full w-full bg-gradient-to-br from-emerald-900/50 to-blue-900/50',
-            // md+: apply diagonal wedge and deepen opacity
+            'bg-gradient-to-br from-emerald-900/50 to-blue-900/50',
+            // md+: deepen and add wedge
             'md:from-emerald-900/90 md:to-blue-900/90',
-            // Tailwind arbitrary property for clip-path (JIT required)
             'md:[clip-path:polygon(0%_0%,_40%_0%,_70%_100%,_0%_100%)]',
-            // keep it behind content but above media
-            '-z-10',
+            'z-10', // <-- key: OVER the video/image within this container
           ].join(' ')}
         />
       </div>
 
-      {/* Content — tighter on mobile, unchanged on md+ */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10 md:py-16">
+      {/* Foreground content (desktop height restored) */}
+      <div className="
+        mx-auto max-w-7xl px-4 sm:px-6
+        min-h-[60svh] md:min-h-[70vh] lg:min-h-[80vh]   /* restore desktop height */
+        flex items-center
+        py-8 sm:py-10                                  /* mobile tightened only */
+        md:py-16                                       /* desktop padding unchanged vs before */
+      ">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 10 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -105,7 +114,7 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
             </div>
           ) : null}
 
-          {/* Proof strip — compact on mobile */}
+          {/* Proof strip — one line on mobile */}
           <div className="mt-5 text-xs sm:text-sm text-white/80">
             4,000+ U.S. respondents • ±1.55% MoE • 13 years of trend data
           </div>
