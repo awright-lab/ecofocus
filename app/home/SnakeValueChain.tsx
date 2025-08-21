@@ -1,3 +1,4 @@
+// app/components/SnakeValueChain.tsx
 'use client';
 
 import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
@@ -24,6 +25,65 @@ function useIsMdUp() {
     return () => mq.removeEventListener?.('change', on);
   }, []);
   return ok;
+}
+
+/* ========= Animated labeled connector (mobile) ========= */
+function StepConnector({
+  from,
+  to,
+  index,
+  reduceMotion,
+}: {
+  from: string;
+  to: string;
+  index: number;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.div
+      className="my-3 flex justify-center"
+      initial={reduceMotion ? false : { opacity: 0 }}
+      whileInView={reduceMotion ? undefined : { opacity: 1 }}
+      viewport={{ once: true, amount: 0.6 }}
+      transition={{ delay: index * 0.05, duration: 0.3 }}
+      aria-hidden="true"
+    >
+      <div className="relative h-8 w-[min(440px,84%)] overflow-hidden">
+        {/* Expanding bar */}
+        <motion.div
+          className="h-full w-full origin-left rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500"
+          initial={reduceMotion ? { scaleX: 1 } : { scaleX: 0 }}
+          whileInView={reduceMotion ? undefined : { scaleX: 1 }}
+          viewport={{ once: true, amount: 0.9 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
+        {/* Flow shimmer */}
+        {!reduceMotion && (
+          <motion.span
+            className="pointer-events-none absolute top-0 h-full w-24 bg-white/20 blur-md"
+            initial={{ left: '-20%' }}
+            whileInView={{ left: '110%' }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.4, ease: 'linear', delay: 0.15 }}
+          />
+        )}
+        {/* Label */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-xs font-semibold tracking-wide text-white">
+          <span className="truncate">{from}</span>
+          <span className="mx-2">→</span>
+          <span className="truncate">{to}</span>
+        </div>
+        {/* Arrowhead */}
+        <motion.span
+          className="absolute left-full top-1/2 -translate-y-1/2 h-0 w-0 border-y-[8px] border-y-transparent border-l-[10px] border-l-cyan-500"
+          initial={reduceMotion ? { x: 0, opacity: 1 } : { x: -12, opacity: 0 }}
+          whileInView={reduceMotion ? undefined : { x: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.35, delay: 0.45 }}
+        />
+      </div>
+    </motion.div>
+  );
 }
 
 export default function SnakeValueChain() {
@@ -64,19 +124,13 @@ export default function SnakeValueChain() {
     []
   );
 
-  // Mobile-first timeline (render while isMdUp is false OR still null)
+  /* ---------- MOBILE: timeline + animated labeled connectors ---------- */
   if (isMdUp !== true) {
     return (
-      <section
-        className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]"
-        aria-labelledby="snake-value-chain"
-      >
+      <section className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]" aria-labelledby="snake-value-chain">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12">
-          <div className="mb-8 text-center sm:mb-10">
-            <h2
-              id="snake-value-chain"
-              className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
-            >
+          <div className="mb-6 text-center sm:mb-8">
+            <h2 id="snake-value-chain" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
               From{' '}
               <span className="bg-gradient-to-r from-emerald-700 via-teal-600 to-cyan-500 bg-clip-text text-transparent">
                 Research
@@ -84,52 +138,71 @@ export default function SnakeValueChain() {
               to Action
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-600 sm:text-base">
-              MARKET RESEARCH = DATA → DATA = KNOWLEDGE → KNOWLEDGE = INFORMED DECISIONS
+              Market Research → Data → Knowledge → Informed Decisions
             </p>
           </div>
 
-          {/* Vertical timeline with connected cards */}
+          {/* Vertical timeline */}
           <ol className="relative mx-auto max-w-2xl border-l border-emerald-200 pl-5">
             {items.map((it, i) => (
-              <motion.li
-                key={it.id}
-                initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-                whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.45, delay: i * 0.06 }}
-                className="mb-5 last:mb-0"
-              >
-                {/* Timeline dot */}
-                <div className="absolute -left-2.5 grid h-5 w-5 place-items-center rounded-full bg-white ring-2 ring-emerald-400">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                </div>
-
-                {/* Card */}
-                <article className="relative rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                  {/* CONNECTOR BAR (from timeline into the card header) */}
-                  <span
-                    aria-hidden="true"
-                    className={`absolute -left-6 top-8 h-1 w-6 rounded-full bg-gradient-to-r ${it.gradient}`}
-                  />
-
-                  {/* Gradient header band */}
-                  <div className={`mb-3 flex items-center justify-between rounded-xl bg-gradient-to-r ${it.gradient} px-4 py-2`}>
-                    <span className="text-sm font-bold text-white">{String(i + 1).padStart(2, '0')}</span>
-                    {it.icon}
+              <React.Fragment key={it.id}>
+                <motion.li
+                  initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.45, delay: i * 0.06 }}
+                  className="mb-4 last:mb-0"
+                >
+                  {/* Timeline dot */}
+                  <div className="absolute -left-2.5 grid h-5 w-5 place-items-center rounded-full bg-white ring-2 ring-emerald-400">
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
                   </div>
 
-                  <h3 className="text-lg font-semibold text-gray-900">{it.title}</h3>
-                  {it.body && <p className="mt-1 text-sm text-gray-600">{it.body}</p>}
-
-                  {/* DOWNWARD TAIL to hint connection to next step */}
-                  {i !== items.length - 1 && (
-                    <span
+                  {/* Card */}
+                  <article className="relative rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                    {/* Arm from spine into header */}
+                    <motion.span
                       aria-hidden="true"
-                      className="absolute left-1/2 -bottom-3 h-5 w-0.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-400 to-cyan-400 opacity-70"
+                      className={`absolute -left-6 top-8 h-1 rounded-full bg-gradient-to-r ${it.gradient}`}
+                      initial={reduceMotion ? { width: 24 } : { width: 0 }}
+                      whileInView={reduceMotion ? undefined : { width: 24 }}
+                      viewport={{ once: true, amount: 0.8 }}
+                      transition={{ duration: 0.35 }}
                     />
-                  )}
-                </article>
-              </motion.li>
+
+                    {/* Gradient header */}
+                    <div className={`mb-3 flex items-center justify-between rounded-xl bg-gradient-to-r ${it.gradient} px-4 py-2`}>
+                      <span className="text-sm font-bold text-white">{String(i + 1).padStart(2, '0')}</span>
+                      {it.icon}
+                    </div>
+
+                    <h3 className="text-lg font-semibold text-gray-900">{it.title}</h3>
+                    {it.body && <p className="mt-1 text-sm text-gray-600">{it.body}</p>}
+
+                    {/* Downward tail (grows) */}
+                    {i !== items.length - 1 && (
+                      <motion.span
+                        aria-hidden="true"
+                        className="absolute left-1/2 -bottom-3 w-0.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-400 to-cyan-400"
+                        initial={reduceMotion ? { height: 20 } : { height: 0 }}
+                        whileInView={reduceMotion ? undefined : { height: 20 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.35, delay: 0.2 }}
+                      />
+                    )}
+                  </article>
+                </motion.li>
+
+                {/* Animated connector between steps */}
+                {i < items.length - 1 && (
+                  <StepConnector
+                    from={items[i].title}
+                    to={items[i + 1].title}
+                    index={i}
+                    reduceMotion={reduceMotion}
+                  />
+                )}
+              </React.Fragment>
             ))}
           </ol>
         </div>
@@ -137,16 +210,16 @@ export default function SnakeValueChain() {
     );
   }
 
-  // md+ : snake layout (unchanged)
+  /* ---------- DESKTOP: original snake layout (unchanged) ---------- */
   return <SnakeDesktop items={items} reduceMotion={reduceMotion} />;
 }
+
+/* ================= Desktop snake (unchanged visuals) ================= */
 
 function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [svgSize, setSvgSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
 
-  // Responsive card sizes based on container width
-  const CARD_W = Math.max(260, Math.min(360, svgSize.w * 0.38));
   const CARD_H = 160;
   const V_GAP = 120;
   const LINE = 4;
@@ -166,27 +239,22 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
 
   const positions = useMemo(() => {
     const padX = 24;
+    const CARD_W = Math.max(260, Math.min(360, svgSize.w * 0.38));
     const leftX = padX + CARD_W / 2;
     const rightX = (svgSize.w || 800) - padX - CARD_W / 2;
     return items.map((_, i) => {
       const isLeft = i % 2 === 0;
       const x = isLeft ? leftX : rightX;
       const y = 40 + i * V_GAP;
-      return { x, y, isLeft };
+      return { x, y, isLeft, CARD_W };
     });
-  }, [items, svgSize.w, CARD_W]);
+  }, [items, svgSize.w]);
 
   return (
-    <section
-      className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]"
-      aria-labelledby="snake-value-chain"
-    >
+    <section className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]" aria-labelledby="snake-value-chain">
       <div className="mx-auto max-w-7xl px-6 py-14">
         <div className="mb-10 text-center">
-          <h2
-            id="snake-value-chain"
-            className="font-bold leading-tight text-gray-900 text-[clamp(1.8rem,3.6vw,2.5rem)]"
-          >
+          <h2 id="snake-value-chain" className="font-bold leading-tight text-gray-900 text-[clamp(1.8rem,3.6vw,2.5rem)]">
             From{' '}
             <span className="bg-gradient-to-r from-emerald-700 via-teal-600 to-cyan-500 bg-clip-text text-transparent">
               Research
@@ -194,7 +262,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
             to Action
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-base text-gray-600">
-            MARKET RESEARCH = DATA → DATA = KNOWLEDGE → KNOWLEDGE = INFORMED DECISIONS
+            Market Research → Data → Knowledge → Informed Decisions
           </p>
         </div>
 
@@ -203,7 +271,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
           className="relative w-full overflow-visible pb-24"
           style={{ minHeight: positions.length ? positions.at(-1)!.y + CARD_H : 240 }}
         >
-          {/* Connectors */}
+          {/* Curvy connectors */}
           <svg
             className="pointer-events-none absolute inset-0 overflow-visible"
             width="100%"
@@ -222,6 +290,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
 
             {positions.slice(0, -1).map((p, i) => {
               const n = positions[i + 1];
+              const CARD_W = p.CARD_W!;
               const startX = p.isLeft ? p.x + CARD_W / 2 - EDGE : p.x - CARD_W / 2 + EDGE;
               const endX = n.isLeft ? n.x - CARD_W / 2 + EDGE : n.x + CARD_W / 2 - EDGE;
               const wave = (i % 2 === 0 ? 1 : -1) * 60;
@@ -247,8 +316,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
 
           {/* Cards */}
           {positions.map((pos, i) => {
-            const CARD_W = Math.max(260, Math.min(360, svgSize.w * 0.38));
-            const CARD_H = 160;
+            const CARD_W = pos.CARD_W!;
             const left = pos.x - CARD_W / 2;
             const top = pos.y - CARD_H / 2;
             const it = items[i];
@@ -280,6 +348,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
     </section>
   );
 }
+
 
 
 
