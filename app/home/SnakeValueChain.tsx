@@ -122,7 +122,6 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     };
 
     measure();
-
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     stepRefs.current.forEach((r) => r && ro.observe(r));
@@ -132,7 +131,6 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     window.addEventListener('resize', measure);
     window.addEventListener('orientationchange', measure);
     window.addEventListener('scroll', onScroll, { passive: true });
-
     return () => {
       ro.disconnect();
       window.removeEventListener('resize', measure);
@@ -141,6 +139,7 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     };
   }, [items.length]);
 
+  // normalize animation timing between variable gaps
   const times = React.useMemo(() => {
     if (trackY.length < 2) return [];
     const dists = trackY.map((y, i) => (i === 0 ? 0 : Math.abs(y - trackY[i - 1])));
@@ -154,10 +153,16 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
   }, [trackY]);
 
   return (
-    <section className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]" aria-labelledby="snake-value-chain">
+    <section
+      className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]"
+      aria-labelledby="snake-value-chain"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12">
         <div className="mb-6 text-center sm:mb-8">
-          <h2 id="snake-value-chain" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
+          <h2
+            id="snake-value-chain"
+            className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
+          >
             From{' '}
             <span className="bg-gradient-to-r from-emerald-800 via-emerald-500 to-amber-500 bg-clip-text text-transparent">
               Research
@@ -170,34 +175,28 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
         </div>
 
         <div ref={containerRef} className="relative mx-auto max-w-2xl">
-          <div className="absolute left-2 top-0 h-full w-px bg-emerald-200" aria-hidden="true" />
-
+          {/* Marble down the CENTER (no left spine) */}
           {!reduceMotion && trackY.length >= 2 && (
             <motion.div
-              className="pointer-events-none absolute left-[1.25rem] h-3 w-3 rounded-full bg-gradient-to-br from-white to-emerald-200 shadow-md ring-2 ring-emerald-500"
+              className="pointer-events-none absolute left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-gradient-to-br from-white to-emerald-200 shadow-md ring-2 ring-emerald-500"
               animate={{ y: trackY }}
               transition={{ duration: 6, times, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ transform: 'translateX(-50%)' }}
               aria-hidden="true"
             />
           )}
 
-          <ol className="relative border-l border-transparent pl-5">
+          {/* No border-l, no left padding */}
+          <ol className="relative pl-0">
             {items.map((it, i) => (
               <React.Fragment key={it.id}>
                 <li className="mb-4 last:mb-0">
-                  <div className="absolute -left-2.5 grid h-5 w-5 place-items-center rounded-full bg-white ring-2 ring-emerald-400">
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
-                  </div>
-
+                  {/* ⛔ removed left timeline dot */}
                   <article
-                    ref={(el) => { stepRefs.current[i] = el; }}  // ✅ return void
+                    ref={(el) => { stepRefs.current[i] = el; }}
                     className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
                   >
-                    <span
-                      aria-hidden="true"
-                      className={`absolute -left-6 top-8 h-1 w-6 rounded-full bg-current opacity-80 ${it.solid.replace('bg-', 'text-')}`}
-                    />
+                    {/* ⛔ removed the small left “arm” */}
+                    {/* Colored header band (no numbers) */}
                     <div className={`flex items-center justify-between bg-gradient-to-r ${it.grad} px-4 py-2`}>
                       <span className="sr-only">Step header</span>
                       <span className="h-5 w-5 rounded-md bg-white/20 ring-1 ring-white/30 backdrop-blur-sm" />
@@ -211,8 +210,9 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
                   </article>
                 </li>
 
+                {/* Center arrow between cards */}
                 {i < items.length - 1 && (
-                  <div ref={(el) => { arrowRefs.current[i] = el; }}>  {/* ✅ return void */}
+                  <div ref={(el) => { arrowRefs.current[i] = el; }}>
                     <CenterArrow />
                   </div>
                 )}
@@ -224,6 +224,7 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     </section>
   );
 }
+
 
 /* ========================= DESKTOP (unchanged snake) ========================= */
 
