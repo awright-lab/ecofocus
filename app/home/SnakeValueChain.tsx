@@ -1,11 +1,19 @@
 // app/components/SnakeValueChain.tsx
 'use client';
 
-import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
+import React, { useMemo, useRef, useLayoutEffect, useState} from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Search, Database, Lightbulb, TrendingUp } from 'lucide-react';
+import { Search, Database, Lightbulb, TrendingUp, ChevronDown } from 'lucide-react';
 
-type Item = { id: string; title: string; body?: string; icon: React.ReactNode; gradient: string };
+type Item = {
+  id: string;
+  title: string;
+  body?: string;
+  icon: React.ReactNode;
+  grad: string;   // gradient for header band
+  solid: string;  // solid color class (e.g., bg-emerald-700) used for “arm”
+};
+
 type Point = { x: number; y: number };
 
 function snakeBezier(a: Point, b: Point, wave: number) {
@@ -27,62 +35,13 @@ function useIsMdUp() {
   return ok;
 }
 
-/* ========= Animated labeled connector (mobile) ========= */
-function StepConnector({
-  from,
-  to,
-  index,
-  reduceMotion,
-}: {
-  from: string;
-  to: string;
-  index: number;
-  reduceMotion: boolean;
-}) {
+function CenterArrow() {
   return (
-    <motion.div
-      className="my-3 flex justify-center"
-      initial={reduceMotion ? false : { opacity: 0 }}
-      whileInView={reduceMotion ? undefined : { opacity: 1 }}
-      viewport={{ once: true, amount: 0.6 }}
-      transition={{ delay: index * 0.05, duration: 0.3 }}
-      aria-hidden="true"
-    >
-      <div className="relative h-8 w-[min(440px,84%)] overflow-hidden">
-        {/* Expanding bar */}
-        <motion.div
-          className="h-full w-full origin-left rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500"
-          initial={reduceMotion ? { scaleX: 1 } : { scaleX: 0 }}
-          whileInView={reduceMotion ? undefined : { scaleX: 1 }}
-          viewport={{ once: true, amount: 0.9 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-        {/* Flow shimmer */}
-        {!reduceMotion && (
-          <motion.span
-            className="pointer-events-none absolute top-0 h-full w-24 bg-white/20 blur-md"
-            initial={{ left: '-20%' }}
-            whileInView={{ left: '110%' }}
-            viewport={{ once: true }}
-            transition={{ duration: 1.4, ease: 'linear', delay: 0.15 }}
-          />
-        )}
-        {/* Label */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-3 text-xs font-semibold tracking-wide text-white">
-          <span className="truncate">{from}</span>
-          <span className="mx-2">→</span>
-          <span className="truncate">{to}</span>
-        </div>
-        {/* Arrowhead */}
-        <motion.span
-          className="absolute left-full top-1/2 -translate-y-1/2 h-0 w-0 border-y-[8px] border-y-transparent border-l-[10px] border-l-cyan-500"
-          initial={reduceMotion ? { x: 0, opacity: 1 } : { x: -12, opacity: 0 }}
-          whileInView={reduceMotion ? undefined : { x: 0, opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.35, delay: 0.45 }}
-        />
+    <div className="my-3 flex justify-center" aria-hidden="true">
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 ring-1 ring-emerald-200">
+        <ChevronDown className="h-5 w-5 text-emerald-600" />
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -97,124 +56,176 @@ export default function SnakeValueChain() {
         title: 'Market Research',
         body: 'Syndicated & custom studies uncover real attitudes and drivers.',
         icon: <Search className="h-6 w-6 text-white" aria-hidden="true" />,
-        gradient: 'from-emerald-700 to-teal-500',
+        grad: 'from-emerald-800 to-emerald-600', // dark green
+        solid: 'bg-emerald-700',
       },
       {
         id: '2',
         title: 'Data',
         body: 'Validated, census-balanced data with rigorous methodology.',
         icon: <Database className="h-6 w-6 text-white" aria-hidden="true" />,
-        gradient: 'from-teal-500 to-cyan-500',
+        grad: 'from-emerald-500 to-teal-400', // lighter green
+        solid: 'bg-emerald-500',
       },
       {
         id: '3',
         title: 'Knowledge',
         body: 'Insights that separate intent from action — the say–do gap.',
         icon: <Lightbulb className="h-6 w-6 text-white" aria-hidden="true" />,
-        gradient: 'from-cyan-500 to-emerald-500',
+        grad: 'from-cyan-500 to-sky-500', // blue
+        solid: 'bg-cyan-500',
       },
       {
         id: '4',
         title: 'Informed Decisions',
         body: 'Clear moves for product, packaging, and go-to-market.',
         icon: <TrendingUp className="h-6 w-6 text-white" aria-hidden="true" />,
-        gradient: 'from-emerald-500 to-amber-400',
+        grad: 'from-amber-500 to-orange-400', // marigold
+        solid: 'bg-amber-500',
       },
     ],
     []
   );
 
-  /* ---------- MOBILE: timeline + animated labeled connectors ---------- */
-  if (isMdUp !== true) {
-    return (
-      <section className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]" aria-labelledby="snake-value-chain">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12">
-          <div className="mb-6 text-center sm:mb-8">
-            <h2 id="snake-value-chain" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
-              From{' '}
-              <span className="bg-gradient-to-r from-emerald-700 via-teal-600 to-cyan-500 bg-clip-text text-transparent">
-                Research
-              </span>{' '}
-              to Action
-            </h2>
-            <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-600 sm:text-base">
-              Market Research → Data → Knowledge → Informed Decisions
-            </p>
-          </div>
+  if (isMdUp !== true) return <MobileFlow items={items} reduceMotion={reduceMotion} />;
+  return <SnakeDesktop items={items} reduceMotion={reduceMotion} />;
+}
 
-          {/* Vertical timeline */}
-          <ol className="relative mx-auto max-w-2xl border-l border-emerald-200 pl-5">
+/* ========================= MOBILE ========================= */
+
+function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: boolean }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stepRefs = useRef<(HTMLElement | null)[]>([]);
+  const arrowRefs = useRef<(HTMLElement | null)[]>([]);
+  const [trackY, setTrackY] = useState<number[]>([]);
+
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const baseTop = el.getBoundingClientRect().top + window.scrollY;
+      const ys: number[] = [];
+      stepRefs.current.forEach((r, i) => {
+        if (!r) return;
+        const rect = r.getBoundingClientRect();
+        ys.push(rect.top + window.scrollY - baseTop + rect.height / 2);
+        if (i < items.length - 1) {
+          const ar = arrowRefs.current[i];
+          if (ar) {
+            const aRect = ar.getBoundingClientRect();
+            ys.push(aRect.top + window.scrollY - baseTop + aRect.height / 2);
+          }
+        }
+      });
+      setTrackY(ys);
+    };
+
+    measure();
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    stepRefs.current.forEach((r) => r && ro.observe(r));
+    arrowRefs.current.forEach((r) => r && ro.observe(r));
+
+    const onScroll = () => measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('orientationchange', measure);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [items.length]);
+
+  const times = React.useMemo(() => {
+    if (trackY.length < 2) return [];
+    const dists = trackY.map((y, i) => (i === 0 ? 0 : Math.abs(y - trackY[i - 1])));
+    const total = dists.reduce((a, b) => a + b, 0) || 1;
+    let acc = 0;
+    return trackY.map((_, i) => {
+      if (i === 0) return 0;
+      acc += dists[i] / total;
+      return +acc.toFixed(4);
+    });
+  }, [trackY]);
+
+  return (
+    <section className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]" aria-labelledby="snake-value-chain">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12">
+        <div className="mb-6 text-center sm:mb-8">
+          <h2 id="snake-value-chain" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
+            From{' '}
+            <span className="bg-gradient-to-r from-emerald-800 via-emerald-500 to-amber-500 bg-clip-text text-transparent">
+              Research
+            </span>{' '}
+            to Action
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-gray-600 sm:text-base">
+            Market Research → Data → Knowledge → Informed Decisions
+          </p>
+        </div>
+
+        <div ref={containerRef} className="relative mx-auto max-w-2xl">
+          <div className="absolute left-2 top-0 h-full w-px bg-emerald-200" aria-hidden="true" />
+
+          {!reduceMotion && trackY.length >= 2 && (
+            <motion.div
+              className="pointer-events-none absolute left-[1.25rem] h-3 w-3 rounded-full bg-gradient-to-br from-white to-emerald-200 shadow-md ring-2 ring-emerald-500"
+              animate={{ y: trackY }}
+              transition={{ duration: 6, times, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ transform: 'translateX(-50%)' }}
+              aria-hidden="true"
+            />
+          )}
+
+          <ol className="relative border-l border-transparent pl-5">
             {items.map((it, i) => (
               <React.Fragment key={it.id}>
-                <motion.li
-                  initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-                  whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.45, delay: i * 0.06 }}
-                  className="mb-4 last:mb-0"
-                >
-                  {/* Timeline dot */}
+                <li className="mb-4 last:mb-0">
                   <div className="absolute -left-2.5 grid h-5 w-5 place-items-center rounded-full bg-white ring-2 ring-emerald-400">
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-600" />
                   </div>
 
-                  {/* Card */}
-                  <article className="relative rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-                    {/* Arm from spine into header */}
-                    <motion.span
+                  <article
+                    ref={(el) => { stepRefs.current[i] = el; }}  // ✅ return void
+                    className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+                  >
+                    <span
                       aria-hidden="true"
-                      className={`absolute -left-6 top-8 h-1 rounded-full bg-gradient-to-r ${it.gradient}`}
-                      initial={reduceMotion ? { width: 24 } : { width: 0 }}
-                      whileInView={reduceMotion ? undefined : { width: 24 }}
-                      viewport={{ once: true, amount: 0.8 }}
-                      transition={{ duration: 0.35 }}
+                      className={`absolute -left-6 top-8 h-1 w-6 rounded-full bg-current opacity-80 ${it.solid.replace('bg-', 'text-')}`}
                     />
-
-                    {/* Gradient header */}
-                    <div className={`mb-3 flex items-center justify-between rounded-xl bg-gradient-to-r ${it.gradient} px-4 py-2`}>
-                      <span className="text-sm font-bold text-white">{String(i + 1).padStart(2, '0')}</span>
+                    <div className={`flex items-center justify-between bg-gradient-to-r ${it.grad} px-4 py-2`}>
+                      <span className="sr-only">Step header</span>
+                      <span className="h-5 w-5 rounded-md bg-white/20 ring-1 ring-white/30 backdrop-blur-sm" />
                       {it.icon}
                     </div>
 
-                    <h3 className="text-lg font-semibold text-gray-900">{it.title}</h3>
-                    {it.body && <p className="mt-1 text-sm text-gray-600">{it.body}</p>}
-
-                    {/* Downward tail (grows) */}
-                    {i !== items.length - 1 && (
-                      <motion.span
-                        aria-hidden="true"
-                        className="absolute left-1/2 -bottom-3 w-0.5 -translate-x-1/2 rounded-full bg-gradient-to-b from-emerald-400 to-cyan-400"
-                        initial={reduceMotion ? { height: 20 } : { height: 0 }}
-                        whileInView={reduceMotion ? undefined : { height: 20 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.35, delay: 0.2 }}
-                      />
-                    )}
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-900">{it.title}</h3>
+                      {it.body && <p className="mt-1 text-sm text-gray-600">{it.body}</p>}
+                    </div>
                   </article>
-                </motion.li>
+                </li>
 
-                {/* Animated connector between steps */}
                 {i < items.length - 1 && (
-                  <StepConnector
-                    from={items[i].title}
-                    to={items[i + 1].title}
-                    index={i}
-                    reduceMotion={reduceMotion}
-                  />
+                  <div ref={(el) => { arrowRefs.current[i] = el; }}>  {/* ✅ return void */}
+                    <CenterArrow />
+                  </div>
                 )}
               </React.Fragment>
             ))}
           </ol>
         </div>
-      </section>
-    );
-  }
-
-  /* ---------- DESKTOP: original snake layout (unchanged) ---------- */
-  return <SnakeDesktop items={items} reduceMotion={reduceMotion} />;
+      </div>
+    </section>
+  );
 }
 
-/* ================= Desktop snake (unchanged visuals) ================= */
+/* ========================= DESKTOP (unchanged snake) ========================= */
 
 function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -256,7 +267,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
         <div className="mb-10 text-center">
           <h2 id="snake-value-chain" className="font-bold leading-tight text-gray-900 text-[clamp(1.8rem,3.6vw,2.5rem)]">
             From{' '}
-            <span className="bg-gradient-to-r from-emerald-700 via-teal-600 to-cyan-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-800 via-emerald-500 to-amber-500 bg-clip-text text-transparent">
               Research
             </span>{' '}
             to Action
@@ -271,7 +282,6 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
           className="relative w-full overflow-visible pb-24"
           style={{ minHeight: positions.length ? positions.at(-1)!.y + CARD_H : 240 }}
         >
-          {/* Curvy connectors */}
           <svg
             className="pointer-events-none absolute inset-0 overflow-visible"
             width="100%"
@@ -283,8 +293,8 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
             <defs>
               <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor="#047857" />
-                <stop offset="50%" stopColor="#0d9488" />
-                <stop offset="100%" stopColor="#06b6d4" />
+                <stop offset="50%" stopColor="#10b981" />
+                <stop offset="100%" stopColor="#f59e0b" />
               </linearGradient>
             </defs>
 
@@ -314,11 +324,10 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
             })}
           </svg>
 
-          {/* Cards */}
           {positions.map((pos, i) => {
             const CARD_W = pos.CARD_W!;
             const left = pos.x - CARD_W / 2;
-            const top = pos.y - CARD_H / 2;
+            const top = pos.y - 160 / 2;
             const it = items[i];
 
             return (
@@ -330,10 +339,10 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
                 whileInView={reduceMotion ? undefined : { opacity: 1, y: 0, scale: 1, rotate: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
                 transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1], delay: i * 0.08 }}
-                aria-label={`${i + 1}. ${it.title}`}
+                aria-label={it.title}
               >
-                <div className={`flex items-center justify-between bg-gradient-to-r ${it.gradient} px-4 py-2`}>
-                  <span className="text-sm font-bold text-white">{String(i + 1).padStart(2, '0')}</span>
+                <div className={`flex items-center justify-between bg-gradient-to-r ${it.grad} px-4 py-2`}>
+                  <span className="h-5 w-5 rounded-md bg-white/20 ring-1 ring-white/30 backdrop-blur-sm" aria-hidden="true" />
                   {it.icon}
                 </div>
                 <div className="p-4">
@@ -348,6 +357,8 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
     </section>
   );
 }
+
+
 
 
 
