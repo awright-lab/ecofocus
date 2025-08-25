@@ -17,25 +17,25 @@ type Step = {
 const STEPS: Step[] = [
   {
     label: 'Market Research',
-    sub: 'Syndicated & custom studies uncover real attitudes and drivers.',
+    sub: 'Independent studies that reveal real attitudes and behaviors—beyond assumptions, straight to what drives action.',
     icon: Microscope,
     gradient: 'from-emerald-700 to-emerald-500',
   },
   {
     label: 'Data',
-    sub: 'Validated, census-balanced data with rigorous methodology.',
+    sub: 'Census-balanced, statistically rigorous insights that spot shifts and opportunities with precision.',
     icon: BarChart3,
     gradient: 'from-[#00767a] to-[#2C7FB8]',
   },
   {
     label: 'Knowledge',
-    sub: 'Insights that separate intent from action—the say–do gap.',
+    sub: 'Insights that transform numbers into clarity, context, and strategies you can act on today.',
     icon: Brain,
     gradient: 'from-[#dd9e37] to-[#FFC107]',
   },
   {
     label: 'Informed Decisions',
-    sub: 'Clear moves for product, packaging, and go‑to‑market.',
+    sub: 'Confidently shape products, packaging, and strategy with data aligned to consumer expectations.',
     icon: Target,
     gradient: 'from-[#0f5132] to-[#56a96f]',
   },
@@ -98,9 +98,9 @@ export default function DominoValueChain() {
             transition={{ duration: 0.5 }}
           >
             From{' '}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#dd9e37] via-[#FFC107] to-[#dd803e] animate-gradient">
-              Research
-            </span>{' '}
+            <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+            Research
+          </span>{' '}
             to Action
           </motion.h2>
 
@@ -111,7 +111,7 @@ export default function DominoValueChain() {
             viewport={{ once: true }}
             transition={{ delay: 0.15, duration: 0.5 }}
           >
-            MARKET RESEARCH = DATA → DATA = KNOWLEDGE → KNOWLEDGE = INFORMED DECISIONS
+            From attitudes to actions, we deliver the evidence leaders need to make bold, informed moves.
           </motion.p>
         </div>
 

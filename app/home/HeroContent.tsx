@@ -113,11 +113,6 @@ export default function HeroContent({ heroData }: { heroData: HeroData }) {
               ))}
             </div>
           ) : null}
-
-          {/* Proof strip — one line on mobile */}
-          <div className="mt-5 text-xs sm:text-sm text-white/80">
-            4,000+ U.S. respondents • ±1.55% MoE • 13 years of trend data
-          </div>
         </motion.div>
       </div>
     </section>

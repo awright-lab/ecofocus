@@ -42,7 +42,7 @@ export default function CoreServices({ services }: Props) {
       description: 'Self-serve, real-time cross tabs and charts across 90k+ data points.',
       href: '/dashboard',
       icon: 'ri-dashboard-3-line',
-      image: '/images/solutions-dashboard.png',
+      image: '/images/solutions-infusion.png',
     },
     // Consulting intentionally omitted
   ];
