@@ -14,25 +14,26 @@ export const metadata: Metadata = {
     'Short, actionable articles on sustainability, consumer behavior, and data-driven strategy.',
 }
 
+// Helper: normalize a param that could be string | string[] | undefined
+const pickFirst = (v: string | string[] | undefined) =>
+  Array.isArray(v) ? v[0] : v
+
 export default async function BlogIndex({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[]>
+  // NOTE: Promise-based to match your project’s PageProps constraint
+  searchParams?: Promise<Record<string, string | string[]>>
 }) {
-  // Accept string or first element of an array
-  const q =
-    Array.isArray(searchParams?.q) ? searchParams?.q[0] : (searchParams?.q as string | undefined)
-  const category = Array.isArray(searchParams?.category)
-    ? searchParams?.category[0]
-    : (searchParams?.category as string | undefined)
-  const sort = (Array.isArray(searchParams?.sort)
-    ? searchParams?.sort[0]
-    : searchParams?.sort) as 'new' | 'popular' | undefined
-  const page = Number(Array.isArray(searchParams?.page) ? searchParams?.page[0] : searchParams?.page || 1)
+  const sp = (await searchParams) || {}
+
+  const q = pickFirst(sp.q)
+  const category = pickFirst(sp.category)
+  const sort = (pickFirst(sp.sort) as 'new' | 'popular' | undefined) || 'new'
+  const page = Number(pickFirst(sp.page) || 1)
 
   const [cats, paged] = await Promise.all([
     fetchCategories(),
-    fetchPosts({ q, category, sort: sort || 'new', page, limit: 12 }),
+    fetchPosts({ q, category, sort, page, limit: 12 }),
   ])
 
   const { docs, totalDocs, totalPages } = paged
@@ -68,7 +69,6 @@ export default async function BlogIndex({
               ? 'No results.'
               : `Showing ${docs.length} of ${totalDocs} result${totalDocs === 1 ? '' : 's'}`}
           </p>
-          {/* Optional: quick clear when filters/search active */}
           {(q || category) && (
             <Link
               href="/blog"
@@ -106,15 +106,15 @@ export default async function BlogIndex({
             {Array.from({ length: totalPages }).map((_, i) => {
               const n = i + 1
               const isActive = n === page
-              const sp = new URLSearchParams()
-              if (q) sp.set('q', q)
-              if (category) sp.set('category', category)
-              if (sort) sp.set('sort', sort)
-              sp.set('page', String(n))
+              const spOut = new URLSearchParams()
+              if (q) spOut.set('q', q)
+              if (category) spOut.set('category', category)
+              if (sort) spOut.set('sort', sort)
+              spOut.set('page', String(n))
               return (
                 <Link
                   key={n}
-                  href={`/blog?${sp.toString()}`}
+                  href={`/blog?${spOut.toString()}`}
                   className={
                     isActive
                       ? 'rounded-full bg-emerald-600 text-white px-3 py-1 text-sm'
