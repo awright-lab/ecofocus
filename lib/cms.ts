@@ -16,6 +16,7 @@ categories?: Category[];
 tags?: Tag[];
 author?: Author | null;
 readTime?: number; // minutes
+featured?: boolean
 };
 
 

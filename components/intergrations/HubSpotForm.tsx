@@ -3,10 +3,26 @@
 
 import { useEffect, useId, useState } from "react"
 
+declare global {
+  interface Window {
+    hbspt?: {
+      forms?: {
+        create: (opts: {
+          portalId: string
+          formId: string
+          region?: string
+          target: string
+          onFormReady?: () => void
+        }) => void
+      }
+    }
+  }
+}
+
 type HubSpotFormProps = {
   portalId?: string
   formId?: string
-  region?: string // e.g., "na1", "eu1" (defaults to "na1")
+  region?: string // e.g. "na1" or "eu1"
   targetClassName?: string
   onLoad?: () => void
 }
@@ -25,13 +41,10 @@ export default function HubSpotForm({
   useEffect(() => {
     if (!portalId || !formId) return
 
-    // load script once
-    const existing = document.querySelector<HTMLScriptElement>('script[src*="js.hsforms.net/forms/embed/v2.js"]')
     const createForm = () => {
-      // @ts-ignore
-      if (window.hbspt?.forms?.create) {
-        // @ts-ignore
-        window.hbspt.forms.create({
+      const create = window.hbspt?.forms?.create
+      if (typeof create === "function") {
+        create({
           region,
           portalId,
           formId,
@@ -44,20 +57,23 @@ export default function HubSpotForm({
       }
     }
 
+    // if script already present, just create
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[src*="js.hsforms.net/forms/embed/v2.js"]'
+    )
     if (existing) {
       createForm()
       return
     }
 
+    // otherwise, load it once
     const s = document.createElement("script")
     s.src = "https://js.hsforms.net/forms/embed/v2.js"
     s.async = true
     s.onload = createForm
     document.body.appendChild(s)
 
-    return () => {
-      // optional: do nothing; HubSpot handles cleanup on navigation
-    }
+    // no cleanup required for SPA nav (HubSpot manages the DOM it injects)
   }, [portalId, formId, region, targetSelector, onLoad])
 
   return (
@@ -74,3 +90,4 @@ export default function HubSpotForm({
     </div>
   )
 }
+
