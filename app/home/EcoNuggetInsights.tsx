@@ -50,7 +50,7 @@ export default function EcoNuggetInsights() {
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2 text-[13px] sm:text-sm mb-4"
+          className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4"
         >
           <span
             className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"
