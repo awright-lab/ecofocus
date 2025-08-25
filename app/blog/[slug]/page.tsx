@@ -10,8 +10,14 @@ import SubscribeStrip from '@/components/blog/SubscribeStrip'
 
 export const dynamicParams = true
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = await fetchPostBySlug(params.slug)
+// NOTE: Promise-based params to match your project typing
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const post = await fetchPostBySlug(slug)
   return {
     title: post ? `${post.title} | EcoFocus Blog` : 'EcoFocus Blog',
     description: post?.excerpt || 'EcoFocus insights on sustainability and growth.',
@@ -25,8 +31,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function ArticlePage({ params }: { params: { slug: string } }) {
-  const post = await fetchPostBySlug(params.slug)
+// Promise-based params here too
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  const post = await fetchPostBySlug(slug)
 
   if (!post) {
     return (
@@ -106,3 +118,4 @@ export default async function ArticlePage({ params }: { params: { slug: string }
     </main>
   )
 }
+
