@@ -9,19 +9,16 @@ import SubscribeStrip from '@/components/blog/SubscribeStrip'
 export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
-  title: 'Insights Blog | EcoFocus Research',
+  title: 'EcoNuggets – Insights Blog | EcoFocus Research',
   description:
-    'Short, actionable articles on sustainability, consumer behavior, and data-driven strategy.',
+    'Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.',
 }
 
-// Helper: normalize a param that could be string | string[] | undefined
-const pickFirst = (v: string | string[] | undefined) =>
-  Array.isArray(v) ? v[0] : v
+const pickFirst = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
 
 export default async function BlogIndex({
   searchParams,
 }: {
-  // NOTE: Promise-based to match your project’s PageProps constraint
   searchParams?: Promise<Record<string, string | string[]>>
 }) {
   const sp = (await searchParams) || {}
@@ -40,20 +37,33 @@ export default async function BlogIndex({
 
   return (
     <main className="bg-neutral-50">
-      {/* HERO */}
+      {/* HERO — mirrors homepage gradient + EcoNuggets label */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-500" />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 text-white">
-          <p className="text-emerald-200 text-sm font-medium tracking-wide uppercase">EcoFocus Insights</p>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-16 pb-14 text-white">
+          <p className="text-emerald-200 text-xs font-semibold tracking-wide uppercase">EcoNuggets</p>
           <h1 className="mt-2 text-3xl sm:text-4xl md:text-5xl font-semibold leading-tight">
-            Data-backed ideas that move decisions
+            Fresh sustainability insights that move decisions
           </h1>
           <p className="mt-3 max-w-2xl text-white/90">
-            We turn 90,000+ data points into practical guidance for product, brand, and sustainability teams. Read,
-            apply, repeat.
+            Bite‑size reads from our syndicated research and dashboard workflows—built to convert learnings into action.
           </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/reports"
+              className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-semibold ring-1 ring-white/30 hover:bg-white/20"
+            >
+              Explore Reports
+            </Link>
+            <Link
+              href="/contact?type=demo"
+              className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
+            >
+              View Dashboard Demo
+            </Link>
+          </div>
         </div>
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-neutral-50 to-transparent" />
       </section>
 
       {/* FILTERS */}
@@ -61,8 +71,8 @@ export default async function BlogIndex({
         <BlogFilterBar categories={cats} />
       </div>
 
+      {/* GRID + META */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
-        {/* Results meta */}
         <div className="mb-4 flex items-center justify-between">
           <p className="text-sm text-gray-600">
             {totalDocs === 0
@@ -79,7 +89,6 @@ export default async function BlogIndex({
           )}
         </div>
 
-        {/* GRID / Empty */}
         {docs.length === 0 ? (
           <div className="rounded-2xl bg-white ring-1 ring-black/5 p-8 text-center text-gray-600">
             <p>No articles match your filters.</p>
@@ -128,35 +137,12 @@ export default async function BlogIndex({
           </div>
         )}
 
-        {/* Subscribe + Cross-sell */}
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
-          <div className="md:col-span-2">
-            <SubscribeStrip />
-          </div>
-          <div className="md:col-span-1">
-            <div className="rounded-2xl bg-white ring-1 ring-black/5 p-5 shadow-sm">
-              <h3 className="font-semibold text-gray-900">New here?</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                See the Sustainability Insights Report and Dashboard seat licensing options.
-              </p>
-              <div className="mt-3 flex flex-col gap-2">
-                <Link
-                  href="/reports"
-                  className="rounded-full bg-emerald-600 text-white text-sm px-4 py-2 font-semibold text-center"
-                >
-                  Explore Reports
-                </Link>
-                <Link
-                  href="/contact?type=demo"
-                  className="rounded-full border border-gray-300 text-gray-900 text-sm px-4 py-2 font-semibold text-center"
-                >
-                  Request a Demo
-                </Link>
-              </div>
-            </div>
-          </div>
+        {/* Subscribe (HubSpot) */}
+        <div className="mt-12">
+          <SubscribeStrip />
         </div>
       </section>
     </main>
   )
 }
+
