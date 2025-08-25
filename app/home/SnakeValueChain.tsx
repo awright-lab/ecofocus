@@ -1,7 +1,7 @@
 // app/components/SnakeValueChain.tsx
 'use client';
 
-import React, { useMemo, useRef, useLayoutEffect, useState} from 'react';
+import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Search, Database, Lightbulb, TrendingUp, ChevronDown } from 'lucide-react';
 
@@ -10,8 +10,8 @@ type Item = {
   title: string;
   body?: string;
   icon: React.ReactNode;
-  grad: string;   // gradient for header band
-  solid: string;  // solid color class (e.g., bg-emerald-700) used for “arm”
+  grad: string;   // e.g. 'from-emerald-800 to-emerald-600'
+  solid: string;  // e.g. 'bg-emerald-700' (if needed later)
 };
 
 type Point = { x: number; y: number };
@@ -35,11 +35,34 @@ function useIsMdUp() {
   return ok;
 }
 
-function CenterArrow() {
+/* ---------- Animated center arrow (mobile) ---------- */
+function CenterArrow({
+  index = 0,
+  reduceMotion,
+}: {
+  index?: number;
+  reduceMotion: boolean;
+}) {
+  const delay = index * 0.15;
   return (
     <div className="my-3 flex justify-center" aria-hidden="true">
-      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 ring-1 ring-emerald-200">
-        <ChevronDown className="h-5 w-5 text-emerald-600" />
+      <div className="relative h-8 w-8">
+        {!reduceMotion && (
+          <motion.span
+            className="absolute inset-0 rounded-full bg-emerald-200/50"
+            initial={{ scale: 0.6, opacity: 0.6 }}
+            animate={{ scale: [0.6, 1.2], opacity: [0.6, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeOut', delay }}
+          />
+        )}
+        <motion.div
+          className="relative z-10 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 ring-1 ring-emerald-200"
+          initial={reduceMotion ? undefined : { y: 0 }}
+          animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
+          transition={reduceMotion ? undefined : { duration: 1.2, repeat: Infinity, ease: 'easeInOut', delay }}
+        >
+          <ChevronDown className="h-5 w-5 text-emerald-600" />
+        </motion.div>
       </div>
     </div>
   );
@@ -56,7 +79,7 @@ export default function SnakeValueChain() {
         title: 'Market Research',
         body: 'Syndicated & custom studies uncover real attitudes and drivers.',
         icon: <Search className="h-6 w-6 text-white" aria-hidden="true" />,
-        grad: 'from-emerald-800 to-emerald-600', // dark green
+        grad: 'from-emerald-800 to-emerald-600',   // dark green
         solid: 'bg-emerald-700',
       },
       {
@@ -64,7 +87,7 @@ export default function SnakeValueChain() {
         title: 'Data',
         body: 'Validated, census-balanced data with rigorous methodology.',
         icon: <Database className="h-6 w-6 text-white" aria-hidden="true" />,
-        grad: 'from-emerald-500 to-teal-400', // lighter green
+        grad: 'from-emerald-500 to-teal-400',      // lighter green
         solid: 'bg-emerald-500',
       },
       {
@@ -72,7 +95,7 @@ export default function SnakeValueChain() {
         title: 'Knowledge',
         body: 'Insights that separate intent from action — the say–do gap.',
         icon: <Lightbulb className="h-6 w-6 text-white" aria-hidden="true" />,
-        grad: 'from-cyan-500 to-sky-500', // blue
+        grad: 'from-cyan-500 to-sky-500',          // blue
         solid: 'bg-cyan-500',
       },
       {
@@ -80,7 +103,7 @@ export default function SnakeValueChain() {
         title: 'Informed Decisions',
         body: 'Clear moves for product, packaging, and go-to-market.',
         icon: <TrendingUp className="h-6 w-6 text-white" aria-hidden="true" />,
-        grad: 'from-amber-500 to-orange-400', // marigold
+        grad: 'from-amber-500 to-orange-400',      // marigold
         solid: 'bg-amber-500',
       },
     ],
@@ -122,6 +145,7 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     };
 
     measure();
+
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     stepRefs.current.forEach((r) => r && ro.observe(r));
@@ -131,6 +155,7 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     window.addEventListener('resize', measure);
     window.addEventListener('orientationchange', measure);
     window.addEventListener('scroll', onScroll, { passive: true });
+
     return () => {
       ro.disconnect();
       window.removeEventListener('resize', measure);
@@ -139,7 +164,7 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     };
   }, [items.length]);
 
-  // normalize animation timing between variable gaps
+  // Normalize marble speed across variable gaps
   const times = React.useMemo(() => {
     if (trackY.length < 2) return [];
     const dists = trackY.map((y, i) => (i === 0 ? 0 : Math.abs(y - trackY[i - 1])));
@@ -175,27 +200,25 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
         </div>
 
         <div ref={containerRef} className="relative mx-auto max-w-2xl">
-          {/* Marble down the CENTER (no left spine) */}
-          {!reduceMotion && trackY.length >= 2 && (
+          {/* Looping marble down the CENTER */}
+          {/* !reduceMotion && trackY.length >= 2 && (
             <motion.div
               className="pointer-events-none absolute left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-gradient-to-br from-white to-emerald-200 shadow-md ring-2 ring-emerald-500"
               animate={{ y: trackY }}
               transition={{ duration: 6, times, repeat: Infinity, ease: 'easeInOut' }}
               aria-hidden="true"
             />
-          )}
+          ) */}
 
-          {/* No border-l, no left padding */}
+          {/* Clean list: no left spine, no dots */}
           <ol className="relative pl-0">
             {items.map((it, i) => (
               <React.Fragment key={it.id}>
                 <li className="mb-4 last:mb-0">
-                  {/* ⛔ removed left timeline dot */}
                   <article
-                    ref={(el) => { stepRefs.current[i] = el; }}
+                    ref={(el: HTMLElement | null) => { stepRefs.current[i] = el; }}
                     className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
                   >
-                    {/* ⛔ removed the small left “arm” */}
                     {/* Colored header band (no numbers) */}
                     <div className={`flex items-center justify-between bg-gradient-to-r ${it.grad} px-4 py-2`}>
                       <span className="sr-only">Step header</span>
@@ -210,10 +233,10 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
                   </article>
                 </li>
 
-                {/* Center arrow between cards */}
+                {/* Animated center arrow between cards */}
                 {i < items.length - 1 && (
-                  <div ref={(el) => { arrowRefs.current[i] = el; }}>
-                    <CenterArrow />
+                  <div ref={(el: HTMLElement | null) => { arrowRefs.current[i] = el; }}>
+                    <CenterArrow index={i} reduceMotion={reduceMotion} />
                   </div>
                 )}
               </React.Fragment>
@@ -224,7 +247,6 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
     </section>
   );
 }
-
 
 /* ========================= DESKTOP (unchanged snake) ========================= */
 
@@ -263,10 +285,16 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
   }, [items, svgSize.w]);
 
   return (
-    <section className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]" aria-labelledby="snake-value-chain">
+    <section
+      className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]"
+      aria-labelledby="snake-value-chain"
+    >
       <div className="mx-auto max-w-7xl px-6 py-14">
         <div className="mb-10 text-center">
-          <h2 id="snake-value-chain" className="font-bold leading-tight text-gray-900 text-[clamp(1.8rem,3.6vw,2.5rem)]">
+          <h2
+            id="snake-value-chain"
+            className="font-bold leading-tight text-gray-900 text-[clamp(1.8rem,3.6vw,2.5rem)]"
+          >
             From{' '}
             <span className="bg-gradient-to-r from-emerald-800 via-emerald-500 to-amber-500 bg-clip-text text-transparent">
               Research
@@ -283,6 +311,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
           className="relative w-full overflow-visible pb-24"
           style={{ minHeight: positions.length ? positions.at(-1)!.y + CARD_H : 240 }}
         >
+          {/* Curvy connectors */}
           <svg
             className="pointer-events-none absolute inset-0 overflow-visible"
             width="100%"
@@ -325,10 +354,11 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
             })}
           </svg>
 
+          {/* Cards */}
           {positions.map((pos, i) => {
             const CARD_W = pos.CARD_W!;
             const left = pos.x - CARD_W / 2;
-            const top = pos.y - 160 / 2;
+            const top = pos.y - CARD_H / 2;
             const it = items[i];
 
             return (
@@ -358,6 +388,7 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
     </section>
   );
 }
+
 
 
 
