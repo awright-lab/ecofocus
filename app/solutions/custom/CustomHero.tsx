@@ -1,3 +1,4 @@
+// components/solutions/CustomHero.tsx
 'use client'
 
 import Link from 'next/link'
@@ -5,11 +6,7 @@ import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
 import { cx } from '@/lib/utils'
 
-type CTA = {
-  href: string
-  label: string
-  variant?: 'primary' | 'secondary'
-}
+type CTA = { href: string; label: string; variant?: 'primary' | 'secondary' }
 
 type Props = {
   label?: string
@@ -17,33 +14,30 @@ type Props = {
   sub?: string
   ctas?: CTA[]
 
-  // Background media (optional; mirrors AboutHero API)
+  // background media (optional)
   videoMp4?: string
   videoWebm?: string
   poster?: string
 
-  // Layout tweaks
   align?: 'left' | 'center'
   className?: string
 }
 
-export default function BlogHero({
-  label = 'EcoNuggets',
+export default function CustomHero({
+  label = 'Custom Research',
   title = (
     <>
-      Fresh sustainability insights that move <span className="text-emerald-200">decisions</span>
+      Answer the exact questions that move your <span className="text-emerald-200">roadmap</span>
     </>
   ),
-  sub = 'Bite-size reads from our syndicated research and workflows—built to convert learnings into action.',
+  sub = 'Bespoke, decision-ready research—quant, qual, and mixed methods—designed for your market, your buyers, and your constraints.',
   ctas = [
-    { href: '/reports', label: 'Explore Reports', variant: 'secondary' },
-    { href: '/contact?type=demo', label: 'View Dashboard Demo', variant: 'primary' },
+    { href: '/contact?type=custom', label: 'Request a Proposal', variant: 'primary' },
+    { href: '/contact?type=demo', label: 'Talk to an Expert', variant: 'secondary' },
   ],
-
   videoMp4 = 'https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-8.mp4',
   videoWebm = '',
-  poster = '/images/blog/hero-poster.jpg',
-
+  poster = '/images/about/hero-poster.jpg',
   align = 'left',
   className = '',
 }: Props) {
@@ -51,15 +45,15 @@ export default function BlogHero({
 
   return (
     <section
-      aria-labelledby="blog-hero"
+      aria-labelledby="custom-hero"
       className={cx(
         'relative isolate overflow-hidden text-white',
-        'min-h-[60svh] md:min-h-[70vh] lg:min-h-[80vh]',
+        'min-h-[50svh] md:min-h-[60vh] lg:min-h-[65vh]',
         'flex items-center',
         className
       )}
     >
-      {/* Background media */}
+      {/* background media */}
       <div className="absolute inset-0 -z-20">
         {!reduceMotion ? (
           <video
@@ -85,7 +79,7 @@ export default function BlogHero({
         )}
       </div>
 
-      {/* Diagonal color wash (lighter on mobile; clipped, stronger on md+) */}
+      {/* diagonal color wash */}
       <div className="pointer-events-none absolute inset-0 z-10">
         <div
           className={[
@@ -96,12 +90,12 @@ export default function BlogHero({
         />
       </div>
 
-      {/* Soft scrim */}
+      {/* soft scrim */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="h-full w-full bg-gradient-to-br from-black/45 via-emerald-950/35 to-blue-950/45" />
       </div>
 
-      {/* Content */}
+      {/* content */}
       <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 py-14 sm:py-16 md:py-20">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 24 }}
@@ -110,16 +104,18 @@ export default function BlogHero({
           transition={{ duration: 0.6 }}
           className={cx('max-w-[52rem]', align === 'center' && 'mx-auto text-center')}
         >
-          <div className={cx(
-            'mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs sm:text-sm',
-            align === 'center' && 'justify-center'
-          )}>
+          <div
+            className={cx(
+              'mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs sm:text-sm',
+              align === 'center' && 'justify-center'
+            )}
+          >
             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
             {label}
           </div>
 
           <h1
-            id="blog-hero"
+            id="custom-hero"
             className={cx(
               'mb-3 font-bold leading-[1.05]',
               'text-[clamp(2rem,6vw,3.5rem)]',

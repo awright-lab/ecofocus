@@ -26,7 +26,7 @@ export default function CoreServices({ services }: Props) {
     {
       title: 'Syndicated Research',
       description: 'Annual EcoFocus study with 4,000+ respondents and 13 years of trends.',
-      href: '/services/syndicated',
+      href: '/solutions/syndicated',
       icon: 'ri-bar-chart-2-line',
       image: '/images/solutions-syndicated.png',
     },
