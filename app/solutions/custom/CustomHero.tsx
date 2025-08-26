@@ -1,99 +1,100 @@
 // components/solutions/custom/CustomHero.tsx
-'use client'
+'use client';
 
-import Link from 'next/link'
-import Image from 'next/image'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function CustomHero() {
-  const reduceMotion = useReducedMotion()
-  const poster = '/images/about/hero-poster.jpg'
-  const videoMp4 = 'https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-8.mp4'
-
   return (
-    <section
-      aria-labelledby="custom-hero"
-      className="relative isolate overflow-hidden text-white min-h-[54svh] md:min-h-[62vh] lg:min-h-[68vh] flex items-center"
-    >
-      {/* Background media */}
-      <div className="absolute inset-0 -z-20">
-        {!reduceMotion ? (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            poster={poster}
-            className="h-full w-full object-cover object-[30%_50%] brightness-[1.1] contrast-[1.05] saturate-[1.05]"
-          >
-            <source src={videoMp4} type="video/mp4" />
-          </video>
-        ) : (
-          <Image
-            src={poster}
-            alt=""
-            fill
-            priority
-            className="object-cover object-[30%_50%] brightness-[1.08] contrast-[1.05] saturate-[1.05]"
-          />
-        )}
-      </div>
-
-      {/* Diagonal color wash */}
-      <div className="pointer-events-none absolute inset-0 z-10">
-        <div className="h-full w-full bg-gradient-to-br from-emerald-900/50 to-blue-900/50 md:from-emerald-900/90 md:to-blue-900/90 md:[clip-path:polygon(0%_0%,_40%_0%,_70%_100%,_0%_100%)]" />
-      </div>
-
-      {/* Soft scrim */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
-        <div className="h-full w-full bg-gradient-to-br from-black/45 via-emerald-950/35 to-blue-950/45" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 py-14 sm:py-16 md:py-20">
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="max-w-[52rem]"
+    <section className="relative max-h-[65vh] flex items-center justify-center overflow-hidden bg-neutral-950 text-white z-0">
+      {/* ✅ Background Video */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover brightness-[0.4]"
         >
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs sm:text-sm">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+          <source
+            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
+            type="video/mp4"
+          />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      {/* ✅ Full Gradient Overlay (No Clipping) */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <div className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80" />
+      </div>
+
+      {/* ✅ Foreground Content */}
+      <div className="relative z-20 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
+        <motion.div
+          className="md:col-span-7"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/20 text-sm text-white mb-6">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
             Custom Research
           </div>
 
-          <h1
-            id="custom-hero"
-            className="mb-3 font-bold leading-[1.05] text-[clamp(2rem,6vw,3.5rem)] [text-wrap:balance] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
-          >
-            Decision-ready consumer sustainability intelligence — tailored to you
+          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-4">
+          Decision-ready consumer sustainability intelligence —
+            <br className="hidden md:inline" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] animate-gradient">
+            tailored to you
+            </span>
           </h1>
 
-          <p className="max-w-[42rem] text-gray-100/90">
-            Bespoke studies for the exact decisions in front of your team — from claims &amp; pack tests to segmentation
-            refreshes — delivered as stakeholder-ready outputs.
+          <p className="text-lg text-gray-300 mb-10 max-w-2xl">
+          Bespoke studies for the exact decisions in front of your team — from claims &amp; pack tests to segmentation
+          refreshes — delivered as stakeholder-ready outputs.
           </p>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-4">
             <Link
               href="#benefits"
-              className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/30 hover:bg-white/20"
+              className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
+                before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
+                before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
             >
-              Explore Benefits
+              <span className="relative z-10">Explore Benefits</span>
             </Link>
             <Link
               href="/contact?type=custom"
-              className="inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
+              className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full border border-white/30 hover:bg-white/10 transition-all"
             >
-              Request a Proposal
+              <span className="relative z-10">Request a Proposal</span>
             </Link>
+          </div>
+        </motion.div>
+
+        {/* ✅ Optional Right Visual */}
+        <motion.div
+          className="hidden md:block md:col-span-5"
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >
+          <div className="relative w-full aspect-square">
+            <Image
+              src="/images/laptop.png"
+              alt="Syndicated Report Dashboard Preview"
+              fill
+              className="rounded-xl shadow-2xl object-cover"
+            />
           </div>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
-
 
