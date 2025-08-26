@@ -6,8 +6,9 @@ import BlogCard from '@/components/blog/BlogCard'
 import BlogFilterBar from '@/components/blog/BlogFilterBar'
 import SubscribeStrip from '@/components/blog/SubscribeStrip'
 import BlogHero from '@/components/blog/BlogHero'
-import Header from '@/components/Header'   // ← add
-import Footer from '@/components/Footer'   // ← add
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+import ArticleFeedMobile from '@/components/blog/ArticleFeedMobile'
 
 export const dynamic = 'force-static'
 
@@ -40,7 +41,7 @@ export default async function BlogIndex({
 
   return (
     <>
-      <Header /> {/* Global site header */}
+      <Header />
 
       <main className="bg-neutral-50">
         <BlogHero />
@@ -50,8 +51,8 @@ export default async function BlogIndex({
           <BlogFilterBar categories={cats} />
         </div>
 
-        {/* GRID + META */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
+          {/* Results meta */}
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-gray-600">
               {totalDocs === 0
@@ -68,29 +69,28 @@ export default async function BlogIndex({
             )}
           </div>
 
-          {docs.length === 0 ? (
-            <div className="rounded-2xl bg-white ring-1 ring-black/5 p-8 text-center text-gray-600">
-              <p>No articles match your filters.</p>
-              <div className="mt-4">
-                <Link
-                  href="/blog"
-                  className="inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900"
-                >
-                  Reset filters
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {docs.map((p) => (
-                <BlogCard key={p.id} post={p} />
-              ))}
-            </div>
-          )}
+          {/* Mobile: compact, infinite-friendly list */}
+          <ArticleFeedMobile
+            initial={{
+              docs,
+              page,
+              totalPages,
+              totalDocs,
+            }}
+            q={q}
+            category={category}
+            sort={sort}
+          />
 
-          {/* Pagination */}
+          {/* Desktop / tablet: grid with pagination */}
+          <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {docs.map((p) => (
+              <BlogCard key={p.id} post={p} />
+            ))}
+          </div>
+
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
+            <div className="hidden md:flex mt-8 items-center justify-center gap-2">
               {Array.from({ length: totalPages }).map((_, i) => {
                 const n = i + 1
                 const isActive = n === page
@@ -116,16 +116,16 @@ export default async function BlogIndex({
             </div>
           )}
 
-          {/* Subscribe */}
           <div className="mt-12">
             <SubscribeStrip />
           </div>
         </section>
       </main>
 
-      <Footer /> {/* Global site footer */}
+      <Footer />
     </>
   )
 }
+
 
 
