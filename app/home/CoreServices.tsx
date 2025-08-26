@@ -33,7 +33,7 @@ export default function CoreServices({ services }: Props) {
     {
       title: 'Custom Research',
       description: 'Audience-specific surveys, concept tests, and packaging claims validation.',
-      href: '/services/custom',
+      href: '/solutions/custom',
       icon: 'ri-flask-line',
       image: '/images/solutions-custom.png',
     },
