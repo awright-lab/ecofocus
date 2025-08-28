@@ -22,33 +22,66 @@ interface Props {
 export default function CoreServices({ services }: Props) {
   const reduceMotion = useReducedMotion();
 
+  // —————————————————————————————————————————————
+  // Updated default “Solutions” (no duplicate Data Infusion)
+  // —————————————————————————————————————————————
   const fallback: Service[] = [
     {
-      title: 'Syndicated Research',
-      description: 'Annual EcoFocus study with 4,000+ respondents and 13 years of trends.',
-      href: '/solutions/syndicated',
+      title: 'Dashboard Access',
+      description: 'Self-serve, real-time crosstabs and charts across 90k+ data points with 13 years of trends.',
+      href: '/dashboard',
+      icon: 'ri-dashboard-3-line',
+      image: '/images/solutions-dashboard.png',
+      bullets: [
+        'Seat licensing with onboarding',
+        'Fast crosstabs, exports, charts',
+        'Always-on access for your team',
+      ],
+    },
+    {
+      title: 'Syndicated Study Buy-In (2025)',
+      description:
+        'Join the 2025 EcoFocus wave and add proprietary questions. Deliverables include dashboard access, crosstabs, and executive reporting.',
+      href: '/solutions/syndicated-buy-in',
       icon: 'ri-bar-chart-2-line',
       image: '/images/solutions-syndicated.png',
+      bullets: [
+        '4,000+ U.S. respondents (Gen Pop)',
+        'Census-balanced; MoE ≈ ±1.55%',
+        'Add your own questions/modules',
+      ],
+    },
+    {
+      title: 'Enhance Your Data (Data Lake Integration)',
+      description:
+        'Blend our validated 2024 dataset with your internal data for richer personas, better forecasting, and unified analytics.',
+      href: '/solutions/enhance-your-data',
+      icon: 'ri-database-2-line',
+      image: '/images/solutions-enhance.png',
+      bullets: [
+        'Raw files or secure data share',
+        'Schema mapping & QA support',
+        'Optional dashboard overlay',
+      ],
     },
     {
       title: 'Custom Research',
-      description: 'Audience-specific surveys, concept tests, and packaging claims validation.',
+      description:
+        'Audience-specific surveys, concept tests, and packaging/claims validation—designed to answer your exact questions.',
       href: '/solutions/custom',
       icon: 'ri-flask-line',
       image: '/images/solutions-custom.png',
-    },
-    {
-      title: 'Dashboard Access',
-      description: 'Self-serve, real-time cross tabs and charts across 90k+ data points.',
-      href: '/dashboard',
-      icon: 'ri-dashboard-3-line',
-      image: '/images/solutions-infusion.png',
+      bullets: [
+        'Quant & qual study design',
+        'Rapid polls & deep dives',
+        'Executive-ready storytelling',
+      ],
     },
     // Consulting intentionally omitted
   ];
 
   // Filter out any item titled exactly "Consulting" (case-insensitive)
-  const items = (services ?? fallback).filter(s => !/^\s*consulting\s*$/i.test(s.title));
+  const items = (services ?? fallback).filter((s) => !/^\s*consulting\s*$/i.test(s.title));
 
   return (
     <section aria-labelledby="core-services-heading" className="relative bg-white">
@@ -65,7 +98,10 @@ export default function CoreServices({ services }: Props) {
           <span className="text-black/60">Core Services</span>
         </motion.div>
 
-        <h2 id="core-services-heading" className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
+        <h2
+          id="core-services-heading"
+          className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
+        >
           Solutions
         </h2>
         <p className="mt-2 text-sm sm:text-base text-gray-600">
@@ -75,8 +111,8 @@ export default function CoreServices({ services }: Props) {
         {/* ======= MOBILE: Carousel / Slideshow (md:hidden) ======= */}
         <MobileCarousel items={items} />
 
-        {/* ======= DESKTOP/TABLET: grid with IMAGE AS TOP HALF ======= */}
-        <div className="hidden md:grid grid-cols-3 gap-6 md:gap-8 mt-8">
+        {/* ======= DESKTOP/TABLET: 4-up grid with IMAGE AS TOP HALF ======= */}
+        <div className="hidden md:grid grid-cols-4 gap-6 md:gap-8 mt-8">
           {items.map((s, i) => (
             <motion.article
               key={s.title}
@@ -97,8 +133,9 @@ export default function CoreServices({ services }: Props) {
                     src={s.image}
                     alt={s.title}
                     fill
-                    sizes="(min-width: 1024px) 28vw, (min-width: 768px) 33vw"
+                    sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 24vw, (min-width: 768px) 33vw"
                     className="object-cover"
+                    priority={i < 2}
                   />
                 ) : (
                   <div className="h-full w-full bg-emerald-50" />
@@ -116,11 +153,8 @@ export default function CoreServices({ services }: Props) {
                   <h3 className="text-lg font-semibold text-gray-900">{s.title}</h3>
                 </div>
 
-                <p className="mt-2 text-sm text-gray-700 line-clamp-3">
-                  {s.description}
-                </p>
+                <p className="mt-2 text-sm text-gray-700 line-clamp-3">{s.description}</p>
 
-                {/* Optional bullets — keep compact to avoid overflow */}
                 {s.bullets && s.bullets.length > 0 && (
                   <ul className="mt-3 space-y-1.5">
                     {s.bullets.slice(0, 3).map((b) => (
@@ -151,7 +185,6 @@ export default function CoreServices({ services }: Props) {
 }
 
 /* ================== Inline Mobile Carousel ================== */
-
 function MobileCarousel({ items }: { items: Service[] }) {
   const reduceMotion = useReducedMotion();
   const [index, setIndex] = React.useState(0);
@@ -179,29 +212,26 @@ function MobileCarousel({ items }: { items: Service[] }) {
     trackRef.current.style.transform = `translateX(calc(${-index * 100}% + ${deltaX.current}px))`;
   };
 
-  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!trackRef.current || startX.current === null) return;
-
-    try { trackRef.current.releasePointerCapture(e.pointerId); } catch {}
-
-    const threshold = 50;
-    if (deltaX.current > threshold) prev();
-    else if (deltaX.current < -threshold) next();
-
+  const endDrag = () => {
+    if (!trackRef.current) return;
     trackRef.current.style.transition = reduceMotion ? 'none' : 'transform 300ms ease';
     trackRef.current.style.transform = `translateX(-${index * 100}%)`;
-
     startX.current = null;
     deltaX.current = 0;
   };
 
-  const onPointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (!trackRef.current) return;
+  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!trackRef.current || startX.current === null) return;
     try { trackRef.current.releasePointerCapture(e.pointerId); } catch {}
-    trackRef.current.style.transition = reduceMotion ? 'none' : 'transform 300ms ease';
-    trackRef.current.style.transform = `translateX(-${index * 100}%)`;
-    startX.current = null;
-    deltaX.current = 0;
+    const threshold = 50;
+    if (deltaX.current > threshold) prev();
+    else if (deltaX.current < -threshold) next();
+    endDrag();
+  };
+
+  const onPointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+    try { trackRef.current?.releasePointerCapture(e.pointerId); } catch {}
+    endDrag();
   };
 
   React.useEffect(() => {
@@ -215,7 +245,10 @@ function MobileCarousel({ items }: { items: Service[] }) {
   return (
     <div className="md:hidden mt-6" role="region" aria-label="Core services carousel">
       {/* Viewport */}
-      <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white" aria-roledescription="carousel">
+      <div
+        className="relative overflow-hidden rounded-xl border border-gray-200 bg-white"
+        aria-roledescription="carousel"
+      >
         {/* Track */}
         <div
           ref={trackRef}
@@ -255,7 +288,11 @@ function MobileCarousel({ items }: { items: Service[] }) {
                   <p className="mt-2 text-sm text-gray-700 line-clamp-3">{s.description}</p>
 
                   {s.href && (
-                    <Link href={s.href} className="mt-4 inline-block text-sm font-semibold text-emerald-700" aria-label={`Learn more about ${s.title}`}>
+                    <Link
+                      href={s.href}
+                      className="mt-4 inline-block text-sm font-semibold text-emerald-700"
+                      aria-label={`Learn more about ${s.title}`}
+                    >
                       Learn more →
                     </Link>
                   )}
