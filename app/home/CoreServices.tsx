@@ -29,8 +29,8 @@ export default function CoreServices({ services }: Props) {
   // Default content (edit freely)
   const fallback: Service[] = [
     {
-      title: 'Dashboard Access',
-      kicker: 'Instant crosstabs. 90k+ data points.',
+      title: 'Interactive Dashboard',
+      kicker: '90k+ data points. Real-time crosstabs.',
       description:
         'Self-serve, real-time crosstabs and charts across 90k+ data points with 13 years of trends.',
       href: '/dashboard',
@@ -43,8 +43,8 @@ export default function CoreServices({ services }: Props) {
       icon: 'ri-dashboard-3-line',
     },
     {
-      title: 'Syndicated Study Buy-In (2025)',
-      kicker: 'Add your questions. Executive-grade outputs.',
+      title: '2025 Syndicated Study',
+      kicker: 'Your questions. Executive-ready insights.',
       description:
         'Join the 2025 EcoFocus wave and add proprietary questions. Deliverables include dashboard access, crosstabs, and executive reporting.',
       href: '/solutions/syndicated-buy-in',
@@ -57,7 +57,7 @@ export default function CoreServices({ services }: Props) {
       icon: 'ri-bar-chart-2-line',
     },
     {
-      title: 'Enhance Your Data (Data Lake Integration)',
+      title: 'Data Integration',
       kicker: 'Fuse datasets. Sharpen personas.',
       description:
         'Blend our validated 2024 dataset with your internal data for richer personas, better forecasting, and unified analytics.',
@@ -67,8 +67,8 @@ export default function CoreServices({ services }: Props) {
       icon: 'ri-database-2-line',
     },
     {
-      title: 'Custom Research',
-      kicker: 'Answer the exact question.',
+      title: 'Custom Studies',
+      kicker: 'Answer the exact questions.',
       description:
         'Audience-specific surveys, concept tests, and packaging/claims validation—designed to answer your exact questions.',
       href: '/solutions/custom',
