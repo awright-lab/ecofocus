@@ -1,92 +1,127 @@
-import Image from "next/image";
-import Link from "next/link";
-import { CATALOG } from "@/lib/catalog";
+// app/solutions/SolutionsFeaturedOfferings.tsx
+'use client';
 
-export default function SolutionsFeaturedOfferings() {
-  const ids = ["buyin-2025", "enhance-2024", "sir-2024"] as const;
-  const items = CATALOG.filter(p => ids.includes(p.id as any));
+import Link from 'next/link';
+import Image from 'next/image';
+import { CATALOG, BUNDLES } from '@/lib/catalog'; // keep this path consistent with your project
+import type { Product } from '@/lib/storeTypes'; // adjust path if your types live elsewhere
+import { BadgeCheck } from 'lucide-react';
+
+type Props = {
+  /** Prefer passing explicit products. If omitted, we show Bundles from the catalog. */
+  products?: Product[];
+  /** Back-compat if parent was passing 'items' */
+  items?: Product[];
+  title?: string;
+  eyebrow?: string;
+  /** Fallback image used when item.img is missing */
+  fallbackImageSrc?: string;
+};
+
+function primaryHref(p: Product): string {
+  // Route users according to access model and category
+  switch (p.accessModel) {
+    case 'paid-direct':
+      return `/store/${p.id}`;
+    case 'paid-contact':
+      return p.contactPath || '/contact';
+    case 'free-gated':
+    case 'free-open':
+    default:
+      // For free or report-like items, send to report details if it's a report
+      return p.category === 'Reports' ? `/reports/${p.id}` : `/store/${p.id}`;
+  }
+}
+
+export default function SolutionsFeaturedOfferings({
+  products,
+  items,
+  title = 'Featured Offerings',
+  eyebrow = 'Solutions',
+  fallbackImageSrc = '/images/report-cover-fallback.jpg',
+}: Props) {
+  // Choose data source in priority order: props.products → props.items → Bundles
+  const list: Product[] = (products ?? items ?? BUNDLES).filter(Boolean);
 
   return (
-    <section className="container mx-auto px-4 py-10">
-      <div className="h-1.5 w-28 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-400" />
-      <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">Featured Offerings</h2>
-      <p className="mt-2 text-gray-700">
-        Program participation and data services tailored to your needs.
-      </p>
+    <section className="bg-white">
+      <div className="mx-auto max-w-7xl px-6 py-12">
+        {/* Eyebrow */}
+        <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide mb-3">
+          <span className="h-2 w-2 rounded-full bg-emerald-600" />
+          <span className="text-black/60">{eyebrow}</span>
+        </div>
 
-      <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {items.map((p) => {
-          const isContact =
-            (p.purchaseType ?? (p.category === "Reports" ? "direct" : "contact")) === "contact";
-          const priceText = typeof p.price === "number" ? `$${p.price.toLocaleString()}` : undefined;
+        {/* Heading */}
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">{title}</h2>
+        <p className="mt-2 text-gray-600 max-w-2xl">
+          Packages and reports that help teams move from insight to action.
+        </p>
 
-          // Detail destinations: services under /solutions/*, SIR stays under /reports
-          const detailsHref =
-            p.id === "buyin-2025"
-              ? "/solutions/syndicated-study-2025"
-              : p.id === "enhance-2024"
-              ? "/solutions/data-enrichment"
-              : `/reports/${p.id}`;
+        {/* Cards */}
+        <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {list.map((p) => {
+            // ✅ Guarantee a concrete string for Next/Image
+            const imgSrc: string = p.img ?? fallbackImageSrc;
+            const href = primaryHref(p);
 
-          return (
-            <article
-              key={p.id}
-              className="group relative rounded-2xl border bg-white/90 shadow-sm overflow-hidden hover:shadow-md transition"
-            >
-              <div className="relative aspect-[16/9]">
-                {p.badge && (
-                  <span className="absolute left-3 top-3 z-20 inline-flex items-center gap-1 rounded-full bg-emerald-600/95 px-3 py-1 text-xs font-semibold text-white shadow">
-                    {p.badge}
-                  </span>
-                )}
-                <Image src={p.img} alt={p.title} fill className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/0 to-black/0" />
-                <div className="absolute -bottom-4 left-4 z-20">
-                  <div className="rounded-xl bg-white shadow-md border px-4 py-2">
-                    <span className="text-[11px] text-gray-500">
-                      {p.category === "Reports" ? "Report" : "Service"}
+            return (
+              <Link
+                key={p.id}
+                href={href}
+                className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm hover:shadow-md hover:border-emerald-300 transition"
+              >
+                {/* Top media */}
+                <div className="relative aspect-[16/9]">
+                  <Image
+                    src={imgSrc}
+                    alt={p.title}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width:1024px) 33vw, 92vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-black/0 to-black/0" />
+                  {/* Optional badge */}
+                  {p.badge && (
+                    <span className="absolute left-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-gray-900 shadow">
+                      {p.badge}
                     </span>
-                    <div className="text-lg font-bold text-emerald-700 leading-5">
-                      {isContact ? (priceText ? `Starting at ${priceText}` : "Contact") : priceText ?? "—"}
-                    </div>
+                  )}
+                </div>
+
+                {/* Body */}
+                <div className="p-4">
+                  <div className="flex items-start gap-2">
+                    <BadgeCheck className="h-4 w-4 text-emerald-600 mt-0.5" />
+                    <h3 className="text-base font-semibold text-gray-900 line-clamp-2">{p.title}</h3>
+                  </div>
+
+                  {p.subtitle && (
+                    <p className="mt-1.5 text-sm text-gray-700 line-clamp-2">{p.subtitle}</p>
+                  )}
+
+                  {/* Meta row */}
+                  <div className="mt-3 flex items-center gap-2 text-xs text-gray-600">
+                    {typeof p.year === 'number' && (
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5">{p.year}</span>
+                    )}
+                    {Array.isArray(p.tags) && p.tags.slice(0, 2).map((t) => (
+                      <span key={t} className="rounded-full bg-gray-100 px-2 py-0.5">
+                        {t}
+                      </span>
+                    ))}
+                    <span className="ml-auto text-emerald-700 font-semibold group-hover:underline">
+                      Learn more →
+                    </span>
                   </div>
                 </div>
-              </div>
-
-              <div className="p-5 pt-7">
-                <h3 className="text-base md:text-lg font-semibold tracking-tight">{p.title}</h3>
-                {p.subtitle && <p className="mt-1 text-sm text-gray-700">{p.subtitle}</p>}
-                {p.variantNote && <p className="mt-2 text-xs text-gray-600">{p.variantNote}</p>}
-
-                <div className="mt-4 flex gap-2">
-                  {isContact ? (
-                    <Link
-                      href={p.contactPath ?? `/contact?product=${p.id}`}
-                      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
-                    >
-                      {p.ctaLabel ?? "Schedule discovery"}
-                    </Link>
-                  ) : (
-                    <Link
-                      href={`/reports/${p.id}`}
-                      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
-                    >
-                      Buy now
-                    </Link>
-                  )}
-                  <Link
-                    href={detailsHref}
-                    className="inline-flex items-center justify-center rounded-full border px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50"
-                  >
-                    Details
-                  </Link>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </section>
   );
 }
+
 
