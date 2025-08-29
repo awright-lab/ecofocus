@@ -2,46 +2,37 @@
 import type { Product } from '@/lib/storeTypes';
 import type { ReportCardModel, Badge, PurchaseType } from '@/types/reportModels';
 
-export function inferYear(p: Product): 2024 | 2025 | undefined {
-  const m = p.id.match(/(?:^|[-_])(20(24|25))(?:$|[-_])/);
-  if (m) return Number(m[1]) as 2024 | 2025;
-  return (p as any).year;
-}
+export function isSmallReport(p: Product) { return p.category === 'Reports'; }
+export function isSirBundle(p: Product) { return p.category === 'Bundles' && p.id.startsWith('sir-'); }
 
-export function isSmallReport(p: Product) {
-  return p.category === 'Reports';
+export function isFree(p: Product) {
+  return p.accessModel === 'free-gated' || p.accessModel === 'free-open';
 }
-
-export function isSirBundle(p: Product) {
-  return p.category === 'Bundles' && p.id.startsWith('sir-');
-}
-
-export function isFreeOnHub(p: Product): boolean {
-  const year = inferYear(p);
-  return year === 2024 && (isSmallReport(p) || isSirBundle(p));
+export function isPaid(p: Product) {
+  return p.accessModel === 'paid-direct' || p.accessModel === 'paid-contact';
 }
 
 export function toReportCardModel(p: Product): ReportCardModel {
-  const year = (inferYear(p) ?? 2025) as 2024 | 2025;
-  const free = isFreeOnHub(p);
-  const badge: Badge = free ? 'Free' : 'Paid';     // ← literal union, not string
-  const cover = ((p as any).img ?? '/images/report-cover-fallback.jpg') as string;
+  const badge: Badge = isFree(p) ? 'Free' : 'Paid';
+  const purchaseType = (p.purchaseType as PurchaseType | undefined) ??
+    (p.accessModel === 'paid-contact' ? 'contact' :
+     p.accessModel === 'paid-direct'  ? 'direct'  : undefined);
 
-  const purchaseType = (p as any).purchaseType as PurchaseType | undefined;
   const href =
-    !free && purchaseType === 'direct'
-      ? `/store/${p.id}`
-      : undefined;
+    p.accessModel === 'paid-direct' ? `/store/${p.id}` :
+    p.accessModel === 'paid-contact' && p.contactPath ? p.contactPath :
+    undefined;
 
   return {
     id: p.id,
     title: p.title,
     excerpt: p.subtitle ?? '',
-    cover,
+    cover: p.img ?? '/images/report-cover-fallback.jpg',
     badge,
-    year,
-    topic: undefined,
-    category: isSmallReport(p) ? 'Small Report' : isSirBundle(p) ? 'Flagship' : p.category,
+    year: (p.year as 2024 | 2025) ?? 2025,
+    // optional: map tags -> topic/category if you like:
+    topic: p.tags?.[0],
+    category: isSmallReport(p) ? (p.tags?.[1] ?? 'Small Report') : (isSirBundle(p) ? 'Flagship' : p.category),
     href,
     price: p.price,
     purchaseType,

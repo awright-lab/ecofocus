@@ -1,21 +1,23 @@
-// storeTypes.ts
+// catalog/storeTypes.ts
 export type PurchaseType = 'direct' | 'contact';
+export type AccessModel = 'free-gated' | 'free-open' | 'paid-direct' | 'paid-contact';
 
 export type Product = {
   id: string;
   title: string;
   subtitle?: string;
-  price?: number;                 // keep optional so contact-first items don't need a price
-  img: string;
-  category: 'Reports' | 'Bundles';
-  year?: number;
+  price?: number;
+  img?: string;
+  category: 'Bundles' | 'Reports';
+  year?: number;                 // keep flexible
   tags?: string[];
   includes?: string[];
-  badge?: string;
   variantNote?: string;
+  badge?: string;
+  purchaseType?: PurchaseType;   // legacy/for store
+  contactPath?: string;
+  ctaLabel?: string;
 
-  // NEW (optional)
-  purchaseType?: PurchaseType;    // 'direct' (default) or 'contact'
-  contactPath?: string;           // where to send users for discovery
-  ctaLabel?: string;              // optional override for contact CTA text
+  // Drives Free vs Paid behavior across the site (reports hub pages)
+  accessModel: AccessModel;
 };
