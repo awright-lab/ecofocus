@@ -13,6 +13,7 @@ import { toReportCardModel, isSmallReport, isSirBundle } from '@/lib/productUtil
 import type { ReportCardModel } from '@/types/reportModels';
 
 import { LayoutGrid, List, ArrowRight } from 'lucide-react';
+import PaidHero from './PaidHero';
 
 export default function PaidReportsPage() {
   const models: ReportCardModel[] = React.useMemo(() => {
@@ -35,6 +36,7 @@ export default function PaidReportsPage() {
   return (
     <>
       <Header />
+      <PaidHero />
 
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Reports', href: '/reports' }, { label: 'Paid' }]} />
 
