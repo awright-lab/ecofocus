@@ -50,6 +50,9 @@ export default async function ReportDetailPage({
   }
   const product = p;
 
+  // ✅ Ensure a concrete string for Next/Image
+  const cover: string = product.img ?? '/images/report-cover-fallback.jpg';
+
   // naive related: same year, not itself
   const related = SMALL_REPORTS
     .filter((r) => r.year === product.year && r.id !== product.id)
@@ -96,7 +99,8 @@ export default async function ReportDetailPage({
           {/* LEFT */}
           <div>
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border bg-white">
-              <Image src={product.img} alt={product.title} fill className="object-cover" />
+              {/* ✅ use guaranteed string */}
+              <Image src={cover} alt={product.title} fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
             </div>
 
@@ -132,25 +136,29 @@ export default async function ReportDetailPage({
                 <div className="h-1.5 w-24 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-marigold-500" />
                 <h2 className="mt-3 text-xl font-semibold">You might also like</h2>
                 <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                  {related.map((r) => (
-                    <Link
-                      href={`/reports/${r.id}`}
-                      key={r.id}
-                      className="group overflow-hidden rounded-xl border hover:shadow-sm transition"
-                    >
-                      <div className="relative aspect-[16/10]">
-                        <Image src={r.img} alt={r.title} fill className="object-cover" />
-                      </div>
-                      <div className="p-3">
-                        <div className="text-sm font-semibold group-hover:underline line-clamp-2">
-                          {r.title}
+                  {related.map((r) => {
+                    const relCover: string = r.img ?? '/images/report-cover-fallback.jpg';
+                    return (
+                      <Link
+                        href={`/reports/${r.id}`}
+                        key={r.id}
+                        className="group overflow-hidden rounded-xl border hover:shadow-sm transition"
+                      >
+                        <div className="relative aspect-[16/10]">
+                          {/* ✅ fallback for related cover too */}
+                          <Image src={relCover} alt={r.title} fill className="object-cover" />
                         </div>
-                        <div className="mt-1 text-xs text-gray-600">
-                          {typeof r.price === 'number' ? `$${r.price.toLocaleString()}` : '—'}
+                        <div className="p-3">
+                          <div className="text-sm font-semibold group-hover:underline line-clamp-2">
+                            {r.title}
+                          </div>
+                          <div className="mt-1 text-xs text-gray-600">
+                            {typeof r.price === 'number' ? `$${r.price.toLocaleString()}` : '—'}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             ) : null}
@@ -165,6 +173,7 @@ export default async function ReportDetailPage({
     </main>
   );
 }
+
 
 
 
