@@ -1,3 +1,4 @@
+// app/solutions/data-enrichment/page.tsx
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -23,6 +24,12 @@ export default function DataEnrichmentPage() {
 
   const contactHref = product.contactPath ?? `/contact?product=${product.id}`;
 
+  // ✅ Guarantee a concrete string for next/image + JSON-LD
+  const cover: string = product.img ?? "/images/report-cover-fallback.jpg";
+  const siteOrigin = "https://ecofocusresearch.netlify.app";
+  const absoluteCover =
+    cover.startsWith("http") ? cover : `${siteOrigin}${cover.startsWith("/") ? "" : "/"}${cover}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -32,12 +39,12 @@ export default function DataEnrichmentPage() {
       "Integrate EcoFocus data with your internal datasets for deeper analysis and activation.",
     provider: { "@type": "Organization", name: "EcoFocus Research" },
     areaServed: "US",
-    image: `https://ecofocusresearch.netlify.app${product.img}`,
+    image: absoluteCover, // ✅ always absolute and defined
     offers: {
       "@type": "Offer",
       priceCurrency: "USD",
       ...(typeof product.price === "number" ? { price: product.price } : {}),
-      url: "https://ecofocusresearch.netlify.app/solutions/data-enrichment",
+      url: `${siteOrigin}/solutions/data-enrichment`,
       availability: "https://schema.org/InStock",
     },
   };
@@ -102,7 +109,8 @@ export default function DataEnrichmentPage() {
           {/* LEFT */}
           <div>
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border bg-white">
-              <Image src={product.img} alt={product.title} fill className="object-cover" />
+              {/* ✅ use guaranteed string */}
+              <Image src={cover} alt={product.title} fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
             </div>
 
@@ -217,3 +225,4 @@ export default function DataEnrichmentPage() {
     </main>
   );
 }
+
