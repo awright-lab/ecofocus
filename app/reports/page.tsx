@@ -1,139 +1,171 @@
 // app/reports/page.tsx
 'use client';
 
-import { useMemo, useState } from 'react';
+import * as React from 'react';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
-import StoreHero from '@/app/reports/StoreHero';
-import FeaturedReport from '@/app/reports/FeaturedReport';
-// ⛔ Removed: FeaturedReportsSection (core offerings now live under /solutions)
+import ReportCard from '@/app/reports/ReportCard';
+import ReportFilters from '@/app/reports/ReportFilters';
+import FreeDownloadModal from '@/app/reports/FreeDownloadModal';
 
-import SmallReportsHeader from '@/app/reports/SmallReportsHeader';
-import SmallReportsFilterBar from '@/app/reports/SmallReportsFilterBar';
-import MetricsStrip from '@/app/reports/MetricsStrip';
-import ReportsGrid from '@/app/reports/SmallReportsGrid';
-import Pagination from '@/app/reports/Pagination';
-import CustomOption from '@/app/reports/CustomOption';
-
-import type { Product } from '@/lib/storeTypes';
 import { CATALOG } from '@/lib/catalog';
+import {
+  toReportCardModel,
+  isSmallReport,
+  isSirBundle,
+} from '@/lib/productUtils';
+
+import type { ReportCardModel } from '@/types/reportModels';
 
 export default function ReportsPage() {
-  // ----- Cart wiring (replace with your real cart integration) -----
-  const addToCart = (id: string) => {
-    // Hook this to your cart drawer/provider OR replace with startCheckout
-    console.log('Add to cart:', id);
-  };
+  const [tab, setTab] = React.useState<'Free' | 'Paid'>('Free');
 
-  // ----- Catalog + Derived Small Reports -----
-  const catalog: Product[] = useMemo(() => CATALOG as Product[], []);
-  const smallReports = useMemo(
-    () => catalog.filter((p) => p.category === 'Reports'),
-    [catalog]
+  // Build card models directly from the source of truth (catalog)
+  const models: ReportCardModel[] = React.useMemo(() => {
+    return CATALOG
+      .filter((p) => isSmallReport(p) || isSirBundle(p)) // small reports + SIR bundles
+      .map(toReportCardModel);                           // returns proper literal unions
+  }, []);
+
+  // Split by badge (business rule handled in toReportCardModel/isFreeOnHub)
+  const freeModels = React.useMemo(
+    () => models.filter((m) => m.badge === 'Free'),
+    [models]
+  );
+  const paidModels = React.useMemo(
+    () => models.filter((m) => m.badge === 'Paid'),
+    [models]
   );
 
-  const yearsAvailable = useMemo(() => {
-    const yrs = Array.from(new Set(smallReports.map((r) => r.year).filter(Boolean))) as number[];
-    return yrs.sort((a, b) => b - a);
-  }, [smallReports]);
+  // Active list and facets
+  const active = tab === 'Free' ? freeModels : paidModels;
 
-  // ----- Controlled Filters + Pagination -----
-  type Year = 'All' | number;
-  const [query, setQuery] = useState('');
-  const [year, setYear] = useState<Year>('All');
-  const [page, setPage] = useState(1);
+  // If you later map topics/categories from tags in productUtils, these will populate automatically
+  const topics = React.useMemo(
+    () => Array.from(new Set(active.map((r) => r.topic).filter(Boolean))) as string[],
+    [active]
+  );
+  const categories = React.useMemo(
+    () => Array.from(new Set(active.map((r) => r.category).filter(Boolean))) as string[],
+    [active]
+  );
 
-  const PAGE_SIZE = 6; // 2 x 3
+  // Filters
+  const [query, setQuery] = React.useState('');
+  const [topic, setTopic] = React.useState('All');
+  const [category, setCategory] = React.useState('All');
 
-  const filteredReports = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return smallReports.filter((p) => {
-      const qOk =
-        !q ||
-        p.title.toLowerCase().includes(q) ||
-        (p.subtitle ? p.subtitle.toLowerCase().includes(q) : false);
-      const yOk = year === 'All' || p.year === year;
-      return qOk && yOk;
+  const filtered = React.useMemo(() => {
+    return active.filter((r) => {
+      const matchesQ = [r.title, r.excerpt, r.topic, r.category]
+        .filter(Boolean)
+        .some((t) => t!.toLowerCase().includes(query.toLowerCase()));
+      const matchesTopic = topic === 'All' || r.topic === topic;
+      const matchesCat = category === 'All' || r.category === category;
+      return matchesQ && matchesTopic && matchesCat;
     });
-  }, [smallReports, query, year]);
+  }, [active, query, topic, category]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredReports.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  const pageSlice = filteredReports.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
-  );
+  // Modal for free downloads
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [activeReport, setActiveReport] = React.useState<ReportCardModel | undefined>(undefined);
 
-  // Reset page when filters change
-  const handleQuery = (v: string) => {
-    setQuery(v);
-    setPage(1);
+  const openDownload = (r: ReportCardModel) => {
+    setActiveReport(r);
+    setModalOpen(true);
   };
-  const handleYear = (v: Year) => {
-    setYear(v);
-    setPage(1);
+
+  // Contact-first paid flow (if any paid items use purchaseType='contact')
+  const onContact = (r: ReportCardModel) => {
+    window.location.href = `/contact?topic=report&id=${encodeURIComponent(r.id)}&year=${r.year}`;
   };
 
   return (
-    <main id="main" className="bg-white">
+    <>
       <Header />
 
-      {/* HERO */}
-      <StoreHero />
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Reports' }]} />
 
-      {/* Soft pointer to Solutions for program/services */}
-      <div className="container mx-auto px-4">
-        <div className="mb-6 rounded-xl border bg-gradient-to-r from-emerald-50 to-white p-3 text-sm">
-          Looking for the <b>2025 Study Buy-In</b> or <b>Data Enrichment</b>?&nbsp;
-          <a href="/solutions" className="text-emerald-700 font-semibold underline">
-            See Solutions &rarr;
-          </a>
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white">
+        <div className="mx-auto max-w-7xl px-6 py-12">
+          <h1 className="text-3xl md:text-4xl font-bold">Reports</h1>
+          <p className="mt-2 text-emerald-50 max-w-2xl">
+            Explore complimentary 2024 insights or purchase the latest 2025 reports.
+          </p>
+
+          {/* Tabs */}
+          <div className="mt-6 inline-flex rounded-full bg-white/10 p-1 ring-1 ring-white/20">
+            {(['Free', 'Paid'] as const).map((t) => {
+              const isActive = tab === t;
+              return (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`px-4 py-2 text-sm font-semibold rounded-full transition ${
+                    isActive ? 'bg-white text-emerald-800' : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  {t === 'Free' ? 'Free (2024)' : 'Paid (2025)'}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Single Featured Report (SIR) */}
-      <FeaturedReport
-        title="Sustainability Insights Report — 2024"
-        subtitle="Comprehensive US consumer sustainability attitudes and behaviors with demographic breakouts."
-        price={10000}
-        imageSrc="/images/store_sir2024.webp"
-        note="Includes read-only Dashboard access"
-        // If you want Stripe here, swap to startCheckout([{ id: 'sir-2024', qty: 1 }])
-        ctaPrimary={{ label: 'Add to cart', onClick: () => addToCart('sir-2024'), variant: 'primary' }}
-        // Use a safe contact link so this never 404s
-        ctaSecondary={{ label: 'Request sample pages', href: '/contact?product=sir-2024', variant: 'outline' }}
-      />
+      {/* Main */}
+      <main className="bg-white">
+        <section className="mx-auto max-w-7xl px-6 py-10">
+          <ReportFilters
+            query={query}
+            setQuery={setQuery}
+            topic={topic}
+            setTopic={setTopic}
+            category={category}
+            setCategory={setCategory}
+            topics={topics}
+            categories={categories}
+          />
 
-      <MetricsStrip />
+          <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((r) => (
+              <ReportCard
+                key={r.id}
+                r={r}
+                onFreeDownload={tab === 'Free' ? openDownload : undefined}
+                onContact={tab === 'Paid' ? onContact : undefined}
+              />
+            ))}
 
-      {/* Small Reports block */}
-      <SmallReportsHeader />
-      <SmallReportsFilterBar
-        query={query}
-        onQuery={handleQuery}
-        year={year}
-        onYear={handleYear}
-        yearsAvailable={yearsAvailable}
-      />
-
-      <ReportsGrid pageSlice={pageSlice} addToCart={addToCart} />
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPrev={() => setPage((p) => Math.max(1, p - 1))}
-        onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
-        onGoTo={(p) => setPage(p)}
-      />
-
-      {/* Custom Research CTA */}
-      <CustomOption />
+            {filtered.length === 0 && (
+              <div className="col-span-full rounded-xl border border-dashed border-gray-300 p-10 text-center text-gray-600">
+                No reports match your filters.
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
 
       <Footer />
-    </main>
+
+      {/* Gated download modal for free reports */}
+      <FreeDownloadModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        report={
+          activeReport
+            ? { id: activeReport.id, title: activeReport.title, fileUrl: undefined }
+            : undefined
+        }
+      />
+    </>
   );
 }
+
 
 
 
