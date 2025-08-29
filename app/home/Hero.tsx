@@ -18,7 +18,7 @@ const CTAS = [
 ];
 
 // ---- Media (set one or both; leave video empty to use image) ----
-const backgroundVideoUrl = ''; // e.g. '/media/hero-forest.mp4'
+const backgroundVideoUrl = 'https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/5655429-uhd_2562_1440_30fps.mp4'; // e.g. '/media/hero-forest.mp4'
 const backgroundImageUrl = '/images/hero-forest.jpg'; // put file in /public/images
 
 export default function Hero() {
