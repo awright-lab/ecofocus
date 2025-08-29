@@ -1,3 +1,4 @@
+// app/solutions/syndicated-study-2025/page.tsx
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -23,6 +24,12 @@ export default function SyndicatedStudy2025Page() {
 
   const contactHref = product.contactPath ?? `/contact?product=${product.id}`;
 
+  // ✅ Ensure concrete strings for <Image /> and JSON-LD
+  const cover: string = product.img ?? "/images/report-cover-fallback.jpg";
+  const siteOrigin = "https://ecofocusresearch.netlify.app";
+  const absoluteCover =
+    cover.startsWith("http") ? cover : `${siteOrigin}${cover.startsWith("/") ? "" : "/"}${cover}`;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -32,13 +39,12 @@ export default function SyndicatedStudy2025Page() {
       "Participate in EcoFocus 2025, add proprietary questions, and receive full study deliverables.",
     provider: { "@type": "Organization", name: "EcoFocus Research" },
     areaServed: "US",
-    image: `https://ecofocusresearch.netlify.app${product.img}`,
+    image: absoluteCover, // ✅ always defined & absolute
     offers: {
       "@type": "Offer",
       priceCurrency: "USD",
-      // For contact-first services, you can keep price or omit it.
       ...(typeof product.price === "number" ? { price: product.price } : {}),
-      url: "https://ecofocusresearch.netlify.app/solutions/syndicated-study-2025",
+      url: `${siteOrigin}/solutions/syndicated-study-2025`,
       availability: "https://schema.org/InStock",
     },
   };
@@ -103,7 +109,8 @@ export default function SyndicatedStudy2025Page() {
           {/* LEFT */}
           <div>
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border bg-white">
-              <Image src={product.img} alt={product.title} fill className="object-cover" />
+              {/* ✅ cover is guaranteed string */}
+              <Image src={cover} alt={product.title} fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
             </div>
 
@@ -219,3 +226,4 @@ export default function SyndicatedStudy2025Page() {
     </main>
   );
 }
+
