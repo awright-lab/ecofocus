@@ -22,21 +22,16 @@ interface Props {
 export default function CoreServices({ services }: Props) {
   const reduceMotion = useReducedMotion();
 
-  // —————————————————————————————————————————————
-  // Updated default “Solutions” (no duplicate Data Infusion)
-  // —————————————————————————————————————————————
+  // Updated defaults (same content; feel free to tweak)
   const fallback: Service[] = [
     {
       title: 'Dashboard Access',
-      description: 'Self-serve, real-time crosstabs and charts across 90k+ data points with 13 years of trends.',
+      description:
+        'Self-serve, real-time crosstabs and charts across 90k+ data points with 13 years of trends.',
       href: '/dashboard',
       icon: 'ri-dashboard-3-line',
       image: '/images/solutions-dashboard.png',
-      bullets: [
-        'Seat licensing with onboarding',
-        'Fast crosstabs, exports, charts',
-        'Always-on access for your team',
-      ],
+      bullets: ['Seat licensing with onboarding', 'Fast crosstabs, exports, charts', 'Always-on access for your team'],
     },
     {
       title: 'Syndicated Study Buy-In (2025)',
@@ -45,11 +40,7 @@ export default function CoreServices({ services }: Props) {
       href: '/solutions/syndicated-buy-in',
       icon: 'ri-bar-chart-2-line',
       image: '/images/solutions-syndicated.png',
-      bullets: [
-        '4,000+ U.S. respondents (Gen Pop)',
-        'Census-balanced; MoE ≈ ±1.55%',
-        'Add your own questions/modules',
-      ],
+      bullets: ['4,000+ U.S. respondents (Gen Pop)', 'Census-balanced; MoE ≈ ±1.55%', 'Add your own questions/modules'],
     },
     {
       title: 'Enhance Your Data (Data Lake Integration)',
@@ -58,11 +49,7 @@ export default function CoreServices({ services }: Props) {
       href: '/solutions/enhance-your-data',
       icon: 'ri-database-2-line',
       image: '/images/solutions-enhance.png',
-      bullets: [
-        'Raw files or secure data share',
-        'Schema mapping & QA support',
-        'Optional dashboard overlay',
-      ],
+      bullets: ['Raw files or secure data share', 'Schema mapping & QA support', 'Optional dashboard overlay'],
     },
     {
       title: 'Custom Research',
@@ -71,13 +58,8 @@ export default function CoreServices({ services }: Props) {
       href: '/solutions/custom',
       icon: 'ri-flask-line',
       image: '/images/solutions-custom.png',
-      bullets: [
-        'Quant & qual study design',
-        'Rapid polls & deep dives',
-        'Executive-ready storytelling',
-      ],
+      bullets: ['Quant & qual study design', 'Rapid polls & deep dives', 'Executive-ready storytelling'],
     },
-    // Consulting intentionally omitted
   ];
 
   // Filter out any item titled exactly "Consulting" (case-insensitive)
@@ -85,25 +67,34 @@ export default function CoreServices({ services }: Props) {
 
   return (
     <section aria-labelledby="core-services-heading" className="relative bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10 md:py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 md:py-16">
         {/* Eyebrow + Heading */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: -10 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.6 }}
           transition={{ duration: 0.5 }}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide"
+          className="mb-3 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide"
         >
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
           <span className="text-black/60">Core Services</span>
         </motion.div>
 
-        <h2
-          id="core-services-heading"
-          className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
-        >
-          Solutions
-        </h2>
+        <div className="flex items-end justify-between gap-4">
+          <h2
+            id="core-services-heading"
+            className="font-extrabold leading-tight text-gray-900 text-[clamp(1.9rem,5vw,2.75rem)]"
+          >
+            Solutions
+          </h2>
+          {/* optional page-level CTA */}
+          <Link
+            href="/contact"
+            className="hidden md:inline-block rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 transition"
+          >
+            Talk to an Expert
+          </Link>
+        </div>
         <p className="mt-2 text-sm sm:text-base text-gray-600">
           Choose the path that fits your goals—then scale from insights to action.
         </p>
@@ -111,7 +102,7 @@ export default function CoreServices({ services }: Props) {
         {/* ======= MOBILE: Carousel / Slideshow (md:hidden) ======= */}
         <MobileCarousel items={items} />
 
-        {/* ======= DESKTOP/TABLET: 4-up grid with IMAGE AS TOP HALF ======= */}
+        {/* ======= DESKTOP/TABLET: POWER GRID ======= */}
         <div className="hidden md:grid grid-cols-4 gap-6 md:gap-8 mt-8">
           {items.map((s, i) => (
             <motion.article
@@ -121,60 +112,103 @@ export default function CoreServices({ services }: Props) {
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.45, delay: i * 0.06 }}
               className="
-                group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm
-                transition hover:border-emerald-300 hover:shadow-md
-                grid grid-rows-[1fr_1fr] h-[460px]
+                group relative overflow-hidden rounded-2xl border border-gray-200 bg-white
+                shadow-sm hover:shadow-xl hover:border-emerald-300 focus-within:shadow-xl
+                transition
               "
             >
-              {/* Top half = image */}
-              <div className="relative overflow-hidden">
+              {/* Image with overlayed title (hero-style) */}
+              <div className="relative h-[220px] overflow-hidden">
                 {s.image ? (
                   <Image
                     src={s.image}
                     alt={s.title}
                     fill
                     sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 24vw, (min-width: 768px) 33vw"
-                    className="object-cover"
+                    className="object-cover transition duration-500 group-hover:scale-[1.06]"
                     priority={i < 2}
                   />
                 ) : (
                   <div className="h-full w-full bg-emerald-50" />
                 )}
-              </div>
 
-              {/* Bottom half = body */}
-              <div className="p-5 flex flex-col">
-                <div className="flex items-start gap-3">
-                  {s.icon ? (
-                    <i aria-hidden="true" className={`${s.icon} text-3xl text-emerald-600`} />
-                  ) : (
-                    <span className="mt-1 h-6 w-6 rounded-md bg-emerald-600" aria-hidden="true" />
-                  )}
-                  <h3 className="text-lg font-semibold text-gray-900">{s.title}</h3>
+                {/* Scrim + Title */}
+                <div
+                  className="
+                    absolute inset-x-0 bottom-0 p-4 sm:p-5
+                    bg-gradient-to-t from-black/60 via-black/20 to-transparent
+                  "
+                >
+                  <div className="flex items-center gap-2">
+                    {s.icon ? (
+                      <i aria-hidden="true" className={`${s.icon} text-xl sm:text-2xl text-emerald-300`} />
+                    ) : (
+                      <span className="h-5 w-5 rounded-md bg-emerald-400/90" aria-hidden="true" />
+                    )}
+                    <h3
+                      className="
+                        text-white font-extrabold tracking-tight
+                        text-[clamp(1.1rem,2.2vw,1.5rem)]
+                        drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]
+                      "
+                    >
+                      {s.title}
+                    </h3>
+                  </div>
                 </div>
 
-                <p className="mt-2 text-sm text-gray-700 line-clamp-3">{s.description}</p>
+                {/* Glow ring on hover */}
+                <div
+                  className="
+                    pointer-events-none absolute inset-0 rounded-2xl ring-0 ring-emerald-400/0
+                    group-hover:ring-4 group-hover:ring-emerald-400/20 transition
+                  "
+                  aria-hidden="true"
+                />
+              </div>
+
+              {/* Body */}
+              <div className="p-5 flex flex-col gap-3">
+                <p className="text-[15px] text-gray-800">
+                  {s.description}
+                </p>
 
                 {s.bullets && s.bullets.length > 0 && (
-                  <ul className="mt-3 space-y-1.5">
+                  <ul className="mt-1 grid gap-1.5">
                     {s.bullets.slice(0, 3).map((b) => (
                       <li key={b} className="flex gap-2 text-sm text-gray-700">
-                        <span className="mt-1 h-2 w-2 rounded-full bg-[#ef9601]" />
+                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#ef9601]" />
                         <span className="line-clamp-1">{b}</span>
                       </li>
                     ))}
                   </ul>
                 )}
 
-                {s.href && (
-                  <Link
-                    href={s.href}
-                    className="mt-auto inline-block text-sm font-semibold text-emerald-700"
-                    aria-label={`Learn more about ${s.title}`}
-                  >
-                    Learn more →
-                  </Link>
-                )}
+                {/* Primary CTA (button) + Secondary (text link) */}
+                <div className="mt-2 flex items-center gap-3">
+                  {s.href && (
+                    <>
+                      <Link
+                        href={s.href}
+                        className="
+                          inline-flex items-center justify-center rounded-full px-4 py-2
+                          text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700
+                          transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600
+                        "
+                        aria-label={`Learn more about ${s.title}`}
+                      >
+                        Learn more
+                      </Link>
+                      <Link
+                        href={s.href}
+                        className="hidden lg:inline-block text-sm font-semibold text-emerald-700 hover:text-emerald-800"
+                        aria-label={`View details for ${s.title}`}
+                      >
+                        Details →
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
             </motion.article>
           ))}
@@ -245,10 +279,7 @@ function MobileCarousel({ items }: { items: Service[] }) {
   return (
     <div className="md:hidden mt-6" role="region" aria-label="Core services carousel">
       {/* Viewport */}
-      <div
-        className="relative overflow-hidden rounded-xl border border-gray-200 bg-white"
-        aria-roledescription="carousel"
-      >
+      <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white" aria-roledescription="carousel">
         {/* Track */}
         <div
           ref={trackRef}
@@ -268,32 +299,44 @@ function MobileCarousel({ items }: { items: Service[] }) {
               aria-label={`Slide ${i + 1} of ${count}: ${s.title}`}
             >
               <article className="overflow-hidden">
-                {/* Image as top section */}
-                {s.image && (
-                  <div className="relative aspect-[16/9]">
+                {/* Image */}
+                <div className="relative aspect-[16/9] overflow-hidden">
+                  {s.image ? (
                     <Image src={s.image} alt={s.title} fill sizes="92vw" className="object-cover" />
+                  ) : (
+                    <div className="h-full w-full bg-emerald-50" />
+                  )}
+
+                  {/* Scrim + Title */}
+                  <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
+                    <div className="flex items-center gap-2">
+                      {s.icon ? (
+                        <i aria-hidden="true" className={`${s.icon} text-xl text-emerald-300`} />
+                      ) : (
+                        <span className="h-5 w-5 rounded-md bg-emerald-400/90" aria-hidden="true" />
+                      )}
+                      <h3 className="text-white font-extrabold tracking-tight text-lg drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">
+                        {s.title}
+                      </h3>
+                    </div>
                   </div>
-                )}
+                </div>
 
                 {/* Body */}
                 <div className="p-4">
-                  <div className="flex items-center gap-3">
-                    {s.icon ? (
-                      <i aria-hidden="true" className={`${s.icon} text-2xl text-emerald-600`} />
-                    ) : (
-                      <span className="h-5 w-5 rounded-md bg-emerald-600" aria-hidden="true" />
-                    )}
-                    <h3 className="text-base font-semibold text-gray-900">{s.title}</h3>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-700 line-clamp-3">{s.description}</p>
+                  <p className="text-sm text-gray-800">{s.description}</p>
 
                   {s.href && (
                     <Link
                       href={s.href}
-                      className="mt-4 inline-block text-sm font-semibold text-emerald-700"
+                      className="
+                        mt-4 inline-flex items-center justify-center rounded-full px-4 py-2
+                        text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700
+                        transition
+                      "
                       aria-label={`Learn more about ${s.title}`}
                     >
-                      Learn more →
+                      Learn more
                     </Link>
                   )}
                 </div>

@@ -1,117 +1,123 @@
-// app/components/Hero/index.tsx (server component)
-import HeroContent from './HeroContent';
+'use client';
 
-export interface HeroData {
-  headline: string;
-  subheadline: string;
-  highlightedWord?: string;
-  description: string;
-  backgroundImage?: { url: string } | null;
-  backgroundVideo?: { url: string } | null;
-  ctaButtons?: { id: string; label: string; url: string }[];
-}
+import { motion, useReducedMotion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
 
-// If you want no caching at all:
-export const revalidate = 0;            // or: export const dynamic = 'force-dynamic';
+// ---- Hard-coded content ----
+const SUBHEAD = 'EcoFocus';
+const H1_LEFT = 'Market Research';
+const H1_HIGHLIGHT = 'Insights into';
+const H1_BOTTOM = 'Sustainability';
+const DESCRIPTION =
+  'Your Best Resource for Sustainability Research with Actionable Insights';
 
-const CMS_BASE =
-  (process.env.NEXT_PUBLIC_CMS_URL || '').replace(/\/$/, ''); // strip trailing slash
+const CTAS = [
+  { id: 'dash', label: 'Explore Dashboard Demo', url: '/dashboard-demo' },
+  { id: 'help', label: 'How We Can Help', url: '/solutions' },
+];
 
-function resolveUrl(u?: string | null): string | null {
-  if (!u) return null;
-  // If CMS returns relative paths, prepend base
-  return /^https?:\/\//i.test(u) ? u : `${CMS_BASE}${u.startsWith('/') ? '' : '/'}${u}`;
-}
+// ---- Media (set one or both; leave video empty to use image) ----
+const backgroundVideoUrl = ''; // e.g. '/media/hero-forest.mp4'
+const backgroundImageUrl = '/images/hero-forest.jpg'; // put file in /public/images
 
-async function fetchMediaById(id: string | number): Promise<{ url: string } | null> {
-  try {
-    if (!CMS_BASE) return null;
-    const res = await fetch(`${CMS_BASE}/api/media/${id}`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    const media = await res.json();
-    const url = resolveUrl(media?.url);
-    return url ? { url } : null;
-  } catch (err) {
-    console.error('[Hero] Error fetching media by id:', err);
-    return null;
-  }
-}
-
-async function getHeroData(): Promise<HeroData | null> {
-  try {
-    if (!CMS_BASE) return null;
-    const res = await fetch(
-      `${CMS_BASE}/api/hero-section?limit=1&depth=2&overrideAccess=true`,
-      { cache: 'no-store' }
-    );
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    const doc = data?.docs?.[0];
-    if (!doc) return null;
-
-    // Derive raw URLs/IDs from doc for both media
-    const rawVideo =
-      doc.backgroundVideo && typeof doc.backgroundVideo === 'object' && doc.backgroundVideo.url
-        ? resolveUrl(doc.backgroundVideo.url)
-        : null;
-
-    const rawVideoId =
-      !rawVideo && (typeof doc.backgroundVideo === 'string' || typeof doc.backgroundVideo === 'number')
-        ? (doc.backgroundVideo as string | number)
-        : null;
-
-    const rawImage =
-      doc.backgroundImage && typeof doc.backgroundImage === 'object' && doc.backgroundImage.url
-        ? resolveUrl(doc.backgroundImage.url)
-        : null;
-
-    const rawImageId =
-      !rawImage && (typeof doc.backgroundImage === 'string' || typeof doc.backgroundImage === 'number')
-        ? (doc.backgroundImage as string | number)
-        : null;
-
-    // Fetch both in parallel (IDs only)
-    const [videoFromId, imageFromId] = await Promise.all([
-      rawVideo ? Promise.resolve(null) : rawVideoId ? fetchMediaById(rawVideoId) : Promise.resolve(null),
-      rawImage ? Promise.resolve(null) : rawImageId ? fetchMediaById(rawImageId) : Promise.resolve(null),
-    ]);
-
-    const backgroundVideo = (rawVideo || videoFromId?.url) ? { url: (rawVideo || videoFromId?.url)! } : null;
-    const backgroundImage = (rawImage || imageFromId?.url) ? { url: (rawImage || imageFromId?.url)! } : null;
-
-    return {
-      headline: doc.headline,
-      subheadline: doc.subheadline,
-      highlightedWord: doc.highlightedWord,
-      description: doc.description,
-      backgroundImage,
-      backgroundVideo,
-      ctaButtons: doc.ctaButtons || [],
-    };
-  } catch (err) {
-    console.error('[Hero] Error fetching Hero data:', err);
-    return null;
-  }
-}
-
-export default async function Hero() {
-  const heroData = await getHeroData();
+export default function Hero() {
+  const reduceMotion = useReducedMotion();
 
   return (
-    <section>
-      {!heroData ? (
-        <div className="min-h-[60svh] md:min-h-[70vh] lg:min-h-[80vh] flex items-center justify-center bg-gray-900 text-white">
-          <p>Loading hero section...</p>
-        </div>
-      ) : (
-        // HeroContent already handles responsive text, overlay, buttons
-        // It will also use backgroundImage as a poster fallback if you add poster there.
-        <HeroContent heroData={heroData} />
-      )}
+    <section className="relative isolate overflow-hidden bg-neutral-950 text-white">
+      {/* Background layer */}
+      <div className="absolute inset-0 -z-10">
+        {backgroundVideoUrl ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          >
+            <source src={backgroundVideoUrl} />
+          </video>
+        ) : backgroundImageUrl ? (
+          <Image
+            src={backgroundImageUrl}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            aria-hidden="true"
+            className="absolute inset-0 object-cover"
+          />
+        ) : null}
+
+        {/* Gradient overlay */}
+        <div
+          aria-hidden="true"
+          className={[
+            'absolute inset-0',
+            'bg-gradient-to-br from-emerald-900/50 to-blue-900/50',
+            'md:from-emerald-900/90 md:to-blue-900/90',
+            'md:[clip-path:polygon(0%_0%,_40%_0%,_70%_100%,_0%_100%)]',
+            'z-10',
+          ].join(' ')}
+        />
+      </div>
+
+      {/* Foreground content */}
+      <div className="
+        mx-auto max-w-7xl px-4 sm:px-6
+        min-h-[60svh] md:min-h-[65vh] lg:min-h-[70vh] xl:min-h-[65vh]
+        flex items-center
+        py-8 sm:py-10 md:py-14
+      ">
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-2xl"
+        >
+          {/* Pill */}
+          <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] sm:text-xs">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="opacity-90">{SUBHEAD}</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="font-bold text-[clamp(1.75rem,6vw,3rem)] leading-snug">
+            {H1_LEFT}
+            <br />
+            {H1_HIGHLIGHT}{' '}
+            <span className="bg-gradient-to-r from-emerald-400 to-sky-400 bg-clip-text text-transparent">
+              {H1_BOTTOM}
+            </span>
+          </h1>
+
+          {/* Description */}
+          <p className="mt-3 text-sm sm:text-base text-white/90">
+            {DESCRIPTION}
+          </p>
+
+          {/* CTAs */}
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            {CTAS.map((btn) => (
+              <Link
+                key={btn.id}
+                href={btn.url}
+                className="rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white"
+              >
+                {btn.label}
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </section>
   );
 }
+
 
 
 
