@@ -26,7 +26,7 @@ interface Props {
 export default function CoreServices({ services }: Props) {
   const reduceMotion = useReducedMotion();
 
-  // Default content (edit freely)
+  // === Clean, short labels + hooks ===
   const fallback: Service[] = [
     {
       title: 'Interactive Dashboard',
@@ -68,7 +68,7 @@ export default function CoreServices({ services }: Props) {
     },
     {
       title: 'Custom Studies',
-      kicker: 'Answer the exact questions.',
+      kicker: 'Answer your exact questions.',
       description:
         'Audience-specific surveys, concept tests, and packaging/claims validation—designed to answer your exact questions.',
       href: '/solutions/custom',
@@ -105,10 +105,10 @@ export default function CoreServices({ services }: Props) {
           Choose the path that fits your goals—then scale from insights to action.
         </p>
 
-        {/* Mobile carousel */}
+        {/* Mobile carousel (same row skeleton to stop height jumps) */}
         <MobileCarousel items={items} />
 
-        {/* Desktop / Tablet grid */}
+        {/* Desktop / Tablet grid (column baselines locked) */}
         <div className="hidden md:grid grid-cols-4 gap-6 md:gap-8 mt-8">
           {items.map((s, i) => (
             <motion.article
@@ -118,30 +118,30 @@ export default function CoreServices({ services }: Props) {
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: 0.45, delay: i * 0.06 }}
               className="
-                group relative flex h-full flex-col overflow-hidden
-                rounded-xl border border-gray-200 bg-white shadow-sm
-                transition hover:border-emerald-300 hover:shadow-md
+                group relative h-full overflow-hidden rounded-xl border border-gray-200 bg-white
+                shadow-sm transition hover:border-emerald-300 hover:shadow-md
+                grid grid-rows-[auto_176px_auto_1fr_auto]
               "
             >
-              {/* Title + Kicker */}
+              {/* 1) Title + Kicker */}
               <div className="p-5">
-                <h3 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900">{s.title}</h3>
-                {s.kicker && (
-                  <div className="mt-1 flex items-center gap-2 text-sm text-emerald-700">
-                    {s.icon ? <i aria-hidden className={`${s.icon} text-base`} /> : null}
-                    <span className="font-medium">{s.kicker}</span>
-                  </div>
-                )}
+                <h3 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900 line-clamp-2 min-h-[2.75rem]">
+                  {s.title}
+                </h3>
+                <div className="mt-1 flex items-center gap-2 text-sm text-emerald-700 line-clamp-1 min-h-[1.25rem]">
+                  {s.icon ? <i aria-hidden className={`${s.icon} text-base`} /> : null}
+                  <span>{s.kicker ?? '\u00A0'}</span>
+                </div>
               </div>
 
-              {/* Image (consistent height to align cards) */}
-              <div className="relative h-44 w-full overflow-hidden">
+              {/* 2) Image (fixed height) */}
+              <div className="relative h-[176px] w-full overflow-hidden">
                 {s.image ? (
                   <Image
                     src={s.image}
                     alt={s.title}
                     fill
-                    sizes="(min-width: 1280px) 20vw, (min-width: 1024px) 24vw, (min-width: 768px) 33vw"
+                    sizes="(min-width:1280px)20vw,(min-width:1024px)24vw,(min-width:768px)33vw"
                     className="object-cover transition duration-500 group-hover:scale-[1.04]"
                     priority={i < 2}
                   />
@@ -150,13 +150,15 @@ export default function CoreServices({ services }: Props) {
                 )}
               </div>
 
-              {/* Description + Bullets + CTA */}
-              <div className="flex flex-1 flex-col p-5">
-                <p className="text-[15px] text-gray-800">{s.description}</p>
+              {/* 3) Description (reserve space for 3 lines) */}
+              <div className="px-5 pt-4">
+                <p className="text-[15px] text-gray-800 line-clamp-3 min-h-[3.6rem]">{s.description}</p>
+              </div>
 
-                {s.bullets && s.bullets.length > 0 && (
-                  // fixed min-height so bullets area lines up across cards
-                  <ul className="mt-3 grid gap-1.5 min-h-[84px]">
+              {/* 4) Bullets (fills the flexible row) */}
+              <div className="px-5 pt-3 pb-1">
+                {s.bullets && s.bullets.length > 0 ? (
+                  <ul className="grid gap-1.5">
                     {s.bullets.slice(0, 3).map((b) => (
                       <li key={b} className="flex gap-2 text-sm text-gray-700">
                         <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#ef9601]" />
@@ -164,16 +166,17 @@ export default function CoreServices({ services }: Props) {
                       </li>
                     ))}
                   </ul>
+                ) : (
+                  <div className="min-h-[3.5rem]" />
                 )}
+              </div>
 
+              {/* 5) CTA (shared baseline) */}
+              <div className="p-5 pt-0">
                 {s.href && (
                   <Link
                     href={s.href}
-                    className="
-                      mt-auto inline-flex items-center justify-center rounded-full px-4 py-2
-                      text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700
-                      transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600
-                    "
+                    className="inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
                     aria-label={`Learn more about ${s.title}`}
                   >
                     Learn more
@@ -188,7 +191,7 @@ export default function CoreServices({ services }: Props) {
   );
 }
 
-/* =============== Mobile Carousel (stacked layout) =============== */
+/* ================== Mobile Carousel (aligned rows, no jump) ================== */
 function MobileCarousel({ items }: { items: Service[] }) {
   const reduceMotion = useReducedMotion();
   const [index, setIndex] = React.useState(0);
@@ -267,20 +270,22 @@ function MobileCarousel({ items }: { items: Service[] }) {
               aria-roledescription="slide"
               aria-label={`Slide ${i + 1} of ${count}: ${s.title}`}
             >
-              <article className="flex h-full flex-col overflow-hidden">
+              <article
+                className="
+                  grid grid-rows-[auto_160px_auto_1fr_auto] h-full
+                "
+              >
                 {/* Title + Kicker */}
                 <div className="p-4">
-                  <h3 className="text-lg font-bold text-gray-900">{s.title}</h3>
-                  {s.kicker && (
-                    <div className="mt-1 flex items-center gap-2 text-sm text-emerald-700">
-                      {s.icon ? <i aria-hidden className={`${s.icon} text-base`} /> : null}
-                      <span className="font-medium">{s.kicker}</span>
-                    </div>
-                  )}
+                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2 min-h-[2.5rem]">{s.title}</h3>
+                  <div className="mt-1 flex items-center gap-2 text-sm text-emerald-700 line-clamp-1 min-h-[1.25rem]">
+                    {s.icon ? <i aria-hidden className={`${s.icon} text-base`} /> : null}
+                    <span>{s.kicker ?? '\u00A0'}</span>
+                  </div>
                 </div>
 
-                {/* Image */}
-                <div className="relative aspect-[16/9] w-full overflow-hidden">
+                {/* Image (fixed height) */}
+                <div className="relative h-[160px] w-full overflow-hidden">
                   {s.image ? (
                     <Image src={s.image} alt={s.title} fill sizes="92vw" className="object-cover" />
                   ) : (
@@ -288,12 +293,15 @@ function MobileCarousel({ items }: { items: Service[] }) {
                   )}
                 </div>
 
-                {/* Description + Bullets + CTA */}
-                <div className="flex flex-1 flex-col p-4">
-                  <p className="text-sm text-gray-800">{s.description}</p>
+                {/* Description (3-line reserve) */}
+                <div className="px-4 pt-3">
+                  <p className="text-sm text-gray-800 line-clamp-3 min-h-[3.4rem]">{s.description}</p>
+                </div>
 
-                  {s.bullets && s.bullets.length > 0 && (
-                    <ul className="mt-3 grid gap-1.5 min-h-[84px]">
+                {/* Bullets (fills) */}
+                <div className="px-4 pt-2 pb-1">
+                  {s.bullets && s.bullets.length > 0 ? (
+                    <ul className="grid gap-1.5">
                       {s.bullets.slice(0, 3).map((b) => (
                         <li key={b} className="flex gap-2 text-sm text-gray-700">
                           <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#ef9601]" />
@@ -301,12 +309,17 @@ function MobileCarousel({ items }: { items: Service[] }) {
                         </li>
                       ))}
                     </ul>
+                  ) : (
+                    <div className="min-h-[3rem]" />
                   )}
+                </div>
 
+                {/* CTA (baseline aligned) */}
+                <div className="p-4 pt-0">
                   {s.href && (
                     <Link
                       href={s.href}
-                      className="mt-auto inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition"
+                      className="inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition"
                       aria-label={`Learn more about ${s.title}`}
                     >
                       Learn more
