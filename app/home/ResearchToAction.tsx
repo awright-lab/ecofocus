@@ -30,11 +30,15 @@ export default function ResearchToAction({ variant = 'rotator' }: { variant?: Va
 const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisions'];
 
 function Rotator({ reduce }: { reduce: boolean }) {
+  // Tuneables
+  const ROTATE_MS = 3200;        // how long each word stays on screen
+  const ANIM_SEC  = 1.1;         // in/out animation length
+
   const [idx, setIdx] = React.useState(0);
 
   React.useEffect(() => {
     if (reduce) return;
-    const id = setInterval(() => setIdx((i) => (i + 1) % WORDS.length), 1600);
+    const id = setInterval(() => setIdx(i => (i + 1) % WORDS.length), ROTATE_MS);
     return () => clearInterval(id);
   }, [reduce]);
 
@@ -44,44 +48,45 @@ function Rotator({ reduce }: { reduce: boolean }) {
         From Research to Action
       </p>
 
-      <div className="relative h-[3.5em] sm:h-[4.2em] md:h-[4.6em]">
+      {/* More vertical room + no clipping */}
+      <div className="relative overflow-visible
+                      min-h-[5.8rem] sm:min-h-[7.2rem] md:min-h-[8.4rem] lg:min-h-[9.6rem]">
         <AnimatePresence mode="wait">
           <motion.h2
             key={idx}
-            initial={reduce ? false : { opacity: 0, scale: 0.88, filter: 'blur(6px)' }}
-            animate={reduce ? { opacity: 1, scale: 1 } : { opacity: 1, scale: [0.94, 1.02, 1], filter: ['blur(6px)','blur(0px)','blur(0px)'] }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.08, filter: 'blur(8px)' }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="absolute inset-0 flex items-center justify-center font-extrabold leading-none
-                       text-[clamp(2rem,8vw,5rem)]"
+            initial={
+              reduce ? false : { opacity: 0, scale: 0.9, filter: 'blur(10px)' }
+            }
+            animate={
+              reduce
+                ? { opacity: 1, scale: 1 }
+                : {
+                    opacity: 1,
+                    scale: [0.96, 1.06, 1.0],
+                    filter: ['blur(10px)', 'blur(2px)', 'blur(0px)'],
+                  }
+            }
+            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.05, filter: 'blur(8px)' }}
+            transition={{ duration: ANIM_SEC, ease: [0.2, 0.8, 0.2, 1] }}
+            className="absolute inset-0 flex items-center justify-center font-extrabold tracking-tight
+                       leading-[0.95] text-[clamp(2.25rem,9vw,6rem)]
+                       bg-gradient-to-r from-emerald-300 via-sky-300 to-amber-300
+                       bg-clip-text text-transparent
+                       drop-shadow-[0_1px_12px_rgba(16,185,129,0.25)]"
             aria-live="polite"
           >
-            <span className="bg-gradient-to-r from-emerald-300 via-sky-300 to-amber-300 bg-clip-text text-transparent drop-shadow-[0_1px_12px_rgba(16,185,129,0.25)]">
-              {WORDS[idx]}
-            </span>
+            {WORDS[idx]}
           </motion.h2>
         </AnimatePresence>
       </div>
 
-      {/* Progress dots */}
-      <div className="mt-6 flex gap-2">
-        {WORDS.map((_, i) => (
-          <span
-            key={i}
-            className={`h-2.5 w-2.5 rounded-full transition ${
-              i === idx ? 'bg-emerald-400' : 'bg-white/20'
-            }`}
-            aria-hidden
-          />
-        ))}
-      </div>
-
-      {/* Subline (optional) */}
+      {/* removed: progress dots */}
+      {/* optional subline kept */}
       <div className="mt-6 hidden sm:flex items-center gap-2 text-white/60">
         <span>We turn</span>
         <span className="inline-flex items-center gap-2">
           <em className="not-italic text-white/90">research</em>
-          <ArrowRight className="h-4 w-4" />
+          <svg width="16" height="16" viewBox="0 0 24 24" className="opacity-80"><path fill="currentColor" d="M13 5l7 7l-7 7v-5H4v-4h9z"/></svg>
           <em className="not-italic text-white/90">action</em>
         </span>
       </div>
