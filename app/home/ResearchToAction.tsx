@@ -30,14 +30,14 @@ export default function ResearchToAction({ variant = 'rotator' }: { variant?: Va
 const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisions'];
 
 function Rotator({ reduce }: { reduce: boolean }) {
-  // Tuneables
-  const ROTATE_MS = 3200;        // how long each word stays on screen
-  const ANIM_SEC  = 1.1;         // in/out animation length
+  // pacing
+  const ROTATE_MS = 3600; // how long each word stays
+  const ANIM_SEC  = 1.1;  // in/out animation time
 
   const [idx, setIdx] = React.useState(0);
 
   React.useEffect(() => {
-    if (reduce) return;
+    if (reduce) return; // static if user prefers reduced motion
     const id = setInterval(() => setIdx(i => (i + 1) % WORDS.length), ROTATE_MS);
     return () => clearInterval(id);
   }, [reduce]);
@@ -48,40 +48,31 @@ function Rotator({ reduce }: { reduce: boolean }) {
         From Research to Action
       </p>
 
-      {/* More vertical room + no clipping */}
-      <div className="relative overflow-visible
-                      min-h-[5.8rem] sm:min-h-[7.2rem] md:min-h-[8.4rem] lg:min-h-[9.6rem]">
+      {/* more vertical room; no clipping */}
+      <div className="relative overflow-visible min-h-[6.5rem] sm:min-h-[8.5rem] md:min-h-[10rem]">
         <AnimatePresence mode="wait">
-          <motion.h2
+          {/* animate a WRAPPER (no blur on the gradient text element) */}
+          <motion.div
             key={idx}
-            initial={
-              reduce ? false : { opacity: 0, scale: 0.9, filter: 'blur(10px)' }
-            }
-            animate={
-              reduce
-                ? { opacity: 1, scale: 1 }
-                : {
-                    opacity: 1,
-                    scale: [0.96, 1.06, 1.0],
-                    filter: ['blur(10px)', 'blur(2px)', 'blur(0px)'],
-                  }
-            }
-            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.05, filter: 'blur(8px)' }}
+            initial={reduce ? false : { opacity: 0, scale: 0.9 }}
+            animate={reduce ? { opacity: 1, scale: 1 } : { opacity: 1, scale: [0.96, 1.06, 1] }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.05 }}
             transition={{ duration: ANIM_SEC, ease: [0.2, 0.8, 0.2, 1] }}
-            className="absolute inset-0 flex items-center justify-center font-extrabold tracking-tight
-                       leading-[0.95] text-[clamp(2.25rem,9vw,6rem)]
-                       bg-gradient-to-r from-emerald-300 via-sky-300 to-amber-300
-                       bg-clip-text text-transparent
-                       drop-shadow-[0_1px_12px_rgba(16,185,129,0.25)]"
-            aria-live="polite"
+            className="absolute inset-0 flex items-center justify-center will-change-transform will-change-opacity"
           >
-            {WORDS[idx]}
-          </motion.h2>
+            <span
+              className="font-extrabold tracking-tight leading-[0.95]
+                         text-[clamp(2.25rem,9vw,6rem)]
+                         bg-gradient-to-r from-emerald-300 via-sky-300 to-amber-300
+                         bg-clip-text text-transparent"
+            >
+              {WORDS[idx]}
+            </span>
+          </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* removed: progress dots */}
-      {/* optional subline kept */}
+      {/* subline stays */}
       <div className="mt-6 hidden sm:flex items-center gap-2 text-white/60">
         <span>We turn</span>
         <span className="inline-flex items-center gap-2">
