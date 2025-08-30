@@ -1,4 +1,4 @@
-// app/home/CoreServices.tsx
+// app/components/CoreServices.tsx
 'use client';
 
 import * as React from 'react';
@@ -8,14 +8,11 @@ import { motion, useReducedMotion } from 'framer-motion';
 
 type Service = {
   title: string;
-  /** Short secondary line under the title (6–10 words) */
   kicker?: string;
-  /** One-sentence description */
   description: string;
   href?: string;
   image?: string;
   bullets?: string[];
-  /** Optional icon class (e.g., remixicon), used next to kicker */
   icon?: string;
 };
 
@@ -26,7 +23,6 @@ interface Props {
 export default function CoreServices({ services }: Props) {
   const reduceMotion = useReducedMotion();
 
-  // === Clean, short labels + hooks ===
   const fallback: Service[] = [
     {
       title: 'Interactive Dashboard',
@@ -83,17 +79,10 @@ export default function CoreServices({ services }: Props) {
   return (
     <section aria-labelledby="core-services-heading" className="relative bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10 md:py-16">
-        {/* Eyebrow */}
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.5 }}
-          className="mb-3 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide"
-        >
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
           <span className="text-black/60">Core Services</span>
-        </motion.div>
+        </div>
 
         <h2
           id="core-services-heading"
@@ -105,10 +94,10 @@ export default function CoreServices({ services }: Props) {
           Choose the path that fits your goals—then scale from insights to action.
         </p>
 
-        {/* Mobile carousel (same row skeleton to stop height jumps) */}
+        {/* Mobile carousel */}
         <MobileCarousel items={items} />
 
-        {/* Desktop / Tablet grid (column baselines locked) */}
+        {/* Desktop / Tablet grid */}
         <div className="hidden md:grid grid-cols-4 gap-6 md:gap-8 mt-8">
           {items.map((s, i) => (
             <motion.article
@@ -123,13 +112,25 @@ export default function CoreServices({ services }: Props) {
                 grid grid-rows-[auto_176px_auto_1fr_auto]
               "
             >
-              {/* 1) Title + Kicker */}
-              <div className="p-5">
-                <h3 className="text-xl md:text-2xl font-bold tracking-tight text-gray-900 line-clamp-2 min-h-[2.75rem]">
+              {/* 1) Title + Kicker (reserve for up to 2 lines each) */}
+              <div className="p-5 pb-4">
+                <h3
+                  className="
+                    text-xl md:text-2xl font-bold tracking-tight text-gray-900 leading-snug
+                    line-clamp-2
+                    min-h-[3.2rem] md:min-h-[4.0rem]
+                  "
+                >
                   {s.title}
                 </h3>
-                <div className="mt-1 flex items-center gap-2 text-sm text-emerald-700 line-clamp-1 min-h-[1.25rem]">
-                  {s.icon ? <i aria-hidden className={`${s.icon} text-base`} /> : null}
+                <div
+                  className="
+                    mt-1 flex items-start gap-2 text-sm text-emerald-700 leading-snug
+                    line-clamp-2
+                    min-h-[2.4rem]
+                  "
+                >
+                  {s.icon ? <i aria-hidden className={`${s.icon} mt-[2px] text-base shrink-0`} /> : null}
                   <span>{s.kicker ?? '\u00A0'}</span>
                 </div>
               </div>
@@ -150,15 +151,17 @@ export default function CoreServices({ services }: Props) {
                 )}
               </div>
 
-              {/* 3) Description (reserve space for 3 lines) */}
+              {/* 3) Description (reserve ~3 lines) */}
               <div className="px-5 pt-4">
-                <p className="text-[15px] text-gray-800 line-clamp-3 min-h-[3.6rem]">{s.description}</p>
+                <p className="text-[15px] text-gray-800 leading-relaxed line-clamp-3 min-h-[3.6rem]">
+                  {s.description}
+                </p>
               </div>
 
-              {/* 4) Bullets (fills the flexible row) */}
+              {/* 4) Bullets (consistent min-height so CTA baseline aligns) */}
               <div className="px-5 pt-3 pb-1">
                 {s.bullets && s.bullets.length > 0 ? (
-                  <ul className="grid gap-1.5">
+                  <ul className="grid gap-1.5 min-h-[4.5rem]">
                     {s.bullets.slice(0, 3).map((b) => (
                       <li key={b} className="flex gap-2 text-sm text-gray-700">
                         <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#ef9601]" />
@@ -167,12 +170,12 @@ export default function CoreServices({ services }: Props) {
                     ))}
                   </ul>
                 ) : (
-                  <div className="min-h-[3.5rem]" />
+                  <div className="min-h-[4.5rem]" />
                 )}
               </div>
 
-              {/* 5) CTA (shared baseline) */}
-              <div className="p-5 pt-0">
+              {/* 5) CTA (extra top space so it never touches bullets) */}
+              <div className="p-5 pt-3">
                 {s.href && (
                   <Link
                     href={s.href}
@@ -191,7 +194,7 @@ export default function CoreServices({ services }: Props) {
   );
 }
 
-/* ================== Mobile Carousel (aligned rows, no jump) ================== */
+/* ================== Mobile Carousel (same row skeleton) ================== */
 function MobileCarousel({ items }: { items: Service[] }) {
   const reduceMotion = useReducedMotion();
   const [index, setIndex] = React.useState(0);
@@ -252,7 +255,6 @@ function MobileCarousel({ items }: { items: Service[] }) {
   return (
     <div className="md:hidden mt-6" role="region" aria-label="Core services carousel">
       <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white" aria-roledescription="carousel">
-        {/* Track */}
         <div
           ref={trackRef}
           className="flex touch-pan-y select-none"
@@ -270,21 +272,19 @@ function MobileCarousel({ items }: { items: Service[] }) {
               aria-roledescription="slide"
               aria-label={`Slide ${i + 1} of ${count}: ${s.title}`}
             >
-              <article
-                className="
-                  grid grid-rows-[auto_160px_auto_1fr_auto] h-full
-                "
-              >
-                {/* Title + Kicker */}
-                <div className="p-4">
-                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2 min-h-[2.5rem]">{s.title}</h3>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-emerald-700 line-clamp-1 min-h-[1.25rem]">
-                    {s.icon ? <i aria-hidden className={`${s.icon} text-base`} /> : null}
+              <article className="grid grid-rows-[auto_160px_auto_1fr_auto] h-full">
+                {/* Title + Kicker (reserve for 2 lines each) */}
+                <div className="p-4 pb-3">
+                  <h3 className="text-lg font-bold text-gray-900 leading-snug line-clamp-2 min-h-[3rem]">
+                    {s.title}
+                  </h3>
+                  <div className="mt-1 flex items-start gap-2 text-sm text-emerald-700 leading-snug line-clamp-2 min-h-[2.4rem]">
+                    {s.icon ? <i aria-hidden className={`${s.icon} mt-[2px] text-base shrink-0`} /> : null}
                     <span>{s.kicker ?? '\u00A0'}</span>
                   </div>
                 </div>
 
-                {/* Image (fixed height) */}
+                {/* Image */}
                 <div className="relative h-[160px] w-full overflow-hidden">
                   {s.image ? (
                     <Image src={s.image} alt={s.title} fill sizes="92vw" className="object-cover" />
@@ -293,15 +293,17 @@ function MobileCarousel({ items }: { items: Service[] }) {
                   )}
                 </div>
 
-                {/* Description (3-line reserve) */}
+                {/* Description */}
                 <div className="px-4 pt-3">
-                  <p className="text-sm text-gray-800 line-clamp-3 min-h-[3.4rem]">{s.description}</p>
+                  <p className="text-sm text-gray-800 leading-relaxed line-clamp-3 min-h-[3.4rem]">
+                    {s.description}
+                  </p>
                 </div>
 
-                {/* Bullets (fills) */}
+                {/* Bullets */}
                 <div className="px-4 pt-2 pb-1">
                   {s.bullets && s.bullets.length > 0 ? (
-                    <ul className="grid gap-1.5">
+                    <ul className="grid gap-1.5 min-h-[4.5rem]">
                       {s.bullets.slice(0, 3).map((b) => (
                         <li key={b} className="flex gap-2 text-sm text-gray-700">
                           <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#ef9601]" />
@@ -310,12 +312,12 @@ function MobileCarousel({ items }: { items: Service[] }) {
                       ))}
                     </ul>
                   ) : (
-                    <div className="min-h-[3rem]" />
+                    <div className="min-h-[4.5rem]" />
                   )}
                 </div>
 
-                {/* CTA (baseline aligned) */}
-                <div className="p-4 pt-0">
+                {/* CTA (more top space) */}
+                <div className="p-4 pt-3">
                   {s.href && (
                     <Link
                       href={s.href}
