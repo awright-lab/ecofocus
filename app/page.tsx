@@ -14,7 +14,8 @@ import QuickStats from './home/QuickStats';
 import FeaturedReport from './home/FeaturedReport';
 import SayDoGapSection from './home/SayDoGapSection';
 //import DominoValueChain from './home/DominoValueChain';
-import SnakeValueChain from './home/SnakeValueChain';
+//import SnakeValueChain from './home/SnakeValueChain';
+import ResearchToAction from './home/ResearchToAction';
 
 
 export default function HomePage() {
@@ -27,8 +28,8 @@ export default function HomePage() {
       <SayDoGapSection />
       <FeaturedDashboard />
       <EcoNuggetInsights />
-      <SnakeValueChain />
       <FeaturedReport />
+      <ResearchToAction />
       <TrustedBy />
       <CallToAction />
       <Footer />
