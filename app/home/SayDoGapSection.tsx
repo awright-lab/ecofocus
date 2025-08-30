@@ -8,24 +8,21 @@ import {
   Megaphone,
   Store,
   Tag,
+  Search,
+  FlaskConical,
+  CheckCircle2,
+  TrendingUp,
 } from 'lucide-react';
 
 type Props = {
-  sayPct?: number; // % who say they prefer sustainable products
-  doPct?: number;  // % who actually buy them
   ctaHref?: string;
   ctaLabel?: string;
 };
 
 export default function SayDoGapSection({
-  sayPct = 78,
-  doPct = 22,
   ctaHref = '/solutions/syndicated#methodology',
   ctaLabel = 'See How We Measure What Matters',
 }: Props) {
-  const say = Math.min(100, Math.max(0, sayPct));
-  const doV = Math.min(100, Math.max(0, doPct));
-  const gap = Math.max(0, say - doV);
   const reduceMotion = useReducedMotion();
 
   return (
@@ -45,14 +42,12 @@ export default function SayDoGapSection({
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.5 }}
           >
-            Closing the{' '}
+            Turning Intent into Action: Closing the{' '}
             <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
               Say–Do Gap
-            </span>{' '}
-            in Sustainability
+            </span>
           </motion.h2>
 
-          {/* 1–liner hook from Jerry's email */}
           <motion.p
             className="mx-auto mt-3 max-w-2xl text-sm text-gray-700 sm:text-base"
             initial={reduceMotion ? false : { opacity: 0 }}
@@ -60,13 +55,13 @@ export default function SayDoGapSection({
             viewport={{ once: true, amount: 0.6 }}
             transition={{ delay: 0.15, duration: 0.5 }}
           >
-            People say they care about sustainability—but sales don’t always reflect it. Don’t dismiss it; diagnose it.
+            People say they care about sustainability—sales don’t always reflect it. Don’t dismiss it; diagnose it.
           </motion.p>
         </div>
 
         {/* Content grid */}
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-12 md:gap-8">
-          {/* Left: factors + copy + CTA */}
+          {/* Left: levers + copy + CTA */}
           <motion.div
             className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:col-span-6 sm:p-6"
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
@@ -74,16 +69,16 @@ export default function SayDoGapSection({
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Three key factors (concise, scannable) */}
+            {/* Three key levers (positive framing) */}
             <ul className="space-y-4">
               <li className="flex gap-3">
                 <div className="mt-1 shrink-0">
                   <Megaphone className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Awareness (aka “greenhushing”)</div>
+                  <div className="font-semibold text-gray-900">Message clarity & proof</div>
                   <p className="text-sm text-gray-600">
-                    Are consumers even aware of your sustainability message—or is it hidden, muted, or not cutting through?
+                    Clear sustainability value props with credible support—no greenhushing, no jargon.
                   </p>
                 </div>
               </li>
@@ -93,9 +88,9 @@ export default function SayDoGapSection({
                   <Store className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Availability where they shop</div>
+                  <div className="font-semibold text-gray-900">Availability at the moment of choice</div>
                   <p className="text-sm text-gray-600">
-                    Do sustainable options actually show up on shelf and online in the moments your buyers choose?
+                    Presence on shelf and online where shoppers decide—plus easy findability.
                   </p>
                 </div>
               </li>
@@ -105,41 +100,19 @@ export default function SayDoGapSection({
                   <Tag className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Price & value</div>
+                  <div className="font-semibold text-gray-900">Perceived value</div>
                   <p className="text-sm text-gray-600">
-                    Some are willing to pay more—but it varies by category. Competitive pricing and value proof matter.
+                    Pricing, pack, and claims that make the sustainable choice feel like the smart choice.
                   </p>
                 </div>
               </li>
             </ul>
 
-            {/* Expandable detail: Jerry's longer copy, mobile-first */}
-            <Details summary="Why well-intended consumers fail to follow through (read more)">
-              <div className="mt-3 space-y-3 text-sm text-gray-700">
-                <p>
-                  Let’s be honest: this Say–Do Gap is one of the most frustrating challenges in consumer marketing.
-                  It’s tempting to dismiss it as hypocrisy—or dismiss sustainability as a sales driver altogether.
-                </p>
-                <p>
-                  The key to addressing it is first understanding what consumers are looking for—their sustainability
-                  attitudes and intended behaviors—and having a clear picture of how sustainability influences their
-                  aspirations and desires.
-                </p>
-                <p>
-                  At EcoFocus, we have the data (or can get the data) you need to identify sustainability personas for
-                  your target audience to help you build strategies—backed by data—to gain market share and reduce churn.
-                </p>
-                <p className="font-medium text-gray-900">
-                  Don’t speculate about your eco-minded customer. Understand them. Influence them. Win them.
-                </p>
-              </div>
-            </Details>
-
-            {/* Proof that we blend attitudes + actions (kept succinct) */}
+            {/* Short explanation */}
             <div className="mt-5 flex items-start gap-3">
               <BrainCircuit className="mt-0.5 h-5 w-5 text-emerald-600" aria-hidden="true" />
               <p className="text-sm text-gray-700">
-                We combine stated attitudes with real behaviors to identify the levers that convert intent to purchase.
+                We blend stated attitudes with real behaviors to find the specific levers that convert intent to purchase.
               </p>
             </div>
 
@@ -158,7 +131,7 @@ export default function SayDoGapSection({
             </div>
           </motion.div>
 
-          {/* Right: mini “Say vs Do” visual (unchanged) */}
+          {/* Right: 4-Step Roadmap (no numbers, process-focused) */}
           <motion.div
             className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:col-span-6 sm:p-6"
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
@@ -166,63 +139,43 @@ export default function SayDoGapSection({
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             role="img"
-            aria-labelledby="saydo-title"
-            aria-describedby="saydo-desc"
+            aria-label="How EcoFocus turns intent into action"
           >
             <div className="mb-4">
-              <div id="saydo-title" className="text-sm font-semibold text-gray-900">
-                Say vs. Do (example)
-              </div>
-              <div id="saydo-desc" className="text-xs text-gray-500">
-                Percentage who say they prefer eco-friendly options vs. those who actually purchase them.
+              <div className="text-sm font-semibold text-gray-900">Our roadmap to close the gap</div>
+              <div className="text-xs text-gray-500">
+                A practical sequence we tailor by category and audience.
               </div>
             </div>
 
-            {/* Bars */}
-            <div className="space-y-5">
-              {/* SAY */}
-              <div>
-                <div className="mb-1 flex items-end justify-between">
-                  <span className="text-xs font-medium text-gray-700">Say</span>
-                  <span className="text-xs text-gray-500" aria-live="polite">{say}%</span>
-                </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100" aria-hidden="true">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-[#dd9e37] via-[#FFC107] to-[#dd803e]"
-                    initial={reduceMotion ? { width: `${say}%` } : { width: 0 }}
-                    whileInView={reduceMotion ? undefined : { width: `${say}%` }}
-                    viewport={{ once: true, amount: 0.6 }}
-                    transition={{ duration: 0.8, ease: 'easeOut' }}
-                    style={{ maxWidth: '100%' }}
-                  />
-                </div>
-              </div>
+            <ol className="relative ml-6 space-y-5">
+              {/* vertical line */}
+              <span
+                aria-hidden="true"
+                className="absolute left-0 top-1 h-[calc(100%-0.25rem)] w-px bg-gradient-to-b from-emerald-200 to-sky-200"
+              />
 
-              {/* DO */}
-              <div>
-                <div className="mb-1 flex items-end justify-between">
-                  <span className="text-xs font-medium text-gray-700">Do</span>
-                  <span className="text-xs text-gray-500" aria-live="polite">{doV}%</span>
-                </div>
-                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100" aria-hidden="true">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600"
-                    initial={reduceMotion ? { width: `${doV}%` } : { width: 0 }}
-                    whileInView={reduceMotion ? undefined : { width: `${doV}%` }}
-                    viewport={{ once: true, amount: 0.6 }}
-                    transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
-                    style={{ maxWidth: '100%' }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Gap callout */}
-            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50/60 p-4">
-              <div className="text-sm text-gray-800">
-                <span className="font-semibold">{gap}% gap</span> between intention and action. EcoFocus helps quantify it—and close it.
-              </div>
-            </div>
+              <Step
+                icon={<Search className="h-4 w-4" />}
+                title="Diagnose reality"
+                body="Combine attitudes, purchase patterns, and shelf/SEO presence to map the real barriers."
+              />
+              <Step
+                icon={<FlaskConical className="h-4 w-4" />}
+                title="Design for conversion"
+                body="Sharpen messaging & claims; right-size pack, price, and placement; create clear trade-ups."
+              />
+              <Step
+                icon={<CheckCircle2 className="h-4 w-4" />}
+                title="Validate in market"
+                body="Quick tests and pilots—quant + qual—to confirm the levers that move behavior."
+              />
+              <Step
+                icon={<TrendingUp className="h-4 w-4" />}
+                title="Scale & monitor"
+                body="Roll out and track progress with dashboards & regular readouts; iterate as conditions change."
+              />
+            </ol>
           </motion.div>
         </div>
       </div>
@@ -230,32 +183,31 @@ export default function SayDoGapSection({
   );
 }
 
-/* ---------- Collapsible details (mobile-first) ---------- */
-function Details({ summary, children }: { summary: string; children: React.ReactNode }) {
-  const [open, setOpen] = useStateSafe(false);
+function Step({
+  icon,
+  title,
+  body,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+}) {
   return (
-    <div className="mt-5">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="text-sm font-semibold text-emerald-700 underline"
-        aria-expanded={open}
-        aria-controls="saydo-details"
+    <li className="relative">
+      {/* node */}
+      <span
+        aria-hidden="true"
+        className="absolute -left-[1.0625rem] top-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 ring-4 ring-emerald-100 text-white"
       >
-        {open ? 'Show less' : summary}
-      </button>
-      {open && (
-        <div id="saydo-details" className="mt-2">
-          {children}
-        </div>
-      )}
-    </div>
+        {icon}
+      </span>
+      <div className="rounded-lg border border-gray-200 bg-white/80 p-3">
+        <div className="text-sm font-semibold text-gray-900">{title}</div>
+        <p className="mt-1 text-sm text-gray-700">{body}</p>
+      </div>
+    </li>
   );
 }
 
-import * as ReactNS from 'react';
-function useStateSafe<T>(initial: T) {
-  const [v, setV] = ReactNS.useState(initial);
-  return [v, setV] as const;
-}
 
 

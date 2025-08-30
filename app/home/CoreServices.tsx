@@ -39,7 +39,7 @@ export default function CoreServices({ services }: Props) {
       icon: 'ri-dashboard-3-line',
     },
     {
-      title: '2025 Syndicated Study',
+      title: 'Syndicated Study',
       kicker: 'Your questions. Executive-ready insights.',
       description:
         'Join the 2025 EcoFocus wave and add proprietary questions. Deliverables include dashboard access, crosstabs, and executive reporting.',
