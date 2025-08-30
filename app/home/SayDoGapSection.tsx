@@ -13,6 +13,7 @@ import {
   CheckCircle2,
   TrendingUp,
 } from 'lucide-react';
+import * as React from 'react';
 
 type Props = {
   ctaHref?: string;
@@ -61,22 +62,24 @@ export default function SayDoGapSection({
 
         {/* Content grid */}
         <div className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-12 md:gap-8">
-          {/* Left: levers + copy + CTA */}
+          {/* Left: levers + long-form message + CTA */}
           <motion.div
-            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:col-span-6 sm:p-6"
+            className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm md:col-span-6"
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.5 }}
           >
             {/* Three key levers (positive framing) */}
-            <ul className="space-y-4">
+            <ul className="space-y-3 sm:space-y-4">
               <li className="flex gap-3">
                 <div className="mt-1 shrink-0">
                   <Megaphone className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Message clarity & proof</div>
+                  <div className="font-semibold text-gray-900 line-clamp-2 sm:line-clamp-none">
+                    Message clarity & proof
+                  </div>
                   <p className="text-sm text-gray-600">
                     Clear sustainability value props with credible support—no greenhushing, no jargon.
                   </p>
@@ -88,7 +91,9 @@ export default function SayDoGapSection({
                   <Store className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Availability at the moment of choice</div>
+                  <div className="font-semibold text-gray-900 line-clamp-2 sm:line-clamp-none">
+                    Availability at the moment of choice
+                  </div>
                   <p className="text-sm text-gray-600">
                     Presence on shelf and online where shoppers decide—plus easy findability.
                   </p>
@@ -108,7 +113,29 @@ export default function SayDoGapSection({
               </li>
             </ul>
 
-            {/* Short explanation */}
+            {/* Long-form message (kept, mobile-first collapsible) */}
+            <Details summary="Why well-intended consumers fail to follow through (read more)">
+              <div className="mt-3 space-y-3 text-sm text-gray-700">
+                <p>
+                  Let’s be honest: this Say–Do Gap is one of the most frustrating challenges in consumer marketing.
+                  It’s tempting to dismiss it as hypocrisy—or dismiss sustainability as a sales driver altogether.
+                </p>
+                <p>
+                  The key to addressing it is first understanding what consumers are looking for—their sustainability
+                  attitudes and intended behaviors—and having a clear picture of how sustainability influences their
+                  aspirations and desires.
+                </p>
+                <p>
+                  At EcoFocus, we have the data (or can get the data) you need to identify sustainability personas for
+                  your target audience to help you build strategies—backed by data—to gain market share and reduce churn.
+                </p>
+                <p className="font-medium text-gray-900">
+                  Don’t speculate about your eco-minded customer. Understand them. Influence them. Win them.
+                </p>
+              </div>
+            </Details>
+
+            {/* Proof of approach */}
             <div className="mt-5 flex items-start gap-3">
               <BrainCircuit className="mt-0.5 h-5 w-5 text-emerald-600" aria-hidden="true" />
               <p className="text-sm text-gray-700">
@@ -117,10 +144,11 @@ export default function SayDoGapSection({
             </div>
 
             {/* CTA */}
-            <div className="mt-6">
+            <div className="mt-6 text-center sm:text-left">
               <Link
                 href={ctaHref}
-                className="relative inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                           touch-manipulation
                            before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
                            before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                 aria-label={ctaLabel}
@@ -131,9 +159,9 @@ export default function SayDoGapSection({
             </div>
           </motion.div>
 
-          {/* Right: 4-Step Roadmap (no numbers, process-focused) */}
+          {/* Right: 4-Step Roadmap (visual, no numbers) */}
           <motion.div
-            className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm md:col-span-6 sm:p-6"
+            className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm md:col-span-6"
             initial={reduceMotion ? false : { opacity: 0, y: 12 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.4 }}
@@ -143,9 +171,7 @@ export default function SayDoGapSection({
           >
             <div className="mb-4">
               <div className="text-sm font-semibold text-gray-900">Our roadmap to close the gap</div>
-              <div className="text-xs text-gray-500">
-                A practical sequence we tailor by category and audience.
-              </div>
+              <div className="text-xs text-gray-500">A practical sequence we tailor by category and audience.</div>
             </div>
 
             <ol className="relative ml-6 space-y-5">
@@ -183,6 +209,28 @@ export default function SayDoGapSection({
   );
 }
 
+/* ---------- Collapsible details (mobile-first) ---------- */
+function Details({ summary, children }: { summary: string; children: React.ReactNode }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div className="mt-5">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="text-sm font-semibold text-emerald-700 underline"
+        aria-expanded={open}
+        aria-controls="saydo-details"
+      >
+        {open ? 'Show less' : summary}
+      </button>
+      {open && (
+        <div id="saydo-details" className="mt-2">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Step({
   icon,
   title,
@@ -194,7 +242,6 @@ function Step({
 }) {
   return (
     <li className="relative">
-      {/* node */}
       <span
         aria-hidden="true"
         className="absolute -left-[1.0625rem] top-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-600 ring-4 ring-emerald-100 text-white"
@@ -202,8 +249,8 @@ function Step({
         {icon}
       </span>
       <div className="rounded-lg border border-gray-200 bg-white/80 p-3">
-        <div className="text-sm font-semibold text-gray-900">{title}</div>
-        <p className="mt-1 text-sm text-gray-700">{body}</p>
+        <div className="text-sm sm:text-[15px] font-semibold text-gray-900">{title}</div>
+        <p className="mt-1 text-sm sm:text-[15px] text-gray-700">{body}</p>
       </div>
     </li>
   );
