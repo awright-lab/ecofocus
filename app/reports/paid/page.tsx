@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import PaidHero from './PaidHero';
 
 import { CATALOG } from '@/lib/catalog';
 import { toReportCardModel, isSmallReport, isSirBundle } from '@/lib/productUtils';
@@ -96,6 +97,8 @@ export default function PaidReportsPage() {
         { label: 'Reports', href: '/reports' },
         { label: 'Paid' }
       ]} />
+
+      <PaidHero />
 
       {/* Controls bar (white, no gradient/hero copy) */}
       <section className="bg-white border-b">
