@@ -94,15 +94,16 @@ export default function PaidHero({
               drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]
             "
           >
-            Insight You{' '}
+            
+            Decision-Ready {' '}
             <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-            Can Act On
+            Reports
             </span>
             .
           </h1>
 
           <p className="max-w-[40rem] text-gray-100/90">
-          From packaging claims to positioning—dig into rigorous consumer sustainability intelligence, ready to share.
+          Focused analyses and flagship deliverables designed to move decisions forward.
           </p>
         </motion.div>
       </div>
