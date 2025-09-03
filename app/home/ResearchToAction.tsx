@@ -61,12 +61,12 @@ function Rotator({ reduce }: { reduce: boolean }) {
             className="absolute inset-0 flex items-center justify-center will-change-transform will-change-opacity"
           >
             <span
-              className="font-extrabold tracking-tight leading-[0.95]
-                         text-[clamp(2.25rem,9vw,6rem)]
-                         bg-gradient-to-r from-emerald-300 via-sky-300 to-amber-300
-                         bg-clip-text text-transparent"
+                className="inline-block font-extrabold tracking-tight leading-[1.05]
+                text-[clamp(2.25rem,9vw,6rem)]
+                bg-gradient-to-r from-emerald-300 via-sky-300 to-amber-300
+                bg-clip-text text-transparent pb-[0.08em]"
             >
-              {WORDS[idx]}
+                {WORDS[idx]}
             </span>
           </motion.div>
         </AnimatePresence>

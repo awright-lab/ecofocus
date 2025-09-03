@@ -5,9 +5,8 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import StoreHero from './StoreHero';
 import {
-  ShieldCheck,
-  ShoppingCart,
   BarChart2,
   Users,
   TrendingUp,
@@ -42,50 +41,7 @@ export default function ReportsForkPage() {
 
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Reports' }]} />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-neutral-950 text-white">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/80 to-blue-900/80" />
-        <div className="relative mx-auto max-w-7xl px-6 py-16">
-          <h1 className="text-3xl md:text-4xl font-bold">Reports</h1>
-          <p className="mt-2 text-emerald-100 max-w-2xl">
-            Choose paid 2025 reports for purchase, or explore complimentary 2024 downloads.
-          </p>
-
-          <div className="mt-8 grid md:grid-cols-2 gap-6">
-            <Link
-              href="/reports/paid"
-              className="group rounded-2xl bg-white/5 border border-white/15 p-6 hover:bg-white/10 transition"
-            >
-              <div className="flex items-center gap-3">
-                <ShoppingCart className="h-5 w-5 text-emerald-300" />
-                <h2 className="text-xl font-semibold">Paid Reports</h2>
-              </div>
-              <p className="mt-2 text-sm text-emerald-50">
-                2025 flagship and focused reports. Buy direct or contact our team.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white/90">
-                View paid reports <ArrowRight className="h-4 w-4" />
-              </span>
-            </Link>
-
-            <Link
-              href="/reports/free"
-              className="group rounded-2xl bg-white/5 border border-white/15 p-6 hover:bg-white/10 transition"
-            >
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="h-5 w-5 text-emerald-300" />
-                <h2 className="text-xl font-semibold">Free Reports</h2>
-              </div>
-              <p className="mt-2 text-sm text-emerald-50">
-                Complimentary downloads (email gated), including 2024 SIR and topical slices.
-              </p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-white/90">
-                View free downloads <ArrowRight className="h-4 w-4" />
-              </span>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <StoreHero />
 
       {/* Stats strip */}
       <section className="bg-white">
@@ -112,10 +68,10 @@ export default function ReportsForkPage() {
 
           <div className="mt-6 grid md:grid-cols-2 gap-6">
             <ChoiceCard
-              eyebrow="Paid (2025)"
-              title="Decision-ready depth, latest wave"
+              eyebrow="Paid reports"
+              title="Decision-ready depth"
               bullets={[
-                'Latest data & fresh analysis',
+                'Latest wave analysis',
                 'Focused slices and flagship report',
                 'Licensing for internal use',
                 'Buy direct or contact our team',
@@ -124,11 +80,11 @@ export default function ReportsForkPage() {
               cta="Explore paid"
             />
             <ChoiceCard
-              eyebrow="Free (2024)"
+              eyebrow="Free reports"
               title="Complimentary downloads"
               bullets={[
-                'Trusted 2024 highlights',
-                'Topic slices and full SIR',
+                'Previous-wave highlights',
+                'Topic slices and full report',
                 'Email-gated delivery',
                 'Great for orientation & testing',
               ]}
@@ -151,7 +107,7 @@ export default function ReportsForkPage() {
             <div className="mt-4 grid md:grid-cols-2 gap-6">
               {/* Paid topics */}
               <div>
-                <div className="text-xs font-semibold text-emerald-800/80">Paid (2025)</div>
+                <div className="text-xs font-semibold text-emerald-800/80">Paid reports</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {PAID_TOPICS.map((t) => (
                     <Link
@@ -167,7 +123,7 @@ export default function ReportsForkPage() {
 
               {/* Free topics */}
               <div>
-                <div className="text-xs font-semibold text-emerald-800/80">Free (2024)</div>
+                <div className="text-xs font-semibold text-emerald-800/80">Free reports</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {FREE_TOPICS.map((t) => (
                     <Link
@@ -188,7 +144,7 @@ export default function ReportsForkPage() {
                 href="/solutions/syndicated-study-2025"
                 className="inline-flex items-center gap-2 rounded-full border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
               >
-                2025 Syndicated Study Buy-In <ArrowRight className="h-4 w-4" />
+                Syndicated Study Buy-In <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/solutions/data-enrichment"
@@ -233,14 +189,22 @@ export default function ReportsForkPage() {
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Common questions</h2>
 
           <div className="mt-6 grid md:grid-cols-2 gap-4">
-            <FAQ q="What’s the difference between Paid and Free?"
-                 a="Paid (2025) includes the latest wave with deeper analysis and licensing for internal use. Free (2024) includes complimentary downloads from the previous wave, email-gated." />
-            <FAQ q="Can I get the raw data?"
-                 a="Yes — our Enhance Your Data service blends EcoFocus 2024 with your datasets and provides matched crosstabs and governance guidance." />
-            <FAQ q="Do Paid reports include dashboard access?"
-                 a="Paid programs can include dashboard seats; the number of seats scales by organization size. We’ll align during discovery." />
-            <FAQ q="How is licensing handled?"
-                 a="Paid content includes a standard internal-use license. We can scope broader usage if needed." />
+            <FAQ
+              q="What’s the difference between Paid and Free?"
+              a="Paid reports include the latest wave with deeper analysis and licensing for internal use. Free reports include complimentary downloads from the previous wave, email-gated."
+            />
+            <FAQ
+              q="Can I get the raw data?"
+              a="Yes — our Enhance Your Data service blends EcoFocus data with your datasets and provides matched crosstabs and governance guidance."
+            />
+            <FAQ
+              q="Do Paid reports include dashboard access?"
+              a="Paid programs can include dashboard seats; the number of seats scales by organization size. We’ll align during discovery."
+            />
+            <FAQ
+              q="How is licensing handled?"
+              a="Paid content includes a standard internal-use license. We can scope broader usage if needed."
+            />
           </div>
         </div>
       </section>
@@ -324,6 +288,7 @@ function FAQ({ q, a }: { q: string; a: string }) {
     </details>
   );
 }
+
 
 
 
