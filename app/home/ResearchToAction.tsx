@@ -11,13 +11,16 @@ const DEFAULT_WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisio
 export default function ResearchToAction({
   theme = 'dark',
   words = DEFAULT_WORDS,
+  respectMotion = true, // set to false to FORCE animation even if OS has reduce-motion
 }: {
-  theme?: Theme;          // 'dark' pairs with your dark homepage band; use 'light' for light sections
-  words?: string[];       // override to change the chip labels
+  theme?: Theme;
+  words?: string[];
+  respectMotion?: boolean;
 }) {
-  const reduce = useReducedMotion();
+  const prefersReduce = useReducedMotion();
+  const reduce = respectMotion ? !!prefersReduce : false;
 
-  // Duplicate words once for a seamless loop
+  // duplicate for seamless loop
   const sequence = React.useMemo(() => [...words, ...words], [words]);
 
   return (
@@ -35,7 +38,6 @@ export default function ResearchToAction({
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 md:py-24">
-        {/* Heading */}
         <div className="text-center">
           <p
             className={[
@@ -47,53 +49,55 @@ export default function ResearchToAction({
           </p>
         </div>
 
-        {/* Conveyor scene */}
+        {/* CONVEYOR */}
         <div className="relative mx-auto h-40 sm:h-44 md:h-48">
-          {/* Belt track */}
+          {/* belt group with slight perspective */}
           <div
-            className="belt track absolute left-0 right-0"
-            style={{ top: '52%', transform: 'translateY(-50%)' }}
+            className="absolute inset-x-0"
+            style={{
+              top: '52%',
+              transform: 'translateY(-50%) perspective(800px)',
+              transformStyle: 'preserve-3d',
+            }}
           >
             {/* top surface */}
-            <div className="belt-top relative h-8 sm:h-9 md:h-10 rounded-md overflow-hidden">
-              {/* subtle grain overlay */}
-              <span className="pointer-events-none absolute inset-0 opacity-60 mix-blend-multiply belt-grain" />
+            <div
+              className="belt-top relative h-9 sm:h-10 md:h-11 rounded-md overflow-hidden shadow-lg"
+              style={{ transform: 'translateZ(0)' }}
+            >
               {/* dashed motion line */}
-              <span className="belt-line absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px" />
+              <span
+                className="belt-line absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px]"
+                style={reduce ? { animation: 'none' } : undefined}
+              />
+              {/* subtle grain */}
+              <span className="pointer-events-none absolute inset-0 opacity-60 mix-blend-multiply belt-grain" />
             </div>
 
-            {/* side face */}
-            <div className="belt-side h-3 sm:h-3.5 md:h-4 rounded-b-md" />
+            {/* side face (skew for depth) */}
+            <div
+              className="belt-side h-4 sm:h-4.5 md:h-5 rounded-b-md"
+              style={{
+                transform: 'translateY(-2px) rotateX(35deg)',
+                transformOrigin: 'top center',
+                boxShadow: theme === 'dark' ? '0 10px 20px rgba(0,0,0,.35)' : '0 10px 20px rgba(0,0,0,.12)',
+              }}
+            />
 
-            {/* wheels (decorative only) */}
-            <div className="wheels absolute inset-x-0 -bottom-6 flex items-end justify-between px-6 sm:px-10 md:px-14">
+            {/* wheels */}
+            <div className="absolute inset-x-0 -bottom-7 flex items-end justify-between px-6 sm:px-10 md:px-14">
               {[0, 1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  aria-hidden
-                  className={[
-                    'relative',
-                    'h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full',
-                    theme === 'dark' ? 'bg-neutral-800' : 'bg-neutral-200',
-                    'shadow-inner',
-                  ].join(' ')}
-                >
-                  <span
-                    className="absolute inset-1 rounded-full"
-                    style={{
-                      background:
-                        'radial-gradient(circle at 35% 35%, rgba(255,255,255,.18), transparent 35%), radial-gradient(circle at 70% 70%, rgba(0,0,0,.18), transparent 40%)',
-                    }}
-                  />
-                </div>
+                <Wheel key={i} dark={theme === 'dark'} reduce={reduce} />
               ))}
             </div>
           </div>
 
-          {/* Word chips riding the belt */}
+          {/* WORD CHIPS */}
           <ul
-            className="belt-items absolute left-0 right-0 z-10 flex items-center gap-6 sm:gap-8 md:gap-10"
-            style={{ bottom: 'calc(50% + 1.1rem)' }} /* tweak to sit perfectly on the belt */
+            className="absolute left-0 right-0 z-10 flex items-center gap-6 sm:gap-8 md:gap-10"
+            style={{
+              bottom: 'calc(50% + 1.25rem)', // vertical seat on belt
+            }}
             aria-hidden="true"
           >
             {sequence.map((w, i) => (
@@ -113,9 +117,9 @@ export default function ResearchToAction({
         </div>
       </div>
 
-      {/* Scoped styles */}
+      {/* styles */}
       <style jsx>{`
-        /* --- Brand tokens --- */
+        /* tokens */
         :root {
           --ef-emerald: #0c8a6a;
           --ef-teal: #2c7fb8;
@@ -133,9 +137,11 @@ export default function ResearchToAction({
             inset 0 1px rgba(255, 255, 255, 0.05);
 
           --belt-speed: 12s;
+          --line-speed: 1.6s;
+          --wheel-speed: 2.5s;
         }
 
-        /* Belt paint (dark by default, slightly adjusted in light mode below) */
+        /* belt paint */
         .belt-top {
           background: linear-gradient(180deg, #e9f6f0 0%, #dff3ec 100%);
           position: relative;
@@ -146,28 +152,27 @@ export default function ResearchToAction({
         .belt-line {
           background-image: repeating-linear-gradient(
             90deg,
-            rgba(44, 127, 184, 0.85) 0 18px,
-            transparent 18px 36px
+            rgba(44, 127, 184, 0.9) 0 16px,
+            transparent 16px 32px
           );
-          opacity: 0.35;
+          background-size: 48px 2px;
+          animation: lineScroll var(--line-speed) linear infinite;
+          opacity: 0.45;
         }
         .belt-grain {
           background: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px) 0 0 /
             6px 6px;
         }
 
-        /* Light theme adjustments (when section has white bg) */
+        /* light theme tweaks */
         :global(section.bg-white) .belt-top {
           background: linear-gradient(180deg, #f3faf6 0%, #ecf7f2 100%);
         }
         :global(section.bg-white) .belt-side {
           background: linear-gradient(180deg, #eaf4fb 0%, #dff0fa 100%);
         }
-        :global(section.bg-white) .belt-line {
-          opacity: 0.45;
-        }
 
-        /* --- Chips --- */
+        /* chips */
         .chip {
           font: 600 14px/1.1 Inter, system-ui, -apple-system, Segoe UI, Roboto,
             sans-serif;
@@ -186,16 +191,12 @@ export default function ResearchToAction({
           animation: beltTravel var(--belt-speed) linear infinite;
           animation-delay: calc(var(--i) * -1.5s);
         }
-
-        /* Dark surface tweaks (when section is dark) */
         :global(section.bg-neutral-950) .chip {
           color: #e5e7eb;
           background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
           border: 1px solid rgba(255, 255, 255, 0.12);
           box-shadow: var(--ef-elev-1-dark);
         }
-
-        /* Variants for rhythm */
         .chip--emerald-soft {
           background: linear-gradient(
             180deg,
@@ -225,7 +226,7 @@ export default function ResearchToAction({
             0 6px 16px rgba(221, 158, 55, 0.18);
         }
 
-        /* Motion path */
+        /* animations */
         @keyframes beltTravel {
           from {
             transform: translateX(-120%);
@@ -234,14 +235,27 @@ export default function ResearchToAction({
             transform: translateX(120%);
           }
         }
+        @keyframes lineScroll {
+          from {
+            background-position: 0 0;
+          }
+          to {
+            background-position: 48px 0;
+          }
+        }
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
 
-        /* Respect reduced motion */
+        /* reduced motion */
         @media (prefers-reduced-motion: reduce) {
           .chip {
             animation: none !important;
           }
           .belt-line {
-            opacity: 0.2;
+            animation: none !important;
           }
         }
       `}</style>
@@ -249,7 +263,31 @@ export default function ResearchToAction({
   );
 }
 
-/** Rotate a few visual styles for variety */
+function Wheel({ dark, reduce }: { dark: boolean; reduce: boolean }) {
+  return (
+    <div
+      aria-hidden
+      className={[
+        'relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-full',
+        dark ? 'bg-neutral-800' : 'bg-neutral-200',
+      ].join(' ')}
+      style={{
+        boxShadow: dark ? 'inset 0 2px 6px rgba(255,255,255,.08)' : 'inset 0 2px 6px rgba(0,0,0,.15)',
+      }}
+    >
+      <span
+        className="absolute inset-1 rounded-full"
+        style={{
+          background:
+            'radial-gradient(circle at 35% 35%, rgba(255,255,255,.18), transparent 35%), radial-gradient(circle at 70% 70%, rgba(0,0,0,.18), transparent 40%)',
+          animation: reduce ? 'none' : 'spin var(--wheel-speed) linear infinite',
+        }}
+      />
+    </div>
+  );
+}
+
+/* rotate a few visual styles for variety */
 function chipVariantForIndex(i: number) {
   const mod = i % 4;
   if (mod === 0) return 'chip--emerald-soft';
@@ -257,5 +295,6 @@ function chipVariantForIndex(i: number) {
   if (mod === 2) return 'chip--outline';
   return 'chip--gold-solid';
 }
+
 
 
