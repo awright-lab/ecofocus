@@ -6,22 +6,21 @@ import { useReducedMotion } from 'framer-motion';
 
 type Theme = 'light' | 'dark';
 
-const DEFAULT_WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisions'];
+const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisions'];
 
 export default function ResearchToAction({
   theme = 'dark',
-  words = DEFAULT_WORDS,
-  respectMotion = true, // set false to force animation even if OS has Reduce Motion
+  respectMotion = true, // set to false to force animation even if the OS prefers reduced motion
 }: {
   theme?: Theme;
-  words?: string[];
   respectMotion?: boolean;
 }) {
   const prefersReduce = useReducedMotion();
   const reduce = respectMotion ? !!prefersReduce : false;
 
-  // duplicate for seamless loop
-  const sequence = React.useMemo(() => [...words, ...words], [words]);
+  // create enough chips for a nice stream
+  const CHIP_COUNT = 8;
+  const chips = Array.from({ length: CHIP_COUNT }, (_, i) => i);
 
   return (
     <section
@@ -29,12 +28,14 @@ export default function ResearchToAction({
         'relative isolate overflow-hidden',
         theme === 'dark' ? 'bg-neutral-950' : 'bg-white',
       ].join(' ')}
-      // expose animation speeds on the host so children can always see them
+      // Expose timing tokens on the host so children can always read them
       style={
         {
-          ['--belt-speed' as any]: '12s',
-          ['--line-speed' as any]: '1.6s',
-          ['--wheel-speed' as any]: '2.5s',
+          ['--belt-speed' as any]: '12s',     // how long a chip takes to cross the belt
+          ['--cycle-speed' as any]: '12s',    // word-morph cycle; keep equal to belt for 25% = quarter distance
+          ['--line-speed' as any]: '1.6s',    // dashed line scroll
+          ['--wheel-speed' as any]: '2.5s',   // wheel spin
+          ['--chip-stagger' as any]: '0.8s',  // phase offset between chips for the word-morph
         } as React.CSSProperties
       }
     >
@@ -57,9 +58,9 @@ export default function ResearchToAction({
           </p>
         </div>
 
-        {/* CONVEYOR */}
+        {/* Conveyor scene */}
         <div className="relative mx-auto h-40 sm:h-44 md:h-48">
-          {/* belt group with slight perspective */}
+          {/* belt with slight perspective */}
           <div
             className="absolute inset-x-0"
             style={{
@@ -73,16 +74,14 @@ export default function ResearchToAction({
               className="belt-top relative h-9 sm:h-10 md:h-11 rounded-md overflow-hidden shadow-lg"
               style={{ transform: 'translateZ(0)' }}
             >
-              {/* dashed motion line */}
               <span
                 className="belt-line absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px]"
                 style={reduce ? { animation: 'none' } : undefined}
               />
-              {/* subtle grain */}
               <span className="pointer-events-none absolute inset-0 opacity-60 mix-blend-multiply belt-grain" />
             </div>
 
-            {/* side face (skew for depth) */}
+            {/* side face */}
             <div
               className="belt-side h-4 sm:h-4.5 md:h-5 rounded-b-md"
               style={{
@@ -103,25 +102,28 @@ export default function ResearchToAction({
             </div>
           </div>
 
-          {/* WORD CHIPS */}
+          {/* Chips that morph text while traveling */}
           <ul
             className="absolute left-0 right-0 z-10 flex items-center gap-6 sm:gap-8 md:gap-10"
-            style={{
-              bottom: 'calc(50% + 1.25rem)', // vertical seat on belt; tweak if needed
-            }}
+            style={{ bottom: 'calc(50% + 1.25rem)' }}
             aria-hidden="true"
           >
-            {sequence.map((w, i) => (
+            {chips.map((i) => (
               <li
-                key={`${w}-${i}`}
+                key={i}
                 className={['chip', chipVariantForIndex(i)].join(' ')}
+                // movement delay; also feeds morph phase via --i
                 style={
                   reduce
                     ? { animation: 'none' }
                     : ({ ['--i' as any]: String(i) } as React.CSSProperties)
                 }
               >
-                {w}
+                {/* We stack four labels and animate their visibility in sequence */}
+                <span className="w w1">{WORDS[0]}</span>
+                <span className="w w2">{WORDS[1]}</span>
+                <span className="w w3">{WORDS[2]}</span>
+                <span className="w w4">{WORDS[3]}</span>
               </li>
             ))}
           </ul>
@@ -130,7 +132,7 @@ export default function ResearchToAction({
 
       {/* styles */}
       <style jsx>{`
-        /* brand-ish tokens (kept minimal since Tailwind handles most) */
+        /* tokens */
         :root {
           --ef-emerald: #0c8a6a;
           --ef-teal: #2c7fb8;
@@ -163,7 +165,6 @@ export default function ResearchToAction({
             transparent 16px 32px
           );
           background-size: 48px 2px;
-          /* explicit animation longhand with fallback duration */
           animation-name: lineScroll;
           animation-timing-function: linear;
           animation-iteration-count: infinite;
@@ -183,8 +184,9 @@ export default function ResearchToAction({
           background: linear-gradient(180deg, #eaf4fb 0%, #dff0fa 100%);
         }
 
-        /* chips */
+        /* chip shell */
         .chip {
+          position: relative;
           font: 600 14px/1.1 Inter, system-ui, -apple-system, Segoe UI, Roboto,
             sans-serif;
           padding: 6px 12px;
@@ -199,12 +201,15 @@ export default function ResearchToAction({
           border: 1px solid var(--ef-ink-40);
           box-shadow: var(--ef-elev-1);
           will-change: transform;
-          /* explicit animation longhand with fallback duration */
+          /* travel across belt */
           animation-name: beltTravel;
           animation-timing-function: linear;
           animation-iteration-count: infinite;
           animation-duration: var(--belt-speed, 12s);
           animation-delay: calc(var(--i) * -1.5s);
+          /* local var used by word morph to stagger chips */
+          --chip-phase: calc(var(--chip-stagger, 0.8s) * var(--i));
+          overflow: hidden;
         }
         :global(section.bg-neutral-950) .chip {
           color: #e5e7eb;
@@ -241,6 +246,36 @@ export default function ResearchToAction({
             0 6px 16px rgba(221, 158, 55, 0.18);
         }
 
+        /* stacked labels inside each chip */
+        .w {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 12px; /* match chip horizontal padding so text stays centered */
+          opacity: 0;
+          transform: translateY(6px);
+          /* single keyframes; we stagger each label with delays so it owns a 25% window */
+          animation-name: wordWindow;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          animation-duration: var(--cycle-speed, 12s);
+        }
+        /* Show each word for ~25% with a tiny crossfade; the negative delays align phases */
+        .w1 {
+          animation-delay: calc(0s - var(--chip-phase));
+        }
+        .w2 {
+          animation-delay: calc((var(--cycle-speed, 12s) * -0.25) - var(--chip-phase));
+        }
+        .w3 {
+          animation-delay: calc((var(--cycle-speed, 12s) * -0.5) - var(--chip-phase));
+        }
+        .w4 {
+          animation-delay: calc((var(--cycle-speed, 12s) * -0.75) - var(--chip-phase));
+        }
+
         /* keyframes */
         @keyframes beltTravel {
           from {
@@ -258,6 +293,29 @@ export default function ResearchToAction({
             background-position: 48px 0;
           }
         }
+        /* Each label is visible for ~20% of the cycle with a brief fade in/out */
+        @keyframes wordWindow {
+          0% {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          4% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          22% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+          26% {
+            opacity: 0;
+            transform: translateY(-6px);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-6px);
+          }
+        }
         @keyframes spin {
           to {
             transform: rotate(360deg);
@@ -266,9 +324,8 @@ export default function ResearchToAction({
 
         /* reduced motion */
         @media (prefers-reduced-motion: reduce) {
-          .chip {
-            animation: none !important;
-          }
+          .chip,
+          .w,
           .belt-line {
             animation: none !important;
           }
@@ -297,7 +354,6 @@ function Wheel({ dark, reduce }: { dark: boolean; reduce: boolean }) {
         style={{
           background:
             'radial-gradient(circle at 35% 35%, rgba(255,255,255,.18), transparent 35%), radial-gradient(circle at 70% 70%, rgba(0,0,0,.18), transparent 40%)',
-          // explicit animation longhand with fallback duration
           ...(reduce
             ? {}
             : {
@@ -312,7 +368,7 @@ function Wheel({ dark, reduce }: { dark: boolean; reduce: boolean }) {
   );
 }
 
-/** Rotate a few visual styles for variety */
+/* rotate chip visual variants for rhythm */
 function chipVariantForIndex(i: number) {
   const mod = i % 4;
   if (mod === 0) return 'chip--emerald-soft';
@@ -320,6 +376,7 @@ function chipVariantForIndex(i: number) {
   if (mod === 2) return 'chip--outline';
   return 'chip--gold-solid';
 }
+
 
 
 
