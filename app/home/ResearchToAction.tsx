@@ -7,13 +7,13 @@ import { useReducedMotion } from 'framer-motion';
 type Theme = 'light' | 'dark';
 
 const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisions'] as const;
-const LONGEST = 'Informed Decisions';                 // determines chip width
-const STATIONS = [0.25, 0.5, 0.75];                   // where the chip goes under the covers
+const LONGEST = 'Informed Decisions';
+const STATIONS = [0.25, 0.5, 0.75]; // where the chip passes under covers
 
 export default function ResearchToAction({
   theme = 'dark',
   respectMotion = true,   // set false to force animation even if OS prefers reduced motion
-  chipCount = 1,          // 1–3 recommended; default = 1 per your note
+  chipCount = 1,          // 1 by default; try 2–3 if you want more
   beltSpeed = '6s',       // lower = faster
 }: {
   theme?: Theme;
@@ -31,20 +31,23 @@ export default function ResearchToAction({
 
   const beltTopRef = React.useRef<HTMLDivElement>(null);
   const measureRef = React.useRef<HTMLDivElement>(null);
+  const [chipW, setChipW] = React.useState<number | null>(null);
+  const [chipH, setChipH] = React.useState<number | null>(null);
   const [travelPx, setTravelPx] = React.useState(0);
-  const [chipWidthPx, setChipWidthPx] = React.useState(0);
 
-  // Measure belt width and chip width -> compute precise travel distance (right edge of belt)
+  // Measure belt width + chip size → exact travel distance (left edge → right edge)
   React.useLayoutEffect(() => {
     const update = () => {
       const beltW = beltTopRef.current?.clientWidth ?? 0;
-      const chipW = measureRef.current?.clientWidth ?? 0;
-      setChipWidthPx(chipW);
-      setTravelPx(Math.max(0, beltW - chipW));
+      const m = measureRef.current;
+      const w = m?.clientWidth ?? 0;
+      const h = m?.clientHeight ?? 0;
+      setChipW(w || null);
+      setChipH(h || null);
+      setTravelPx(Math.max(0, beltW - (w || 0)));
     };
     update();
 
-    // keep fresh on resize
     const ro = new ResizeObserver(update);
     if (beltTopRef.current) ro.observe(beltTopRef.current);
     if (measureRef.current) ro.observe(measureRef.current);
@@ -55,7 +58,7 @@ export default function ResearchToAction({
     };
   }, []);
 
-  // Swap words exactly when a chip passes a station (under the cover)
+  // Swap the label while the chip is hidden under a cover
   React.useEffect(() => {
     if (reduce) return;
     const durMs = parseDurationMs(beltSpeed);
@@ -69,8 +72,8 @@ export default function ResearchToAction({
         let changed = false;
         const next = [...prev];
         for (let i = 0; i < COUNT; i++) {
-          const offset = (i * durMs) / COUNT;                 // evenly phase chips
-          const prog = ((elapsed + offset) % durMs) / durMs;  // 0..1 along belt
+          const offset = (i * durMs) / COUNT;                 // phase chips evenly
+          const prog = ((elapsed + offset) % durMs) / durMs;  // 0..1
           for (const s of STATIONS) {
             if (crossed(lastProg[i], prog, s)) {
               next[i] = (next[i] + 1) % WORDS.length;
@@ -94,17 +97,18 @@ export default function ResearchToAction({
         'relative isolate overflow-hidden',
         theme === 'dark' ? 'bg-neutral-950' : 'bg-white',
       ].join(' ')}
+      // expose tokens (reliable for styled-jsx)
       style={
         {
-          // expose tokens (reliable for styled-jsx)
           ['--belt-speed' as any]: beltSpeed,
-          ['--line-speed' as any]: '1.1s',
-          ['--wheel-speed' as any]: '1.7s',
-          ['--chip-w' as any]: `${chipWidthPx}px`,
+          ['--line-speed' as any]: beltSpeed, // sync belt dash motion with chip
+          ['--wheel-speed' as any]: '1.6s',
+          ['--chip-w' as any]: chipW ? `${chipW}px` : '18rem', // fallback width to avoid tiny first paint
+          ['--chip-h' as any]: chipH ? `${chipH}px` : '46px',
           ['--travel' as any]: `${travelPx}px`,
           ['--chip-count' as any]: String(COUNT),
-          ['--station-w' as any]: 'clamp(90px, 11vw, 140px)',
-          ['--station-h' as any]: '28px',
+          ['--station-w' as any]: 'calc(var(--chip-w) + 28px)', // cover wider than chip
+          ['--station-h' as any]: 'calc(var(--chip-h) + 8px)',  // cover taller than chip
         } as React.CSSProperties
       }
     >
@@ -129,15 +133,15 @@ export default function ResearchToAction({
 
         {/* Scene */}
         <div className="relative mx-auto h-44 sm:h-48 md:h-52">
-          {/* Belt wrapper (chips & stations are anchored to this) */}
           <div
-            className="belt-wrap absolute inset-x-0"
+            className="absolute inset-x-0"
             style={{
               top: '54%',
               transform: 'translateY(-50%) perspective(900px)',
               transformStyle: 'preserve-3d',
             }}
           >
+            {/* belt */}
             <div
               ref={beltTopRef}
               className="belt-top relative h-10 sm:h-11 md:h-12 rounded-md overflow-hidden shadow-lg"
@@ -149,7 +153,6 @@ export default function ResearchToAction({
               />
               <span className="pointer-events-none absolute inset-0 opacity-60 mix-blend-multiply belt-grain" />
             </div>
-
             <div
               className="belt-side h-4 sm:h-4.5 md:h-5 rounded-b-md"
               style={{
@@ -161,17 +164,16 @@ export default function ResearchToAction({
                     : '0 10px 20px rgba(0,0,0,.12)',
               }}
             />
-
             <div className="absolute inset-x-0 -bottom-8 flex items-end justify-between px-6 sm:px-10 md:px-14">
               {[0, 1, 2, 3].map(i => (
                 <Wheel key={i} dark={theme === 'dark'} reduce={reduce} />
               ))}
             </div>
 
-            {/* CHANGE STATIONS (covers) */}
+            {/* covers */}
             <div
               className="stations pointer-events-none absolute inset-x-0 z-20"
-              style={{ bottom: 'calc(100% + 0.55rem)', height: 0 }}
+              style={{ bottom: 'calc(100% + 0.6rem)', height: 0 }}
               aria-hidden="true"
             >
               {STATIONS.map(f => (
@@ -182,12 +184,12 @@ export default function ResearchToAction({
               ))}
             </div>
 
-            {/* CHIPS (travel inside the belt width only) */}
+            {/* chips */}
             <div
               className="chips absolute left-0 right-0 z-10"
-              style={{ bottom: 'calc(100% + 0.55rem)', height: 0 }}
+              style={{ bottom: 'calc(100% + 0.6rem)', height: 0 }}
             >
-              {/* width measurer (hidden) */}
+              {/* measurer (hidden) */}
               <div ref={measureRef} className="chip chip--measure">
                 <span className="label">{LONGEST}</span>
               </div>
@@ -213,27 +215,17 @@ export default function ResearchToAction({
         </div>
       </div>
 
-      {/* Styles */}
+      {/* styles */}
       <style jsx>{`
         /* tokens */
         :root {
-          --ef-emerald: #0c8a6a;
-          --ef-teal: #2c7fb8;
-          --ef-gold: #dd9e37;
-
           --ef-ink: #0f172a;
-          --ef-ink-70: rgba(15, 23, 42, 0.7);
-          --ef-ink-40: rgba(15, 23, 42, 0.4);
           --ef-paper: #ffffff;
           --ef-paper-2: #f6f8fb;
-
-          --ef-elev-1: 0 6px 16px rgba(0, 0, 0, 0.08),
-            inset 0 1px rgba(255, 255, 255, 0.7);
-          --ef-elev-1-dark: 0 6px 18px rgba(0, 0, 0, 0.35),
-            inset 0 1px rgba(255, 255, 255, 0.05);
+          --ef-elev-1-dark: 0 6px 18px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.05);
         }
 
-        /* belt paint */
+        /* belt */
         .belt-top {
           background: linear-gradient(180deg, #e9f6f0 0%, #dff3ec 100%);
           position: relative;
@@ -248,12 +240,11 @@ export default function ResearchToAction({
             transparent 16px 32px
           );
           background-size: 48px 2px;
-          animation: lineScroll var(--line-speed, 1.1s) linear infinite;
+          animation: lineScroll var(--line-speed, 6s) linear infinite; /* synced to beltSpeed */
           opacity: 0.45;
         }
         .belt-grain {
-          background: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px) 0 0 /
-            6px 6px;
+          background: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px) 0 0 / 6px 6px;
         }
         :global(section.bg-white) .belt-top {
           background: linear-gradient(180deg, #f3faf6 0%, #ecf7f2 100%);
@@ -262,13 +253,13 @@ export default function ResearchToAction({
           background: linear-gradient(180deg, #eaf4fb 0%, #dff0fa 100%);
         }
 
-        /* covers */
+        /* covers sized to chip */
         .station {
           position: absolute;
           width: var(--station-w);
           height: var(--station-h);
           transform: translate(-50%, -2px);
-          border-radius: 10px;
+          border-radius: 12px;
           background: linear-gradient(180deg, #dfeef5, #c7e1f2);
           box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
           overflow: hidden;
@@ -285,70 +276,63 @@ export default function ResearchToAction({
         .station-shade {
           position: absolute;
           inset: 0;
-          background: radial-gradient(
-              140% 80% at 50% 0%,
-              rgba(0, 0, 0, 0.33),
-              transparent 60%
-            ),
+          background:
+            radial-gradient(140% 80% at 50% 0%, rgba(0, 0, 0, 0.33), transparent 60%),
             linear-gradient(180deg, rgba(0, 0, 0, 0.16), transparent 40%);
           mix-blend-mode: multiply;
           pointer-events: none;
         }
 
-        /* chips (travel ONLY within belt width) */
-        .chips {
-          pointer-events: none;
-        }
+        /* chips */
+        .chips { pointer-events: none; }
+
         .chip {
           position: absolute;
-          left: 0;                                 /* start at left edge of belt */
-          width: var(--chip-w);                    /* fixed to longest word */
+          left: 0;                             /* left edge of belt */
+          width: var(--chip-w);                /* fixed to the longest word */
+          height: var(--chip-h);               /* ensures proper cover sizing */
           transform: translateX(0);
           display: inline-flex;
           align-items: center;
           justify-content: center;
 
-          font-weight: 800;
-          font-size: clamp(1rem, 2vw, 1.15rem);
+          /* BIG, readable label */
+          font-weight: 900;
+          font-size: clamp(1.1rem, 2.4vw, 1.4rem);
           line-height: 1.1;
-          letter-spacing: 0.15px;
+          letter-spacing: 0.2px;
 
-          padding: 10px 18px;
+          padding: 12px 22px;
           border-radius: 999px;
           white-space: nowrap;
 
-          color: #e6edf6;
-          background: linear-gradient(180deg, #0d1b2a, #0f2233);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.08);
+          color: #ffffff;
+          text-shadow: 0 1px 2px rgba(0,0,0,.35);
+          background: linear-gradient(180deg, #0d2233, #0f2a40);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.08);
 
           will-change: transform;
-          animation: traverse var(--belt-speed, 6s) linear infinite;
+          animation: traverse var(--belt-speed, 6s) linear infinite; /* edge → edge */
         }
+
         .chip--measure {
           position: absolute;
           visibility: hidden;
           pointer-events: none;
           left: -9999px;
         }
-        .chip--emerald {
-          background: linear-gradient(180deg, #0e2a24, #11342c);
-        }
-        .chip--teal {
-          background: linear-gradient(180deg, #0d2636, #103049);
-        }
-        .chip--gold {
-          background: linear-gradient(180deg, #2a210b, #35270d);
-          color: #fff8e0;
-          border-color: rgba(255, 255, 255, 0.08);
-          box-shadow: 0 8px 20px rgba(221, 158, 55, 0.18), inset 0 1px rgba(255, 255, 255, 0.06);
-        }
+
+        .chip--emerald { background: linear-gradient(180deg, #0e2a24, #11342c); }
+        .chip--teal    { background: linear-gradient(180deg, #0d2636, #103049); }
+        .chip--gold    { background: linear-gradient(180deg, #2a210b, #35270d); color: #fff8e0; }
+
         .label { position: relative; z-index: 1; }
 
         /* animations */
         @keyframes traverse {
           from { transform: translateX(0); }
-          to   { transform: translateX(var(--travel)); }  /* end at right edge of belt */
+          to   { transform: translateX(var(--travel)); } /* right edge of belt */
         }
         @keyframes lineScroll {
           from { background-position: 0 0; }
@@ -390,7 +374,7 @@ function Wheel({ dark, reduce }: { dark: boolean; reduce: boolean }) {
                 animationName: 'spin',
                 animationTimingFunction: 'linear',
                 animationIterationCount: 'infinite',
-                animationDuration: 'var(--wheel-speed, 1.7s)',
+                animationDuration: 'var(--wheel-speed, 1.6s)',
               }),
         }}
       />
@@ -416,7 +400,7 @@ function parseDurationMs(v: string) {
 function crossed(prev: number, curr: number, target: number) {
   if (prev === curr) return false;
   if (prev < curr) return prev < target && target <= curr;
-  return prev < target || target <= curr; // wrapped
+  return prev < target || target <= curr; // wrapped around
 }
 
 
