@@ -7,13 +7,14 @@ import { useReducedMotion } from 'framer-motion';
 type Theme = 'light' | 'dark';
 
 const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisions'] as const;
-const STATIONS = [0.25, 0.5, 0.75]; // where the “cover” sits along the belt (25%, 50%, 75%)
+const LONGEST = 'Informed Decisions';                 // determines chip width
+const STATIONS = [0.25, 0.5, 0.75];                   // where the chip goes under the covers
 
 export default function ResearchToAction({
   theme = 'dark',
-  respectMotion = true,  // set false to force animation even if OS has Reduce Motion
-  chipCount = 1,         // 1–3 recommended
-  beltSpeed = '7s',      // lower = faster (e.g., '6s')
+  respectMotion = true,   // set false to force animation even if OS prefers reduced motion
+  chipCount = 1,          // 1–3 recommended; default = 1 per your note
+  beltSpeed = '6s',       // lower = faster
 }: {
   theme?: Theme;
   respectMotion?: boolean;
@@ -24,46 +25,65 @@ export default function ResearchToAction({
   const reduce = respectMotion ? !!prefersReduce : false;
 
   const COUNT = Math.max(1, Math.min(3, chipCount));
-  // indexes for current word per chip
   const [labels, setLabels] = React.useState<number[]>(
     () => Array.from({ length: COUNT }, () => 0)
   );
 
-  // RAF loop to swap words when a chip crosses a station (while it’s hidden by the cover)
+  const beltTopRef = React.useRef<HTMLDivElement>(null);
+  const measureRef = React.useRef<HTMLDivElement>(null);
+  const [travelPx, setTravelPx] = React.useState(0);
+  const [chipWidthPx, setChipWidthPx] = React.useState(0);
+
+  // Measure belt width and chip width -> compute precise travel distance (right edge of belt)
+  React.useLayoutEffect(() => {
+    const update = () => {
+      const beltW = beltTopRef.current?.clientWidth ?? 0;
+      const chipW = measureRef.current?.clientWidth ?? 0;
+      setChipWidthPx(chipW);
+      setTravelPx(Math.max(0, beltW - chipW));
+    };
+    update();
+
+    // keep fresh on resize
+    const ro = new ResizeObserver(update);
+    if (beltTopRef.current) ro.observe(beltTopRef.current);
+    if (measureRef.current) ro.observe(measureRef.current);
+    window.addEventListener('resize', update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, []);
+
+  // Swap words exactly when a chip passes a station (under the cover)
   React.useEffect(() => {
     if (reduce) return;
-
     const durMs = parseDurationMs(beltSpeed);
     const lastProg = new Array(COUNT).fill(0);
-
     let raf = 0;
     const t0 = performance.now();
 
     const tick = (now: number) => {
       const elapsed = now - t0;
-
-      setLabels((prev) => {
-        let mutated = false;
+      setLabels(prev => {
+        let changed = false;
         const next = [...prev];
-
         for (let i = 0; i < COUNT; i++) {
-          // evenly space chips by phase (time) offset
-          const offset = (i * durMs) / COUNT;
-          const prog = ((elapsed + offset) % durMs) / durMs; // 0..1
-
+          const offset = (i * durMs) / COUNT;                 // evenly phase chips
+          const prog = ((elapsed + offset) % durMs) / durMs;  // 0..1 along belt
           for (const s of STATIONS) {
             if (crossed(lastProg[i], prog, s)) {
               next[i] = (next[i] + 1) % WORDS.length;
-              mutated = true;
+              changed = true;
             }
           }
           lastProg[i] = prog;
         }
-        return mutated ? next : prev;
+        return changed ? next : prev;
       });
-
       raf = requestAnimationFrame(tick);
     };
+
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [reduce, beltSpeed, COUNT]);
@@ -76,17 +96,19 @@ export default function ResearchToAction({
       ].join(' ')}
       style={
         {
-          // speeds & layout tokens exposed on host for reliability
+          // expose tokens (reliable for styled-jsx)
           ['--belt-speed' as any]: beltSpeed,
-          ['--line-speed' as any]: '1.2s',
-          ['--wheel-speed' as any]: '2s',
-          ['--chip-gap' as any]: '72px',
+          ['--line-speed' as any]: '1.1s',
+          ['--wheel-speed' as any]: '1.7s',
+          ['--chip-w' as any]: `${chipWidthPx}px`,
+          ['--travel' as any]: `${travelPx}px`,
           ['--chip-count' as any]: String(COUNT),
-          ['--station-w' as any]: 'min(22rem, 32vw)', // cover width (wide enough to hide the longest word)
+          ['--station-w' as any]: 'clamp(90px, 11vw, 140px)',
+          ['--station-h' as any]: '28px',
         } as React.CSSProperties
       }
     >
-      {/* ambient blobs */}
+      {/* ambient */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full blur-3xl bg-emerald-600/20" />
         <div className="absolute -bottom-24 -right-24 h-80 w-80 rounded-full blur-3xl bg-sky-500/20" />
@@ -105,19 +127,19 @@ export default function ResearchToAction({
           </p>
         </div>
 
-        {/* Conveyor scene */}
+        {/* Scene */}
         <div className="relative mx-auto h-44 sm:h-48 md:h-52">
-          {/* belt group with slight perspective */}
+          {/* Belt wrapper (chips & stations are anchored to this) */}
           <div
-            className="absolute inset-x-0"
+            className="belt-wrap absolute inset-x-0"
             style={{
               top: '54%',
-              transform: 'translateY(-50%) perspective(800px)',
+              transform: 'translateY(-50%) perspective(900px)',
               transformStyle: 'preserve-3d',
             }}
           >
-            {/* top surface */}
             <div
+              ref={beltTopRef}
               className="belt-top relative h-10 sm:h-11 md:h-12 rounded-md overflow-hidden shadow-lg"
               style={{ transform: 'translateZ(0)' }}
             >
@@ -128,7 +150,6 @@ export default function ResearchToAction({
               <span className="pointer-events-none absolute inset-0 opacity-60 mix-blend-multiply belt-grain" />
             </div>
 
-            {/* side face for depth */}
             <div
               className="belt-side h-4 sm:h-4.5 md:h-5 rounded-b-md"
               style={{
@@ -141,64 +162,58 @@ export default function ResearchToAction({
               }}
             />
 
-            {/* wheels */}
             <div className="absolute inset-x-0 -bottom-8 flex items-end justify-between px-6 sm:px-10 md:px-14">
-              {[0, 1, 2, 3].map((i) => (
+              {[0, 1, 2, 3].map(i => (
                 <Wheel key={i} dark={theme === 'dark'} reduce={reduce} />
               ))}
             </div>
-          </div>
 
-          {/* CHANGE STATIONS (covers): placed above chips to hide swaps */}
-          <div
-            className="stations pointer-events-none absolute inset-x-0 z-20"
-            style={{ bottom: 'calc(50% + 1.55rem)', height: 0 }}
-            aria-hidden="true"
-          >
-            {STATIONS.map((f) => (
-              <div
-                key={f}
-                className="station"
-                style={{ left: `${f * 100}%` }}
-              >
-                <span className="station-lid" />
-                <span className="station-shade" />
+            {/* CHANGE STATIONS (covers) */}
+            <div
+              className="stations pointer-events-none absolute inset-x-0 z-20"
+              style={{ bottom: 'calc(100% + 0.55rem)', height: 0 }}
+              aria-hidden="true"
+            >
+              {STATIONS.map(f => (
+                <div key={f} className="station" style={{ left: `${f * 100}%` }}>
+                  <span className="station-top" />
+                  <span className="station-shade" />
+                </div>
+              ))}
+            </div>
+
+            {/* CHIPS (travel inside the belt width only) */}
+            <div
+              className="chips absolute left-0 right-0 z-10"
+              style={{ bottom: 'calc(100% + 0.55rem)', height: 0 }}
+            >
+              {/* width measurer (hidden) */}
+              <div ref={measureRef} className="chip chip--measure">
+                <span className="label">{LONGEST}</span>
               </div>
-            ))}
-          </div>
 
-          {/* CHIPS (1–3 on screen) */}
-          <ul
-            className="absolute left-0 right-0 z-10 flex items-center"
-            style={{
-              bottom: 'calc(50% + 1.55rem)',
-              gap: 'var(--chip-gap)',
-            }}
-            aria-hidden="true"
-          >
-            {Array.from({ length: COUNT }, (_, i) => (
-              <li
-                key={i}
-                className={['chip', chipLook(i)].join(' ')}
-                style={
-                  reduce
-                    ? { animation: 'none' }
-                    : ({
-                        ['--i' as any]: String(i),
-                        // staggered start so chips are spaced
-                        animationDelay: `calc(var(--i) * (var(--belt-speed) / var(--chip-count)) * -1)`,
-                      } as React.CSSProperties)
-                }
-              >
-                {/* Single dynamic label per chip (no morphing text jump visible, swap happens under cover) */}
-                <span className="label">{WORDS[labels[i] as number]}</span>
-              </li>
-            ))}
-          </ul>
+              {Array.from({ length: COUNT }, (_, i) => (
+                <div
+                  key={i}
+                  className={['chip', chipLook(i)].join(' ')}
+                  style={
+                    reduce
+                      ? { animation: 'none' }
+                      : ({
+                          ['--i' as any]: String(i),
+                          animationDelay: `calc(var(--i) * (var(--belt-speed) / var(--chip-count)) * -1)`,
+                        } as React.CSSProperties)
+                  }
+                >
+                  <span className="label">{WORDS[labels[i] as number]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* STYLES */}
+      {/* Styles */}
       <style jsx>{`
         /* tokens */
         :root {
@@ -233,57 +248,62 @@ export default function ResearchToAction({
             transparent 16px 32px
           );
           background-size: 48px 2px;
-          animation: lineScroll var(--line-speed, 1.2s) linear infinite;
+          animation: lineScroll var(--line-speed, 1.1s) linear infinite;
           opacity: 0.45;
         }
         .belt-grain {
           background: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px) 0 0 /
             6px 6px;
         }
+        :global(section.bg-white) .belt-top {
+          background: linear-gradient(180deg, #f3faf6 0%, #ecf7f2 100%);
+        }
+        :global(section.bg-white) .belt-side {
+          background: linear-gradient(180deg, #eaf4fb 0%, #dff0fa 100%);
+        }
 
-        /* stations (covers) */
+        /* covers */
         .station {
           position: absolute;
-          top: 0;
-          transform: translate(-50%, -6px); /* sit slightly over chip */
           width: var(--station-w);
-          height: 40px;
-          border-radius: 12px;
+          height: var(--station-h);
+          transform: translate(-50%, -2px);
+          border-radius: 10px;
           background: linear-gradient(180deg, #dfeef5, #c7e1f2);
-          box-shadow: 0 10px 18px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.22);
           overflow: hidden;
         }
-        .station-lid {
+        .station-top {
           position: absolute;
           left: 0;
           right: 0;
           top: 0;
-          height: 12px;
+          height: 10px;
           background: linear-gradient(180deg, #9fbfd2, #7ca9c6);
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
         }
         .station-shade {
           position: absolute;
           inset: 0;
           background: radial-gradient(
-              120% 75% at 50% 0%,
-              rgba(0, 0, 0, 0.35),
+              140% 80% at 50% 0%,
+              rgba(0, 0, 0, 0.33),
               transparent 60%
             ),
-            linear-gradient(180deg, rgba(0, 0, 0, 0.2), transparent 40%);
+            linear-gradient(180deg, rgba(0, 0, 0, 0.16), transparent 40%);
           mix-blend-mode: multiply;
           pointer-events: none;
         }
-        :global(section.bg-white) .station {
-          background: linear-gradient(180deg, #f0f6fa, #e4f1fa);
-        }
-        :global(section.bg-white) .station-lid {
-          background: linear-gradient(180deg, #b7d3e3, #95bfd7);
-        }
 
-        /* chips */
+        /* chips (travel ONLY within belt width) */
+        .chips {
+          pointer-events: none;
+        }
         .chip {
-          position: relative;
+          position: absolute;
+          left: 0;                                 /* start at left edge of belt */
+          width: var(--chip-w);                    /* fixed to longest word */
+          transform: translateX(0);
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -296,80 +316,49 @@ export default function ResearchToAction({
           padding: 10px 18px;
           border-radius: 999px;
           white-space: nowrap;
-          color: var(--ef-ink);
-          background: linear-gradient(
-            180deg,
-            var(--ef-paper) 0%,
-            var(--ef-paper-2) 100%
-          );
-          border: 1px solid var(--ef-ink-40);
-          box-shadow: var(--ef-elev-1);
+
+          color: #e6edf6;
+          background: linear-gradient(180deg, #0d1b2a, #0f2233);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), inset 0 1px rgba(255, 255, 255, 0.08);
 
           will-change: transform;
-          animation: beltTravel var(--belt-speed, 7s) linear infinite;
-          /* NOTE: animation-delay set inline based on chip index/spacing */
+          animation: traverse var(--belt-speed, 6s) linear infinite;
         }
-        :global(section.bg-neutral-950) .chip {
-          color: #e5e7eb;
-          background: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          box-shadow: var(--ef-elev-1-dark);
+        .chip--measure {
+          position: absolute;
+          visibility: hidden;
+          pointer-events: none;
+          left: -9999px;
         }
-
-        /* subtle looks so the UI stays on-brand but not loud */
         .chip--emerald {
-          background: linear-gradient(
-            180deg,
-            rgba(12, 138, 106, 0.12) 0%,
-            rgba(12, 138, 106, 0.04) 100%
-          );
-          border-color: rgba(12, 138, 106, 0.35);
+          background: linear-gradient(180deg, #0e2a24, #11342c);
         }
         .chip--teal {
-          background: linear-gradient(
-            180deg,
-            rgba(44, 127, 184, 0.12) 0%,
-            rgba(44, 127, 184, 0.04) 100%
-          );
-          border-color: rgba(44, 127, 184, 0.35);
+          background: linear-gradient(180deg, #0d2636, #103049);
         }
         .chip--gold {
-          background: linear-gradient(180deg, #f0b34e 0%, var(--ef-gold) 100%);
-          color: #1a1304;
-          border-color: transparent;
-          box-shadow: 0 0 0 1px rgba(221, 158, 55, 0.25) inset,
-            0 6px 16px rgba(221, 158, 55, 0.18);
+          background: linear-gradient(180deg, #2a210b, #35270d);
+          color: #fff8e0;
+          border-color: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 8px 20px rgba(221, 158, 55, 0.18), inset 0 1px rgba(255, 255, 255, 0.06);
         }
+        .label { position: relative; z-index: 1; }
 
-        /* keyframes */
-        @keyframes beltTravel {
-          from {
-            transform: translateX(-120%);
-          }
-          to {
-            transform: translateX(120%);
-          }
+        /* animations */
+        @keyframes traverse {
+          from { transform: translateX(0); }
+          to   { transform: translateX(var(--travel)); }  /* end at right edge of belt */
         }
         @keyframes lineScroll {
-          from {
-            background-position: 0 0;
-          }
-          to {
-            background-position: 48px 0;
-          }
+          from { background-position: 0 0; }
+          to   { background-position: 48px 0; }
         }
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* reduced motion */
         @media (prefers-reduced-motion: reduce) {
-          .chip,
-          .belt-line {
-            animation: none !important;
-          }
+          .chip, .belt-line { animation: none !important; }
         }
       `}</style>
     </section>
@@ -401,7 +390,7 @@ function Wheel({ dark, reduce }: { dark: boolean; reduce: boolean }) {
                 animationName: 'spin',
                 animationTimingFunction: 'linear',
                 animationIterationCount: 'infinite',
-                animationDuration: 'var(--wheel-speed, 2s)',
+                animationDuration: 'var(--wheel-speed, 1.7s)',
               }),
         }}
       />
@@ -420,16 +409,16 @@ function parseDurationMs(v: string) {
   if (s.endsWith('ms')) return Math.max(0, parseFloat(s.slice(0, -2)));
   if (s.endsWith('s')) return Math.max(0, parseFloat(s.slice(0, -1)) * 1000);
   const n = Number(s);
-  return Number.isFinite(n) ? n : 7000;
+  return Number.isFinite(n) ? n : 6000;
 }
 
 /** Did we cross target in [prev, curr] on a circular 0..1 timeline? */
 function crossed(prev: number, curr: number, target: number) {
   if (prev === curr) return false;
   if (prev < curr) return prev < target && target <= curr;
-  // wrapped around 1→0
-  return prev < target || target <= curr;
+  return prev < target || target <= curr; // wrapped
 }
+
 
 
 
