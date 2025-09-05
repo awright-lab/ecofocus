@@ -11,7 +11,7 @@ const DEFAULT_WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisio
 export default function ResearchToAction({
   theme = 'dark',
   words = DEFAULT_WORDS,
-  respectMotion = true, // set to false to FORCE animation even if OS has reduce-motion
+  respectMotion = true, // set false to force animation even if OS has Reduce Motion
 }: {
   theme?: Theme;
   words?: string[];
@@ -29,6 +29,14 @@ export default function ResearchToAction({
         'relative isolate overflow-hidden',
         theme === 'dark' ? 'bg-neutral-950' : 'bg-white',
       ].join(' ')}
+      // expose animation speeds on the host so children can always see them
+      style={
+        {
+          ['--belt-speed' as any]: '12s',
+          ['--line-speed' as any]: '1.6s',
+          ['--wheel-speed' as any]: '2.5s',
+        } as React.CSSProperties
+      }
     >
       {/* ambient blobs */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -80,7 +88,10 @@ export default function ResearchToAction({
               style={{
                 transform: 'translateY(-2px) rotateX(35deg)',
                 transformOrigin: 'top center',
-                boxShadow: theme === 'dark' ? '0 10px 20px rgba(0,0,0,.35)' : '0 10px 20px rgba(0,0,0,.12)',
+                boxShadow:
+                  theme === 'dark'
+                    ? '0 10px 20px rgba(0,0,0,.35)'
+                    : '0 10px 20px rgba(0,0,0,.12)',
               }}
             />
 
@@ -96,7 +107,7 @@ export default function ResearchToAction({
           <ul
             className="absolute left-0 right-0 z-10 flex items-center gap-6 sm:gap-8 md:gap-10"
             style={{
-              bottom: 'calc(50% + 1.25rem)', // vertical seat on belt
+              bottom: 'calc(50% + 1.25rem)', // vertical seat on belt; tweak if needed
             }}
             aria-hidden="true"
           >
@@ -119,7 +130,7 @@ export default function ResearchToAction({
 
       {/* styles */}
       <style jsx>{`
-        /* tokens */
+        /* brand-ish tokens (kept minimal since Tailwind handles most) */
         :root {
           --ef-emerald: #0c8a6a;
           --ef-teal: #2c7fb8;
@@ -135,10 +146,6 @@ export default function ResearchToAction({
             inset 0 1px rgba(255, 255, 255, 0.7);
           --ef-elev-1-dark: 0 6px 18px rgba(0, 0, 0, 0.35),
             inset 0 1px rgba(255, 255, 255, 0.05);
-
-          --belt-speed: 12s;
-          --line-speed: 1.6s;
-          --wheel-speed: 2.5s;
         }
 
         /* belt paint */
@@ -156,7 +163,11 @@ export default function ResearchToAction({
             transparent 16px 32px
           );
           background-size: 48px 2px;
-          animation: lineScroll var(--line-speed) linear infinite;
+          /* explicit animation longhand with fallback duration */
+          animation-name: lineScroll;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          animation-duration: var(--line-speed, 1.6s);
           opacity: 0.45;
         }
         .belt-grain {
@@ -188,7 +199,11 @@ export default function ResearchToAction({
           border: 1px solid var(--ef-ink-40);
           box-shadow: var(--ef-elev-1);
           will-change: transform;
-          animation: beltTravel var(--belt-speed) linear infinite;
+          /* explicit animation longhand with fallback duration */
+          animation-name: beltTravel;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          animation-duration: var(--belt-speed, 12s);
           animation-delay: calc(var(--i) * -1.5s);
         }
         :global(section.bg-neutral-950) .chip {
@@ -226,7 +241,7 @@ export default function ResearchToAction({
             0 6px 16px rgba(221, 158, 55, 0.18);
         }
 
-        /* animations */
+        /* keyframes */
         @keyframes beltTravel {
           from {
             transform: translateX(-120%);
@@ -272,7 +287,9 @@ function Wheel({ dark, reduce }: { dark: boolean; reduce: boolean }) {
         dark ? 'bg-neutral-800' : 'bg-neutral-200',
       ].join(' ')}
       style={{
-        boxShadow: dark ? 'inset 0 2px 6px rgba(255,255,255,.08)' : 'inset 0 2px 6px rgba(0,0,0,.15)',
+        boxShadow: dark
+          ? 'inset 0 2px 6px rgba(255,255,255,.08)'
+          : 'inset 0 2px 6px rgba(0,0,0,.15)',
       }}
     >
       <span
@@ -280,14 +297,22 @@ function Wheel({ dark, reduce }: { dark: boolean; reduce: boolean }) {
         style={{
           background:
             'radial-gradient(circle at 35% 35%, rgba(255,255,255,.18), transparent 35%), radial-gradient(circle at 70% 70%, rgba(0,0,0,.18), transparent 40%)',
-          animation: reduce ? 'none' : 'spin var(--wheel-speed) linear infinite',
+          // explicit animation longhand with fallback duration
+          ...(reduce
+            ? {}
+            : {
+                animationName: 'spin',
+                animationTimingFunction: 'linear',
+                animationIterationCount: 'infinite',
+                animationDuration: 'var(--wheel-speed, 2.5s)',
+              }),
         }}
       />
     </div>
   );
 }
 
-/* rotate a few visual styles for variety */
+/** Rotate a few visual styles for variety */
 function chipVariantForIndex(i: number) {
   const mod = i % 4;
   if (mod === 0) return 'chip--emerald-soft';
@@ -295,6 +320,7 @@ function chipVariantForIndex(i: number) {
   if (mod === 2) return 'chip--outline';
   return 'chip--gold-solid';
 }
+
 
 
 
