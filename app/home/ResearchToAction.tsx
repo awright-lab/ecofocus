@@ -6,92 +6,99 @@ import { useReducedMotion } from 'framer-motion';
 
 type Theme = 'light' | 'dark';
 
-const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decisions'] as const;
-// path stops where nodes/labels appear (start + 3 mids + end)
+const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decision'] as const;
+// path stops (start + mids + end) used for dots & label reveals
 const STOPS = [0.0, 0.33, 0.66, 0.88, 1.0] as const;
 
 export default function ResearchToAction({
   theme = 'dark',
   respectMotion = true,
   lineWidth = 6,
-  completeAt = 0.6,   // line is fully drawn when section top reaches 60% of viewport
-  startAt = 0.95,     // start drawing when section top reaches 95% of viewport
+  startAt = 0.9,     // start drawing when section top reaches 90% of viewport height
+  completeAt = 0.45, // fully drawn by the time section top reaches 45% of viewport
   shimmer = true,
 }: {
   theme?: Theme;
   respectMotion?: boolean;
   lineWidth?: number;
-  completeAt?: number; // 0..1 viewport fraction
-  startAt?: number;    // 0..1 viewport fraction
+  startAt?: number;     // 0..1 viewport fraction (lower = earlier)
+  completeAt?: number;  // 0..1 viewport fraction (lower = sooner complete)
   shimmer?: boolean;
 }) {
   const prefersReduce = useReducedMotion();
   const reduce = respectMotion ? !!prefersReduce : false;
 
   const sectionRef = React.useRef<HTMLElement>(null);
-  const svgRef = React.useRef<SVGSVGElement>(null);
   const pathRef = React.useRef<SVGPathElement>(null);
 
   const [len, setLen] = React.useState(1);
   const [pts, setPts] = React.useState<{ x: number; y: number }[]>([]);
-  const [progress, setProgress] = React.useState(0); // 0..1 scroll-driven
+  const [progress, setProgress] = React.useState(0); // 0..1 scroll-mapped
 
-  // measure path + compute stop positions
+  // measure path length & node positions (also on resize)
   React.useLayoutEffect(() => {
-    const p = pathRef.current;
-    if (!p) return;
-    const L = p.getTotalLength();
-    setLen(L);
-    const positions = STOPS.map((t) => {
-      const pt = p.getPointAtLength(L * t);
-      return { x: pt.x, y: pt.y };
-    });
-    setPts(positions);
+    const measure = () => {
+      const p = pathRef.current;
+      if (!p) return;
+      const L = p.getTotalLength();
+      setLen(L);
+      const positions = STOPS.map((t) => {
+        const pt = p.getPointAtLength(L * t);
+        return { x: pt.x, y: pt.y };
+      });
+      setPts(positions);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (sectionRef.current) ro.observe(sectionRef.current);
+    return () => ro.disconnect();
   }, []);
 
-  // scroll → progress mapping (complete earlier)
+  // scroll listener (rAF throttled) → progress
   React.useEffect(() => {
     if (reduce) {
       setProgress(1);
       return;
     }
-    let raf = 0;
-    const tick = () => {
-      const el = sectionRef.current;
-      if (el) {
-        const r = el.getBoundingClientRect();
-        const vh = window.innerHeight || 0;
 
-        // When the section top crosses startAt*vh, start revealing.
-        // When it crosses completeAt*vh, it's fully revealed.
-        const startY = vh * clamp(startAt, 0, 1);
-        const endY = vh * clamp(completeAt, 0, 1);
-        const denom = Math.max(1, Math.abs(startY - endY));
-        const raw = (startY - r.top) / denom;
-        const p = clamp(raw, 0, 1);
-
-        // snap quickly (slight ease)
-        const eased = easeOutCubic(p);
-        setProgress(eased);
+    let ticking = false;
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          const el = sectionRef.current;
+          const p = computeProgress(el, startAt, completeAt);
+          // Use easing so the line appears snappier up front
+          setProgress(easeOutCubic(p));
+          ticking = false;
+        });
       }
-      raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const onResize = onScroll;
+
+    // initial tick
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+    };
   }, [reduce, startAt, completeAt]);
 
+  // inline reveal style for stroke-dash (no CSS var collisions)
   const dashOffset = (1 - progress) * len;
   const revealStyle: React.CSSProperties = {
     strokeDasharray: `${len}`,
     strokeDashoffset: `${dashOffset}`,
   };
 
-  // label colors (marigold last)
+  // label colors in order, marigold last
   const labelColors = [
-    'var(--ef-emerald)',   // Market Research
-    'var(--ef-teal)',      // Data
-    'var(--ef-emerald)',   // Knowledge (lighter than gold to keep hierarchy)
-    'var(--ef-marigold)',  // Informed Decision (marigold last)
+    'var(--ef-emerald)',  // Market Research
+    'var(--ef-teal)',     // Data
+    'var(--ef-gold)',     // Knowledge
+    'var(--ef-marigold)', // Informed Decision
   ];
 
   return (
@@ -102,47 +109,32 @@ export default function ResearchToAction({
         theme === 'dark' ? 'ef-dark' : 'ef-light',
         reduce ? 'is-reduced' : '',
       ].join(' ')}
-      style={
-        {
-          ['--ef-lw' as any]: lineWidth,
-          ['--ef-len' as any]: `${len}px`,
-        } as React.CSSProperties
-      }
       aria-label="From Market Research to Informed Decision"
     >
       <div className="ef-wrap">
         <p className="ef-kicker">From Research to Action</p>
 
-        <svg
-          ref={svgRef}
-          viewBox="0 0 1100 280"
-          width="100%"
-          className="ef-svg"
-          role="img"
-          aria-labelledby="efTitle efDesc"
-        >
+        <svg viewBox="0 0 1100 280" width="100%" className="ef-svg" role="img" aria-labelledby="efTitle efDesc">
           <title id="efTitle">EcoFocus growth flow</title>
-          <desc id="efDesc">
-            As you scroll, a flowline draws left to right, then the four labels appear near their nodes.
-          </desc>
+          <desc id="efDesc">Scroll to reveal the flowline and the four phases.</desc>
 
           <defs>
-            {/* moving gradient similar to bg-gradient-to-r ... animate-gradient */}
-            <linearGradient id="efSlideGrad" x1="0" y1="0" x2="280" y2="0" gradientUnits="userSpaceOnUse">
-              <stop offset="0%"  stopColor="#3B82F6" stopOpacity="0.85" />  {/* blue-500 */}
-              <stop offset="50%" stopColor="#2DD4BF" stopOpacity="0.95" />  {/* teal-400 */}
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0.95" /> {/* emerald-500 */}
+            {/* Moving gradient similar to Tailwind animate-gradient */}
+            <linearGradient id="efSlideGrad" x1="0" y1="0" x2="320" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"  stopColor="#3B82F6" stopOpacity="0.95" />  {/* blue-500 */}
+              <stop offset="50%" stopColor="#2DD4BF" stopOpacity="1.0" />    {/* teal-400 */}
+              <stop offset="100%" stopColor="#10B981" stopOpacity="1.0" />   {/* emerald-500 */}
               <animateTransform
                 attributeName="gradientTransform"
                 type="translate"
                 from="0 0"
-                to="560 0"
+                to="640 0"
                 dur="3s"
                 repeatCount="indefinite"
               />
             </linearGradient>
 
-            {/* Mask that reveals only drawn portion for the shimmer overlay */}
+            {/* Mask matches the revealed (drawn) length so shimmer only shows on visible segment */}
             <mask id="efReveal">
               <path
                 d="M40,220 C220,220 210,90 350,90 S480,220 600,220 S780,90 920,90 S980,220 1060,220"
@@ -158,41 +150,39 @@ export default function ResearchToAction({
           {/* Base path (brand emerald) */}
           <path
             ref={pathRef}
-            className="ef-path-base"
             d="M40,220 C220,220 210,90 350,90 S480,220 600,220 S780,90 920,90 S980,220 1060,220"
+            fill="none"
+            stroke="var(--ef-emerald)"
+            strokeWidth={lineWidth}
+            strokeLinecap="round"
             style={revealStyle}
+            className="ef-path"
           />
 
-          {/* Shimmer overlay clipped to revealed portion */}
+          {/* Shimmer overlay, clipped to the revealed portion */}
           {shimmer && (
             <path
-              className="ef-path-shimmer"
               d="M40,220 C220,220 210,90 350,90 S480,220 600,220 S780,90 920,90 S980,220 1060,220"
+              fill="none"
+              stroke="url(#efSlideGrad)"
+              strokeWidth={lineWidth + 2}
+              strokeLinecap="round"
               mask="url(#efReveal)"
+              className="ef-shimmer"
             />
           )}
 
-          {/* Nodes */}
+          {/* Dots */}
           {pts.map(({ x, y }, i) => {
             const visible = progress >= STOPS[i] - 0.001;
-            return (
-              <circle
-                key={`dot-${i}`}
-                className="ef-dot"
-                cx={x}
-                cy={y}
-                r="7"
-                style={{ opacity: visible ? 1 : 0 }}
-                aria-hidden="true"
-              />
-            );
+            return <circle key={i} cx={x} cy={y} r="7" className="ef-dot" style={{ opacity: visible ? 1 : 0 }} />;
           })}
 
-          {/* Labels (lighter, offset away from the line) */}
+          {/* Labels: light, offset from line so they never overlap */}
           {pts.slice(1).map(({ x, y }, i) => {
             const revealed = progress >= STOPS[i + 1] - 0.001 || reduce;
             const above = i % 2 === 0;
-            const dy = above ? -36 : 40; // push farther from line for readability
+            const dy = above ? -40 : 42; // push away more for readability
             return (
               <text
                 key={`label-${i}`}
@@ -200,15 +190,15 @@ export default function ResearchToAction({
                 y={y + dy}
                 textAnchor="start"
                 style={{
-                  font: '700 clamp(14px, 2.2vw, 18px)/1.1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif',
+                  font: '700 clamp(13px, 2.0vw, 17px)/1.1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif',
                   fill: labelColors[i],
+                  // ultra-thin outline for contrast on both themes
                   paintOrder: 'stroke',
-                  // very light outline to separate from background
-                  stroke: 'rgba(255,255,255,0.85)',
-                  strokeWidth: theme === 'dark' ? 0.6 : 0.4,
+                  stroke: 'rgba(255,255,255,0.9)',
+                  strokeWidth: theme === 'dark' ? 0.5 : 0.35,
                   opacity: revealed ? 1 : 0,
                   transform: `translateY(${revealed ? 0 : 6}px)`,
-                  transition: 'opacity 420ms ease, transform 420ms ease',
+                  transition: 'opacity 300ms ease, transform 300ms ease',
                   userSelect: 'none',
                 }}
               >
@@ -228,8 +218,6 @@ export default function ResearchToAction({
 
           --ef-bg-dark: #0b1220;
           --ef-bg-light: #ffffff;
-          --ef-sub-dark: rgba(255, 255, 255, 0.65);
-          --ef-sub-light: rgba(11, 34, 36, 0.6);
 
           padding: clamp(24px, 5vw, 64px);
           border-radius: 20px;
@@ -246,56 +234,41 @@ export default function ResearchToAction({
         }
         .ef-kicker {
           text-align: center;
-          color: var(--ef-sub-dark);
+          color: rgba(255, 255, 255, 0.65);
           text-transform: uppercase;
           letter-spacing: 0.14em;
           font-weight: 700;
           font-size: 0.8rem;
-          margin: 0 0 1.5rem;
+          margin: 0 0 1.25rem;
         }
         :global(.ef-light) .ef-kicker {
-          color: var(--ef-sub-light);
+          color: rgba(11, 34, 36, 0.6);
         }
-
         .ef-svg {
           display: block;
           height: clamp(220px, 28vw, 320px);
           overflow: visible;
         }
-
-        .ef-path-base {
-          stroke: var(--ef-emerald);
-          stroke-width: var(--ef-lw, 6);
-          fill: none;
-          stroke-linecap: round;
+        .ef-path {
           filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
           transition: stroke 200ms ease;
-          stroke-dasharray: var(--ef-len);
-          stroke-dashoffset: var(--ef-len);
+          stroke-dasharray: ${len}px;
+          stroke-dashoffset: ${dashOffset}px;
         }
-
-        .ef-path-shimmer {
-          stroke: url(#efSlideGrad);
-          stroke-width: calc(var(--ef-lw, 6) + 2);
-          fill: none;
-          stroke-linecap: round;
-          opacity: 0.85;
+        .ef-shimmer {
           mix-blend-mode: screen;
+          opacity: 0.9;
         }
-
         .ef-dot {
           fill: #ffffff;
           stroke: var(--ef-emerald);
           stroke-width: 4;
           filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.25));
-          transition: opacity 250ms ease;
+          transition: opacity 220ms ease;
         }
 
-        /* Reduced motion: show final state; keep shimmer still */
-        .is-reduced .ef-path-base {
-          stroke-dashoffset: 0 !important;
-        }
-        .is-reduced .ef-path-shimmer {
+        /* Reduced motion: render final state, keep shimmer static */
+        .is-reduced .ef-shimmer {
           opacity: 0.6;
         }
       `}</style>
@@ -310,6 +283,23 @@ function clamp(n: number, min: number, max: number) {
 function easeOutCubic(t: number) {
   return 1 - Math.pow(1 - t, 3);
 }
+function computeProgress(section: HTMLElement | null, startAt: number, completeAt: number) {
+  if (!section) return 0;
+  const r = section.getBoundingClientRect();
+  const vh = window.innerHeight || 0;
+
+  // Map section.top from startAt*vh → completeAt*vh into 0..1
+  const startY = vh * clamp(startAt, 0, 1);
+  const endY = vh * clamp(completeAt, 0, 1);
+  // handle swapped values gracefully
+  const a = Math.min(startY, endY);
+  const b = Math.max(startY, endY);
+  const denom = Math.max(1, b - a);
+  const raw = (a - r.top) / denom;
+
+  return clamp(raw, 0, 1);
+}
+
 
 
 
