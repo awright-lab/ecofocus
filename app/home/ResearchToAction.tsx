@@ -7,23 +7,26 @@ import { useReducedMotion } from 'framer-motion';
 type Theme = 'light' | 'dark';
 
 const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decision'] as const;
-// path stops (start + mids + end) used for dots & label reveals
-const STOPS = [0.0, 0.33, 0.66, 0.88, 1.0] as const;
+
+// 4 nodes only — one per category (percent along the path)
+const STOPS = [0.14, 0.38, 0.66, 0.9] as const; // tweak positions to taste
 
 export default function ResearchToAction({
   theme = 'dark',
   respectMotion = true,
   lineWidth = 6,
-  startAt = 0.9,     // start drawing when section top reaches 90% of viewport height
+  startAt = 0.9,    // start drawing when section top reaches 90% of viewport
   completeAt = 0.45, // fully drawn by the time section top reaches 45% of viewport
   shimmer = true,
+  nodeFadeWidth = 0.12, // around each stop, how wide the fade pulse is (0..1)
 }: {
   theme?: Theme;
   respectMotion?: boolean;
   lineWidth?: number;
-  startAt?: number;     // 0..1 viewport fraction (lower = earlier)
-  completeAt?: number;  // 0..1 viewport fraction (lower = sooner complete)
+  startAt?: number;
+  completeAt?: number;
   shimmer?: boolean;
+  nodeFadeWidth?: number;
 }) {
   const prefersReduce = useReducedMotion();
   const reduce = respectMotion ? !!prefersReduce : false;
@@ -35,7 +38,7 @@ export default function ResearchToAction({
   const [pts, setPts] = React.useState<{ x: number; y: number }[]>([]);
   const [progress, setProgress] = React.useState(0); // 0..1 scroll-mapped
 
-  // measure path length & node positions (also on resize)
+  // measure path & stops (also on resize)
   React.useLayoutEffect(() => {
     const measure = () => {
       const p = pathRef.current;
@@ -54,13 +57,12 @@ export default function ResearchToAction({
     return () => ro.disconnect();
   }, []);
 
-  // scroll listener (rAF throttled) → progress
+  // scroll → progress mapping (rAF-throttled)
   React.useEffect(() => {
     if (reduce) {
       setProgress(1);
       return;
     }
-
     let ticking = false;
     const onScroll = () => {
       if (!ticking) {
@@ -68,16 +70,13 @@ export default function ResearchToAction({
         requestAnimationFrame(() => {
           const el = sectionRef.current;
           const p = computeProgress(el, startAt, completeAt);
-          // Use easing so the line appears snappier up front
-          setProgress(easeOutCubic(p));
+          setProgress(easeOutCubic(p)); // use easing for snappier start
           ticking = false;
         });
       }
     };
     const onResize = onScroll;
-
-    // initial tick
-    onScroll();
+    onScroll(); // initial
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize, { passive: true });
     return () => {
@@ -86,7 +85,7 @@ export default function ResearchToAction({
     };
   }, [reduce, startAt, completeAt]);
 
-  // inline reveal style for stroke-dash (no CSS var collisions)
+  // stroke-dash reveal
   const dashOffset = (1 - progress) * len;
   const revealStyle: React.CSSProperties = {
     strokeDasharray: `${len}`,
@@ -116,7 +115,7 @@ export default function ResearchToAction({
 
         <svg viewBox="0 0 1100 280" width="100%" className="ef-svg" role="img" aria-labelledby="efTitle efDesc">
           <title id="efTitle">EcoFocus growth flow</title>
-          <desc id="efDesc">Scroll to reveal the flowline and the four phases.</desc>
+          <desc id="efDesc">Scroll to reveal a gradient flowline and four phase labels.</desc>
 
           <defs>
             {/* Moving gradient similar to Tailwind animate-gradient */}
@@ -134,7 +133,7 @@ export default function ResearchToAction({
               />
             </linearGradient>
 
-            {/* Mask matches the revealed (drawn) length so shimmer only shows on visible segment */}
+            {/* Mask to clip shimmer to revealed segment */}
             <mask id="efReveal">
               <path
                 d="M40,220 C220,220 210,90 350,90 S480,220 600,220 S780,90 920,90 S980,220 1060,220"
@@ -147,7 +146,7 @@ export default function ResearchToAction({
             </mask>
           </defs>
 
-          {/* Base path (brand emerald) */}
+          {/* Base path */}
           <path
             ref={pathRef}
             d="M40,220 C220,220 210,90 350,90 S480,220 600,220 S780,90 920,90 S980,220 1060,220"
@@ -159,7 +158,7 @@ export default function ResearchToAction({
             className="ef-path"
           />
 
-          {/* Shimmer overlay, clipped to the revealed portion */}
+          {/* Gradient shimmer, clipped to revealed portion */}
           {shimmer && (
             <path
               d="M40,220 C220,220 210,90 350,90 S480,220 600,220 S780,90 920,90 S980,220 1060,220"
@@ -172,17 +171,17 @@ export default function ResearchToAction({
             />
           )}
 
-          {/* Dots */}
+          {/* Nodes — solid color, fade IN and OUT around their stop */}
           {pts.map(({ x, y }, i) => {
-            const visible = progress >= STOPS[i] - 0.001;
-            return <circle key={i} cx={x} cy={y} r="7" className="ef-dot" style={{ opacity: visible ? 1 : 0 }} />;
+            const op = smoothPulse(progress, STOPS[i], nodeFadeWidth); // 0..1
+            return <circle key={i} cx={x} cy={y} r="6.5" className="ef-node" style={{ opacity: op }} />;
           })}
 
-          {/* Labels: light, offset from line so they never overlap */}
-          {pts.slice(1).map(({ x, y }, i) => {
-            const revealed = progress >= STOPS[i + 1] - 0.001 || reduce;
+          {/* Labels — appear once (no outlines), offset from line */}
+          {pts.map(({ x, y }, i) => {
+            const revealed = progress >= STOPS[i] - 0.001 || reduce;
             const above = i % 2 === 0;
-            const dy = above ? -40 : 42; // push away more for readability
+            const dy = above ? -40 : 42;
             return (
               <text
                 key={`label-${i}`}
@@ -192,10 +191,6 @@ export default function ResearchToAction({
                 style={{
                   font: '700 clamp(13px, 2.0vw, 17px)/1.1 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif',
                   fill: labelColors[i],
-                  // ultra-thin outline for contrast on both themes
-                  paintOrder: 'stroke',
-                  stroke: 'rgba(255,255,255,0.9)',
-                  strokeWidth: theme === 'dark' ? 0.5 : 0.35,
                   opacity: revealed ? 1 : 0,
                   transform: `translateY(${revealed ? 0 : 6}px)`,
                   transition: 'opacity 300ms ease, transform 300ms ease',
@@ -252,25 +247,19 @@ export default function ResearchToAction({
         .ef-path {
           filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
           transition: stroke 200ms ease;
-          stroke-dasharray: ${len}px;
-          stroke-dashoffset: ${dashOffset}px;
         }
         .ef-shimmer {
           mix-blend-mode: screen;
           opacity: 0.9;
         }
-        .ef-dot {
-          fill: #ffffff;
-          stroke: var(--ef-emerald);
-          stroke-width: 4;
-          filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.25));
+        /* Nodes are solid color; fade handled inline via opacity */
+        .ef-node {
+          fill: var(--ef-emerald);
           transition: opacity 220ms ease;
         }
 
-        /* Reduced motion: render final state, keep shimmer static */
-        .is-reduced .ef-shimmer {
-          opacity: 0.6;
-        }
+        /* Reduced motion: final state, shimmer static */
+        .is-reduced .ef-shimmer { opacity: 0.6; }
       `}</style>
     </section>
   );
@@ -291,14 +280,21 @@ function computeProgress(section: HTMLElement | null, startAt: number, completeA
   // Map section.top from startAt*vh → completeAt*vh into 0..1
   const startY = vh * clamp(startAt, 0, 1);
   const endY = vh * clamp(completeAt, 0, 1);
-  // handle swapped values gracefully
   const a = Math.min(startY, endY);
   const b = Math.max(startY, endY);
   const denom = Math.max(1, b - a);
   const raw = (a - r.top) / denom;
-
   return clamp(raw, 0, 1);
 }
+
+/** Smooth "pulse" peaked at center, fading to 0 at ±width. */
+function smoothPulse(p: number, center: number, width: number) {
+  const d = Math.abs(p - center);
+  if (d >= width) return 0;
+  const t = 1 - clamp(d / Math.max(1e-6, width), 0, 1);
+  return t * t * (3 - 2 * t); // smoothstep reversed
+}
+
 
 
 
