@@ -7,7 +7,6 @@ import { useReducedMotion } from 'framer-motion';
 type Theme = 'light' | 'dark';
 
 const WORDS = ['Market Research', 'Data', 'Knowledge', 'Informed Decision'] as const;
-
 /** Exactly 4 node stops (0..1 along the path), one per word */
 const STOPS = [0.12, 0.38, 0.64, 0.9] as const;
 
@@ -18,8 +17,8 @@ export default function ResearchToAction({
   startAt = 0.9,      // start line reveal when section top reaches 90% of viewport
   completeAt = 0.45,  // fully revealed by the time section top reaches 45% of viewport
   shimmer = true,
-  nodeFadeWidth = 0.18, // how wide the node pulse is (0..1 of total scroll progress)
-  labelOffset = 44,     // px distance labels sit off the line (perpendicular)
+  labelOffset = 44,   // px distance labels sit off the line (perpendicular)
+  pulseMs = 750,      // node pulse duration
 }: {
   theme?: Theme;
   respectMotion?: boolean;
@@ -27,19 +26,23 @@ export default function ResearchToAction({
   startAt?: number;
   completeAt?: number;
   shimmer?: boolean;
-  nodeFadeWidth?: number;
   labelOffset?: number;
+  pulseMs?: number;
 }) {
   const prefersReduce = useReducedMotion();
   const reduce = respectMotion ? !!prefersReduce : false;
 
   const sectionRef = React.useRef<HTMLElement>(null);
   const pathRef = React.useRef<SVGPathElement>(null);
+  const prevProgRef = React.useRef(0);
 
   const [len, setLen] = React.useState(1);
   const [progress, setProgress] = React.useState(0); // 0..1 scroll-mapped
   const [nodes, setNodes] = React.useState<{ x: number; y: number }[]>([]);
   const [labels, setLabels] = React.useState<{ x: number; y: number }[]>([]);
+  const [pulseVersion, setPulseVersion] = React.useState<number[]>(
+    () => Array(STOPS.length).fill(0)
+  );
 
   /** Measure path length + compute node and label positions (also on resize) */
   React.useLayoutEffect(() => {
@@ -50,7 +53,7 @@ export default function ResearchToAction({
       setLen(L);
 
       // For each stop, get point + a tiny step ahead to compute a tangent & normal
-      const eps = Math.max(0.0008, 1 / L); // small step proportional to length
+      const eps = Math.max(0.0008, 1 / L);
       const pts = STOPS.map((t) => p.getPointAtLength(L * t));
       const labelPts = STOPS.map((t, i) => {
         const a = p.getPointAtLength(L * t);
@@ -63,7 +66,7 @@ export default function ResearchToAction({
         const ny = dx / mag;
         // alternate sides (above/below) so labels never sit on the line
         const side = i % 2 === 0 ? -1 : 1;
-        // tiny forward push along the tangent for nicer spacing
+        // small forward step along tangent for nicer spacing
         const tx = (dx / mag) * 10;
         const ty = (dy / mag) * 10;
         return { x: a.x + nx * labelOffset * side + tx, y: a.y + ny * labelOffset * side + ty };
@@ -79,7 +82,7 @@ export default function ResearchToAction({
     return () => ro.disconnect();
   }, [labelOffset]);
 
-  /** Scroll → progress (rAF throttled) */
+  /** Scroll → progress (rAF throttled) + detect stop crossings to trigger pulses */
   React.useEffect(() => {
     if (reduce) {
       setProgress(1);
@@ -92,16 +95,33 @@ export default function ResearchToAction({
         ticking = true;
         requestAnimationFrame(() => {
           const el = sectionRef.current;
-          const p = computeProgress(el, startAt, completeAt);
-          // Snappier start
-          setProgress(easeOutCubic(p));
+          const p = easeOutCubic(computeProgress(el, startAt, completeAt));
+          // pulse when we cross a stop in either direction
+          const prev = prevProgRef.current;
+          if (p !== prev) {
+            setPulseVersion((prevArr) => {
+              let changed = false;
+              const next = [...prevArr];
+              for (let i = 0; i < STOPS.length; i++) {
+                const s = STOPS[i];
+                if ((prev < s && p >= s) || (prev > s && p <= s)) {
+                  next[i] = next[i] + 1; // bump version to remount node & retrigger animation
+                  changed = true;
+                }
+              }
+              return changed ? next : prevArr;
+            });
+            prevProgRef.current = p;
+          }
+          setProgress(p);
           ticking = false;
         });
       }
     };
     const onResize = onScroll;
 
-    onScroll(); // initial
+    // initial tick
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize, { passive: true });
     return () => {
@@ -110,18 +130,11 @@ export default function ResearchToAction({
     };
   }, [reduce, startAt, completeAt]);
 
-  /** Stroke-dash reveal for the path (inline to avoid CSS var races) */
+  /** Stroke-dash reveal for the path */
   const dashOffset = (1 - progress) * len;
   const revealStyle: React.CSSProperties = {
     strokeDasharray: `${len}`,
     strokeDashoffset: `${dashOffset}`,
-  };
-
-  /** Node opacity: low baseline + pulse to 1.0 when the reveal passes the node */
-  const nodeOpacityAt = (stop: number) => {
-    if (reduce) return 1;
-    const pulse = smoothPulse(progress, stop, nodeFadeWidth); // 0..1 around the stop
-    return 0.25 + 0.75 * pulse; // baseline 0.25, up to 1.0 at peak
   };
 
   /** Label colors in order, marigold last */
@@ -203,15 +216,17 @@ export default function ResearchToAction({
             />
           )}
 
-          {/* Nodes — solid color with fade-in/out pulse */}
+          {/* Nodes — solid color with a time-based pulse when the reveal crosses each stop */}
           {nodes.map(({ x, y }, i) => (
             <circle
-              key={`node-${i}`}
+              key={`node-${i}-${pulseVersion[i]}`} // bump key to retrigger CSS animation
               cx={x}
               cy={y}
               r="7"
-              className="ef-node"
-              style={{ opacity: nodeOpacityAt(STOPS[i]) }}
+              className={`ef-node ${reduce ? 'ef-node--static' : 'ef-node--pulse'}`}
+              style={{
+                '--pulseMs': `${pulseMs}ms`,
+              } as React.CSSProperties}
               aria-hidden="true"
             />
           ))}
@@ -285,16 +300,29 @@ export default function ResearchToAction({
           filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
           transition: stroke 200ms ease;
           stroke-dasharray: ${len}px;
-          stroke-dashoffset: ${dashOffset}px;
+          stroke-dashoffset: ${((1 - progress) * len).toFixed(2)}px;
         }
         .ef-shimmer {
           mix-blend-mode: screen;
           opacity: 0.9;
         }
+
+        /* Nodes: solid color; pulse via CSS when mounted (key bumps remount) */
         .ef-node {
-          fill: var(--ef-emerald); /* solid color node */
-          transition: opacity 220ms ease;
+          fill: var(--ef-emerald);
+          transform-box: fill-box;
+          transform-origin: center;
           pointer-events: none;
+        }
+        .ef-node--static { opacity: 1; }
+        .ef-node--pulse {
+          opacity: 0;
+          animation: nodePulse var(--pulseMs, 750ms) ease-in-out both;
+        }
+        @keyframes nodePulse {
+          0%   { opacity: 0;   transform: scale(0.85); }
+          40%  { opacity: 1;   transform: scale(1.22); }
+          100% { opacity: 0;   transform: scale(0.9); }
         }
 
         /* Reduced motion: final state, shimmer calmer */
@@ -324,12 +352,4 @@ function computeProgress(section: HTMLElement | null, startAt: number, completeA
   const denom = Math.max(1, b - a);
   const raw = (a - r.top) / denom;
   return clamp(raw, 0, 1);
-}
-
-/** Smooth pulse peaked at 'center', fading to 0 by ±'width' */
-function smoothPulse(p: number, center: number, width: number) {
-  const d = Math.abs(p - center);
-  if (d >= width) return 0;
-  const t = 1 - clamp(d / Math.max(1e-6, width), 0, 1);
-  return t * t * (3 - 2 * t); // smoothstep reversed
 }
