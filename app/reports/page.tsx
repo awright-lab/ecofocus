@@ -21,48 +21,32 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 
-/* Pull reports from the catalog (now strongly typed ReportProduct[]) */
 import { SMALL_REPORTS } from '@/lib/catalog';
 
 /* ——— Topics (unchanged) ——— */
 const PAID_TOPICS = ['Packaging', 'Claims & Messaging', 'Consumer Segments', 'Retail & Channel', 'Category Deep Dives'];
 const FREE_TOPICS = ['The Green Mindset', 'Packaging in the Spotlight', 'Trust & Accountability', 'The Recycling Reality', 'The Price of Green', 'Knowledge is Power'];
 
-/* Slides fed into the mini carousel */
+/* Slides */
 type Slide = { title: string; image: string; href: string };
 
 const toSlides = (list: typeof SMALL_REPORTS): Slide[] =>
-  list.map((p) => ({
-    title: p.title,
-    image: p.img,           // guaranteed string by ReportProduct
-    href: `/store/${p.id}`, // tweak if your detail route differs
-  }));
+  list.map((p) => ({ title: p.title, image: p.img, href: `/store/${p.id}` }));
 
-const byYearDesc = (a: (typeof SMALL_REPORTS)[number], b: (typeof SMALL_REPORTS)[number]) =>
-  b.year - a.year;
+const byYearDesc = (a: (typeof SMALL_REPORTS)[number], b: (typeof SMALL_REPORTS)[number]) => b.year - a.year;
 
-/* Build Paid / Free slide sets from the catalog */
 const PAID_SLIDES: Slide[] = toSlides(
-  [...SMALL_REPORTS]
-    .filter((p) => p.accessModel === 'paid-direct' || p.accessModel === 'paid-contact')
-    .sort(byYearDesc)
-    .slice(0, 8)
+  [...SMALL_REPORTS].filter((p) => p.accessModel === 'paid-direct' || p.accessModel === 'paid-contact').sort(byYearDesc).slice(0, 8)
 );
-
 const FREE_SLIDES: Slide[] = toSlides(
-  [...SMALL_REPORTS]
-    .filter((p) => p.accessModel === 'free-gated' || p.accessModel === 'free-open')
-    .sort(byYearDesc)
-    .slice(0, 8)
+  [...SMALL_REPORTS].filter((p) => p.accessModel === 'free-gated' || p.accessModel === 'free-open').sort(byYearDesc).slice(0, 8)
 );
 
 export default function ReportsForkPage() {
   return (
     <>
       <Header />
-
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Reports' }]} />
-
       <StoreHero />
 
       {/* Stats strip */}
@@ -119,7 +103,7 @@ export default function ReportsForkPage() {
         </div>
       </section>
 
-      {/* Topics quick links */}
+      {/* Topics quick links (unchanged) */}
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-6 pb-4">
           <div className="rounded-2xl border bg-gradient-to-b from-emerald-50 to-white p-6">
@@ -129,7 +113,6 @@ export default function ReportsForkPage() {
             </div>
 
             <div className="mt-4 grid md:grid-cols-2 gap-6">
-              {/* Paid topics */}
               <div>
                 <div className="text-xs font-semibold text-emerald-800/80">Paid reports</div>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -145,7 +128,6 @@ export default function ReportsForkPage() {
                 </div>
               </div>
 
-              {/* Free topics */}
               <div>
                 <div className="text-xs font-semibold text-emerald-800/80">Free reports</div>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -162,7 +144,6 @@ export default function ReportsForkPage() {
               </div>
             </div>
 
-            {/* Secondary CTAs */}
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 href="/solutions/syndicated-study-2025"
@@ -181,7 +162,7 @@ export default function ReportsForkPage() {
         </div>
       </section>
 
-      {/* Dashboard promo */}
+      {/* Dashboard promo + FAQ (unchanged) */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-blue-600/10" />
         <div className="relative mx-auto max-w-7xl px-6 py-10">
@@ -203,7 +184,6 @@ export default function ReportsForkPage() {
         </div>
       </section>
 
-      {/* FAQ */}
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-6 pb-16">
           <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide mb-3">
@@ -260,6 +240,9 @@ function Stat({
   );
 }
 
+/* ===== Carousel handle so parent can control it ===== */
+type CarouselHandle = { next: () => void; prev: () => void; goTo: (i: number) => void };
+
 /* ======================= UPDATED CARD ======================= */
 function ChoiceCard({
   eyebrow,
@@ -276,11 +259,13 @@ function ChoiceCard({
   cta: string;
   slides?: Slide[];
 }) {
+  const carRef = React.useRef<CarouselHandle>(null);
+
   return (
     <div className="group rounded-2xl border border-gray-200 bg-white hover:border-emerald-300 hover:shadow-sm transition">
       <div className="grid md:grid-cols-2 gap-0">
         {/* Copy */}
-        <div className="p-6">
+        <div className="p-6 flex flex-col">
           <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
             <span className="h-2 w-2 rounded-full bg-emerald-600" />
             <span className="text-black/60">{eyebrow}</span>
@@ -296,144 +281,158 @@ function ChoiceCard({
           </ul>
           <Link
             href={href}
-            className="mt-5 inline-flex items-center gap-1 rounded-full border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+            className="mt-5 inline-flex w-max items-center gap-1 rounded-full border border-emerald-600 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
           >
             {cta} <ArrowRight className="h-4 w-4" />
           </Link>
+
+          {/* Moved arrows here (bottom-left of copy column) */}
+          <div className="mt-4 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => carRef.current?.prev()}
+              aria-label="Previous"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow hover:bg-gray-50"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => carRef.current?.next()}
+              aria-label="Next"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow hover:bg-gray-50"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        {/* Carousel */}
-        <div className="border-t md:border-t-0 md:border-l border-gray-200">
-          <MiniCarousel items={slides} />
+        {/* Carousel — divider removed */}
+        <div>
+          <MiniCarousel ref={carRef} items={slides} auto interval={4000} />
         </div>
       </div>
     </div>
   );
 }
 
-/* ==================== Mini Carousel (A11y) ==================== */
-function MiniCarousel({ items }: { items: Slide[] }) {
-  const [index, setIndex] = React.useState(0);
-  const trackRef = React.useRef<HTMLDivElement | null>(null);
-  const count = items.length;
+/* ==================== Mini Carousel ==================== */
+const MiniCarousel = React.forwardRef<CarouselHandle, { items: Slide[]; auto?: boolean; interval?: number }>(
+  ({ items, auto = true, interval = 4000 }, ref) => {
+    const [index, setIndex] = React.useState(0);
+    const trackRef = React.useRef<HTMLDivElement | null>(null);
+    const viewportRef = React.useRef<HTMLDivElement | null>(null);
+    const count = items.length;
 
-  const goTo = (i: number) => setIndex((i + count) % count);
-  const next = () => setIndex((i) => (i + 1) % count);
-  const prev = () => setIndex((i) => (i - 1 + count) % count);
+    const goTo = React.useCallback((i: number) => setIndex(((i % count) + count) % count), [count]);
+    const next = React.useCallback(() => setIndex((i) => (i + 1) % count), [count]);
+    const prev = React.useCallback(() => setIndex((i) => (i - 1 + count) % count), [count]);
 
-  // drag/swipe
-  const startX = React.useRef<number | null>(null);
-  const deltaX = React.useRef<number>(0);
+    React.useImperativeHandle(ref, () => ({ next, prev, goTo }), [next, prev, goTo]);
 
-  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    startX.current = e.clientX;
-    deltaX.current = 0;
-    trackRef.current?.setPointerCapture(e.pointerId);
-  };
-  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (startX.current === null || !trackRef.current) return;
-    deltaX.current = e.clientX - startX.current;
-    trackRef.current.style.transition = 'none';
-    trackRef.current.style.transform = `translateX(calc(${-index * 100}% + ${deltaX.current}px))`;
-  };
-  const settle = () => {
-    if (!trackRef.current) return;
-    trackRef.current.style.transition = 'transform 320ms ease';
-    trackRef.current.style.transform = `translateX(-${index * 100}%)`;
-    startX.current = null;
-    deltaX.current = 0;
-  };
-  const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
-    try { trackRef.current?.releasePointerCapture(e.pointerId); } catch {}
-  
-    if (Math.abs(deltaX.current) > 50) {
-      if (deltaX.current < 0) {
-        next();
-      } else {
-        prev();
+    // drag/swipe
+    const startX = React.useRef<number | null>(null);
+    const deltaX = React.useRef<number>(0);
+
+    const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+      startX.current = e.clientX;
+      deltaX.current = 0;
+      trackRef.current?.setPointerCapture(e.pointerId);
+    };
+    const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+      if (startX.current === null || !trackRef.current) return;
+      deltaX.current = e.clientX - startX.current;
+      trackRef.current.style.transition = 'none';
+      trackRef.current.style.transform = `translateX(calc(${-index * 100}% + ${deltaX.current}px))`;
+    };
+    const settle = () => {
+      if (!trackRef.current) return;
+      trackRef.current.style.transition = 'transform 320ms ease';
+      trackRef.current.style.transform = `translateX(-${index * 100}%)`;
+      startX.current = null;
+      deltaX.current = 0;
+    };
+    const onPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+      try { trackRef.current?.releasePointerCapture(e.pointerId); } catch {}
+      if (Math.abs(deltaX.current) > 50) {
+        if (deltaX.current < 0) next(); else prev();
       }
+      settle();
+    };
+    const onPointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
+      try { trackRef.current?.releasePointerCapture(e.pointerId); } catch {}
+      settle();
+    };
+
+    // auto-rotate (pause on hover/focus)
+    const [paused, setPaused] = React.useState(false);
+    React.useEffect(() => {
+      if (!auto || paused || count <= 1) return;
+      const id = window.setInterval(next, interval);
+      return () => window.clearInterval(id);
+    }, [auto, paused, count, interval, next]);
+
+    React.useEffect(() => {
+      if (!trackRef.current) return;
+      trackRef.current.style.transition = 'transform 320ms ease';
+      trackRef.current.style.transform = `translateX(-${index * 100}%)`;
+    }, [index]);
+
+    if (!count) {
+      return (
+        <div className="flex h-full items-center justify-center p-6 text-sm text-gray-500">
+          No previews yet.
+        </div>
+      );
     }
-  
-    settle();
-  };  
-  const onPointerCancel = (e: React.PointerEvent<HTMLDivElement>) => {
-    try { trackRef.current?.releasePointerCapture(e.pointerId); } catch {}
-    settle();
-  };
 
-  React.useEffect(() => {
-    if (!trackRef.current) return;
-    trackRef.current.style.transition = 'transform 320ms ease';
-    trackRef.current.style.transform = `translateX(-${index * 100}%)`;
-  }, [index]);
-
-  if (!count) {
     return (
-      <div className="flex h-full items-center justify-center p-6 text-sm text-gray-500">
-        No previews yet.
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative h-full p-4" role="region" aria-label="Report previews">
-      {/* viewport */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white" aria-roledescription="carousel">
-        {/* track */}
-        <div
-          ref={trackRef}
-          className="flex select-none touch-pan-y"
-          style={{ transform: `translateX(-${index * 100}%)` }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerCancel}
-        >
-          {items.map((s) => (
-            <div key={s.href} className="w-full shrink-0">
-              <Link href={s.href} className="group block relative">
-                <div className="relative aspect-[3/4] w-full">
-                  <Image
-                    src={s.image}
-                    alt={s.title}
-                    fill
-                    sizes="(min-width: 768px) 40vw, 90vw"
-                    className="object-cover"
-                  />
-                  <div className="pointer-events-none absolute inset-0 rounded-xl ring-0 ring-emerald-400/0 group-hover:ring-4 group-hover:ring-emerald-400/20 transition" />
-                </div>
-                <div className="p-3">
-                  <div className="line-clamp-2 text-sm font-semibold text-gray-900">{s.title}</div>
-                  <div className="mt-0.5 text-xs text-emerald-700">View report</div>
-                </div>
-              </Link>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* controls */}
-      <div className="mt-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={prev}
-            aria-label="Previous"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow hover:bg-gray-50"
+      <div
+        className="relative h-full p-4"
+        role="region"
+        aria-label="Report previews"
+        ref={viewportRef}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={() => setPaused(false)}
+      >
+        {/* viewport (no hover effect) */}
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white" aria-roledescription="carousel">
+          {/* track */}
+          <div
+            ref={trackRef}
+            className="flex select-none touch-pan-y"
+            style={{ transform: `translateX(-${index * 100}%)` }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerCancel}
           >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={next}
-            aria-label="Next"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow hover:bg-gray-50"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+            {items.map((s) => (
+              <div key={s.href} className="w-full shrink-0">
+                <Link href={s.href} className="block relative">
+                  <div className="relative aspect-[3/4] w-full">
+                    <Image
+                      src={s.image}
+                      alt={s.title}
+                      fill
+                      sizes="(min-width: 768px) 40vw, 90vw"
+                      className="object-cover" // <— no group-hover ring or overlay
+                    />
+                  </div>
+                  <div className="p-3">
+                    <div className="line-clamp-2 text-sm font-semibold text-gray-900">{s.title}</div>
+                    <div className="mt-0.5 text-xs text-emerald-700">View report</div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5" role="tablist" aria-label="Slides">
+        {/* dots (kept) */}
+        <div className="mt-3 flex items-center justify-end gap-1.5" role="tablist" aria-label="Slides">
           {items.map((_, i) => (
             <button
               key={i}
@@ -446,9 +445,10 @@ function MiniCarousel({ items }: { items: Slide[] }) {
           ))}
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
+MiniCarousel.displayName = 'MiniCarousel';
 
 /* ========================= FAQ ========================= */
 function FAQ({ q, a }: { q: string; a: string }) {
