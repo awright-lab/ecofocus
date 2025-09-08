@@ -263,9 +263,10 @@ function ChoiceCard({
 
   return (
     <div className="group rounded-2xl border border-gray-200 bg-white hover:border-emerald-300 hover:shadow-sm transition">
-      <div className="grid md:grid-cols-2 gap-0">
-        {/* Copy */}
-        <div className="p-6 flex flex-col">
+      {/* Make the whole card a positioning context */}
+      <div className="relative grid md:grid-cols-2 gap-0">
+        {/* Copy column */}
+        <div className="p-6 flex flex-col md:pb-16">
           <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
             <span className="h-2 w-2 rounded-full bg-emerald-600" />
             <span className="text-black/60">{eyebrow}</span>
@@ -286,8 +287,8 @@ function ChoiceCard({
             {cta} <ArrowRight className="h-4 w-4" />
           </Link>
 
-          {/* Moved arrows here (bottom-left of copy column) */}
-          <div className="mt-4 flex items-center gap-2">
+          {/* Mobile-only arrows (stay below CTA on small screens) */}
+          <div className="mt-4 flex items-center gap-2 md:hidden">
             <button
               type="button"
               onClick={() => carRef.current?.prev()}
@@ -307,9 +308,29 @@ function ChoiceCard({
           </div>
         </div>
 
-        {/* Carousel — divider removed */}
+        {/* Carousel (no divider) */}
         <div>
           <MiniCarousel ref={carRef} items={slides} auto interval={4000} />
+        </div>
+
+        {/* Desktop arrows pinned to bottom-left of the card */}
+        <div className="hidden md:flex absolute left-6 bottom-4 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => carRef.current?.prev()}
+            aria-label="Previous"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow hover:bg-gray-50"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => carRef.current?.next()}
+            aria-label="Next"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-800 shadow hover:bg-gray-50"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>
