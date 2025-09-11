@@ -1,3 +1,5 @@
+'use client'
+
 import dynamic from 'next/dynamic'
 
 const HubSpotForm = dynamic(() => import('@/components/intergrations/HubSpotForm'), { ssr: false })
@@ -13,4 +15,3 @@ export default function NewsletterBox() {
     </div>
   )
 }
-
