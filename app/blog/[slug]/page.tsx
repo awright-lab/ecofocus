@@ -2,22 +2,22 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { fetchPostBySlug } from '@/lib/cms'
-import { formatDate, estReadTimeFromHTML } from '@/lib/utils'
+import { getPostBySlug } from '@/lib/payload'
+import PostMeta from '@/components/blog/PostMeta'
+import PostBody from '@/components/blog/PostBody'
+import NewsletterBox from '@/components/blog/NewsletterBox'
+import { estReadTimeFromHTML } from '@/lib/utils'
 import InlineCTA from '@/components/blog/InlineCTA'
 import RelatedReportsCTA from '@/components/blog/RelatedReportsCTA'
-import SubscribeStrip from '@/components/blog/SubscribeStrip'
 
 export const dynamicParams = true
 
 // NOTE: Promise-based params to match your project typing
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams?: Promise<Record<string, string | string[]>> }): Promise<Metadata> {
   const { slug } = await params
-  const post = await fetchPostBySlug(slug)
+  const sp = (await searchParams) || {}
+  const preview = Array.isArray(sp.preview) ? sp.preview[0] : (sp.preview as string | undefined)
+  const post = await getPostBySlug(slug, preview)
   return {
     title: post ? `${post.title} | EcoFocus Blog` : 'EcoFocus Blog',
     description: post?.excerpt || 'EcoFocus insights on sustainability and growth.',
@@ -32,13 +32,11 @@ export async function generateMetadata({
 }
 
 // Promise-based params here too
-export default async function ArticlePage({
-  params,
-}: {
-  params: Promise<{ slug: string }>
-}) {
+export default async function ArticlePage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams?: Promise<Record<string, string | string[]>> }) {
   const { slug } = await params
-  const post = await fetchPostBySlug(slug)
+  const sp = (await searchParams) || {}
+  const preview = Array.isArray(sp.preview) ? sp.preview[0] : (sp.preview as string | undefined)
+  const post: any = await getPostBySlug(slug, preview)
 
   if (!post) {
     return (
@@ -65,11 +63,7 @@ export default async function ArticlePage({
         <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-10 text-white">
           <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">EcoFocus Insights</p>
           <h1 className="mt-2 text-3xl sm:text-4xl font-semibold leading-tight max-w-4xl">{post.title}</h1>
-          <div className="mt-3 text-sm text-white/90 flex flex-wrap items-center gap-3">
-            {post.author?.name && <span>{post.author.name}</span>}
-            {post.publishedAt && <span>• {formatDate(post.publishedAt)}</span>}
-            <span>• {readTime} min read</span>
-          </div>
+          <PostMeta author={post.author} date={post.publishedAt} readTime={readTime} />
         </div>
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-50 to-transparent" />
       </section>
@@ -96,23 +90,14 @@ export default async function ArticlePage({
           sub="See how teams use our dashboard for roadmap, pricing, and packaging decisions."
         />
 
-        {post.html ? (
-          <div
-            className="prose prose-emerald max-w-none prose-headings:scroll-mt-24 prose-img:rounded-xl"
-            dangerouslySetInnerHTML={{ __html: post.html }}
-          />
-        ) : (
-          <div className="prose prose-emerald max-w-none">
-            <p>Article body coming soon.</p>
-          </div>
-        )}
+        <PostBody blocks={post.body} html={post.html} />
 
         <InlineCTA variant="sample" sub="Grab a sample of the 2025 Sustainability Insights Report." />
 
         <RelatedReportsCTA />
 
         <div className="mt-12">
-          <SubscribeStrip />
+          <NewsletterBox />
         </div>
       </article>
     </main>

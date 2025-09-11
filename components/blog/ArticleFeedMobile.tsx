@@ -45,7 +45,7 @@ export default function ArticleFeedMobile({
     url.searchParams.set('depth', '2')
     // naive filters; adjust to your schema if needed
     if (q) url.searchParams.set('where[title][like]', q)
-    if (category) url.searchParams.set('where[categories.slug][equals]', category)
+    if (category) url.searchParams.set('where[topics.slug][equals]', category)
     if (sort === 'popular') url.searchParams.set('sort', '-views') // example; swap for your field
     else url.searchParams.set('sort', '-publishedAt')
     return url.toString()

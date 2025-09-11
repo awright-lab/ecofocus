@@ -1,7 +1,7 @@
 // app/blog/page.tsx
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { fetchPosts, fetchCategories } from '@/lib/cms'
+import { getPosts, getTopics } from '@/lib/payload'
 import BlogCard from '@/components/blog/BlogCard'
 import BlogFilterBar from '@/components/blog/BlogFilterBar'
 import SubscribeStrip from '@/components/blog/SubscribeStrip'
@@ -28,13 +28,13 @@ export default async function BlogIndex({
   const sp = (await searchParams) || {}
 
   const q = pickFirst(sp.q)
-  const category = pickFirst(sp.category)
+  const topic = pickFirst(sp.topic)
   const sort = (pickFirst(sp.sort) as 'new' | 'popular' | undefined) || 'new'
   const page = Number(pickFirst(sp.page) || 1)
 
   const [cats, paged] = await Promise.all([
-    fetchCategories(),
-    fetchPosts({ q, category, sort, page, limit: 12 }),
+    getTopics(),
+    getPosts({ q, topicSlug: topic, page, limit: 12 }),
   ])
 
   const { docs, totalDocs, totalPages } = paged
@@ -59,7 +59,7 @@ export default async function BlogIndex({
                 ? 'No results.'
                 : `Showing ${docs.length} of ${totalDocs} result${totalDocs === 1 ? '' : 's'}`}
             </p>
-            {(q || category) && (
+            {(q || topic) && (
               <Link
                 href="/blog"
                 className="text-sm font-medium text-emerald-700 hover:underline decoration-emerald-500/40"
@@ -70,17 +70,17 @@ export default async function BlogIndex({
           </div>
 
           {/* Mobile: compact, infinite-friendly list */}
-          <ArticleFeedMobile
-            initial={{
-              docs,
-              page,
-              totalPages,
-              totalDocs,
-            }}
-            q={q}
-            category={category}
-            sort={sort}
-          />
+              <ArticleFeedMobile
+                initial={{
+                  docs,
+                  page,
+                  totalPages,
+                  totalDocs,
+                }}
+                q={q}
+            category={topic || undefined}
+                sort={sort}
+              />
 
           {/* Desktop / tablet: grid with pagination */}
           <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -96,7 +96,7 @@ export default async function BlogIndex({
                 const isActive = n === page
                 const spOut = new URLSearchParams()
                 if (q) spOut.set('q', q)
-                if (category) spOut.set('category', category)
+                if (topic) spOut.set('topic', topic)
                 if (sort) spOut.set('sort', sort)
                 spOut.set('page', String(n))
                 return (
@@ -126,6 +126,5 @@ export default async function BlogIndex({
     </>
   )
 }
-
 
 
