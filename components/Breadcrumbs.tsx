@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 type Crumb = { label: string; href?: string };
 
-export default function Breadcrumbs({ items }: { items: Crumb[] }) {
+export default function Breadcrumbs({ items, maxWidth = 'max-w-7xl' }: { items: Crumb[]; maxWidth?: string }) {
   return (
     <nav
       aria-label="Breadcrumb"
@@ -13,7 +13,7 @@ export default function Breadcrumbs({ items }: { items: Crumb[] }) {
       itemScope
       itemType="https://schema.org/BreadcrumbList"
     >
-      <ol className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+      <ol className={`mx-auto ${maxWidth} px-4 sm:px-6 flex flex-wrap items-center gap-2 text-sm text-gray-600`}>
         {items.map((item, idx) => {
           const isLast = idx === items.length - 1;
           return (

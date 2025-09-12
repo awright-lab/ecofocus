@@ -84,7 +84,7 @@ export default async function ArticlePage({
 
       {/* COVER */}
       {post.coverImage?.url && (
-        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 -mt-12">
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 mt-4">
           <div className="relative h-[320px] w-full overflow-hidden rounded-2xl shadow ring-1 ring-black/5">
             <Image
               src={post.coverImage.url}
@@ -98,7 +98,7 @@ export default async function ArticlePage({
       )}
 
       {/* BREADCRUMBS */}
-      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]} />
+      <Breadcrumbs maxWidth="max-w-5xl" items={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]} />
 
       {/* BODY + SIDEBAR */}
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
@@ -118,9 +118,13 @@ export default async function ArticlePage({
             <RelatedList currentSlug={slug} topicSlug={post?.categories?.[0]?.slug} />
             <div className="rounded-2xl bg-white p-5 ring-1 ring-black/5 shadow-sm">
               <h3 className="text-base font-semibold text-gray-900">Explore Our Reports</h3>
-              <div className="mt-3">
-                <RelatedReportsCTA />
-              </div>
+              <p className="mt-2 text-sm text-gray-600">Dive deeper into our latest research and insights.</p>
+              <a
+                href="/reports"
+                className="mt-3 inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+              >
+                Browse reports
+              </a>
             </div>
           </aside>
         </div>
