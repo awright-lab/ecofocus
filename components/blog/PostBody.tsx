@@ -98,7 +98,7 @@ export default function PostBody({ blocks, html }: { blocks?: any; html?: string
 
   return (
     <div className="prose prose-emerald max-w-none">
-      {blocks.map((b, i) => {
+      {(blocks as any[]).map((b: any, i: number) => {
         const isRich = (v: any) => v && typeof v === 'object' && ('root' in v || Array.isArray(v))
 
         const imgFrom = (node: any): { url: string; alt?: string } | null => {
