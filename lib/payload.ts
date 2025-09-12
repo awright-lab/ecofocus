@@ -192,6 +192,6 @@ export async function getPostBySlug(slug: string, draftToken?: string): Promise<
   if (!doc) return null
   // Return both mapped and raw for body blocks
   const post = mapPost(doc) as any
-  post.body = doc.body || doc.layout || doc.blocks || []
+  post.body = doc.body || doc.layout || doc.blocks || doc.content || doc.richText || []
   return post
 }

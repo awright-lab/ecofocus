@@ -24,7 +24,15 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
   return (
     <div className="prose prose-emerald max-w-none">
       {blocks.map((b, i) => {
-        const isRich = (v: any) => v && typeof v === 'object' && 'root' in v
+        const isRich = (v: any) => v && typeof v === 'object' && ('root' in v || Array.isArray(v))
+
+        const imgFrom = (node: any): { url: string; alt?: string } | null => {
+          if (!node) return null
+          const src = node.url || node.src || node?.image?.url || node?.value?.url || node?.sizes?.[0]?.url || node?.large?.url || node?.filename || node?.secure_url
+          if (!src) return null
+          const alt = node.alt || node?.image?.alt || node?.value?.alt || node?.caption
+          return { url: src, alt }
+        }
 
         const textFromRich = (v: any): string => {
           try {
@@ -63,6 +71,13 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
                   return `<p>${inner}</p>`
                 case 'quote':
                   return `<blockquote>${inner}</blockquote>`
+                case 'linebreak':
+                  return '<br />'
+                case 'link': {
+                  const href = node.url || node.href || '#'
+                  const attrs = `href="${escapeHtml(href)}"${node.newTab ? ' target="_blank" rel="noopener noreferrer"' : ''}`
+                  return `<a ${attrs}>${inner}</a>`
+                }
                 case 'list': {
                   const tag = node.listType === 'number' ? 'ol' : 'ul'
                   return `<${tag}>${inner}</${tag}>`
@@ -70,8 +85,15 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
                 case 'listitem':
                   return `<li>${inner}</li>`
                 case 'heading': {
-                  const tag = node.tag || 'h2'
+                  const tag = node.tag || (node.level ? `h${Math.min(6, Math.max(1, node.level))}` : 'h2')
                   return `<${tag}>${inner}</${tag}>`
+                }
+                case 'upload':
+                case 'image': {
+                  const img = imgFrom(node.value || node.image || node)
+                  if (!img?.url) return ''
+                  const alt = img.alt ? ` alt="${escapeHtml(img.alt)}"` : ''
+                  return `<img src="${escapeHtml(img.url)}"${alt} />`
                 }
                 default:
                   return inner
@@ -102,8 +124,14 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
             }
             return <p key={i}>{b.text || b.content || ''}</p>
           case 'image':
-          case 'ImageBlock': {
-            const url = b?.image?.url || b?.url
+          case 'Image':
+          case 'ImageBlock':
+          case 'media':
+          case 'Media':
+          case 'figure':
+          case 'Figure': {
+            const from = imgFrom(b.image || b.media || b)
+            const url = from?.url || b?.url
             const alt = b?.image?.alt || b?.alt || ''
             if (!url) return null
             return (
