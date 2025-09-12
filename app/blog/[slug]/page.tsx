@@ -6,7 +6,6 @@ import { estReadTimeFromHTML } from '@/lib/utils'
 import PostMeta from '@/components/blog/PostMeta'
 import PostBody from '@/components/blog/PostBody'
 import NewsletterBox from '@/components/blog/NewsletterBox'
-import RelatedReportsCTA from '@/components/blog/RelatedReportsCTA'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import SocialShare from '@/components/blog/SocialShare'
 import TableOfContents from '@/components/blog/TableOfContents'
@@ -119,12 +118,12 @@ export default async function ArticlePage({
             <div className="rounded-2xl bg-white p-5 ring-1 ring-black/5 shadow-sm">
               <h3 className="text-base font-semibold text-gray-900">Explore Our Reports</h3>
               <p className="mt-2 text-sm text-gray-600">Dive deeper into our latest research and insights.</p>
-              <a
+              <Link
                 href="/reports"
                 className="mt-3 inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
               >
                 Browse reports
-              </a>
+              </Link>
             </div>
           </aside>
         </div>
