@@ -4,6 +4,7 @@ type Block = {
 }
 
 export default function PostBody({ blocks, html }: { blocks?: any; html?: string }) {
+  const CMS_BASE = process.env.NEXT_PUBLIC_CMS_URL?.replace(/\/$/, '') || ''
   if (html) {
     return (
       <div
@@ -22,9 +23,16 @@ export default function PostBody({ blocks, html }: { blocks?: any; html?: string
       .replace(/\"/g, '&quot;')
       .replace(/'/g, '&#039;')
 
+  const absolutize = (u?: string) => {
+    if (!u) return u
+    if (/^https?:\/\//i.test(u)) return u
+    return CMS_BASE ? `${CMS_BASE}${u.startsWith('/') ? u : '/' + u}` : u
+  }
+
   const imgFromTop = (node: any): { url: string; alt?: string } | null => {
     if (!node) return null
-    const src = node.url || node.src || node?.image?.url || node?.value?.url || node?.sizes?.[0]?.url || node?.large?.url || node?.filename || node?.secure_url
+    const raw = node.url || node.src || node?.image?.url || node?.value?.url || node?.sizes?.[0]?.url || node?.large?.url || node?.filename || node?.secure_url
+    const src = absolutize(raw)
     if (!src) return null
     const alt = node.alt || node?.image?.alt || node?.value?.alt || node?.caption
     return { url: src, alt }
@@ -101,9 +109,16 @@ export default function PostBody({ blocks, html }: { blocks?: any; html?: string
       {(blocks as any[]).map((b: any, i: number) => {
         const isRich = (v: any) => v && typeof v === 'object' && ('root' in v || Array.isArray(v))
 
+        const absolutize = (u?: string) => {
+          if (!u) return u
+          if (/^https?:\/\//i.test(u)) return u
+          return CMS_BASE ? `${CMS_BASE}${u.startsWith('/') ? u : '/' + u}` : u
+        }
+
         const imgFrom = (node: any): { url: string; alt?: string } | null => {
           if (!node) return null
-          const src = node.url || node.src || node?.image?.url || node?.value?.url || node?.sizes?.[0]?.url || node?.large?.url || node?.filename || node?.secure_url
+          const raw = node.url || node.src || node?.image?.url || node?.value?.url || node?.sizes?.[0]?.url || node?.large?.url || node?.filename || node?.secure_url
+          const src = absolutize(raw)
           if (!src) return null
           const alt = node.alt || node?.image?.alt || node?.value?.alt || node?.caption
           return { url: src, alt }
@@ -201,13 +216,15 @@ export default function PostBody({ blocks, html }: { blocks?: any; html?: string
           case 'image':
           case 'Image':
           case 'ImageBlock':
+          case 'imageBlock':
           case 'media':
           case 'Media':
+          case 'mediaBlock':
           case 'figure':
           case 'Figure': {
-            const from = imgFrom(b.image || b.media || b)
-            const url = from?.url || b?.url
-            const alt = b?.image?.alt || b?.alt || ''
+            const from = imgFrom(b.image || b.media || b.upload || (b.value && (b.value.image || b.value.media)) || b)
+            const url = from?.url || absolutize(b?.url)
+            const alt = b?.image?.alt || b?.media?.alt || b?.alt || ''
             if (!url) return null
             return (
               <figure key={i} className="my-6">
@@ -218,6 +235,11 @@ export default function PostBody({ blocks, html }: { blocks?: any; html?: string
                 )}
               </figure>
             )
+          }
+          case 'content':
+          case 'richText': {
+            const out = htmlFromRich(b.richText || b.content)
+            return <div key={i} dangerouslySetInnerHTML={{ __html: out }} />
           }
           case 'PullQuote':
           case 'pullQuote':
