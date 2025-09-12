@@ -94,6 +94,10 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
               const out = htmlFromRich(b.richText)
               return <div key={i} dangerouslySetInnerHTML={{ __html: out }} />
             }
+            if (isRich(b.content)) {
+              const out = htmlFromRich(b.content)
+              return <div key={i} dangerouslySetInnerHTML={{ __html: out }} />
+            }
             return <p key={i}>{b.text || b.content || ''}</p>
           case 'image':
           case 'ImageBlock': {

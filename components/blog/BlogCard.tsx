@@ -46,7 +46,7 @@ export default function BlogCard({ post }: { post: Post }) {
           </Link>
         </h3>
 
-        {post.excerpt && (
+        {typeof post.excerpt === 'string' && post.excerpt && (
           <p className="mt-2 text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
         )}
 

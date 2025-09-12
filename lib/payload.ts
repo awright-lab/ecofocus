@@ -56,11 +56,33 @@ function mapImage(node: any): { url: string; alt?: string } | null {
   return { url, alt: node?.alt || node?.caption }
 }
 
+function isRich(v: any) {
+  return v && typeof v === 'object' && ('root' in v || Array.isArray(v))
+}
+
+function richToText(v: any): string {
+  try {
+    const walk = (node: any): string => {
+      if (!node) return ''
+      if (Array.isArray(node)) return node.map(walk).join('')
+      const type = node.type
+      if (type === 'text') return node.text || ''
+      if (node.children) return node.children.map(walk).join('')
+      if (node.root) return walk(node.root)
+      return ''
+    }
+    return walk(v)
+  } catch {
+    return ''
+  }
+}
+
 function mapAuthor(a: any): Author | null {
   if (!a) return null
+  const nm = a.name || [a.firstName, a.lastName].filter(Boolean).join(' ')
   return {
     id: String(a.id ?? a._id ?? a.slug ?? a.email ?? 'author'),
-    name: a.name || [a.firstName, a.lastName].filter(Boolean).join(' ') || 'Author',
+    name: isRich(nm) ? richToText(nm) : (nm || 'Author'),
     role: a.role || a.title,
     avatarUrl: a.avatar?.url || a.image?.url || a.photo?.url,
   }
@@ -70,24 +92,37 @@ function mapTopics(arr: any[]): Topic[] {
   if (!Array.isArray(arr)) return []
   return arr.map((t) => ({
     id: String(t.id ?? t._id ?? t.slug ?? t.name),
-    slug: t.slug || String(t.id ?? t._id ?? ''),
-    name: t.name || t.title || t.slug || 'Topic',
+    slug: typeof t.slug === 'string' ? t.slug : String(t.id ?? t._id ?? ''),
+    name: typeof t.name === 'string' ? t.name : (isRich(t.name) ? richToText(t.name) : (t.title || t.slug || 'Topic')),
     color: t.color,
   }))
 }
 
 function mapPost(p: any): Post {
+  const titleVal = p.title
+  const dekVal = p.dek ?? p.excerpt ?? p.description
   return {
     id: String(p.id ?? p._id ?? p.slug),
-    title: p.title,
+    title: isRich(titleVal) ? richToText(titleVal) : titleVal,
     slug: p.slug,
-    excerpt: p.dek || p.excerpt || p.description,
+    excerpt: isRich(dekVal) ? richToText(dekVal) : dekVal,
     coverImage: mapImage(p.hero || p.heroImage || p.cover || p.image || p.featuredImage),
     html: p.html, // optional; if using blocks, render via PostBody
     publishedAt: p.publishedAt || p._publishedAt || p.createdAt || p.updatedAt,
     updatedAt: p.updatedAt,
     categories: mapTopics(p.topics || p.categories || []),
-    tags: Array.isArray(p.tags) ? p.tags.map((t: any) => ({ id: String(t.id ?? t._id ?? t.slug), slug: t.slug || String(t.id ?? ''), name: t.name || t.title || t.slug })) : undefined,
+    tags: Array.isArray(p.tags)
+      ? p.tags.map((t: any) => ({
+          id: String(t.id ?? t._id ?? t.slug),
+          slug: typeof t.slug === 'string' ? t.slug : String(t.id ?? ''),
+          name:
+            typeof t.name === 'string'
+              ? t.name
+              : isRich(t.name)
+              ? richToText(t.name)
+              : t.title || t.slug,
+        }))
+      : undefined,
     author: mapAuthor(p.author),
     readTime: p.readTime,
     featured: !!p.featured,

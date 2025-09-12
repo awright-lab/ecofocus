@@ -46,7 +46,7 @@ export default function BlogCardCompact({ post }: { post: Post }) {
           {post.title}
         </h3>
 
-        {post.excerpt && (
+        {typeof post.excerpt === 'string' && post.excerpt && (
           <p className="mt-1 text-xs text-gray-600 line-clamp-2">{post.excerpt}</p>
         )}
 
