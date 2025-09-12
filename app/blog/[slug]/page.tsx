@@ -17,15 +17,12 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { slug: string }
-  searchParams?: { [key: string]: string | string[] }
+  params: Promise<{ slug: string }>
+  searchParams?: Promise<Record<string, string | string[]>>
 }): Promise<Metadata> {
-  const { slug } = params
-  const preview = typeof searchParams?.preview === 'string'
-    ? (searchParams!.preview as string)
-    : Array.isArray(searchParams?.preview)
-    ? (searchParams!.preview as string[])[0]
-    : undefined
+  const { slug } = await params
+  const sp = (await searchParams) || {}
+  const preview = Array.isArray(sp.preview) ? sp.preview[0] : (sp.preview as string | undefined)
   const post = await getPostBySlug(slug, preview)
   return {
     title: post ? `${post.title} | EcoFocus Blog` : 'EcoFocus Blog',
@@ -44,15 +41,12 @@ export default async function ArticlePage({
   params,
   searchParams,
 }: {
-  params: { slug: string }
-  searchParams?: { [key: string]: string | string[] }
+  params: Promise<{ slug: string }>
+  searchParams?: Promise<Record<string, string | string[]>>
 }) {
-  const { slug } = params
-  const preview = typeof searchParams?.preview === 'string'
-    ? (searchParams!.preview as string)
-    : Array.isArray(searchParams?.preview)
-    ? (searchParams!.preview as string[])[0]
-    : undefined
+  const { slug } = await params
+  const sp = (await searchParams) || {}
+  const preview = Array.isArray(sp.preview) ? sp.preview[0] : (sp.preview as string | undefined)
 
   const post: any = await getPostBySlug(slug, preview)
 
