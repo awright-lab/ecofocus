@@ -42,7 +42,7 @@ export default function BlogHero({
 
   videoMp4 = 'https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-8.mp4',
   videoWebm = '',
-  poster = '/images/blog/hero-poster.jpg',
+  poster = '/images/hero-cover.png',
 
   align = 'left',
   className = '',

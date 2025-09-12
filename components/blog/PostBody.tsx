@@ -42,6 +42,14 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
           }
         }
 
+        const escapeHtml = (str: string) =>
+          String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#039;')
+
         const htmlFromRich = (v: any): string => {
           try {
             const render = (node: any): string => {
@@ -75,7 +83,7 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
           }
         }
 
-        const escapeHtml = (str: string) =>
+        const escapeHtml2 = (str: string) =>
           String(str)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
