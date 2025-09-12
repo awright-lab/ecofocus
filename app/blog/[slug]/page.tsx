@@ -72,13 +72,13 @@ export default async function ArticlePage({
     <main className="bg-neutral-50">
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-500" />
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-10 text-white">
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-500" />
+        <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-10 text-white">
           <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">EcoFocus Insights</p>
           <h1 className="mt-2 text-3xl sm:text-4xl font-semibold leading-tight max-w-4xl">{post.title}</h1>
           <PostMeta author={post.author} date={post.publishedAt} readTime={readTime} />
         </div>
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-neutral-50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 z-0 h-24 bg-gradient-to-t from-neutral-50 to-transparent" />
       </section>
 
       {/* COVER */}

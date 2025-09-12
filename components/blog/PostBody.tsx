@@ -83,13 +83,7 @@ export default function PostBody({ blocks, html }: { blocks?: Block[]; html?: st
           }
         }
 
-        const escapeHtml2 = (str: string) =>
-          String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;')
+        
 
         switch (b.blockType) {
           case 'paragraph':
