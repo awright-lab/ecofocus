@@ -4,11 +4,11 @@ import Link from 'next/link'
 import { getPostBySlug, getPosts } from '@/lib/payload'
 import { estReadTimeFromHTML } from '@/lib/utils'
 import PostMeta from '@/components/blog/PostMeta'
-import PostBody from '@/components/blog/PostBody'
 import NewsletterBox from '@/components/blog/NewsletterBox'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import SocialShare from '@/components/blog/SocialShare'
 import TableOfContents from '@/components/blog/TableOfContents'
+import RichTextRenderer from '@/components/RichText'
 
 export const dynamicParams = true
 
@@ -30,7 +30,7 @@ export async function generateMetadata({
       ? {
           title: post.title,
           description: post.excerpt || '',
-          images: post.coverImage?.url ? [{ url: post.coverImage.url }]: undefined,
+          images: post.coverImage?.url ? [{ url: post.coverImage.url }] : undefined,
         }
       : undefined,
   }
@@ -64,7 +64,8 @@ export default async function ArticlePage({
     )
   }
 
-  const readTime = post.readTime || estReadTimeFromHTML(post.html)
+  // Keep your read-time logic (prefer saved readTime, fall back to HTML estimate if present)
+  const readTime = post.readTime || estReadTimeFromHTML(post.html || '')
   const base = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || ''
   const canonical = base ? `${base}/blog/${slug}` : `/blog/${slug}`
 
@@ -97,7 +98,10 @@ export default async function ArticlePage({
       )}
 
       {/* BREADCRUMBS */}
-      <Breadcrumbs maxWidth="max-w-5xl" items={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]} />
+      <Breadcrumbs
+        maxWidth="max-w-5xl"
+        items={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]}
+      />
 
       {/* BODY + SIDEBAR */}
       <section className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
@@ -106,10 +110,17 @@ export default async function ArticlePage({
             <div className="mb-6">
               <SocialShare url={canonical} title={post.title} />
             </div>
-            <div id="article-body">
-              <PostBody blocks={post.body} html={post.html} />
+
+            {/* Render Lexical JSON (preferred), fallback to HTML if needed */}
+            <div id="article-body" className="prose prose-neutral max-w-none">
+              {post?.body ? (
+                <RichTextRenderer content={post.body} />
+              ) : post?.html ? (
+                <div dangerouslySetInnerHTML={{ __html: post.html }} />
+              ) : null}
             </div>
           </article>
+
           <aside className="md:pt-2 space-y-6">
             <TableOfContents containerId="article-body" />
             <NewsletterBox />
@@ -162,7 +173,7 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
   }
   try {
     const res = await getPosts({ topicSlug, limit: 4 })
-    const related = (res.docs || []).filter((p) => p.slug !== currentSlug).slice(0, 3)
+    const related = (res.docs || []).filter((p: any) => p.slug !== currentSlug).slice(0, 3)
     return (
       <div className="rounded-2xl bg-white p-5 ring-1 ring-black/5 shadow-sm">
         <h3 className="text-base font-semibold text-gray-900">Related Articles</h3>
@@ -170,7 +181,7 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
           {related.length === 0 ? (
             <p className="text-sm text-gray-500">More posts coming soon.</p>
           ) : (
-            related.map((p) => (
+            related.map((p: any) => (
               <div key={p.id}>
                 <Link href={`/blog/${p.slug}`} className="text-sm font-medium text-emerald-800 hover:underline">
                   {p.title}
@@ -194,3 +205,4 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
+

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",
+    "@payloadcms/richtext-lexical": "^3.55.1",
     "@stripe/stripe-js": "^7.8.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20.0.0",
