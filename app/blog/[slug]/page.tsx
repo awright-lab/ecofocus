@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getPostBySlug, getPosts } from '@/lib/payload'
 import { estReadTimeFromHTML } from '@/lib/utils'
 import PostMeta from '@/components/blog/PostMeta'
+import PostBody from '@/components/blog/PostBody'
 import NewsletterBox from '@/components/blog/NewsletterBox'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import SocialShare from '@/components/blog/SocialShare'
@@ -64,10 +65,14 @@ export default async function ArticlePage({
     )
   }
 
-  // Keep your read-time logic (prefer saved readTime, fall back to HTML estimate if present)
   const readTime = post.readTime || estReadTimeFromHTML(post.html || '')
   const base = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || ''
   const canonical = base ? `${base}/blog/${slug}` : `/blog/${slug}`
+
+  // --- helpers to detect the content shape ---
+  const isLexical = (v: unknown) =>
+    v && typeof v === 'object' && 'root' in (v as any) && (v as any).root
+  const isBlocks = (v: unknown) => Array.isArray(v)
 
   return (
     <main className="bg-neutral-50">
@@ -111,13 +116,24 @@ export default async function ArticlePage({
               <SocialShare url={canonical} title={post.title} />
             </div>
 
-            {/* Render Lexical JSON (preferred), fallback to HTML if needed */}
             <div id="article-body" className="prose prose-neutral max-w-none">
-              {post?.body ? (
-                <RichTextRenderer content={post.body} />
-              ) : post?.html ? (
+              {post?.html ? (
+                // 1) Legacy HTML path
                 <div dangerouslySetInnerHTML={{ __html: post.html }} />
-              ) : null}
+              ) : isLexical(post?.body) ? (
+                // 2) Lexical JSON path
+                <RichTextRenderer
+                  content={post.body}
+                  baseURL={process.env.NEXT_PUBLIC_CMS_URL}
+                  // debug shows a small "No rich text content" note if empty in dev
+                  debug={process.env.NODE_ENV !== 'production'}
+                />
+              ) : isBlocks(post?.body) ? (
+                // 3) Blocks layout path (uses your existing renderer)
+                <PostBody blocks={post.body} html={undefined} />
+              ) : (
+                <p className="text-gray-500 italic">No content available.</p>
+              )}
             </div>
           </article>
 
@@ -173,7 +189,7 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
   }
   try {
     const res = await getPosts({ topicSlug, limit: 4 })
-    const related = (res.docs || []).filter((p: any) => p.slug !== currentSlug).slice(0, 3)
+    const related = (res.docs || []).filter((p) => p.slug !== currentSlug).slice(0, 3)
     return (
       <div className="rounded-2xl bg-white p-5 ring-1 ring-black/5 shadow-sm">
         <h3 className="text-base font-semibold text-gray-900">Related Articles</h3>
@@ -181,7 +197,7 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
           {related.length === 0 ? (
             <p className="text-sm text-gray-500">More posts coming soon.</p>
           ) : (
-            related.map((p: any) => (
+            related.map((p) => (
               <div key={p.id}>
                 <Link href={`/blog/${p.slug}`} className="text-sm font-medium text-emerald-800 hover:underline">
                   {p.title}
@@ -205,4 +221,5 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
+
 
