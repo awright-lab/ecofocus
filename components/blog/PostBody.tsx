@@ -1,4 +1,5 @@
 /* PostBody.tsx — fixes link resolution + alignment */
+import ChartJSBlock from '@/components/blog/ChartJSBlock'
 
 /* ------------------------- Minimal Lexical typings ------------------------- */
 type IDLike = string | number;
@@ -100,13 +101,26 @@ type RawRichTextBlock = {
   richText?: LexicalDoc;
 };
 
+type ChartJSBlockType = {
+  id?: IDLike;
+  blockType: 'chartJS';
+  chartType:
+    | 'bar' | 'line' | 'pie' | 'doughnut'
+    | 'radar' | 'polarArea' | 'scatter' | 'bubble';
+  data?: any;
+  options?: any;
+  height?: number;
+  caption?: string;
+};
+
 type Block =
   | ParagraphBlock
   | ImageLikeBlock
   | PullQuoteBlock
   | KeyTakeawaysBlock
   | CTAGroupBlock
-  | RawRichTextBlock;
+  | RawRichTextBlock
+  | ChartJSBlockType;
 
 /* --------------------------------- Helpers -------------------------------- */
 const isLexical = (v: unknown): v is LexicalDoc =>
@@ -461,6 +475,21 @@ export default function PostBody({
                     )
                   )}
                 </div>
+              );
+            }
+
+            case 'chartJS': {
+              const cb = b as ChartJSBlockType;
+              if (!cb?.data) return null;
+              return (
+                <ChartJSBlock
+                  key={b.id?.toString() ?? i.toString()}
+                  chartType={cb.chartType}
+                  data={cb.data}
+                  options={cb.options}
+                  height={cb.height}
+                  caption={cb.caption}
+                />
               );
             }
 
