@@ -478,17 +478,27 @@ export default function PostBody({
               );
             }
 
-            case 'chartJS': {
-              const cb = b as ChartJSBlockType;
-              if (!cb?.data) return null;
+            case 'chartJS':
+            case 'ChartJS':
+            case 'chartJs':
+            case 'chart':
+            case 'Chart': {
+              const cb = b as any;
+              const chartType = cb.chartType || cb.type || cb?.config?.type || cb?.chart?.type;
+              const data = cb.data || cb.chartData || cb.dataset || cb?.config?.data || cb?.chart?.data;
+              const options = cb.options || cb.chartOptions || cb?.config?.options || cb?.chart?.options;
+              const height = cb.height || cb.size?.height;
+              const caption = cb.caption || cb.title || cb.note;
+
+              if (!data || !chartType) return null;
               return (
                 <ChartJSBlock
                   key={b.id?.toString() ?? i.toString()}
-                  chartType={cb.chartType}
-                  data={cb.data}
-                  options={cb.options}
-                  height={cb.height}
-                  caption={cb.caption}
+                  chartType={chartType}
+                  data={data}
+                  options={options}
+                  height={height}
+                  caption={caption}
                 />
               );
             }
@@ -518,7 +528,6 @@ export default function PostBody({
     </div>
   );
 }
-
 
 
 

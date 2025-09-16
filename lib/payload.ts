@@ -207,7 +207,8 @@ export async function getPostBySlug(slug: string, draftToken?: string): Promise<
 
   // Map + include raw blocks for PostBody
   const post = mapPost(doc) as any
-  post.body = doc.body || doc.layout || doc.blocks || doc.content || doc.richText || []
+  // Prefer explicit block/layout arrays over rich text to ensure chart blocks render
+  post.body = doc.layout || doc.blocks || doc.body || doc.content || doc.richText || []
 
   // Prevent stale HTML from overriding proper blocks rendering
   if (Array.isArray(post.body) ? post.body.length > 0 : !!post.body) {
@@ -216,4 +217,3 @@ export async function getPostBySlug(slug: string, draftToken?: string): Promise<
 
   return post
 }
-
