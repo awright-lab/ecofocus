@@ -36,12 +36,16 @@ export default function ChartJSBlock({ chartType, data, options, height = 360, c
 
   useEffect(() => {
     if (!canvasRef.current || !data) return;
+    // Allow CMS to send JSON strings
+    const parsedData = typeof data === 'string' ? (() => { try { return JSON.parse(data); } catch { return null; } })() : data;
+    const parsedOptions = typeof options === 'string' ? (() => { try { return JSON.parse(options); } catch { return undefined; } })() : options;
+    if (!parsedData) return;
     // Clean up previous instance
     chartRef.current?.destroy();
     chartRef.current = new Chart(canvasRef.current, {
       type: chartType as any,
-      data,
-      options,
+      data: parsedData,
+      options: parsedOptions,
     });
     return () => chartRef.current?.destroy();
   }, [chartType, data, options]);
