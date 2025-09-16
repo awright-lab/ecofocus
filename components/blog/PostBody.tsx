@@ -1,5 +1,6 @@
 /* PostBody.tsx — fixes link resolution + alignment */
 import ChartJSBlock from '@/components/blog/ChartJSBlock'
+import { buildChartFromBlock } from '@/components/blog/chart/transform'
 
 /* ------------------------- Minimal Lexical typings ------------------------- */
 type IDLike = string | number;
@@ -352,22 +353,39 @@ export default function PostBody({
           const btNorm = btAny.toLowerCase()
           if (btNorm === 'chartjs' || btNorm === 'chart') {
             const cb = b as any
-            const chartType = cb.chartType || cb.type || cb?.config?.type || cb?.chart?.type
-            const data = cb.data || cb.chartData || cb.dataset || cb?.config?.data || cb?.chart?.data
-            const options = cb.options || cb.chartOptions || cb?.config?.options || cb?.chart?.options
-            const height = cb.height || cb.size?.height
-            const caption = cb.caption || cb.title || cb.note
-            if (!data || !chartType) return null
-            return (
-              <ChartJSBlock
-                key={b.id?.toString() ?? i.toString()}
-                chartType={chartType}
-                data={data}
-                options={options}
-                height={height}
-                caption={caption}
-              />
-            )
+            // If CMS-provided Chart.js data present, render directly
+            const legacyData = cb.data || cb.chartData || cb.dataset || cb?.config?.data || cb?.chart?.data
+            const legacyType = cb.chartType || cb.type || cb?.config?.type || cb?.chart?.type
+            if (legacyType && legacyData) {
+              const options = cb.options || cb.chartOptions || cb?.config?.options || cb?.chart?.options
+              const height = cb.height || cb.size?.height
+              const caption = cb.caption || cb.title || cb.note
+              return (
+                <ChartJSBlock
+                  key={b.id?.toString() ?? i.toString()}
+                  chartType={legacyType}
+                  data={legacyData}
+                  options={options}
+                  height={height}
+                  caption={caption}
+                />
+              )
+            }
+            // Otherwise, transform CMS block spec into Chart.js
+            try {
+              const { type, data, options, height } = buildChartFromBlock(cb)
+              return (
+                <ChartJSBlock
+                  key={b.id?.toString() ?? i.toString()}
+                  chartType={type as any}
+                  data={data as any}
+                  options={options as any}
+                  height={height}
+                />
+              )
+            } catch {
+              return null
+            }
           }
           switch (b.blockType) {
             case 'paragraph':
@@ -501,23 +519,37 @@ export default function PostBody({
             }
 
             case 'chartJS': {
-              const cb = b as any;
-              const chartType = cb.chartType || cb.type || cb?.config?.type || cb?.chart?.type;
-              const data = cb.data || cb.chartData || cb.dataset || cb?.config?.data || cb?.chart?.data;
-              const options = cb.options || cb.chartOptions || cb?.config?.options || cb?.chart?.options;
-              const height = cb.height || cb.size?.height;
-              const caption = cb.caption || cb.title || cb.note;
-              if (!data || !chartType) return null;
-              return (
-                <ChartJSBlock
-                  key={b.id?.toString() ?? i.toString()}
-                  chartType={chartType}
-                  data={data}
-                  options={options}
-                  height={height}
-                  caption={caption}
-                />
-              );
+              const cb = b as any
+              // Prefer transformer path for CMS block spec
+              try {
+                const { type, data, options, height } = buildChartFromBlock(cb)
+                return (
+                  <ChartJSBlock
+                    key={b.id?.toString() ?? i.toString()}
+                    chartType={type as any}
+                    data={data as any}
+                    options={options as any}
+                    height={height}
+                  />
+                )
+              } catch {
+                const chartType = cb.chartType || cb.type
+                const data = cb.data || cb.chartData
+                if (!data || !chartType) return null
+                const options = cb.options || cb.chartOptions
+                const height = cb.height || cb.size?.height
+                const caption = cb.caption || cb.title || cb.note
+                return (
+                  <ChartJSBlock
+                    key={b.id?.toString() ?? i.toString()}
+                    chartType={chartType}
+                    data={data}
+                    options={options}
+                    height={height}
+                    caption={caption}
+                  />
+                )
+              }
             }
 
             default:
@@ -545,6 +577,5 @@ export default function PostBody({
     </div>
   );
 }
-
 
 
