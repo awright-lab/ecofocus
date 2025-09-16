@@ -1,8 +1,8 @@
-/* PostBody.tsx — fully typed, fixes 'format' narrowing and blockType union */
-
-type IDLike = string | number;
+/* PostBody.tsx — prefers blocks over html, preserves bold/formatting */
 
 /* ------------------------- Minimal Lexical typings ------------------------- */
+type IDLike = string | number;
+
 type LexicalTextNode = { type: 'text'; text?: string; format?: number };
 type LexicalGenericNode = {
   type: string;
@@ -237,18 +237,13 @@ export default function PostBody({
 }) {
   const CMS_BASE = process.env.NEXT_PUBLIC_CMS_URL?.replace(/\/$/, '') ?? '';
 
-  // Legacy HTML path
-  if (html) {
-    return (
-      <div
-        className="prose prose-emerald max-w-none prose-headings:scroll-mt-24 prose-img:rounded-xl"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-    );
-  }
+  const hasTopLevelLexical =
+    !!blocks && !Array.isArray(blocks) && typeof blocks === 'object' && 'root' in (blocks as Record<string, unknown>);
+  const hasBlocksArray = Array.isArray(blocks) && blocks.length > 0;
+  const hasHtml = typeof html === 'string' && html.trim() !== '';
 
-  // Single top-level Lexical doc path
-  if (blocks && !Array.isArray(blocks) && typeof blocks === 'object' && 'root' in (blocks as Record<string, unknown>)) {
+  /* 1) Prefer blocks (Lexical/top-level or blocks array) */
+  if (hasTopLevelLexical) {
     const out = renderLexicalNodeToHTML(blocks as LexicalDoc, CMS_BASE);
     return (
       <div
@@ -258,160 +253,174 @@ export default function PostBody({
     );
   }
 
-  if (!blocks || (Array.isArray(blocks) && blocks.length === 0)) {
+  if (hasBlocksArray) {
+    const list = blocks as Block[];
     return (
       <div className="prose prose-emerald max-w-none">
-        <p>Article body coming soon.</p>
+        {list.map((b, i) => {
+          switch (b.blockType) {
+            /* ------------------------------ Paragraphs ------------------------------ */
+            case 'paragraph':
+            case 'Paragraph': {
+              const v: LexicalDoc | string | undefined =
+                (b as ParagraphBlock).text ?? (b as ParagraphBlock).richText ?? (b as ParagraphBlock).content;
+
+              if (typeof v === 'string') {
+                return <p key={b.id?.toString() ?? i.toString()}>{v}</p>;
+              }
+              if (isLexical(v)) {
+                const out = renderLexicalNodeToHTML(v, CMS_BASE);
+                return <div key={b.id?.toString() ?? i.toString()} dangerouslySetInnerHTML={{ __html: out }} />;
+              }
+              return <p key={b.id?.toString() ?? i.toString()} />;
+            }
+
+            /* --------------------------------- Images -------------------------------- */
+            case 'image':
+            case 'Image':
+            case 'ImageBlock':
+            case 'imageBlock':
+            case 'media':
+            case 'Media':
+            case 'mediaBlock':
+            case 'figure':
+            case 'Figure': {
+              const img =
+                imgFrom(
+                  (b as ImageLikeBlock).image ??
+                    (b as ImageLikeBlock).media ??
+                    (b as ImageLikeBlock).upload ??
+                    (b as ImageLikeBlock).value?.image ??
+                    (b as ImageLikeBlock).value?.media ??
+                    b,
+                  CMS_BASE
+                ) ?? {
+                  url: absolutize((b as ImageLikeBlock).url, CMS_BASE) ?? '',
+                  alt: (b as ImageLikeBlock).alt,
+                };
+
+              if (!img?.url) return null;
+
+              const caption = (b as ImageLikeBlock).caption ?? img.alt ?? '';
+              return (
+                <figure key={b.id?.toString() ?? i.toString()} className="my-6">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img.url} alt={img.alt ?? ''} className="rounded-xl w-full" />
+                  {caption ? <figcaption className="mt-2 text-sm text-gray-500">{caption}</figcaption> : null}
+                </figure>
+              );
+            }
+
+            /* ------------------------------ Raw RichText ----------------------------- */
+            case 'content':
+            case 'richText': {
+              const rb = b as RawRichTextBlock;
+              const doc = (rb.richText ?? rb.content) as LexicalDoc | undefined;
+              const out = renderLexicalNodeToHTML(doc, CMS_BASE);
+              return <div key={b.id?.toString() ?? i.toString()} dangerouslySetInnerHTML={{ __html: out }} />;
+            }
+
+            /* -------------------------------- PullQuote ------------------------------ */
+            case 'PullQuote':
+            case 'pullQuote': {
+              const pq = b as PullQuoteBlock;
+              const quote =
+                typeof pq.quote === 'string'
+                  ? pq.quote
+                  : isLexical(pq.quote)
+                  ? renderLexicalNodeToHTML(pq.quote, CMS_BASE).replace(/<\/?p>/g, '')
+                  : pq.text ?? '';
+
+              return (
+                <blockquote
+                  key={b.id?.toString() ?? i.toString()}
+                  className="my-6 border-l-4 border-emerald-600 pl-4 text-lg italic text-emerald-900/90"
+                >
+                  {quote}
+                  {pq.attribution ? (
+                    <cite className="not-italic text-gray-500 block mt-1">— {pq.attribution}</cite>
+                  ) : null}
+                </blockquote>
+              );
+            }
+
+            /* ------------------------------- KeyTakeaways ---------------------------- */
+            case 'KeyTakeaways':
+            case 'keyTakeaways': {
+              const kt = b as KeyTakeawaysBlock;
+              const items = (kt.items ?? kt.points ?? []).filter(Boolean) as Array<{ text?: string } | string>;
+              if (items.length === 0) return null;
+              return (
+                <div
+                  key={b.id?.toString() ?? i.toString()}
+                  className="my-6 rounded-xl bg-emerald-50 p-4 ring-1 ring-emerald-200"
+                >
+                  <h3 className="m-0 text-emerald-900">Key takeaways</h3>
+                  <ul>
+                    {items.map((it, idx) => {
+                      const text = typeof it === 'string' ? it : it.text ?? '';
+                      return <li key={idx}>{text}</li>;
+                    })}
+                  </ul>
+                </div>
+              );
+            }
+
+            /* --------------------------------- CTAGroup ------------------------------ */
+            case 'CTAGroup':
+            case 'ctaGroup': {
+              const ctas = (b as CTAGroupBlock).ctas ?? [];
+              if (ctas.length === 0) return null;
+              return (
+                <div key={b.id?.toString() ?? i.toString()} className="my-8 grid gap-3 sm:grid-cols-2">
+                  {ctas.map((c, idx) =>
+                    c?.href || c?.url ? (
+                      <a
+                        key={idx}
+                        href={c.href ?? c.url ?? '#'}
+                        className="block rounded-xl bg-emerald-600 px-4 py-3 text-white hover:bg-emerald-700"
+                      >
+                        {c.label ?? c.title ?? 'Learn more'}
+                      </a>
+                    ) : (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center rounded-xl bg-gray-200 px-4 py-3 text-sm font-semibold text-gray-700"
+                      >
+                        {c?.label ?? c?.title ?? 'Action'}
+                      </span>
+                    )
+                  )}
+                </div>
+              );
+            }
+
+            default:
+              return null;
+          }
+        })}
       </div>
     );
   }
 
-  const list = Array.isArray(blocks) ? blocks : [blocks];
+  /* 2) Fall back to legacy html ONLY if there are no blocks */
+  if (hasHtml) {
+    return (
+      <div
+        className="prose prose-emerald max-w-none prose-headings:scroll-mt-24 prose-img:rounded-xl"
+        dangerouslySetInnerHTML={{ __html: html! }}
+      />
+    );
+  }
 
+  /* 3) Empty state */
   return (
     <div className="prose prose-emerald max-w-none">
-      {list.map((b, i) => {
-        switch (b.blockType) {
-          /* ------------------------------ Paragraphs ------------------------------ */
-          case 'paragraph':
-          case 'Paragraph': {
-            const v: LexicalDoc | string | undefined =
-              (b as ParagraphBlock).text ?? (b as ParagraphBlock).richText ?? (b as ParagraphBlock).content;
-
-            if (typeof v === 'string') {
-              return <p key={b.id?.toString() ?? i.toString()}>{v}</p>;
-            }
-            if (isLexical(v)) {
-              const out = renderLexicalNodeToHTML(v, CMS_BASE);
-              return <div key={b.id?.toString() ?? i.toString()} dangerouslySetInnerHTML={{ __html: out }} />;
-            }
-            return <p key={b.id?.toString() ?? i.toString()} />;
-          }
-
-          /* --------------------------------- Images -------------------------------- */
-          case 'image':
-          case 'Image':
-          case 'ImageBlock':
-          case 'imageBlock':
-          case 'media':
-          case 'Media':
-          case 'mediaBlock':
-          case 'figure':
-          case 'Figure': {
-            const img =
-              imgFrom(
-                (b as ImageLikeBlock).image ??
-                  (b as ImageLikeBlock).media ??
-                  (b as ImageLikeBlock).upload ??
-                  (b as ImageLikeBlock).value?.image ??
-                  (b as ImageLikeBlock).value?.media ??
-                  b,
-                CMS_BASE
-              ) ?? {
-                url: absolutize((b as ImageLikeBlock).url, CMS_BASE) ?? '',
-                alt: (b as ImageLikeBlock).alt,
-              };
-
-            if (!img?.url) return null;
-
-            const caption = (b as ImageLikeBlock).caption ?? img.alt ?? '';
-            return (
-              <figure key={b.id?.toString() ?? i.toString()} className="my-6">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={img.url} alt={img.alt ?? ''} className="rounded-xl w-full" />
-                {caption ? <figcaption className="mt-2 text-sm text-gray-500">{caption}</figcaption> : null}
-              </figure>
-            );
-          }
-
-          /* ------------------------------ Raw RichText ----------------------------- */
-          case 'content':
-          case 'richText': {
-            const rb = b as RawRichTextBlock;
-            const doc = (rb.richText ?? rb.content) as LexicalDoc | undefined;
-            const out = renderLexicalNodeToHTML(doc, CMS_BASE);
-            return <div key={b.id?.toString() ?? i.toString()} dangerouslySetInnerHTML={{ __html: out }} />;
-          }
-
-          /* -------------------------------- PullQuote ------------------------------ */
-          case 'PullQuote':
-          case 'pullQuote': {
-            const pq = b as PullQuoteBlock;
-            const quote =
-              typeof pq.quote === 'string'
-                ? pq.quote
-                : isLexical(pq.quote)
-                ? renderLexicalNodeToHTML(pq.quote, CMS_BASE).replace(/<\/?p>/g, '')
-                : pq.text ?? '';
-
-            return (
-              <blockquote
-                key={b.id?.toString() ?? i.toString()}
-                className="my-6 border-l-4 border-emerald-600 pl-4 text-lg italic text-emerald-900/90"
-              >
-                {quote}
-                {pq.attribution ? (
-                  <cite className="not-italic text-gray-500 block mt-1">— {pq.attribution}</cite>
-                ) : null}
-              </blockquote>
-            );
-          }
-
-          /* ------------------------------- KeyTakeaways ---------------------------- */
-          case 'KeyTakeaways':
-          case 'keyTakeaways': {
-            const kt = b as KeyTakeawaysBlock;
-            const items = (kt.items ?? kt.points ?? []).filter(Boolean) as Array<{ text?: string } | string>;
-            if (items.length === 0) return null;
-            return (
-              <div key={b.id?.toString() ?? i.toString()} className="my-6 rounded-xl bg-emerald-50 p-4 ring-1 ring-emerald-200">
-                <h3 className="m-0 text-emerald-900">Key takeaways</h3>
-                <ul>
-                  {items.map((it, idx) => {
-                    const text = typeof it === 'string' ? it : it.text ?? '';
-                    return <li key={idx}>{text}</li>;
-                  })}
-                </ul>
-              </div>
-            );
-          }
-
-          /* --------------------------------- CTAGroup ------------------------------ */
-          case 'CTAGroup':
-          case 'ctaGroup': {
-            const ctas = (b as CTAGroupBlock).ctas ?? [];
-            if (ctas.length === 0) return null;
-            return (
-              <div key={b.id?.toString() ?? i.toString()} className="my-8 grid gap-3 sm:grid-cols-2">
-                {ctas.map((c, idx) =>
-                  c?.href || c?.url ? (
-                    <a
-                      key={idx}
-                      href={c.href ?? c.url ?? '#'}
-                      className="block rounded-xl bg-emerald-600 px-4 py-3 text-white hover:bg-emerald-700"
-                    >
-                      {c.label ?? c.title ?? 'Learn more'}
-                    </a>
-                  ) : (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center rounded-xl bg-gray-200 px-4 py-3 text-sm font-semibold text-gray-700"
-                    >
-                      {c?.label ?? c?.title ?? 'Action'}
-                    </span>
-                  )
-                )}
-              </div>
-            );
-          }
-
-          default:
-            return null;
-        }
-      })}
+      <p>Article body coming soon.</p>
     </div>
   );
 }
+
 
 
 
