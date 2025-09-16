@@ -4,23 +4,17 @@ import * as React from "react";
 import { RichText } from "@payloadcms/richtext-lexical/react";
 
 type Props = {
-  /** Payload Lexical JSON OR a JSON string */
+  /** Lexical JSON or JSON string */
   content: unknown;
   className?: string;
-  /** e.g. https://cms.example.com — used to prefix relative upload URLs */
+  /** Prefix relative upload URLs like /media/xyz.jpg */
   baseURL?: string;
-  /** When true, renders a tiny debug note if content is empty */
   debug?: boolean;
 };
 
 function safeParseMaybeJSON(value: unknown) {
   if (typeof value === "string") {
-    try {
-      return JSON.parse(value);
-    } catch {
-      // not JSON, return as-is
-      return value;
-    }
+    try { return JSON.parse(value); } catch { return value; }
   }
   return value;
 }
@@ -58,11 +52,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
   const normalized = React.useMemo(() => prefixUploadURLs(parsed, baseURL), [parsed, baseURL]);
 
   if (!normalized || isEmptyLexicalDoc(normalized)) {
-    return debug ? (
-      <div className={className}>
-        <p className="text-sm text-gray-500 italic">No rich text content.</p>
-      </div>
-    ) : null;
+    return debug ? <div className={className}><p className="text-sm text-gray-500 italic">No rich text content.</p></div> : null;
   }
 
   return (
