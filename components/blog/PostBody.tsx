@@ -347,6 +347,28 @@ export default function PostBody({
     return (
       <div className="prose prose-emerald max-w-none">
         {list.map((b, i) => {
+          // Handle chart-like blocks with flexible naming in a type-safe way
+          const btAny = String((b as any)?.blockType ?? '')
+          const btNorm = btAny.toLowerCase()
+          if (btNorm === 'chartjs' || btNorm === 'chart') {
+            const cb = b as any
+            const chartType = cb.chartType || cb.type || cb?.config?.type || cb?.chart?.type
+            const data = cb.data || cb.chartData || cb.dataset || cb?.config?.data || cb?.chart?.data
+            const options = cb.options || cb.chartOptions || cb?.config?.options || cb?.chart?.options
+            const height = cb.height || cb.size?.height
+            const caption = cb.caption || cb.title || cb.note
+            if (!data || !chartType) return null
+            return (
+              <ChartJSBlock
+                key={b.id?.toString() ?? i.toString()}
+                chartType={chartType}
+                data={data}
+                options={options}
+                height={height}
+                caption={caption}
+              />
+            )
+          }
           switch (b.blockType) {
             case 'paragraph':
             case 'Paragraph': {
@@ -478,18 +500,13 @@ export default function PostBody({
               );
             }
 
-            case 'chartJS':
-            case 'ChartJS':
-            case 'chartJs':
-            case 'chart':
-            case 'Chart': {
+            case 'chartJS': {
               const cb = b as any;
               const chartType = cb.chartType || cb.type || cb?.config?.type || cb?.chart?.type;
               const data = cb.data || cb.chartData || cb.dataset || cb?.config?.data || cb?.chart?.data;
               const options = cb.options || cb.chartOptions || cb?.config?.options || cb?.chart?.options;
               const height = cb.height || cb.size?.height;
               const caption = cb.caption || cb.title || cb.note;
-
               if (!data || !chartType) return null;
               return (
                 <ChartJSBlock
@@ -528,7 +545,6 @@ export default function PostBody({
     </div>
   );
 }
-
 
 
 
