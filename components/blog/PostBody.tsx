@@ -1,4 +1,4 @@
-/* PostBody.tsx — prefers blocks over html, preserves bold/formatting */
+/* PostBody.tsx — fixes link resolution + alignment */
 
 /* ------------------------- Minimal Lexical typings ------------------------- */
 type IDLike = string | number;
@@ -7,6 +7,7 @@ type LexicalTextNode = { type: 'text'; text?: string; format?: number };
 type LexicalGenericNode = {
   type: string;
   children?: LexicalNode[];
+  // common fields
   url?: string;
   href?: string;
   newTab?: boolean;
@@ -16,6 +17,18 @@ type LexicalGenericNode = {
   value?: unknown;
   image?: unknown;
   code?: string;
+  // alignment for elements (paragraph, heading, quote, list)
+  format?: 'left' | 'start' | 'right' | 'end' | 'center' | 'justify' | string | number | undefined;
+  // LinkFeature often stores data here:
+  fields?: {
+    linkType?: 'custom' | 'internal';
+    url?: string;
+    newTab?: boolean;
+    doc?: {
+      relationTo?: 'posts' | 'topics' | 'authors' | 'media' | string;
+      value?: any; // id or populated doc
+    };
+  };
 };
 type LexicalNode = LexicalTextNode | LexicalGenericNode;
 type LexicalDocRoot = { children?: LexicalNode[] };
@@ -80,7 +93,6 @@ type CTAGroupBlock = {
   ctas?: CTA[];
 };
 
-/** Some content builders use a “raw rich text” block named 'content' or 'richText'. */
 type RawRichTextBlock = {
   id?: IDLike;
   blockType: 'content' | 'richText';
@@ -144,11 +156,74 @@ const imgFrom = (node: unknown, base: string): ImgInfo => {
   return { url: src, alt };
 };
 
+/** Map internal doc links to site routes. Adjust to your routing as needed. */
+const resolveInternalDocHref = (
+  relationTo?: string,
+  value?: any, // could be id or populated doc
+  baseCMS = ''
+): string | undefined => {
+  // if populated
+  const obj = value && typeof value === 'object' ? value : undefined;
+  const slug = obj?.slug ?? obj?.value?.slug ?? undefined;
+
+  switch (relationTo) {
+    case 'posts':
+      return slug ? `/blog/${slug}` : undefined;
+    case 'topics':
+      return slug ? `/topics/${slug}` : undefined;
+    case 'authors':
+      return slug ? `/authors/${slug}` : undefined;
+    case 'media': {
+      // media typically needs absolute URL for files
+      const mediaUrl =
+        obj?.url || obj?.filename || obj?.thumbnailURL || obj?.sizes?.[0]?.url || undefined;
+      return mediaUrl ? absolutize(String(mediaUrl), baseCMS) : undefined;
+    }
+    default:
+      return undefined;
+  }
+};
+
+/** Extract href/newTab from a link node supporting LinkFeature’s `fields` shape. */
+const resolveLink = (node: LexicalGenericNode, baseCMS: string): { href: string; newTab: boolean } => {
+  // 1) Support LinkFeature fields
+  const lf = node.fields;
+  if (lf) {
+    if (lf.linkType === 'custom' && lf.url) {
+      return { href: lf.url, newTab: !!lf.newTab };
+    }
+    if (lf.linkType === 'internal' && lf.doc) {
+      const href = resolveInternalDocHref(lf.doc.relationTo, lf.doc.value, baseCMS);
+      if (href) return { href, newTab: !!lf.newTab };
+    }
+  }
+  // 2) Fallback to node.url / node.href
+  const href = node.url || node.href || '#';
+  return { href, newTab: !!node.newTab };
+};
+
+/** Tailwind `prose` alignment class based on element format */
+const alignmentClass = (format?: LexicalGenericNode['format']): string => {
+  // allow string formats from lexical: 'center' | 'right' | 'justify' | 'left'
+  switch (format) {
+    case 'center':
+      return ' class="text-center"';
+    case 'right':
+    case 'end':
+      return ' class="text-right"';
+    case 'justify':
+      return ' class="text-justify"';
+    // 'left'/'start' are default in prose
+    default:
+      return '';
+  }
+};
+
 /**
  * Apply Lexical `format` bitmask to an already-escaped text string.
  * 1=bold, 2=italic, 4=underline, 8=strike, 16=code, 32=sub, 64=sup, 128=mark
  */
-const applyFormats = (textEscaped: string, format: number = 0): string => {
+const applyTextFormats = (textEscaped: string, format: number = 0): string => {
   let out = textEscaped;
   if (format & 16) out = `<code>${out}</code>`;
   if (format & 8) out = `<s>${out}</s>`;
@@ -161,7 +236,7 @@ const applyFormats = (textEscaped: string, format: number = 0): string => {
   return out;
 };
 
-const renderLexicalNodeToHTML = (node: LexicalDoc | undefined, base: string): string => {
+const renderLexicalNodeToHTML = (node: LexicalDoc | undefined, baseCMS: string): string => {
   if (!node) return '';
 
   const render = (n: unknown): string => {
@@ -169,54 +244,54 @@ const renderLexicalNodeToHTML = (node: LexicalDoc | undefined, base: string): st
     if (Array.isArray(n)) return n.map(render).join('');
 
     if (typeof n === 'object') {
-      // TEXT NODE (has 'format')
+      // TEXT NODE
       if (isTextNode(n)) {
         const text = escapeHtml(n.text ?? '');
         const fmt = typeof n.format === 'number' ? n.format : 0;
-        return applyFormats(text, fmt);
-      }
+        return applyTextFormats(text, fmt);
+        // ELEMENT NODE
+      } else {
+        const obj = n as LexicalGenericNode;
+        const inner = obj.children?.map(render).join('') ?? '';
+        const align = alignmentClass(obj.format);
 
-      // GENERIC NODE
-      const obj = n as LexicalGenericNode;
-      const children = obj.children?.map(render).join('') ?? '';
-
-      switch (obj.type) {
-        case 'paragraph':
-          return `<p>${children}</p>`;
-        case 'quote':
-          return `<blockquote>${children}</blockquote>`;
-        case 'linebreak':
-          return '<br />';
-        case 'link': {
-          const href = obj.url || obj.href || '#';
-          const attrs = `href="${escapeHtml(href ?? '#')}"${
-            obj.newTab ? ' target="_blank" rel="noopener noreferrer"' : ''
-          }`;
-          return `<a ${attrs}>${children}</a>`;
+        switch (obj.type) {
+          case 'paragraph':
+            return `<p${align}>${inner}</p>`;
+          case 'quote':
+            return `<blockquote${align}>${inner}</blockquote>`;
+          case 'linebreak':
+            return '<br />';
+          case 'link': {
+            const { href, newTab } = resolveLink(obj, baseCMS);
+            const safeHref = escapeHtml(href || '#');
+            const attrs = `href="${safeHref}"${newTab ? ' target="_blank" rel="noopener noreferrer"' : ''}`;
+            return `<a ${attrs}>${inner}</a>`;
+          }
+          case 'list': {
+            const tag = obj.listType === 'number' ? 'ol' : 'ul';
+            return `<${tag}${align}>${inner}</${tag}>`;
+          }
+          case 'listitem':
+            return `<li>${inner}</li>`;
+          case 'heading': {
+            const tag = obj.tag || (obj.level ? `h${Math.min(6, Math.max(1, obj.level))}` : 'h2');
+            return `<${tag}${align}>${inner}</${tag}>`;
+          }
+          case 'code': {
+            const code = obj.code ?? inner;
+            return `<pre><code>${escapeHtml(String(code))}</code></pre>`;
+          }
+          case 'upload':
+          case 'image': {
+            const img = imgFrom(obj.value || obj.image || obj, baseCMS);
+            if (!img?.url) return '';
+            const alt = img.alt ? ` alt="${escapeHtml(img.alt)}"` : '';
+            return `<img src="${escapeHtml(img.url)}"${alt} />`;
+          }
+          default:
+            return inner;
         }
-        case 'list': {
-          const tag = obj.listType === 'number' ? 'ol' : 'ul';
-          return `<${tag}>${children}</${tag}>`;
-        }
-        case 'listitem':
-          return `<li>${children}</li>`;
-        case 'heading': {
-          const tag = obj.tag || (obj.level ? `h${Math.min(6, Math.max(1, obj.level))}` : 'h2');
-          return `<${tag}>${children}</${tag}>`;
-        }
-        case 'code': {
-          const code = obj.code ?? children;
-          return `<pre><code>${escapeHtml(String(code))}</code></pre>`;
-        }
-        case 'upload':
-        case 'image': {
-          const img = imgFrom(obj.value || obj.image || obj, base);
-          if (!img?.url) return '';
-          const alt = img.alt ? ` alt="${escapeHtml(img.alt)}"` : '';
-          return `<img src="${escapeHtml(img.url)}"${alt} />`;
-        }
-        default:
-          return children; // unknown nodes: keep inner content
       }
     }
 
@@ -242,7 +317,7 @@ export default function PostBody({
   const hasBlocksArray = Array.isArray(blocks) && blocks.length > 0;
   const hasHtml = typeof html === 'string' && html.trim() !== '';
 
-  /* 1) Prefer blocks (Lexical/top-level or blocks array) */
+  /* 1) Prefer blocks (Lexical or array) */
   if (hasTopLevelLexical) {
     const out = renderLexicalNodeToHTML(blocks as LexicalDoc, CMS_BASE);
     return (
@@ -259,7 +334,6 @@ export default function PostBody({
       <div className="prose prose-emerald max-w-none">
         {list.map((b, i) => {
           switch (b.blockType) {
-            /* ------------------------------ Paragraphs ------------------------------ */
             case 'paragraph':
             case 'Paragraph': {
               const v: LexicalDoc | string | undefined =
@@ -275,7 +349,6 @@ export default function PostBody({
               return <p key={b.id?.toString() ?? i.toString()} />;
             }
 
-            /* --------------------------------- Images -------------------------------- */
             case 'image':
             case 'Image':
             case 'ImageBlock':
@@ -311,7 +384,6 @@ export default function PostBody({
               );
             }
 
-            /* ------------------------------ Raw RichText ----------------------------- */
             case 'content':
             case 'richText': {
               const rb = b as RawRichTextBlock;
@@ -320,7 +392,6 @@ export default function PostBody({
               return <div key={b.id?.toString() ?? i.toString()} dangerouslySetInnerHTML={{ __html: out }} />;
             }
 
-            /* -------------------------------- PullQuote ------------------------------ */
             case 'PullQuote':
             case 'pullQuote': {
               const pq = b as PullQuoteBlock;
@@ -344,7 +415,6 @@ export default function PostBody({
               );
             }
 
-            /* ------------------------------- KeyTakeaways ---------------------------- */
             case 'KeyTakeaways':
             case 'keyTakeaways': {
               const kt = b as KeyTakeawaysBlock;
@@ -366,7 +436,6 @@ export default function PostBody({
               );
             }
 
-            /* --------------------------------- CTAGroup ------------------------------ */
             case 'CTAGroup':
             case 'ctaGroup': {
               const ctas = (b as CTAGroupBlock).ctas ?? [];
@@ -403,7 +472,7 @@ export default function PostBody({
     );
   }
 
-  /* 2) Fall back to legacy html ONLY if there are no blocks */
+  /* 2) Legacy HTML fallback only if no blocks present */
   if (hasHtml) {
     return (
       <div
@@ -413,13 +482,14 @@ export default function PostBody({
     );
   }
 
-  /* 3) Empty state */
+  /* 3) Empty */
   return (
     <div className="prose prose-emerald max-w-none">
       <p>Article body coming soon.</p>
     </div>
   );
 }
+
 
 
 
