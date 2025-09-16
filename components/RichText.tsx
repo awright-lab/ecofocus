@@ -60,7 +60,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
     ...defaultConverters,
     // Render Payload "blocks" embedded in Lexical as Chart.js where applicable
     blocks: {
-      chartJS: ({ node }) => {
+      chartJS: ({ node }: any) => {
         const f: any = (node as any)?.fields || {};
         const chartType = f.chartType || f.type || f?.config?.type || f?.chart?.type;
         const data = f.data || f.chartData || f.dataset || f?.config?.data || f?.chart?.data;
@@ -79,7 +79,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
         );
       },
       // Some configs might use a different block slug
-      chart: ({ node }) => {
+      chart: ({ node }: any) => {
         const f: any = (node as any)?.fields || {};
         const chartType = f.chartType || f.type || f?.config?.type || f?.chart?.type;
         const data = f.data || f.chartData || f.dataset || f?.config?.data || f?.chart?.data;
@@ -99,7 +99,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
       },
     },
     inlineBlocks: {
-      chartJS: ({ node }) => {
+      chartJS: ({ node }: any) => {
         const f: any = (node as any)?.fields || {};
         const chartType = f.chartType || f.type || f?.config?.type || f?.chart?.type;
         const data = f.data || f.chartData || f.dataset || f?.config?.data || f?.chart?.data;
@@ -117,7 +117,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
           />
         );
       },
-      chart: ({ node }) => {
+      chart: ({ node }: any) => {
         const f: any = (node as any)?.fields || {};
         const chartType = f.chartType || f.type || f?.config?.type || f?.chart?.type;
         const data = f.data || f.chartData || f.dataset || f?.config?.data || f?.chart?.data;
@@ -137,7 +137,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
       },
     },
     // Fallback for unknown nodes: handle block nodes dynamically
-    unknown: ({ node }) => {
+    unknown: ({ node }: any) => {
       try {
         const t = (node as any)?.type;
         if (t === 'block' || t === 'inlineBlock') {
