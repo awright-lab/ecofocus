@@ -5,6 +5,8 @@ import {
   Chart,
   BarController, BarElement,
   LineController, LineElement, PointElement,
+  PieController, DoughnutController,
+  RadarController, PolarAreaController,
   CategoryScale, LinearScale, RadialLinearScale,
   ArcElement, Filler, Tooltip, Legend,
   ScatterController, BubbleController,
@@ -14,6 +16,8 @@ import {
 Chart.register(
   BarController, BarElement,
   LineController, LineElement, PointElement,
+  PieController, DoughnutController,
+  RadarController, PolarAreaController,
   ScatterController, BubbleController,
   CategoryScale, LinearScale, RadialLinearScale,
   ArcElement, Filler, Tooltip, Legend
