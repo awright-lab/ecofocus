@@ -15,11 +15,9 @@ type GetPostsParams = {
 function buildWhere({ q, topicSlug }: { q?: string; topicSlug?: string }) {
   const clauses: any[] = []
   if (q) {
-    clauses.push({ or: [
-      { title: { like: q } },
-      { dek: { like: q } },
-      { excerpt: { like: q } },
-    ] })
+    clauses.push({
+      or: [{ title: { like: q } }, { dek: { like: q } }, { excerpt: { like: q } }],
+    })
   }
   if (topicSlug) {
     // Filter by related topic's slug (depth=2 makes nested slugs available)
@@ -35,7 +33,7 @@ function withHeaders(init?: RequestInit): RequestInit {
     ...(init?.headers || {}),
   }
   if (CMS_API_TOKEN) {
-    (headers as any).Authorization = `Bearer ${CMS_API_TOKEN}`
+    ;(headers as any).Authorization = `Bearer ${CMS_API_TOKEN}`
   }
   return { ...init, headers }
 }
@@ -51,7 +49,13 @@ function maybeRevalidate(init?: RequestInit): RequestInit {
 function mapImage(node: any): { url: string; alt?: string } | null {
   if (!node) return null
   if (typeof node === 'string') return { url: node }
-  const url = node?.url || node?.src || node?.sizes?.[0]?.url || node?.large?.url || node?.filename || node?.secure_url
+  const url =
+    node?.url ||
+    node?.src ||
+    node?.sizes?.[0]?.url ||
+    node?.large?.url ||
+    node?.filename ||
+    node?.secure_url
   if (!url) return null
   return { url, alt: node?.alt || node?.caption }
 }
@@ -82,7 +86,7 @@ function mapAuthor(a: any): Author | null {
   const nm = a.name || [a.firstName, a.lastName].filter(Boolean).join(' ')
   return {
     id: String(a.id ?? a._id ?? a.slug ?? a.email ?? 'author'),
-    name: isRich(nm) ? richToText(nm) : (nm || 'Author'),
+    name: isRich(nm) ? richToText(nm) : nm || 'Author',
     role: a.role || a.title,
     avatarUrl: a.avatar?.url || a.image?.url || a.photo?.url,
   }
@@ -93,7 +97,12 @@ function mapTopics(arr: any[]): Topic[] {
   return arr.map((t) => ({
     id: String(t.id ?? t._id ?? t.slug ?? t.name),
     slug: typeof t.slug === 'string' ? t.slug : String(t.id ?? t._id ?? ''),
-    name: typeof t.name === 'string' ? t.name : (isRich(t.name) ? richToText(t.name) : (t.title || t.slug || 'Topic')),
+    name:
+      typeof t.name === 'string'
+        ? t.name
+        : isRich(t.name)
+        ? richToText(t.name)
+        : t.title || t.slug || 'Topic',
     color: t.color,
   }))
 }
@@ -142,7 +151,6 @@ export async function getTopics(): Promise<Topic[]> {
 export async function getPosts(params: GetPostsParams = {}): Promise<Paginated<Post>> {
   const { page = 1, limit = 12, q, topicSlug, draftToken } = params
   if (!CMS_URL) {
-    // Defer to existing mock layer if unset
     return { docs: [], totalDocs: 0, page: 1, totalPages: 1, limit }
   }
   const url = new URL(`${CMS_URL}/api/posts`)
@@ -150,8 +158,10 @@ export async function getPosts(params: GetPostsParams = {}): Promise<Paginated<P
   url.searchParams.set('page', String(page))
   url.searchParams.set('limit', String(limit))
   url.searchParams.set('sort', '-publishedAt')
+
   const where = buildWhere({ q, topicSlug })
   if (where) url.searchParams.set('where', JSON.stringify(where))
+
   if (draftToken) {
     url.searchParams.set('draft', 'true')
     url.searchParams.set('previewToken', draftToken)
@@ -178,20 +188,32 @@ export async function getPostBySlug(slug: string, draftToken?: string): Promise<
   const url = new URL(`${CMS_URL}/api/posts`)
   url.searchParams.set('depth', '2')
   url.searchParams.set('limit', '1')
-  // Payload where via nested querystring
-  url.searchParams.set('where', JSON.stringify({ slug: { equals: slug } }))
+
+  // ❗ Use bracketed where so Payload actually filters by slug
+  url.searchParams.set('where[slug][equals]', slug)
+
   if (draftToken) {
     url.searchParams.set('draft', 'true')
     url.searchParams.set('previewToken', draftToken)
   }
+
   const init = draftToken ? noStore() : maybeRevalidate()
   const res = await fetch(url.toString(), init)
   if (!res.ok) return null
+
   const data = await res.json()
   const doc = data?.docs?.[0]
   if (!doc) return null
-  // Return both mapped and raw for body blocks
+
+  // Map + include raw blocks for PostBody
   const post = mapPost(doc) as any
   post.body = doc.body || doc.layout || doc.blocks || doc.content || doc.richText || []
+
+  // Prevent stale HTML from overriding proper blocks rendering
+  if (Array.isArray(post.body) ? post.body.length > 0 : !!post.body) {
+    post.html = undefined
+  }
+
   return post
 }
+
