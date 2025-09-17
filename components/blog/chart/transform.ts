@@ -1,6 +1,6 @@
 import type { ChartType, ChartData, ChartOptions } from 'chart.js'
 
-type YFieldSpec = { field: string }
+type YFieldSpec = { field: string; label?: string }
 
 export type CMSChartBlock = {
   blockType: 'chartJS'
@@ -19,6 +19,10 @@ export type CMSChartBlock = {
   xLabel?: string
   yLabel?: string
   colorPalette?: { color: string }[]
+  // NEW CMS fields:
+  orientation?: 'column' | 'row'
+  grid?: { showX?: boolean; showY?: boolean; drawBorder?: boolean; dim?: boolean; color?: string }
+  barRadius?: number
 }
 
 const DEFAULT_COLORS = [
@@ -61,12 +65,9 @@ const uniqueInOrder = <T,>(arr: T[]): T[] => {
 
 function mapChartType(t: CMSChartBlock['chartType']): ChartType {
   switch (t) {
-    case 'donut':
-      return 'doughnut'
-    case 'area':
-      return 'line'
-    default:
-      return t as ChartType
+    case 'donut': return 'doughnut'
+    case 'area':  return 'line'
+    default:      return t as ChartType
   }
 }
 
@@ -77,6 +78,7 @@ export function buildChartFromBlock(block: CMSChartBlock): {
   height?: number
 } {
   const type = mapChartType(block.chartType)
+
   const rows = Array.isArray((block.dataSource as any)?.dataset?.data)
     ? ((block.dataSource as any).dataset.data as any[])
     : Array.isArray(block.dataSource?.inlineData)
@@ -84,11 +86,18 @@ export function buildChartFromBlock(block: CMSChartBlock): {
     : []
 
   const yFields = (block.yFields || []).map((f) => f?.field).filter(Boolean) as string[]
+  const yLabelMap = Object.fromEntries(
+    (block.yFields || [])
+      .filter((f) => f?.field && f?.label)
+      .map((f) => [f.field, f.label as string]),
+  ) as Record<string, string>
+  const labelOf = (field: string) => yLabelMap[field] ?? field
+
   const hasSeries = !!block.seriesLabelField
   const palette = (block.colorPalette || []).map((c) => c.color).filter(Boolean)
   const colors = palette.length > 0 ? palette : DEFAULT_COLORS
 
-  const isPieLike = type === 'pie' || type === 'doughnut'
+  const isPieLike  = type === 'pie' || type === 'doughnut'
   const isLineLike = block.chartType === 'area' || type === 'line'
 
   let data: ChartData
@@ -102,17 +111,14 @@ export function buildChartFromBlock(block: CMSChartBlock): {
           .filter((r) => r[block.seriesLabelField!] === s)
           .reduce((sum, r) => sum + toNumberOr(r[firstY], 0), 0)
       )
-
       data = {
         labels: series as any,
-        datasets: [
-          {
-            label: firstY,
-            data: values,
-            backgroundColor: series.map((_, i) => withAlpha(colors[i % colors.length], 0.8)),
-            borderColor: series.map((_, i) => colors[i % colors.length]),
-          },
-        ],
+        datasets: [{
+          label: labelOf(firstY),
+          data: values,
+          backgroundColor: series.map((_, i) => withAlpha(colors[i % colors.length], 0.8)),
+          borderColor: series.map((_, i) => colors[i % colors.length]),
+        }],
       }
     } else {
       const labels = uniqueInOrder(rows.map((r) => r[block.xField]))
@@ -123,14 +129,12 @@ export function buildChartFromBlock(block: CMSChartBlock): {
       })
       data = {
         labels: labels as any,
-        datasets: [
-          {
-            label: firstY,
-            data: values,
-            backgroundColor: labels.map((_, i) => withAlpha(colors[i % colors.length], 0.8)),
-            borderColor: labels.map((_, i) => colors[i % colors.length]),
-          },
-        ],
+        datasets: [{
+          label: labelOf(firstY),
+          data: values,
+          backgroundColor: labels.map((_, i) => withAlpha(colors[i % colors.length], 0.8)),
+          borderColor: labels.map((_, i) => colors[i % colors.length]),
+        }],
       }
     }
   } else if (type === 'scatter') {
@@ -144,7 +148,7 @@ export function buildChartFromBlock(block: CMSChartBlock): {
             .map((r, idx) => ({ x: toNumberOr(r[block.xField], idx), y: toNumberOr(r[yf], 0) }))
           const color = colors[(si * yFields.length + yi) % colors.length]
           datasets.push({
-            label: yFields.length > 1 ? `${s} — ${yf}` : String(s),
+            label: yFields.length > 1 ? `${s} — ${labelOf(yf)}` : String(s),
             data: pts,
             borderColor: color,
             backgroundColor: withAlpha(color, 0.2),
@@ -158,7 +162,7 @@ export function buildChartFromBlock(block: CMSChartBlock): {
         const pts = rows.map((r, idx) => ({ x: toNumberOr(r[block.xField], idx), y: toNumberOr(r[yf], 0) }))
         const color = colors[i % colors.length]
         return {
-          label: yf,
+          label: labelOf(yf),
           data: pts,
           borderColor: color,
           backgroundColor: withAlpha(color, 0.2),
@@ -184,7 +188,7 @@ export function buildChartFromBlock(block: CMSChartBlock): {
           })
           const color = colors[(si * yFields.length + yi) % colors.length]
           datasets.push({
-            label: yFields.length > 1 ? `${s} — ${yf}` : String(s),
+            label: yFields.length > 1 ? `${s} — ${labelOf(yf)}` : String(s),
             data: vals,
             borderColor: color,
             backgroundColor: withAlpha(color, isLineLike ? 0.2 : 0.5),
@@ -203,7 +207,7 @@ export function buildChartFromBlock(block: CMSChartBlock): {
         })
         const color = colors[i % colors.length]
         datasets.push({
-          label: yf,
+          label: labelOf(yf),
           data: vals,
           borderColor: color,
           backgroundColor: withAlpha(color, isLineLike ? 0.2 : 0.5),
@@ -216,6 +220,8 @@ export function buildChartFromBlock(block: CMSChartBlock): {
     data = { labels: xLabels as any, datasets }
   }
 
+  // ---------- Options from CMS ----------
+  const faint = 'rgba(0,0,0,0.08)'
   const options: ChartOptions = {}
 
   // Legend
@@ -224,20 +230,43 @@ export function buildChartFromBlock(block: CMSChartBlock): {
     legend: { display: block.legend !== false },
   }
 
-  // Scales for cartesian types
+  // Orientation (bars only) + bar rounding
+  if (type === 'bar') {
+    ;(options as any).indexAxis = block.orientation === 'row' ? 'y' : 'x'
+    ;(options as any).elements = {
+      ...(options as any).elements,
+      bar: {
+        ...((options as any).elements?.bar ?? {}),
+        borderRadius: typeof block.barRadius === 'number' ? block.barRadius : 8,
+        borderSkipped: false,
+      },
+    }
+  }
+
+  // Scales for cartesian types (+ grid & border controls)
   if (!isPieLike) {
+    const xGridDisplay = block.grid?.showX !== false
+    const yGridDisplay = block.grid?.showY !== false
+    const gridColor    = block.grid?.color ?? (block.grid?.dim !== false ? faint : undefined)
+    const borderDisplay = !!block.grid?.drawBorder // Chart.js v4 → scale.border.display
+
     options.scales = {
       x: {
         stacked: !!block.stacked,
+        grid:   { display: xGridDisplay, color: gridColor },
+        border: { display: borderDisplay },
         title: block.xLabel ? { display: true, text: block.xLabel } : undefined,
       },
       y: {
         stacked: !!block.stacked,
+        grid:   { display: yGridDisplay, color: gridColor },
+        border: { display: borderDisplay },
         title: block.yLabel ? { display: true, text: block.yLabel } : undefined,
-        // Do not include function callbacks here (breaks RSC). Unit is applied in client ChartJSBlock.
+        // Unit tick callback is applied client-side (ChartJSBlock) to avoid RSC function serialization.
       },
     }
   }
 
   return { type, data, options, height: block.height }
 }
+
