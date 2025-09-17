@@ -381,6 +381,7 @@ export default function PostBody({
                   data={data as any}
                   options={options as any}
                   height={height}
+                  unit={(cb as any)?.unit}
                 />
               )
             } catch {
@@ -547,6 +548,7 @@ export default function PostBody({
                     options={options}
                     height={height}
                     caption={caption}
+                    unit={(cb as any)?.unit}
                   />
                 )
               }
@@ -577,5 +579,4 @@ export default function PostBody({
     </div>
   );
 }
-
 

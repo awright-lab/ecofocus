@@ -234,15 +234,10 @@ export function buildChartFromBlock(block: CMSChartBlock): {
       y: {
         stacked: !!block.stacked,
         title: block.yLabel ? { display: true, text: block.yLabel } : undefined,
-        ticks: block.unit
-          ? {
-              callback: (value) => `${value as any} ${block.unit}`,
-            }
-          : undefined,
+        // Do not include function callbacks here (breaks RSC). Unit is applied in client ChartJSBlock.
       },
     }
   }
 
   return { type, data, options, height: block.height }
 }
-

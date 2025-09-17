@@ -75,6 +75,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
             options={options}
             height={height}
             caption={caption}
+            unit={f.unit}
           />
         );
       },
@@ -94,6 +95,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
             options={options}
             height={height}
             caption={caption}
+            unit={f.unit}
           />
         );
       },
@@ -157,6 +159,7 @@ export default function RichTextRenderer({ content, className, baseURL, debug = 
                 options={options}
                 height={height}
                 caption={caption}
+                unit={f.unit}
               />
             );
           }

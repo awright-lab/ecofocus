@@ -32,9 +32,10 @@ type Props = {
   options?: any;   // Chart.js options
   height?: number; // px
   caption?: string;
+  unit?: string;   // optional unit suffix for Y axis
 };
 
-export default function ChartJSBlock({ chartType, data, options, height = 360, caption }: Props) {
+export default function ChartJSBlock({ chartType, data, options, height = 360, caption, unit }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const chartRef = useRef<Chart | null>(null);
 
@@ -43,6 +44,16 @@ export default function ChartJSBlock({ chartType, data, options, height = 360, c
     // Allow CMS to send JSON strings
     const parsedData = typeof data === 'string' ? (() => { try { return JSON.parse(data); } catch { return null; } })() : data;
     const parsedOptions = typeof options === 'string' ? (() => { try { return JSON.parse(options); } catch { return undefined; } })() : options;
+    // Apply unit tick callback on client to avoid passing functions through RSC
+    if (unit) {
+      const scales = (parsedOptions as any)?.scales || {};
+      const y = scales.y || {};
+      y.ticks = {
+        ...(y.ticks || {}),
+        callback: (value: any) => `${value} ${unit}`,
+      };
+      (parsedOptions as any) = { ...(parsedOptions || {}), scales: { ...(scales || {}), y } };
+    }
     if (!parsedData) return;
     // Clean up previous instance
     chartRef.current?.destroy();
@@ -52,7 +63,7 @@ export default function ChartJSBlock({ chartType, data, options, height = 360, c
       options: parsedOptions,
     });
     return () => chartRef.current?.destroy();
-  }, [chartType, data, options]);
+  }, [chartType, data, options, unit]);
 
   return (
     <figure className="my-6">
