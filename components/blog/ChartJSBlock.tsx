@@ -13,7 +13,6 @@ import {
   Plugin,
 } from 'chart.js';
 
-// Register once
 Chart.register(
   BarController, BarElement,
   LineController, LineElement, PointElement,
@@ -39,7 +38,7 @@ type Props = {
   options?: any;    // Chart.js options
   height?: number;  // px
   caption?: string;
-  unit?: string;    // optional unit suffix (e.g. %, KWh)
+  unit?: string;    // optional unit suffix for ticks & labels
 };
 
 /* ------------------ helpers ------------------ */
@@ -53,6 +52,26 @@ function safeParse<T = any>(v: any): T | undefined {
 }
 
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+const toHex = (x: number) => clamp(Math.round(x), 0, 255).toString(16).padStart(2, '0');
+
+function cssColorToHex(s: string): string | null {
+  const t = s.trim();
+  // #abc or #aabbcc
+  if (t[0] === '#') {
+    if (t.length === 4) {
+      const r = t[1], g = t[2], b = t[3];
+      return `#${r}${r}${g}${g}${b}${b}`;
+    }
+    return t.slice(0, 7); // ignore alpha channel if #RRGGBBAA
+  }
+  // rgb/rgba
+  const m = /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i.exec(t);
+  if (m) {
+    const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]);
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+  return null;
+}
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -60,7 +79,6 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
 }
 
-/** lighten/darken a hex color by percentage (-0.5..+0.5 roughly) */
 function shadeHex(hex: string, pct: number): string {
   const c = hexToRgb(hex);
   if (!c) return hex;
@@ -69,16 +87,15 @@ function shadeHex(hex: string, pct: number): string {
   const r = pct >= 0 ? mixUp(c.r) : mixDown(c.r);
   const g = pct >= 0 ? mixUp(c.g) : mixDown(c.g);
   const b = pct >= 0 ? mixUp(c.b) : mixDown(c.b);
-  const toHex = (x: number) => x.toString(16).padStart(2, '0');
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-/** scriptable gradient background from a base hex color */
+/** scriptable gradient from a base hex color */
 function gradientFrom(baseHex: string) {
   return (ctx: any) => {
     const { chart } = ctx;
     const { ctx: g, chartArea } = chart;
-    if (!chartArea) return baseHex; // initial pass
+    if (!chartArea) return baseHex; // first layout pass
     const horizontal = chart.options?.indexAxis === 'y';
     const grad = g.createLinearGradient(
       horizontal ? chartArea.left : 0,
@@ -86,40 +103,22 @@ function gradientFrom(baseHex: string) {
       horizontal ? chartArea.right : 0,
       horizontal ? 0 : chartArea.top,
     );
-    const c0 = shadeHex(baseHex, 0.20);  // lighter
-    const c1 = shadeHex(baseHex, -0.05); // slightly darker
+    const c0 = shadeHex(baseHex, 0.20);   // lighter
+    const c1 = shadeHex(baseHex, -0.08);  // slightly darker
     grad.addColorStop(0, c0);
     grad.addColorStop(1, c1);
     return grad;
   };
 }
 
-/* ------------------ custom plugins (no extra deps) ------------------ */
+/* ------------------ tiny plugins ------------------ */
 
-// Subtle shadow under bars/areas
-const softShadowPlugin: Plugin = {
-  id: 'softShadow',
-  beforeDatasetsDraw(chart, _args, opts: any) {
-    const ctx = chart.ctx;
-    ctx.save();
-    ctx.shadowColor = opts?.color ?? 'rgba(0,0,0,0.12)';
-    ctx.shadowBlur = opts?.blur ?? 8;
-    ctx.shadowOffsetX = opts?.offsetX ?? 0;
-    ctx.shadowOffsetY = opts?.offsetY ?? 2;
-  },
-  afterDatasetsDraw(chart) {
-    chart.ctx.restore();
-  },
-};
-
-// Value labels at the end of bars (works for horizontal & vertical)
+// Value labels at the end of bars
 const valueLabelPlugin: Plugin = {
   id: 'valueLabel',
   afterDatasetsDraw(chart) {
-    // read options from plugins bag (we cast in the component)
-    const cfg: any = chart.options?.plugins?.valueLabel || {};
-    const display = typeof cfg.display === 'boolean' ? cfg.display : false;
-    if (!display) return;
+    const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
+    if (!cfg.display) return;
 
     const unit: string = cfg.unit ?? '';
     const color: string = cfg.color ?? '#334155';
@@ -139,14 +138,14 @@ const valueLabelPlugin: Plugin = {
     chart.data.datasets.forEach((ds: any, di: number) => {
       const meta = chart.getDatasetMeta(di);
       if (!meta?.data) return;
-      meta.data.forEach((el: any, i: number) => {
+      meta.data.forEach((_el: any, i: number) => {
         const raw = Array.isArray(ds.data) ? ds.data[i] : undefined;
         if (raw == null || isNaN(raw)) return;
         const val = Number(raw);
         const endPx = valueScale.getPixelForValue(val);
         const catPx = catScale.getPixelForValue(i);
-
         const text = `${val}${unit ? ` ${unit}` : ''}`;
+
         if (horizontal) {
           ctx.textAlign = 'left';
           ctx.fillText(text, endPx + padding, catPx);
@@ -160,6 +159,8 @@ const valueLabelPlugin: Plugin = {
     ctx.restore();
   },
 };
+
+/* ------------------ component ------------------ */
 
 export default function ChartJSBlock({
   chartType,
@@ -189,7 +190,7 @@ export default function ChartJSBlock({
       : chartType === 'area' ? 'line'
       : (chartType as NormalizedChartKind);
 
-    // Orientation helpers (bars only)
+    // Orientation (bars)
     if (effectiveType === 'bar') {
       const orientation = typeof opts.orientation === 'string' ? opts.orientation : undefined;
       if (opts.indexAxis == null && orientation) {
@@ -201,21 +202,20 @@ export default function ChartJSBlock({
     const numericAxisKey: 'x' | 'y' =
       effectiveType === 'bar' && opts.indexAxis === 'y' ? 'x' : 'y';
 
-    // Rounded corners + polish for bars
-    const globalBarRadius =
-      opts?.elements?.bar?.borderRadius ??
-      (typeof opts?.barRadius === 'number' ? opts.barRadius : undefined);
-
+    // Rounded corners & no borders by default for bars
     if (effectiveType === 'bar' && Array.isArray(dataObj.datasets)) {
       for (const ds of dataObj.datasets) {
         if (ds.type && ds.type !== 'bar') continue;
-        if (ds.borderRadius == null) ds.borderRadius = globalBarRadius ?? 10;
+        if (ds.borderRadius == null) ds.borderRadius = typeof opts.barRadius === 'number' ? opts.barRadius : 10;
         if (ds.borderSkipped == null) ds.borderSkipped = false;
-        if (ds.borderWidth == null) ds.borderWidth = 1.5;
+        // respect explicit barBorderWidth; default = 0 (no border)
+        const borderW = typeof opts.barBorderWidth === 'number' ? opts.barBorderWidth : 0;
+        ds.borderWidth = borderW;
+        if (borderW === 0) ds.borderColor = undefined;
       }
     }
 
-    // Area support (line with fill)
+    // Area (line with fill)
     if (chartType === 'area' && Array.isArray(dataObj.datasets)) {
       for (const ds of dataObj.datasets) {
         if (ds.type && ds.type !== 'line') continue;
@@ -226,7 +226,7 @@ export default function ChartJSBlock({
       opts.elements.line = { ...(opts.elements.line ?? {}), fill: true };
     }
 
-    // Dim gridlines & hide borders by default
+    // Subtle grid & no axis borders
     const faint = 'rgba(0,0,0,0.08)';
     opts.scales = opts.scales ?? {};
     for (const ax of ['x', 'y'] as const) {
@@ -267,14 +267,22 @@ export default function ChartJSBlock({
       }
     }
 
-    // Use gradient derived from CMS color if it's a hex string (no opacity)
+    // ---- FORCE SOLID FILLS + APPLY GRADIENT ----
+    // If CMS sent rgba(..., a<1), convert to hex and make a gradient so bars never look "washed out".
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
-        if (typeof ds.backgroundColor === 'string' && ds.backgroundColor.startsWith('#')) {
-          const baseHex = ds.backgroundColor;
-          ds.backgroundColor = gradientFrom(baseHex);
-          if (!ds.borderColor) ds.borderColor = shadeHex(baseHex, -0.15);
-          if (ds.borderWidth == null) ds.borderWidth = 1.5;
+        // normalize single string color
+        if (typeof ds.backgroundColor === 'string') {
+          const hex = cssColorToHex(ds.backgroundColor);
+          if (hex) ds.backgroundColor = gradientFrom(hex);
+        }
+        // normalize array of colors (rare for bars, but safe)
+        if (Array.isArray(ds.backgroundColor)) {
+          ds.backgroundColor = ds.backgroundColor.map((c: any) => {
+            if (typeof c !== 'string') return c;
+            const hex = cssColorToHex(c);
+            return hex ? hex : c;
+          });
         }
       });
     }
@@ -283,8 +291,6 @@ export default function ChartJSBlock({
     const wantLabels =
       (opts.plugins && (opts.plugins as any).valueLabel?.display) ??
       (typeof unit === 'string' && unit.includes('%'));
-
-    // Cast plugin options to any so we don't need type augmentation
     (opts.plugins as any).valueLabel = {
       ...((opts.plugins as any).valueLabel ?? {}),
       display: wantLabels,
@@ -294,25 +300,13 @@ export default function ChartJSBlock({
       padding: (opts.plugins as any)?.valueLabel?.padding ?? 6,
     };
 
-    (opts.plugins as any).softShadow = {
-      ...((opts.plugins as any).softShadow ?? {}),
-      // tweak these if you want stronger/weaker polish
-      color: (opts.plugins as any)?.softShadow?.color ?? 'rgba(0,0,0,0.12)',
-      blur: (opts.plugins as any)?.softShadow?.blur ?? 8,
-      offsetX: (opts.plugins as any)?.softShadow?.offsetX ?? 0,
-      offsetY: (opts.plugins as any)?.softShadow?.offsetY ?? 2,
-    };
-
-    // Clean up previous instance
+    // Build chart
     chartRef.current?.destroy();
     chartRef.current = new Chart(canvas, {
       type: effectiveType as any,
       data: dataObj,
       options: opts,
-      plugins: [
-        { ...softShadowPlugin, id: 'softShadow' },
-        { ...valueLabelPlugin, id: 'valueLabel' },
-      ],
+      plugins: [valueLabelPlugin],
     });
 
     return () => chartRef.current?.destroy();
@@ -331,5 +325,6 @@ export default function ChartJSBlock({
     </figure>
   );
 }
+
 
 
