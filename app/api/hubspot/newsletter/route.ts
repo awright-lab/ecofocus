@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 type RateEntry = { count: number; resetAt: number };
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const RATE_MAX = 20;                   // max submissions per IP per window
+const RATE_MAX = 20;                   // max submissions / IP / window
 const ipHits = new Map<string, RateEntry>(); // naive in-memory rate store
 
 function rateOk(ip: string) {
@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true }); // blackhole to avoid tipping off bots
     }
 
+    const body = await req.json();
     const {
       email,
       firstname,
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
       elapsedMs,     // time-to-submit
       turnstileToken,
       tags,          // optional: array of tag internal values; defaults below
-    } = await req.json();
+    } = body || {};
 
     // Honeypot: any value => silently drop
     if (hp && String(hp).trim().length > 0) {
@@ -83,26 +84,44 @@ export async function POST(req: Request) {
     }
 
     // ---- Tags (Multiple checkboxes) ----
-    // HubSpot expects semicolon-separated internal values, e.g. "newsletter;econuggets"
-    const tagValues: string[] = Array.isArray(tags) && tags.length ? tags : ['newsletter'];
+    // HubSpot expects semicolon-separated INTERNAL values, e.g. "newsletter;econuggets"
+    // You can set defaults via env HUBSPOT_TAG_INTERNALS="newsletter;econuggets"
+    const defaultsFromEnv = (process.env.HUBSPOT_TAG_INTERNALS || '')
+      .split(';')
+      .map(s => s.trim())
+      .filter(Boolean);
+    const fallbackTags = defaultsFromEnv.length ? defaultsFromEnv : ['newsletter'];
 
-    // Map to HubSpot properties (ensure these exist in HubSpot)
+    const tagValues: string[] = Array.isArray(tags) && tags.length
+      ? tags.map((t) => String(t).trim()).filter(Boolean)
+      : fallbackTags;
+
+    // TEMP/DEBUG: Log what we're sending (won't run in prod logs on some hosts)
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[newsletter] sending tags:', tagValues);
+    }
+
+    // Map to HubSpot properties (ensure these exist in HubSpot with correct internal names)
     const fields = [
-      { name: 'email', value: email },
-      firstname ? { name: 'firstname', value: firstname } : null,
-      lastname  ? { name: 'lastname',  value: lastname  } : null,
-      { name: 'newsletter_consent', value: consent ? 'true' : 'false' }, // your custom checkbox
-      { name: 'tags', value: tagValues.join(';') },                       // ✅ multiple checkboxes
-      utm?.source   ? { name: 'utm_source',   value: utm.source }   : null,
-      utm?.medium   ? { name: 'utm_medium',   value: utm.medium }   : null,
-      utm?.campaign ? { name: 'utm_campaign', value: utm.campaign } : null,
-      { name: 'source', value: 'Website' }, // optional text property
+      { name: 'email', value: String(email) },
+      firstname ? { name: 'firstname', value: String(firstname) } : null,
+      lastname  ? { name: 'lastname',  value: String(lastname)  } : null,
+      { name: 'newsletter_consent', value: consent ? 'true' : 'false' },  // custom single checkbox
+      { name: 'tags', value: tagValues.join(';') },                        // ✅ multiple checkboxes
+      // Safety net for quick visibility in CRM:
+      { name: 'signup_channel', value: 'newsletter' },                     // custom single-line text (optional)
+      // UTM params (create text properties if you want these)
+      utm?.source   ? { name: 'utm_source',   value: String(utm.source)   } : null,
+      utm?.medium   ? { name: 'utm_medium',   value: String(utm.medium)   } : null,
+      utm?.campaign ? { name: 'utm_campaign', value: String(utm.campaign) } : null,
+      // Optional "source" tag (create a text property named "source" if desired)
+      { name: 'source', value: 'Website' },
     ].filter(Boolean) as { name: string; value: string }[];
 
     // Build context safely: include hutk ONLY if present (prevents INVALID_HUTK)
     const context: Record<string, any> = {};
-    if (pageUri)  context.pageUri  = pageUri;
-    if (pageName) context.pageName = pageName;
+    if (pageUri)  context.pageUri  = String(pageUri);
+    if (pageName) context.pageName = String(pageName);
     if (typeof hutk === 'string' && hutk.trim().length > 0) {
       context.hutk = hutk.trim();
     }
@@ -130,5 +149,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: e?.message || 'Unknown error' }, { status: 500 });
   }
 }
+
 
 
