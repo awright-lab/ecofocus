@@ -18,7 +18,7 @@ export default function StoreHero() {
     <>
       <Hero
         variant="solutions"
-        size="short" // compact height
+        size="normal" // compact height
         badge="Storefront"
         headline={
           <>

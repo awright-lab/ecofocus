@@ -6,7 +6,7 @@ export default function BlogHero() {
   return (
     <Hero
       variant="solutions"
-      size="short" // compact height
+      size="normal" // compact height
       badge="EcoNuggets"
       headline={
         <>

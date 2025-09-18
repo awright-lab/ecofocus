@@ -6,7 +6,7 @@ export default function AboutHero() {
   return (
     <Hero
       variant="solutions"
-      size="short"                 // compact height
+      size="normal"                 // compact height
       badge="Our Story"
       headline={
         <>

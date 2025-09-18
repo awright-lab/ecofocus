@@ -7,7 +7,7 @@ export default function SolutionsHero() {
   return (
     <Hero
       variant="solutions"
-      size="short" // compact height
+      size="normal" // compact height
       badge="Core Services"
       headline={
         <>

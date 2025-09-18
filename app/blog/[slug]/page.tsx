@@ -84,7 +84,7 @@ export default async function ArticlePage({
 
       <main className="bg-neutral-50">
         {/* HERO (cover image as background) */}
-        <section className="relative isolate overflow-hidden">
+        <section className="relative isolate overflow-hidden min-h-[50svh] md:min-h-[56svh]">
           {/* Background image or brand gradient */}
           <div className="absolute inset-0 -z-10">
             {post.coverImage?.url ? (
@@ -105,9 +105,12 @@ export default async function ArticlePage({
             <div className="h-full w-full bg-gradient-to-br from-black/55 via-emerald-950/35 to-blue-950/45" />
           </div>
 
-          {/* Content */}
-          <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-10 text-white">
-            <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">EcoFocus Insights</p>
+          {/* Content (more top padding to clear header, slightly more bottom) */}
+          <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-28 sm:pt-32 pb-14 text-white">
+            <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">
+              {/* was: EcoFocus Insights */}
+              EcoNugget Insights
+            </p>
             <h1
               id="article-title"
               className="mt-2 text-3xl sm:text-4xl font-semibold leading-tight max-w-4xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
@@ -117,8 +120,8 @@ export default async function ArticlePage({
             <PostMeta author={post.author} date={post.publishedAt} readTime={readTime} />
           </div>
 
-          {/* Bottom fade into page background */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-neutral-50 to-transparent" />
+          {/* Bottom fade into page background (taller) */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-28 bg-gradient-to-t from-neutral-50 to-transparent" />
         </section>
 
         {/* BREADCRUMBS */}
@@ -242,6 +245,7 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
+
 
 
 

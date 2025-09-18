@@ -9,6 +9,9 @@ import { motion, useReducedMotion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
+// New reusable hero
+import SolutionsHero from './SolutionsHero';
+
 export default function SolutionsPage() {
   const reduceMotion = useReducedMotion();
 
@@ -52,24 +55,8 @@ export default function SolutionsPage() {
       <Header />
 
       <main className="bg-white">
-        {/* Hero */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 to-emerald-800 text-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-20 text-center">
-            <motion.h1
-              initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="font-bold text-[clamp(2rem,6vw,3rem)] leading-tight"
-            >
-              Our Solutions
-            </motion.h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg text-emerald-50">
-              From syndicated studies to custom projects, every path leads to one goal:
-              actionable insights delivered through the EcoFocus Dashboard.
-            </p>
-          </div>
-        </section>
+        {/* Hero (reusable SolutionsHero) */}
+        <SolutionsHero />
 
         {/* Grid */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
@@ -148,5 +135,6 @@ export default function SolutionsPage() {
     </>
   );
 }
+
 
 
