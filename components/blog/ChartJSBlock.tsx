@@ -34,46 +34,31 @@ type NormalizedChartKind =
 
 type Props = {
   chartType: ChartKind;
-  data: any;        // { labels, datasets }
-  options?: any;    // Chart.js options
-  height?: number;  // px
+  data: any;
+  options?: any;
+  height?: number;
   caption?: string;
-  unit?: string;    // optional unit suffix for ticks & labels
+  unit?: string;
 };
 
-/* ------------------ helpers ------------------ */
-
+/* ---------- helpers ---------- */
 function safeParse<T = any>(v: any): T | undefined {
   if (v == null) return undefined;
-  if (typeof v === 'string') {
-    try { return JSON.parse(v) as T; } catch { return undefined; }
-  }
+  if (typeof v === 'string') { try { return JSON.parse(v) as T; } catch { return undefined; } }
   return v as T;
 }
-
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 const toHex = (x: number) => clamp(Math.round(x), 0, 255).toString(16).padStart(2, '0');
-
 function cssColorToHex(s: string): string | null {
   const t = s.trim();
   if (t[0] === '#') return t.length === 4 ? `#${t[1]}${t[1]}${t[2]}${t[2]}${t[3]}${t[3]}` : t.slice(0, 7);
   const m = /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i.exec(t);
-  if (m) {
-    const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]);
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-  }
+  if (m) { const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]); return `#${toHex(r)}${toHex(g)}${toHex(b)}`; }
   return null;
 }
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!m) return null;
-  return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
-}
-
-function shadeHex(hex: string, pct: number): string {
-  const c = hexToRgb(hex);
-  if (!c) return hex;
+function hexToRgb(hex: string) { const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m ? { r: parseInt(m[1],16), g: parseInt(m[2],16), b: parseInt(m[3],16) } : null; }
+function shadeHex(hex: string, pct: number) {
+  const c = hexToRgb(hex); if (!c) return hex;
   const mixUp = (x: number) => clamp(Math.round(x + (255 - x) * pct), 0, 255);
   const mixDown = (x: number) => clamp(Math.round(x * (1 + pct)), 0, 255);
   const r = pct >= 0 ? mixUp(c.r) : mixDown(c.r);
@@ -81,13 +66,11 @@ function shadeHex(hex: string, pct: number): string {
   const b = pct >= 0 ? mixUp(c.b) : mixDown(c.b);
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
-
-/** scriptable gradient from a base hex color */
 function gradientFrom(baseHex: string) {
   return (ctx: any) => {
     const { chart } = ctx;
     const { ctx: g, chartArea } = chart;
-    if (!chartArea) return baseHex; // first layout pass
+    if (!chartArea) return baseHex;
     const horizontal = chart.options?.indexAxis === 'y';
     const grad = g.createLinearGradient(
       horizontal ? chartArea.left : 0,
@@ -95,27 +78,21 @@ function gradientFrom(baseHex: string) {
       horizontal ? chartArea.right : 0,
       horizontal ? 0 : chartArea.top,
     );
-    const c0 = shadeHex(baseHex, 0.20);   // lighter
-    const c1 = shadeHex(baseHex, -0.08);  // slightly darker
+    const c0 = shadeHex(baseHex, 0.20);
+    const c1 = shadeHex(baseHex, -0.08);
     grad.addColorStop(0, c0);
     grad.addColorStop(1, c1);
     return grad;
   };
 }
 
-/* ------------------ tiny plugins ------------------ */
-
-// Value labels at the end of bars
+/* ---------- plugins ---------- */
+// bar end value labels (unchanged)
 const valueLabelPlugin: Plugin = {
   id: 'valueLabel',
   afterDatasetsDraw(chart) {
     const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
-    if (!cfg.display) return;
-
-    const hasX = !!chart.scales?.x;
-    const hasY = !!chart.scales?.y;
-    if (!hasX || !hasY) return; // only cartesian charts
-
+    if (!cfg.display || !chart.scales?.x || !chart.scales?.y) return;
     const unit: string = cfg.unit ?? '';
     const color: string = cfg.color ?? '#334155';
     const fontSize: number = cfg.fontSize ?? 12;
@@ -133,30 +110,21 @@ const valueLabelPlugin: Plugin = {
 
     chart.data.datasets.forEach((ds: any, di: number) => {
       const meta = chart.getDatasetMeta(di);
-      if (!meta?.data) return;
-      meta.data.forEach((_el: any, i: number) => {
+      meta?.data?.forEach((_el: any, i: number) => {
         const raw = Array.isArray(ds.data) ? ds.data[i] : undefined;
         if (raw == null || isNaN(raw)) return;
         const val = Number(raw);
         const endPx = valueScale.getPixelForValue(val);
         const catPx = catScale.getPixelForValue(i);
         const text = `${val}${unit ? ` ${unit}` : ''}`;
-
-        if (horizontal) {
-          ctx.textAlign = 'left';
-          ctx.fillText(text, endPx + padding, catPx);
-        } else {
-          ctx.textAlign = 'center';
-          ctx.fillText(text, catPx, endPx - padding);
-        }
+        if (horizontal) { ctx.textAlign = 'left'; ctx.fillText(text, endPx + padding, catPx); }
+        else { ctx.textAlign = 'center'; ctx.fillText(text, catPx, endPx - padding); }
       });
     });
-
     ctx.restore();
   },
 };
 
-// Simple text wrap
 function drawWrapped(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -170,30 +138,22 @@ function drawWrapped(
   let cur = '';
   for (const w of words) {
     const test = cur ? cur + ' ' + w : w;
-    if (ctx.measureText(test).width <= maxWidth || !cur) {
-      cur = test;
-    } else {
-      lines.push(cur);
-      cur = w;
-    }
+    if (ctx.measureText(test).width <= maxWidth || !cur) cur = test;
+    else { lines.push(cur); cur = w; }
   }
   if (cur) lines.push(cur);
 
   const totalH = lines.length * lineHeight;
-  let y0 = y - totalH / 2 + lineHeight / 2; // vertically center around y
-  for (const line of lines) {
-    ctx.fillText(line, x, y0);
-    y0 += lineHeight;
-  }
+  let y0 = y - totalH / 2 + lineHeight / 2;
+  for (const line of lines) { ctx.fillText(line, x, y0); y0 += lineHeight; }
 }
 
-// Big center value for doughnut/pie
+// center % for donut/pie (unchanged)
 const centerLabelPlugin: Plugin = {
   id: 'centerLabel',
   afterDraw(chart) {
     const cfg: any = (chart.options?.plugins as any)?.centerLabel;
     if (!cfg?.display) return;
-
     const meta = chart.getDatasetMeta(0);
     const arc = meta?.data?.[0] as any;
     if (!arc) return;
@@ -203,8 +163,7 @@ const centerLabelPlugin: Plugin = {
     if (!arr.length) return;
 
     const sum = arr.reduce((a, b) => a + (Number(b) || 0), 0);
-    const first = Number(arr[0]) || 0;
-    const target = cfg.useMax ? Math.max(...arr.map((v: any) => Number(v) || 0)) : first;
+    const target = cfg.useMax ? Math.max(...arr.map((v: any) => Number(v) || 0)) : Number(arr[0]) || 0;
 
     let text: string;
     if (cfg.percent || (cfg.unit && String(cfg.unit).includes('%'))) {
@@ -227,7 +186,7 @@ const centerLabelPlugin: Plugin = {
   },
 };
 
-// Label to the RIGHT of the donut/pie
+// *** UPDATED: side label uses canvas width + configurable maxWidth ***
 const sideLabelPlugin: Plugin = {
   id: 'sideLabel',
   afterDraw(chart) {
@@ -241,7 +200,6 @@ const sideLabelPlugin: Plugin = {
     const text =
       cfg.text ??
       (Array.isArray(chart.data?.labels) ? String(chart.data.labels[0] ?? '') : '');
-
     if (!text) return;
 
     const { x, y, outerRadius } = arc;
@@ -251,9 +209,10 @@ const sideLabelPlugin: Plugin = {
     const fontSize = cfg.fontSize ?? 18;
     const lineHeight = (cfg.lineHeight ?? 1.25) * fontSize;
     const offset = cfg.offset ?? 18;
-
-    // Space available to the right edge of chart area
-    const maxW = Math.max(60, chart.chartArea.right - (x + outerRadius + offset) - 4);
+    const desiredMax = cfg.maxWidth ?? 280; // <-- default wider
+    // Use canvas right edge so padding area is available
+    const available = chart.width - (x + outerRadius + offset) - 8;
+    const maxW = Math.max(60, Math.min(desiredMax, available));
 
     ctx.save();
     ctx.fillStyle = color;
@@ -265,8 +224,7 @@ const sideLabelPlugin: Plugin = {
   },
 };
 
-/* ------------------ component ------------------ */
-
+/* ---------- component ---------- */
 export default function ChartJSBlock({
   chartType,
   data,
@@ -289,18 +247,15 @@ export default function ChartJSBlock({
     const dataObj = JSON.parse(JSON.stringify(parsedData));
     const opts: any = JSON.parse(JSON.stringify(parsedOptions));
 
-    // Normalize chart type
     const effectiveType: NormalizedChartKind =
       chartType === 'donut' ? 'doughnut'
       : chartType === 'area' ? 'line'
       : (chartType as NormalizedChartKind);
 
-    // Orientation (bars)
+    // bars orientation
     if (effectiveType === 'bar') {
       const orientation = typeof opts.orientation === 'string' ? opts.orientation : undefined;
-      if (opts.indexAxis == null && orientation) {
-        opts.indexAxis = orientation === 'row' ? 'y' : 'x';
-      }
+      if (opts.indexAxis == null && orientation) opts.indexAxis = orientation === 'row' ? 'y' : 'x';
       if (opts.indexAxis == null) opts.indexAxis = 'x';
     }
 
@@ -310,7 +265,7 @@ export default function ChartJSBlock({
     const categoryAxisKey: 'x' | 'y' = isHorizontal ? 'y' : 'x';
     const valueAxisKey: 'x' | 'y' = isHorizontal ? 'x' : 'y';
 
-    // Rounded corners & no borders by default for bars
+    // bar rounding / borders
     if (isBar && Array.isArray(dataObj.datasets)) {
       for (const ds of dataObj.datasets) {
         if (ds.type && ds.type !== 'bar') continue;
@@ -322,7 +277,7 @@ export default function ChartJSBlock({
       }
     }
 
-    // Area (line with fill)
+    // area (line+fill)
     if (chartType === 'area' && Array.isArray(dataObj.datasets)) {
       for (const ds of dataObj.datasets) {
         if (ds.type && ds.type !== 'line') continue;
@@ -333,7 +288,7 @@ export default function ChartJSBlock({
       opts.elements.line = { ...(opts.elements.line ?? {}), fill: true };
     }
 
-    // Scales: only apply to cartesian charts; explicitly REMOVE for pie/doughnut
+    // cartesian scales vs pie-like
     const faint = 'rgba(0,0,0,0.08)';
     if (!isPieLike) {
       opts.scales = opts.scales ?? {};
@@ -341,31 +296,25 @@ export default function ChartJSBlock({
         opts.scales[ax] = opts.scales[ax] ?? {};
         const grid = (opts.scales[ax].grid = opts.scales[ax].grid ?? {});
         if (grid.display !== false && grid.color == null) grid.color = faint;
-
         const border = (opts.scales[ax].border = opts.scales[ax].border ?? {});
         if (typeof border.display !== 'boolean') border.display = false;
-
         const ticks = (opts.scales[ax].ticks = opts.scales[ax].ticks ?? {});
         if (ticks.color == null) ticks.color = 'rgba(0,0,0,0.45)';
       }
-      // Make category axis labels solid black
       const cat = opts.scales[categoryAxisKey] ?? {};
       cat.ticks = { ...(cat.ticks ?? {}), color: '#000', font: { ...(cat.ticks?.font ?? {}), weight: '500' } };
       opts.scales[categoryAxisKey] = cat;
     } else {
-      // ensure no axes/ticks/grid for donut/pie
       delete opts.scales;
     }
 
-    // Defaults
+    // defaults
     if (opts.responsive == null) opts.responsive = true;
     if (opts.maintainAspectRatio == null) opts.maintainAspectRatio = false;
     opts.plugins = opts.plugins ?? {};
-    if (opts.plugins.legend == null) {
-      opts.plugins.legend = { display: true, position: 'top' };
-    }
+    if (opts.plugins.legend == null) opts.plugins.legend = { display: true, position: 'top' };
 
-    // Tooltip unit (unless overridden)
+    // tooltips
     opts.plugins.tooltip = opts.plugins.tooltip ?? {};
     const hasCustomTooltipLabel = !!opts.plugins.tooltip?.callbacks?.label;
     if (unit && !hasCustomTooltipLabel) {
@@ -376,16 +325,14 @@ export default function ChartJSBlock({
       };
     }
 
-    // Axis unit suffix on value axis (cartesian only)
+    // tick unit (cartesian only)
     if (!isPieLike && unit) {
       const axis = opts.scales[valueAxisKey] = opts.scales[valueAxisKey] ?? {};
       axis.ticks = axis.ticks ?? {};
-      if (axis.ticks.callback == null) {
-        axis.ticks.callback = (value: any) => `${value} ${unit}`;
-      }
+      if (axis.ticks.callback == null) axis.ticks.callback = (value: any) => `${value} ${unit}`;
     }
 
-    // Apply gradient fills when a single color is sent from CMS
+    // gradients
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
         if (typeof ds.backgroundColor === 'string') {
@@ -401,14 +348,11 @@ export default function ChartJSBlock({
       });
     }
 
-    // Value labels for bars only
+    // value labels (bars)
     const valueLabelsOn =
       !isPieLike &&
-      (
-        (opts.plugins && (opts.plugins as any).valueLabel?.display) ||
-        (typeof unit === 'string' && unit.includes('%'))
-      );
-
+      (((opts.plugins as any).valueLabel?.display) ||
+        (typeof unit === 'string' && unit.includes('%')));
     (opts.plugins as any).valueLabel = {
       ...((opts.plugins as any).valueLabel ?? {}),
       display: valueLabelsOn,
@@ -418,14 +362,8 @@ export default function ChartJSBlock({
       padding: (opts.plugins as any)?.valueLabel?.padding ?? 6,
     };
 
-    // Center value for donut/pie (auto-on if unit contains '%')
-    const centerOn =
-      isPieLike &&
-      (
-        (opts.plugins && (opts.plugins as any).centerLabel?.display) ||
-        (typeof unit === 'string' && unit.includes('%'))
-      );
-
+    // center value (donut/pie)
+    const centerOn = isPieLike && (((opts.plugins as any).centerLabel?.display) || (typeof unit === 'string' && unit.includes('%')));
     (opts.plugins as any).centerLabel = {
       ...((opts.plugins as any).centerLabel ?? {}),
       display: centerOn,
@@ -434,24 +372,20 @@ export default function ChartJSBlock({
       useMax: (opts.plugins as any)?.centerLabel?.useMax ?? false,
     };
 
-    // Side label next to donut/pie (ON by default; override with options.plugins.sideLabel)
-    const sideOn = isPieLike && ((opts.plugins as any)?.sideLabel?.display ?? true);
-    (opts.plugins as any).sideLabel = {
-      ...((opts.plugins as any).sideLabel ?? {}),
-      display: sideOn,
-      // You can override: text, color, fontSize, lineHeight, offset
-    };
+    // *** reserve space + config for side label ***
+    const sideCfg = (opts.plugins as any).sideLabel ?? {};
+    const sideOn = isPieLike && (sideCfg.display ?? true);
+    const offset = sideCfg.offset ?? 18;
+    const desiredMax = sideCfg.maxWidth ?? 280; // default wider
+    (opts.plugins as any).sideLabel = { ...sideCfg, display: sideOn, maxWidth: desiredMax, offset };
 
-    // Give the donut some right padding for the side label
-    if (isPieLike) {
-      const padRight = (opts.layout?.padding?.right ??
-        (typeof (opts.plugins as any).sideLabel?.display === 'boolean' && !(opts.plugins as any).sideLabel.display ? 0 : 140)
-      );
+    if (isPieLike && sideOn) {
+      const desiredRightPad = desiredMax + offset + 16;
       opts.layout = opts.layout ?? {};
-      opts.layout.padding = { ...(opts.layout.padding ?? {}), right: padRight };
+      const prev = (opts.layout.padding ?? {}) as any;
+      opts.layout.padding = { ...prev, right: Math.max(prev?.right ?? 0, desiredRightPad) };
     }
 
-    // Build chart
     chartRef.current?.destroy();
     chartRef.current = new Chart(canvas, {
       type: effectiveType as any,
@@ -468,14 +402,11 @@ export default function ChartJSBlock({
       <div style={{ height }}>
         <canvas ref={canvasRef} />
       </div>
-      {caption && (
-        <figcaption className="mt-2 text-sm text-gray-600">
-          {caption}
-        </figcaption>
-      )}
+      {caption && <figcaption className="mt-2 text-sm text-gray-600">{caption}</figcaption>}
     </figure>
   );
 }
+
 
 
 
