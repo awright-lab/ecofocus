@@ -1,81 +1,17 @@
-// app/solutions/syndicated-buy-in/page.tsx
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import StickySectionNav from '@/components/StickySectionNav';
 import InquiryStrip from '@/components/InquiryStrip';
+import Hero from '@/components/Hero';
 import {
   CheckCircle2, Users, BarChart2, LineChart, BadgeCheck,
   ClipboardList, Database, BookOpenCheck,
 } from 'lucide-react';
-
-/* ------------------------------- Hero (same style) ------------------------------- */
-function SyndicatedBuyInHero() {
-  return (
-    <section className="relative max-h-[65vh] flex items-center justify-center overflow-hidden bg-neutral-950 text-white z-0">
-      <div className="absolute inset-0 z-0">
-        <video autoPlay loop muted playsInline preload="auto" className="w-full h-full object-cover brightness-[0.4]">
-          <source src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <div className="absolute inset-0 z-10 pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-br from-emerald-900/80 to-blue-900/80" />
-      </div>
-      <div className="relative z-20 w-full max-w-7xl px-6 py-28 grid md:grid-cols-12 gap-12 items-center">
-        <motion.div
-          className="md:col-span-7"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full border border-white/20 text-sm text-white mb-6">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            Syndicated Study Buy-In (2025)
-          </div>
-          <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white mb-4">
-            Decision-ready sustainability intelligence —<br className="hidden md:inline" />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8] animate-gradient">
-              powered by your questions
-            </span>
-          </h1>
-          <p className="text-lg text-gray-200/90 mb-10 max-w-2xl">
-            Join our nationally representative 2025 EcoFocus study and add proprietary modules.
-            Get executive-ready reporting, crosstabs, and dashboard access for your team.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="#benefits" className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
-              before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
-              before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0">
-              <span className="relative z-10">Explore Benefits</span>
-            </Link>
-            <Link href="/contact?type=syndicated-buy-in" className="relative inline-block px-6 py-3 text-sm font-semibold text-white rounded-full border border-white/30 hover:bg-white/10 transition-all">
-              <span className="relative z-10">Request Details</span>
-            </Link>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="hidden md:block md:col-span-5"
-          initial={{ opacity: 0, x: 40 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <div className="relative w-full aspect-square">
-            <Image src="/images/laptop.png" alt="EcoFocus Dashboard Preview" fill className="rounded-xl shadow-2xl object-cover" />
-          </div>
-        </motion.div>
-      </div>
-    </section>
-  );
-}
 
 /* --------------------------------- Sections --------------------------------- */
 
@@ -382,42 +318,70 @@ function PageCTA() {
 /* ---------------------------------- Page ---------------------------------- */
 
 export default function SyndicatedBuyInPage() {
-    return (
-      <>
-        <Header />
-  
-        {/* Breadcrumbs */}
-        <Breadcrumbs
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Solutions', href: '/solutions' },
-            { label: 'Syndicated Study Buy-In' },
-          ]}
-        />
-  
-        {/* Hero */}
-        <SyndicatedBuyInHero />
-  
-        {/* Sticky Section Nav */}
-        <StickySectionNav
-          items={[
-            { id: 'benefits', label: 'Benefits' },
-            { id: 'deliverables', label: 'Deliverables' },
-            { id: 'process', label: 'Process' },
-            { id: 'faqs', label: 'FAQs' },
-          ]}
-        />
-  
-        <main className="bg-white">
-          <Benefits />
-          <Deliverables />
-          <HowItWorks />
-          <FAQs />
-          <PageCTA />
-        </main>
-  
-        <InquiryStrip defaultType="Syndicated Study Buy-In" context="solutions/syndicated-buy-in" />
-        <Footer />
-      </>
-    );
-  }
+  return (
+    <>
+      <Header />
+
+      {/* Breadcrumbs */}
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'Solutions', href: '/solutions' },
+          { label: 'Syndicated Study Buy-In' },
+        ]}
+      />
+
+      {/* Hero (using reusable component) */}
+      <Hero
+        variant="report"
+        badge="Syndicated Study Buy-In (2025)"
+        headline={
+          <>
+            Decision-ready sustainability intelligence —<br className="hidden md:inline" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">
+              powered by your questions
+            </span>
+          </>
+        }
+        subhead="Join our nationally representative 2025 EcoFocus study and add proprietary modules. Get executive-ready reporting, crosstabs, and dashboard access for your team."
+        ctaPrimary={{ label: "Explore Benefits", href: "#benefits" }}
+        ctaSecondary={{ label: "Request Details", href: "/contact?type=syndicated-buy-in" }}
+        videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
+        posterSrc="/images/hero-6-poster.jpg"
+        overlay="dense"
+        rightVisual={
+          <div className="relative w-full aspect-square">
+            <Image
+              src="/images/laptop.png"
+              alt="EcoFocus Dashboard Preview"
+              fill
+              className="rounded-xl shadow-2xl object-cover"
+            />
+          </div>
+        }
+      />
+
+      {/* Sticky Section Nav */}
+      <StickySectionNav
+        items={[
+          { id: 'benefits', label: 'Benefits' },
+          { id: 'deliverables', label: 'Deliverables' },
+          { id: 'process', label: 'Process' },
+          { id: 'faqs', label: 'FAQs' },
+        ]}
+      />
+
+      <main className="bg-white">
+        <Benefits />
+        <Deliverables />
+        <HowItWorks />
+        <FAQs />
+        <PageCTA />
+      </main>
+
+      <InquiryStrip defaultType="Syndicated Study Buy-In" context="solutions/syndicated-buy-in" />
+      <Footer />
+    </>
+  );
+}
+

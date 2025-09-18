@@ -2,7 +2,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import StickyButtons from '../components/StickyButtons';
 
-import Hero from './home/Hero';
+import Hero from './home/HomeHero';
 import FeaturedDashboard from './home/FeaturedDashboard';
 import CoreServices from './home/CoreServices';
 //import WhyChoose from './home/WhyChoose';

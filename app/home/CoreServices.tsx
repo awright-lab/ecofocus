@@ -86,12 +86,12 @@ export default function CoreServices({ services }: Props) {
 
         <h2
           id="core-services-heading"
-          className="font-extrabold leading-tight text-gray-900 text-[clamp(1.9rem,5vw,2.75rem)]"
+          className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
         >
-          Solutions
+          Solutions That Drive Change
         </h2>
         <p className="mt-2 text-sm sm:text-base text-gray-600">
-          Choose the path that fits your goals—then scale from insights to action.
+          Choose the path that fits your goals—then scale from insights to impact.
         </p>
 
         {/* Mobile carousel */}
