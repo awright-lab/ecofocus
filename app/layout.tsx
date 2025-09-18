@@ -1,7 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Script from 'next/script';
-//import AppWrapper from '@/components/AppWrapper';
 
 export const metadata: Metadata = {
   title: 'EcoFocus Research | Sustainability Insights & Reports',
@@ -13,15 +12,8 @@ export const metadata: Metadata = {
       'Actionable sustainability data and research to power your business strategies.',
     url: 'https://www.ecofocusworldwide.com/',
     type: 'website',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'EcoFocus Research Homepage'
-      }
-    ]
-  }
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'EcoFocus Research Homepage' }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -37,16 +29,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'EcoFocus Research',
-              url: 'https://www.ecofocusworldwide.com'
-            })
+              url: 'https://www.ecofocusworldwide.com',
+            }),
           }}
         />
+
+        {/* HubSpot tracking script (sets hubspotutk cookie) */}
+        {process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID && (
+          <Script
+            id="hs-script-loader"
+            strategy="afterInteractive"
+            src={`https://js.hs-scripts.com/${process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID}.js`}
+          />
+        )}
       </head>
-      <body className="text-gray-900 dark:text-white">
-        {children}
-      </body>
+      <body className="text-gray-900 dark:text-white">{children}</body>
     </html>
   );
 }
+
 
 

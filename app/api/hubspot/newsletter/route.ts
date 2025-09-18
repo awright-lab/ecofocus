@@ -83,30 +83,38 @@ export async function POST(req: Request) {
     const fields = [
       { name: 'email', value: email },
       firstname ? { name: 'firstname', value: firstname } : null,
-      lastname ? { name: 'lastname', value: lastname } : null,
+      lastname ?  { name: 'lastname',  value: lastname }  : null,
       { name: 'newsletter_consent', value: consent ? 'true' : 'false' }, // your custom checkbox
-      utm?.source ? { name: 'utm_source', value: utm.source } : null,
-      utm?.medium ? { name: 'utm_medium', value: utm.medium } : null,
+      utm?.source   ? { name: 'utm_source',   value: utm.source }   : null,
+      utm?.medium   ? { name: 'utm_medium',   value: utm.medium }   : null,
       utm?.campaign ? { name: 'utm_campaign', value: utm.campaign } : null,
       { name: 'source', value: 'Website' }, // optional text property
     ].filter(Boolean) as { name: string; value: string }[];
 
-    const context = {
-      hutk,
-      pageUri,
-      pageName,
-    };
+    // Build context safely: include hutk ONLY if present (prevents INVALID_HUTK)
+    const context: Record<string, any> = {};
+    if (pageUri)  context.pageUri  = pageUri;
+    if (pageName) context.pageName = pageName;
+    if (typeof hutk === 'string' && hutk.trim().length > 0) {
+      context.hutk = hutk.trim();
+    }
+
+    // Build payload; attach context only if we have something to send
+    const payload: any = { fields };
+    if (Object.keys(context).length > 0) {
+      payload.context = context;
+    }
 
     const url = `https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`;
     const hsRes = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fields, context }),
+      body: JSON.stringify(payload),
     });
 
     if (!hsRes.ok) {
-      const err = await hsRes.text();
-      return NextResponse.json({ ok: false, error: err || 'HubSpot error' }, { status: 400 });
+      const errText = await hsRes.text().catch(() => '');
+      return NextResponse.json({ ok: false, error: errText || 'HubSpot error' }, { status: 400 });
     }
 
     return NextResponse.json({ ok: true });
@@ -114,3 +122,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: e?.message || 'Unknown error' }, { status: 500 });
   }
 }
+
