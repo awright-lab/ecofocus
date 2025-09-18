@@ -56,9 +56,7 @@ const toHex = (x: number) => clamp(Math.round(x), 0, 255).toString(16).padStart(
 
 function cssColorToHex(s: string): string | null {
   const t = s.trim();
-  // #abc or #aabbcc (strip #RRGGBBAA to #RRGGBB)
   if (t[0] === '#') return t.length === 4 ? `#${t[1]}${t[1]}${t[2]}${t[2]}${t[3]}${t[3]}` : t.slice(0, 7);
-  // rgb/rgba
   const m = /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i.exec(t);
   if (m) {
     const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]);
@@ -86,28 +84,26 @@ function shadeHex(hex: string, pct: number): string {
 
 /** scriptable gradient from a base hex color */
 function gradientFrom(baseHex: string) {
-    return (ctx: any) => {
-      const { chart } = ctx;
-      const { ctx: g, chartArea } = chart;
-      if (!chartArea) return baseHex; // first layout pass
-  
-      const horizontal = chart.options?.indexAxis === 'y';
-      const grad = g.createLinearGradient(
-        horizontal ? chartArea.left : 0,
-        horizontal ? 0 : chartArea.bottom,
-        horizontal ? chartArea.right : 0,
-        horizontal ? 0 : chartArea.top,
-      );
-  
-      const c0 = shadeHex(baseHex, 0.20);   // lighter
-      const c1 = shadeHex(baseHex, -0.08);  // slightly darker
-      grad.addColorStop(0, c0);
-      grad.addColorStop(1, c1);
-      return grad;
-    };
-  }
+  return (ctx: any) => {
+    const { chart } = ctx;
+    const { ctx: g, chartArea } = chart;
+    if (!chartArea) return baseHex; // first layout pass
+    const horizontal = chart.options?.indexAxis === 'y';
+    const grad = g.createLinearGradient(
+      horizontal ? chartArea.left : 0,
+      horizontal ? 0 : chartArea.bottom,
+      horizontal ? chartArea.right : 0,
+      horizontal ? 0 : chartArea.top,
+    );
+    const c0 = shadeHex(baseHex, 0.20);   // lighter
+    const c1 = shadeHex(baseHex, -0.08);  // slightly darker
+    grad.addColorStop(0, c0);
+    grad.addColorStop(1, c1);
+    return grad;
+  };
+}
 
-/* ------------------ plugins ------------------ */
+/* ------------------ tiny plugins ------------------ */
 
 // Value labels at the end of bars
 const valueLabelPlugin: Plugin = {
@@ -116,10 +112,9 @@ const valueLabelPlugin: Plugin = {
     const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
     if (!cfg.display) return;
 
-    // guard: only for charts that have x/y scales (e.g., bar/line)
     const hasX = !!chart.scales?.x;
     const hasY = !!chart.scales?.y;
-    if (!hasX || !hasY) return;
+    if (!hasX || !hasY) return; // only cartesian charts
 
     const unit: string = cfg.unit ?? '';
     const color: string = cfg.color ?? '#334155';
@@ -161,7 +156,38 @@ const valueLabelPlugin: Plugin = {
   },
 };
 
-// Big center label for doughnut/pie (e.g., “79%”)
+// Simple text wrap
+function drawWrapped(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number
+) {
+  const words = String(text).split(/\s+/);
+  const lines: string[] = [];
+  let cur = '';
+  for (const w of words) {
+    const test = cur ? cur + ' ' + w : w;
+    if (ctx.measureText(test).width <= maxWidth || !cur) {
+      cur = test;
+    } else {
+      lines.push(cur);
+      cur = w;
+    }
+  }
+  if (cur) lines.push(cur);
+
+  const totalH = lines.length * lineHeight;
+  let y0 = y - totalH / 2 + lineHeight / 2; // vertically center around y
+  for (const line of lines) {
+    ctx.fillText(line, x, y0);
+    y0 += lineHeight;
+  }
+}
+
+// Big center value for doughnut/pie
 const centerLabelPlugin: Plugin = {
   id: 'centerLabel',
   afterDraw(chart) {
@@ -188,7 +214,7 @@ const centerLabelPlugin: Plugin = {
       text = `${target}${cfg.unit ? ` ${cfg.unit}` : ''}`;
     }
 
-    const { x, y, innerRadius, outerRadius } = arc;
+    const { x, y, innerRadius } = arc;
     const ctx = chart.ctx;
     const size = cfg.fontSize ?? Math.max(18, Math.floor(innerRadius * 0.6));
     ctx.save();
@@ -198,18 +224,44 @@ const centerLabelPlugin: Plugin = {
     ctx.textBaseline = 'middle';
     ctx.fillText(text, x, y);
     ctx.restore();
+  },
+};
 
-    // Optional small caption under the number
-    if (cfg.caption) {
-      const capSize = Math.max(10, Math.floor((outerRadius - innerRadius) * 0.35));
-      ctx.save();
-      ctx.fillStyle = cfg.captionColor ?? 'rgba(0,0,0,0.55)';
-      ctx.font = `500 ${capSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top';
-      ctx.fillText(cfg.caption, x, y + size * 0.55);
-      ctx.restore();
-    }
+// Label to the RIGHT of the donut/pie
+const sideLabelPlugin: Plugin = {
+  id: 'sideLabel',
+  afterDraw(chart) {
+    const cfg: any = (chart.options?.plugins as any)?.sideLabel;
+    if (!cfg?.display) return;
+
+    const meta = chart.getDatasetMeta(0);
+    const arc = meta?.data?.[0] as any;
+    if (!arc) return;
+
+    const text =
+      cfg.text ??
+      (Array.isArray(chart.data?.labels) ? String(chart.data.labels[0] ?? '') : '');
+
+    if (!text) return;
+
+    const { x, y, outerRadius } = arc;
+    const ctx = chart.ctx;
+
+    const color = cfg.color ?? '#111827';
+    const fontSize = cfg.fontSize ?? 18;
+    const lineHeight = (cfg.lineHeight ?? 1.25) * fontSize;
+    const offset = cfg.offset ?? 18;
+
+    // Space available to the right edge of chart area
+    const maxW = Math.max(60, chart.chartArea.right - (x + outerRadius + offset) - 4);
+
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = `600 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    drawWrapped(ctx, text, x + outerRadius + offset, y, maxW, lineHeight);
+    ctx.restore();
   },
 };
 
@@ -252,13 +304,14 @@ export default function ChartJSBlock({
       if (opts.indexAxis == null) opts.indexAxis = 'x';
     }
 
+    const isPieLike = effectiveType === 'doughnut' || effectiveType === 'pie';
     const isBar = effectiveType === 'bar';
     const isHorizontal = isBar && opts.indexAxis === 'y';
     const categoryAxisKey: 'x' | 'y' = isHorizontal ? 'y' : 'x';
     const valueAxisKey: 'x' | 'y' = isHorizontal ? 'x' : 'y';
 
     // Rounded corners & no borders by default for bars
-    if (effectiveType === 'bar' && Array.isArray(dataObj.datasets)) {
+    if (isBar && Array.isArray(dataObj.datasets)) {
       for (const ds of dataObj.datasets) {
         if (ds.type && ds.type !== 'bar') continue;
         if (ds.borderRadius == null) ds.borderRadius = typeof opts.barRadius === 'number' ? opts.barRadius : 10;
@@ -280,30 +333,28 @@ export default function ChartJSBlock({
       opts.elements.line = { ...(opts.elements.line ?? {}), fill: true };
     }
 
-    // Subtle grid & no axis borders + category tick color = black
+    // Scales: only apply to cartesian charts; explicitly REMOVE for pie/doughnut
     const faint = 'rgba(0,0,0,0.08)';
-    opts.scales = opts.scales ?? {};
-    for (const ax of ['x', 'y'] as const) {
-      opts.scales[ax] = opts.scales[ax] ?? {};
-      const grid = (opts.scales[ax].grid = opts.scales[ax].grid ?? {});
-      if (grid.display !== false && grid.color == null) grid.color = faint;
+    if (!isPieLike) {
+      opts.scales = opts.scales ?? {};
+      for (const ax of ['x', 'y'] as const) {
+        opts.scales[ax] = opts.scales[ax] ?? {};
+        const grid = (opts.scales[ax].grid = opts.scales[ax].grid ?? {});
+        if (grid.display !== false && grid.color == null) grid.color = faint;
 
-      const border = (opts.scales[ax].border = opts.scales[ax].border ?? {});
-      if (typeof border.display !== 'boolean') border.display = false;
+        const border = (opts.scales[ax].border = opts.scales[ax].border ?? {});
+        if (typeof border.display !== 'boolean') border.display = false;
 
-      const ticks = (opts.scales[ax].ticks = opts.scales[ax].ticks ?? {});
-      if (ticks.color == null) ticks.color = 'rgba(0,0,0,0.45)'; // default numeric gray
-    }
-    // Make category axis labels solid black (and a touch bolder)
-    if (opts.scales[categoryAxisKey]) {
-      opts.scales[categoryAxisKey].ticks = {
-        ...(opts.scales[categoryAxisKey].ticks ?? {}),
-        color: '#000',
-        font: {
-          ...(opts.scales[categoryAxisKey].ticks?.font ?? {}),
-          weight: '500',
-        },
-      };
+        const ticks = (opts.scales[ax].ticks = opts.scales[ax].ticks ?? {});
+        if (ticks.color == null) ticks.color = 'rgba(0,0,0,0.45)';
+      }
+      // Make category axis labels solid black
+      const cat = opts.scales[categoryAxisKey] ?? {};
+      cat.ticks = { ...(cat.ticks ?? {}), color: '#000', font: { ...(cat.ticks?.font ?? {}), weight: '500' } };
+      opts.scales[categoryAxisKey] = cat;
+    } else {
+      // ensure no axes/ticks/grid for donut/pie
+      delete opts.scales;
     }
 
     // Defaults
@@ -325,8 +376,8 @@ export default function ChartJSBlock({
       };
     }
 
-    // Axis unit suffix on value axis
-    if (unit && opts.scales[valueAxisKey]) {
+    // Axis unit suffix on value axis (cartesian only)
+    if (!isPieLike && unit) {
       const axis = opts.scales[valueAxisKey] = opts.scales[valueAxisKey] ?? {};
       axis.ticks = axis.ticks ?? {};
       if (axis.ticks.callback == null) {
@@ -334,19 +385,13 @@ export default function ChartJSBlock({
       }
     }
 
-    // ---- FORCE SOLID FILLS + APPLY GRADIENT (for single-color datasets) ----
+    // Apply gradient fills when a single color is sent from CMS
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
         if (typeof ds.backgroundColor === 'string') {
           const hex = cssColorToHex(ds.backgroundColor);
-          if (hex) {
-            ds.backgroundColor = gradientFrom(hex);
-            if (!ds.borderColor && (typeof opts.barBorderWidth !== 'number' || opts.barBorderWidth === 0)) {
-              ds.borderColor = undefined;
-            }
-          }
-        }
-        if (Array.isArray(ds.backgroundColor)) {
+          if (hex) ds.backgroundColor = gradientFrom(hex);
+        } else if (Array.isArray(ds.backgroundColor)) {
           ds.backgroundColor = ds.backgroundColor.map((c: any) => {
             if (typeof c !== 'string') return c;
             const hex = cssColorToHex(c);
@@ -358,7 +403,7 @@ export default function ChartJSBlock({
 
     // Value labels for bars only
     const valueLabelsOn =
-      effectiveType === 'bar' &&
+      !isPieLike &&
       (
         (opts.plugins && (opts.plugins as any).valueLabel?.display) ||
         (typeof unit === 'string' && unit.includes('%'))
@@ -373,9 +418,9 @@ export default function ChartJSBlock({
       padding: (opts.plugins as any)?.valueLabel?.padding ?? 6,
     };
 
-    // Center label for doughnut/pie (auto-on if unit contains '%')
+    // Center value for donut/pie (auto-on if unit contains '%')
     const centerOn =
-      (effectiveType === 'doughnut' || effectiveType === 'pie') &&
+      isPieLike &&
       (
         (opts.plugins && (opts.plugins as any).centerLabel?.display) ||
         (typeof unit === 'string' && unit.includes('%'))
@@ -385,10 +430,26 @@ export default function ChartJSBlock({
       ...((opts.plugins as any).centerLabel ?? {}),
       display: centerOn,
       unit,
-      // You can override these via options.plugins.centerLabel.{color,fontSize,caption,...}
-      useMax: (opts.plugins as any)?.centerLabel?.useMax ?? false,
       percent: (opts.plugins as any)?.centerLabel?.percent ?? true,
+      useMax: (opts.plugins as any)?.centerLabel?.useMax ?? false,
     };
+
+    // Side label next to donut/pie (ON by default; override with options.plugins.sideLabel)
+    const sideOn = isPieLike && ((opts.plugins as any)?.sideLabel?.display ?? true);
+    (opts.plugins as any).sideLabel = {
+      ...((opts.plugins as any).sideLabel ?? {}),
+      display: sideOn,
+      // You can override: text, color, fontSize, lineHeight, offset
+    };
+
+    // Give the donut some right padding for the side label
+    if (isPieLike) {
+      const padRight = (opts.layout?.padding?.right ??
+        (typeof (opts.plugins as any).sideLabel?.display === 'boolean' && !(opts.plugins as any).sideLabel.display ? 0 : 140)
+      );
+      opts.layout = opts.layout ?? {};
+      opts.layout.padding = { ...(opts.layout.padding ?? {}), right: padRight };
+    }
 
     // Build chart
     chartRef.current?.destroy();
@@ -396,7 +457,7 @@ export default function ChartJSBlock({
       type: effectiveType as any,
       data: dataObj,
       options: opts,
-      plugins: [valueLabelPlugin, centerLabelPlugin],
+      plugins: [valueLabelPlugin, centerLabelPlugin, sideLabelPlugin],
     });
 
     return () => chartRef.current?.destroy();
@@ -415,6 +476,7 @@ export default function ChartJSBlock({
     </figure>
   );
 }
+
 
 
 
