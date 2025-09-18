@@ -4,19 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import { motion } from "framer-motion";
+import type { ReactNode } from "react";
 
 type HeroVariant = "home" | "report" | "solutions";
 type CTA = { label: string; href: string };
 
 interface HeroProps {
   variant?: HeroVariant;
-  size?: "short" | "normal" | "tall"; // ← NEW
+  size?: "short" | "normal" | "tall";   // ← height control
   badge?: string;
-  headline: React.ReactNode;
-  subhead?: React.ReactNode;
+  headline: ReactNode;                  // ← accepts JSX or string
+  subhead?: ReactNode;                  // ← allows JSX if needed
   ctaPrimary?: CTA;
   ctaSecondary?: CTA;
-  rightVisual?: React.ReactNode;
+  rightVisual?: ReactNode;
   videoSrc?: string;
   posterSrc?: string;
   overlay?: "none" | "light" | "dense";
@@ -24,7 +25,7 @@ interface HeroProps {
 
 export default function Hero({
   variant = "home",
-  size = "normal",               // ← NEW default
+  size = "normal",
   badge,
   headline,
   subhead,
@@ -39,13 +40,12 @@ export default function Hero({
     <section
       className={clsx(
         "relative overflow-hidden bg-neutral-950 text-white z-0",
-        // height scale
-        size === "short" && "py-10 sm:py-14",
-        size === "normal" && "py-16 sm:py-24",
-        size === "tall" && "py-24 sm:py-32"
+        size === "short" ? "py-10 sm:py-14"
+        : size === "tall" ? "py-24 sm:py-32"
+        : "py-16 sm:py-24"
       )}
     >
-      {/* Background video / image (unchanged) */}
+      {/* Background video / image */}
       <div className="absolute inset-0 -z-10">
         {videoSrc ? (
           <>
@@ -65,7 +65,7 @@ export default function Hero({
                 alt=""
                 fill
                 priority={variant === "home"}
-                className="object-cover brightness-[0.40] hidden motion-reduce:block"
+                className="hidden object-cover brightness-[0.40] motion-reduce:block"
               />
             )}
           </>
@@ -74,7 +74,7 @@ export default function Hero({
         )}
       </div>
 
-      {/* Overlay */}
+      {/* Overlay tint */}
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div
           className={clsx(
@@ -87,14 +87,13 @@ export default function Hero({
       </div>
 
       <div className="mx-auto max-w-7xl px-6">
-        {/* If no rightVisual, center the copy for better balance */}
         <div className={clsx(
           "grid items-center gap-10",
           rightVisual ? "md:grid-cols-12" : "place-items-center text-center"
         )}>
           <motion.div
             className={rightVisual ? "md:col-span-7" : "max-w-3xl"}
-            initial={{ opacity: 0, y: 28 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -105,21 +104,26 @@ export default function Hero({
                 {badge}
               </div>
             )}
+
             <h1 className={clsx(
               "font-bold leading-tight text-white",
               size === "short" ? "text-3xl md:text-5xl" : "text-4xl md:text-5xl"
             )}>
               {headline}
             </h1>
+
             {subhead && (
-              <p className={clsx("mt-4 text-gray-200/90",
+              <p className={clsx(
+                "mt-4 text-gray-200/90",
                 size === "short" ? "text-base" : "text-lg"
               )}>
                 {subhead}
               </p>
             )}
+
             {(ctaPrimary || ctaSecondary) && (
-              <div className={clsx("mt-8 flex flex-wrap gap-4",
+              <div className={clsx(
+                "mt-8 flex flex-wrap gap-4",
                 rightVisual ? "" : "justify-center"
               )}>
                 {ctaPrimary && (
@@ -147,10 +151,10 @@ export default function Hero({
           {rightVisual && (
             <motion.div
               className="hidden md:col-span-5 md:block"
-              initial={{ opacity: 0, x: 36 }}
+              initial={{ opacity: 0, x: 28 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 }}
+              transition={{ duration: 0.6, delay: 0.05 }}
             >
               {rightVisual}
             </motion.div>
