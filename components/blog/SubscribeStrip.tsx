@@ -1,8 +1,7 @@
-// components/blog/SubscribeStrip.tsx
 // components/newsletter/SubscribeStrip.tsx
 "use client";
 
-import HubSpotForm from "@/components/integrations/HubSpotForm";
+import NewsletterForm from "@/components/newsletter/NewsletterForm";
 
 export default function SubscribeStrip() {
   return (
@@ -14,24 +13,17 @@ export default function SubscribeStrip() {
         Articles, trend callouts, and report highlights. No spam—unsubscribe anytime.
       </p>
 
+      {/* Custom, brand-styled form (posts to /api/hubspot/newsletter) */}
       <div className="mt-4">
-        {/* Uses env defaults; you can also pass formId="fa67e7c1-10e9-4d8a-a397-d124d9277c0a" explicitly */}
-        <HubSpotForm targetClassName="hs-wrapper" />
+        <NewsletterForm />
       </div>
 
       <p className="mt-3 text-xs text-gray-500">
-        We use HubSpot to manage subscriptions. By subscribing, you acknowledge HubSpot’s{" "}
-        <a
-          href="https://legal.hubspot.com/privacy-policy"
-          target="_blank"
-          rel="noreferrer"
-          className="underline"
-        >
-          privacy policy
-        </a>
-        .
+        We’ll email you EcoNuggets. See our{" "}
+        <a href="/privacy" className="underline">Privacy Policy</a>.
       </p>
     </section>
   );
 }
+
 
