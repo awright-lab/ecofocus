@@ -29,7 +29,7 @@ type HubSpotFormProps = {
 
 export default function HubSpotForm({
   portalId = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID || "",
-  formId = process.env.NEXT_PUBLIC_HUBSPOT_FORM_ID || "",
+  formId = process.env.NEXT_PUBLIC_HUBSPOT_NEWSLETTER_FORM_ID || "",
   region = process.env.NEXT_PUBLIC_HUBSPOT_REGION || "na1",
   targetClassName = "",
   onLoad,
