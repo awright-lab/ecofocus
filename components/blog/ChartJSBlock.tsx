@@ -86,26 +86,28 @@ function shadeHex(hex: string, pct: number): string {
 
 /** scriptable gradient from a base hex color */
 function gradientFrom(baseHex: string) {
-  return (ctx: any) => {
-    const { chart } = ctx;
-    const { ctx: g, chartArea } = chart;
-    if (!chartArea) return baseHex; // first layout pass
-    const horizontal = chart.options?.indexAxis === 'y';
-    const grad = g.createLinearGradient(
-      horizontal ? chartArea.left : 0,
-      horizontal ? 0 : chartArea.bottom,
-      horizontal ? chartArea.right : 0,
-      horizontal ? 0 : chartArea.top,
-    );
-    const c0 = shadeHex(baseHex, 0.20);   // lighter
-    const c1 = shadeHex(baseHex, -0.08);  // slightly darker
-    grad.addColorStop(0, c0);
-    grad.addColorStop(1, c1);
-    return grad;
-  };
-}
+    return (ctx: any) => {
+      const { chart } = ctx;
+      const { ctx: g, chartArea } = chart;
+      if (!chartArea) return baseHex; // first layout pass
+  
+      const horizontal = chart.options?.indexAxis === 'y';
+      const grad = g.createLinearGradient(
+        horizontal ? chartArea.left : 0,
+        horizontal ? 0 : chartArea.bottom,
+        horizontal ? chartArea.right : 0,
+        horizontal ? 0 : chartArea.top,
+      );
+  
+      const c0 = shadeHex(baseHex, 0.20);   // lighter
+      const c1 = shadeHex(baseHex, -0.08);  // slightly darker
+      grad.addColorStop(0, c0);
+      grad.addColorStop(1, c1);
+      return grad;
+    };
+  }
 
-/* ------------------ tiny plugin ------------------ */
+/* ------------------ plugins ------------------ */
 
 // Value labels at the end of bars
 const valueLabelPlugin: Plugin = {
@@ -113,6 +115,11 @@ const valueLabelPlugin: Plugin = {
   afterDatasetsDraw(chart) {
     const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
     if (!cfg.display) return;
+
+    // guard: only for charts that have x/y scales (e.g., bar/line)
+    const hasX = !!chart.scales?.x;
+    const hasY = !!chart.scales?.y;
+    if (!hasX || !hasY) return;
 
     const unit: string = cfg.unit ?? '';
     const color: string = cfg.color ?? '#334155';
@@ -151,6 +158,58 @@ const valueLabelPlugin: Plugin = {
     });
 
     ctx.restore();
+  },
+};
+
+// Big center label for doughnut/pie (e.g., “79%”)
+const centerLabelPlugin: Plugin = {
+  id: 'centerLabel',
+  afterDraw(chart) {
+    const cfg: any = (chart.options?.plugins as any)?.centerLabel;
+    if (!cfg?.display) return;
+
+    const meta = chart.getDatasetMeta(0);
+    const arc = meta?.data?.[0] as any;
+    if (!arc) return;
+
+    const ds = chart.data.datasets?.[0] as any;
+    const arr = (ds?.data ?? []) as any[];
+    if (!arr.length) return;
+
+    const sum = arr.reduce((a, b) => a + (Number(b) || 0), 0);
+    const first = Number(arr[0]) || 0;
+    const target = cfg.useMax ? Math.max(...arr.map((v: any) => Number(v) || 0)) : first;
+
+    let text: string;
+    if (cfg.percent || (cfg.unit && String(cfg.unit).includes('%'))) {
+      const pct = sum > 0 ? Math.round((target / sum) * 100) : 0;
+      text = `${pct}${cfg.unit ?? '%'}`;
+    } else {
+      text = `${target}${cfg.unit ? ` ${cfg.unit}` : ''}`;
+    }
+
+    const { x, y, innerRadius, outerRadius } = arc;
+    const ctx = chart.ctx;
+    const size = cfg.fontSize ?? Math.max(18, Math.floor(innerRadius * 0.6));
+    ctx.save();
+    ctx.fillStyle = cfg.color ?? '#374151';
+    ctx.font = `700 ${size}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x, y);
+    ctx.restore();
+
+    // Optional small caption under the number
+    if (cfg.caption) {
+      const capSize = Math.max(10, Math.floor((outerRadius - innerRadius) * 0.35));
+      ctx.save();
+      ctx.fillStyle = cfg.captionColor ?? 'rgba(0,0,0,0.55)';
+      ctx.font = `500 ${capSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillText(cfg.caption, x, y + size * 0.55);
+      ctx.restore();
+    }
   },
 };
 
@@ -236,14 +295,16 @@ export default function ChartJSBlock({
       if (ticks.color == null) ticks.color = 'rgba(0,0,0,0.45)'; // default numeric gray
     }
     // Make category axis labels solid black (and a touch bolder)
-    opts.scales[categoryAxisKey].ticks = {
-      ...(opts.scales[categoryAxisKey].ticks ?? {}),
-      color: '#000',
-      font: {
-        ...(opts.scales[categoryAxisKey].ticks?.font ?? {}),
-        weight: '500',
-      },
-    };
+    if (opts.scales[categoryAxisKey]) {
+      opts.scales[categoryAxisKey].ticks = {
+        ...(opts.scales[categoryAxisKey].ticks ?? {}),
+        color: '#000',
+        font: {
+          ...(opts.scales[categoryAxisKey].ticks?.font ?? {}),
+          weight: '500',
+        },
+      };
+    }
 
     // Defaults
     if (opts.responsive == null) opts.responsive = true;
@@ -265,7 +326,7 @@ export default function ChartJSBlock({
     }
 
     // Axis unit suffix on value axis
-    if (unit) {
+    if (unit && opts.scales[valueAxisKey]) {
       const axis = opts.scales[valueAxisKey] = opts.scales[valueAxisKey] ?? {};
       axis.ticks = axis.ticks ?? {};
       if (axis.ticks.callback == null) {
@@ -273,10 +334,9 @@ export default function ChartJSBlock({
       }
     }
 
-    // ---- FORCE SOLID FILLS + APPLY GRADIENT ----
+    // ---- FORCE SOLID FILLS + APPLY GRADIENT (for single-color datasets) ----
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
-        // if CMS sent a single color (rgba or hex), convert to hex & use gradient
         if (typeof ds.backgroundColor === 'string') {
           const hex = cssColorToHex(ds.backgroundColor);
           if (hex) {
@@ -286,7 +346,6 @@ export default function ChartJSBlock({
             }
           }
         }
-        // array case: make them solid (strip alpha) but keep as array
         if (Array.isArray(ds.backgroundColor)) {
           ds.backgroundColor = ds.backgroundColor.map((c: any) => {
             if (typeof c !== 'string') return c;
@@ -297,17 +356,38 @@ export default function ChartJSBlock({
       });
     }
 
-    // Value labels (auto-on if unit contains '%', or enable via options.plugins.valueLabel.display)
-    const wantLabels =
-      (opts.plugins && (opts.plugins as any).valueLabel?.display) ??
-      (typeof unit === 'string' && unit.includes('%'));
+    // Value labels for bars only
+    const valueLabelsOn =
+      effectiveType === 'bar' &&
+      (
+        (opts.plugins && (opts.plugins as any).valueLabel?.display) ||
+        (typeof unit === 'string' && unit.includes('%'))
+      );
+
     (opts.plugins as any).valueLabel = {
       ...((opts.plugins as any).valueLabel ?? {}),
-      display: wantLabels,
+      display: valueLabelsOn,
       unit,
       color: (opts.plugins as any)?.valueLabel?.color ?? '#374151',
       fontSize: (opts.plugins as any)?.valueLabel?.fontSize ?? 12,
       padding: (opts.plugins as any)?.valueLabel?.padding ?? 6,
+    };
+
+    // Center label for doughnut/pie (auto-on if unit contains '%')
+    const centerOn =
+      (effectiveType === 'doughnut' || effectiveType === 'pie') &&
+      (
+        (opts.plugins && (opts.plugins as any).centerLabel?.display) ||
+        (typeof unit === 'string' && unit.includes('%'))
+      );
+
+    (opts.plugins as any).centerLabel = {
+      ...((opts.plugins as any).centerLabel ?? {}),
+      display: centerOn,
+      unit,
+      // You can override these via options.plugins.centerLabel.{color,fontSize,caption,...}
+      useMax: (opts.plugins as any)?.centerLabel?.useMax ?? false,
+      percent: (opts.plugins as any)?.centerLabel?.percent ?? true,
     };
 
     // Build chart
@@ -316,7 +396,7 @@ export default function ChartJSBlock({
       type: effectiveType as any,
       data: dataObj,
       options: opts,
-      plugins: [valueLabelPlugin],
+      plugins: [valueLabelPlugin, centerLabelPlugin],
     });
 
     return () => chartRef.current?.destroy();
@@ -335,6 +415,7 @@ export default function ChartJSBlock({
     </figure>
   );
 }
+
 
 
 
