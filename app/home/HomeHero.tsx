@@ -7,7 +7,14 @@ export default function HomeHero() {
     <Hero
   variant="home"
   size="normal"                                   // ← shorter hero
-  headline="Decoding the Purpose-Driven Generation"
+  headline={
+    <>
+      Decoding the Purpose-Driven{" "}
+      <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+        Generation
+      </span>
+    </>
+  }
   subhead="Reliable Sustainability Data to Support Your Next Big Decision"
   ctaPrimary={{ label: "Explore Benefits", href: "/benefits" }}
   ctaSecondary={{ label: "Request Details", href: "/contact" }}
