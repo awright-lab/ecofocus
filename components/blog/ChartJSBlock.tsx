@@ -49,6 +49,7 @@ function safeParse<T = any>(v: any): T | undefined {
 }
 const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 const toHex = (x: number) => clamp(Math.round(x), 0, 255).toString(16).padStart(2, '0');
+
 function cssColorToHex(s: string): string | null {
   const t = s.trim();
   if (t[0] === '#') return t.length === 4 ? `#${t[1]}${t[1]}${t[2]}${t[2]}${t[3]}${t[3]}` : t.slice(0, 7);
@@ -56,7 +57,12 @@ function cssColorToHex(s: string): string | null {
   if (m) { const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]); return `#${toHex(r)}${toHex(g)}${toHex(b)}`; }
   return null;
 }
-function hexToRgb(hex: string) { const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return m ? { r: parseInt(m[1],16), g: parseInt(m[2],16), b: parseInt(m[3],16) } : null; }
+
+function hexToRgb(hex: string) {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return m ? { r: parseInt(m[1],16), g: parseInt(m[2],16), b: parseInt(m[3],16) } : null;
+}
+
 function shadeHex(hex: string, pct: number) {
   const c = hexToRgb(hex); if (!c) return hex;
   const mixUp = (x: number) => clamp(Math.round(x + (255 - x) * pct), 0, 255);
@@ -66,6 +72,7 @@ function shadeHex(hex: string, pct: number) {
   const b = pct >= 0 ? mixUp(c.b) : mixDown(c.b);
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
+
 function gradientFrom(baseHex: string) {
   return (ctx: any) => {
     const { chart } = ctx;
@@ -78,71 +85,15 @@ function gradientFrom(baseHex: string) {
       horizontal ? chartArea.right : 0,
       horizontal ? 0 : chartArea.top,
     );
-    const c0 = shadeHex(baseHex, 0.20);
-    const c1 = shadeHex(baseHex, -0.08);
+    const c0 = shadeHex(baseHex, 0.20);   // lighter at start
+    const c1 = shadeHex(baseHex, -0.08);  // softly darker at end
     grad.addColorStop(0, c0);
     grad.addColorStop(1, c1);
     return grad;
   };
 }
 
-/* ---------- plugins ---------- */
-// bar end value labels (unchanged)
-// Value labels at the end of each individual bar (no overlap)
-const valueLabelPlugin: Plugin = {
-    id: 'valueLabel',
-    afterDatasetsDraw(chart) {
-      const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
-      if (!cfg.display) return;
-  
-      const unit: string   = cfg.unit ?? '';
-      const color: string  = cfg.color ?? '#1f2937';
-      const fontSize: number = cfg.fontSize ?? 12;
-      const padding: number  = cfg.padding ?? 6;
-  
-      const ctx = chart.ctx;
-      const area = chart.chartArea;
-      const horizontal = chart.options?.indexAxis === 'y';
-  
-      ctx.save();
-      ctx.fillStyle = color;
-      ctx.font = `${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
-      ctx.textBaseline = 'middle';
-  
-      chart.data.datasets.forEach((ds: any, di: number) => {
-        const meta = chart.getDatasetMeta(di);
-        if (!meta?.data) return;
-  
-        meta.data.forEach((el: any, i: number) => {
-          const raw = Array.isArray(ds.data) ? ds.data[i] : undefined;
-          if (raw == null || isNaN(raw)) return;
-  
-          const val = Number(raw);
-          const { x, y } = el.getProps(['x', 'y'], true); // <-- use the bar's own center
-          const label = `${val}${unit ? ` ${unit}` : ''}`;
-  
-          if (horizontal) {
-            let tx = x + padding; // place to the right of the bar end
-            const tw = ctx.measureText(label).width;
-            // if it would overflow, draw it just inside the end of the bar instead
-            if (tx + tw > area.right) {
-              ctx.textAlign = 'right';
-              tx = x - padding;
-            } else {
-              ctx.textAlign = 'left';
-            }
-            ctx.fillText(label, tx, y);
-          } else {
-            ctx.textAlign = 'center';
-            ctx.fillText(label, x, y - padding);
-          }
-        });
-      });
-  
-      ctx.restore();
-    },
-  };  
-
+/* ---------- drawing utils ---------- */
 function drawWrapped(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -166,7 +117,67 @@ function drawWrapped(
   for (const line of lines) { ctx.fillText(line, x, y0); y0 += lineHeight; }
 }
 
-// center % for donut/pie (unchanged)
+/* ---------- plugins ---------- */
+// Value labels at bar ends — now uses the canvas right edge so 90%+ values stay outside
+const valueLabelPlugin: Plugin = {
+  id: 'valueLabel',
+  afterDatasetsDraw(chart) {
+    const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
+    if (!cfg.display) return;
+
+    const unit: string = cfg.unit ?? '';
+    const color: string = cfg.color ?? '#1f2937';
+    const fontSize: number = cfg.fontSize ?? 12;
+    const padding: number = cfg.padding ?? 6;
+
+    const ctx = chart.ctx;
+    const horizontal = chart.options?.indexAxis === 'y';
+
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.font = `${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+    ctx.textBaseline = 'middle';
+
+    chart.data.datasets.forEach((ds: any, di: number) => {
+      const meta = chart.getDatasetMeta(di);
+      if (!meta?.data) return;
+
+      meta.data.forEach((el: any, i: number) => {
+        const raw = Array.isArray(ds.data) ? ds.data[i] : undefined;
+        if (raw == null || isNaN(raw)) return;
+
+        const val = Number(raw);
+        const { x, y } = el.getProps(['x', 'y'], true);
+        const label = `${val}${unit ? ` ${unit}` : ''}`;
+
+        if (horizontal) {
+          const tw = ctx.measureText(label).width;
+          const rightPad =
+            typeof (chart.options?.layout as any)?.padding?.right === 'number'
+              ? (chart.options!.layout as any).padding.right
+              : 0;
+          const canvasRight = chart.width - rightPad - 4; // use full canvas width
+          const txOutside = x + padding;
+
+          if (txOutside + tw <= canvasRight) {
+            ctx.textAlign = 'left';
+            ctx.fillText(label, txOutside, y);
+          } else {
+            ctx.textAlign = 'right';
+            ctx.fillText(label, x - padding, y); // fall back inside the bar end
+          }
+        } else {
+          ctx.textAlign = 'center';
+          ctx.fillText(label, x, y - padding);
+        }
+      });
+    });
+
+    ctx.restore();
+  },
+};
+
+// Center %/value for doughnut/pie
 const centerLabelPlugin: Plugin = {
   id: 'centerLabel',
   afterDraw(chart) {
@@ -204,7 +215,7 @@ const centerLabelPlugin: Plugin = {
   },
 };
 
-// *** UPDATED: side label uses canvas width + configurable maxWidth ***
+// Wrapped side label for doughnut/pie
 const sideLabelPlugin: Plugin = {
   id: 'sideLabel',
   afterDraw(chart) {
@@ -227,8 +238,7 @@ const sideLabelPlugin: Plugin = {
     const fontSize = cfg.fontSize ?? 18;
     const lineHeight = (cfg.lineHeight ?? 1.25) * fontSize;
     const offset = cfg.offset ?? 18;
-    const desiredMax = cfg.maxWidth ?? 280; // <-- default wider
-    // Use canvas right edge so padding area is available
+    const desiredMax = cfg.maxWidth ?? 280;
     const available = chart.width - (x + outerRadius + offset) - 8;
     const maxW = Math.max(60, Math.min(desiredMax, available));
 
@@ -324,6 +334,10 @@ export default function ChartJSBlock({
       opts.scales[categoryAxisKey] = cat;
     } else {
       delete opts.scales;
+      // default slightly smaller doughnut if not specified
+      if (effectiveType === 'doughnut' && opts.cutout == null) {
+        opts.cutout = '58%';
+      }
     }
 
     // defaults
@@ -381,7 +395,8 @@ export default function ChartJSBlock({
     };
 
     // center value (donut/pie)
-    const centerOn = isPieLike && (((opts.plugins as any).centerLabel?.display) || (typeof unit === 'string' && unit.includes('%')));
+    const isPie = isPieLike;
+    const centerOn = isPie && (((opts.plugins as any).centerLabel?.display) || (typeof unit === 'string' && unit.includes('%')));
     (opts.plugins as any).centerLabel = {
       ...((opts.plugins as any).centerLabel ?? {}),
       display: centerOn,
@@ -390,14 +405,14 @@ export default function ChartJSBlock({
       useMax: (opts.plugins as any)?.centerLabel?.useMax ?? false,
     };
 
-    // *** reserve space + config for side label ***
+    // side label (donut/pie)
     const sideCfg = (opts.plugins as any).sideLabel ?? {};
-    const sideOn = isPieLike && (sideCfg.display ?? true);
+    const sideOn = isPie && (sideCfg.display ?? true);
     const offset = sideCfg.offset ?? 18;
-    const desiredMax = sideCfg.maxWidth ?? 280; // default wider
+    const desiredMax = sideCfg.maxWidth ?? 280;
     (opts.plugins as any).sideLabel = { ...sideCfg, display: sideOn, maxWidth: desiredMax, offset };
 
-    if (isPieLike && sideOn) {
+    if (isPie && sideOn) {
       const desiredRightPad = desiredMax + offset + 16;
       opts.layout = opts.layout ?? {};
       const prev = (opts.layout.padding ?? {}) as any;
@@ -424,6 +439,7 @@ export default function ChartJSBlock({
     </figure>
   );
 }
+
 
 
 
