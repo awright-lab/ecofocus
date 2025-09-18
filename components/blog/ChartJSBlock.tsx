@@ -57,12 +57,10 @@ function cssColorToHex(s: string): string | null {
   if (m) { const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]); return `#${toHex(r)}${toHex(g)}${toHex(b)}`; }
   return null;
 }
-
 function hexToRgb(hex: string) {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return m ? { r: parseInt(m[1],16), g: parseInt(m[2],16), b: parseInt(m[3],16) } : null;
 }
-
 function shadeHex(hex: string, pct: number) {
   const c = hexToRgb(hex); if (!c) return hex;
   const mixUp = (x: number) => clamp(Math.round(x + (255 - x) * pct), 0, 255);
@@ -73,7 +71,8 @@ function shadeHex(hex: string, pct: number) {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-function gradientFrom(baseHex: string) {
+/** Linear gradient for bars */
+function linearGradientFrom(baseHex: string) {
   return (ctx: any) => {
     const { chart } = ctx;
     const { ctx: g, chartArea } = chart;
@@ -86,7 +85,24 @@ function gradientFrom(baseHex: string) {
       horizontal ? 0 : chartArea.top,
     );
     const c0 = shadeHex(baseHex, 0.20);   // lighter at start
-    const c1 = shadeHex(baseHex, -0.08);  // softly darker at end
+    const c1 = shadeHex(baseHex, -0.08);  // slightly darker at end
+    grad.addColorStop(0, c0);
+    grad.addColorStop(1, c1);
+    return grad;
+  };
+}
+
+/** Radial gradient for doughnut/pie (inner lighter ➜ outer slightly darker) */
+function arcGradientFrom(baseHex: string) {
+  return (ctx: any) => {
+    const { chart, datasetIndex, dataIndex } = ctx;
+    const meta = chart.getDatasetMeta(datasetIndex);
+    const arc = meta?.data?.[dataIndex] as any;
+    if (!arc) return baseHex;
+    const g = chart.ctx;
+    const grad = g.createRadialGradient(arc.x, arc.y, arc.innerRadius, arc.x, arc.y, arc.outerRadius);
+    const c0 = shadeHex(baseHex, 0.15);
+    const c1 = shadeHex(baseHex, -0.08);
     grad.addColorStop(0, c0);
     grad.addColorStop(1, c1);
     return grad;
@@ -118,7 +134,7 @@ function drawWrapped(
 }
 
 /* ---------- plugins ---------- */
-// Value labels at bar ends — now uses the canvas right edge so 90%+ values stay outside
+// Value labels at bar ends (kept)
 const valueLabelPlugin: Plugin = {
   id: 'valueLabel',
   afterDatasetsDraw(chart) {
@@ -156,7 +172,7 @@ const valueLabelPlugin: Plugin = {
             typeof (chart.options?.layout as any)?.padding?.right === 'number'
               ? (chart.options!.layout as any).padding.right
               : 0;
-          const canvasRight = chart.width - rightPad - 4; // use full canvas width
+          const canvasRight = chart.width - rightPad - 4;
           const txOutside = x + padding;
 
           if (txOutside + tw <= canvasRight) {
@@ -164,7 +180,7 @@ const valueLabelPlugin: Plugin = {
             ctx.fillText(label, txOutside, y);
           } else {
             ctx.textAlign = 'right';
-            ctx.fillText(label, x - padding, y); // fall back inside the bar end
+            ctx.fillText(label, x - padding, y);
           }
         } else {
           ctx.textAlign = 'center';
@@ -177,7 +193,7 @@ const valueLabelPlugin: Plugin = {
   },
 };
 
-// Center %/value for doughnut/pie
+// Center value for doughnut/pie (kept)
 const centerLabelPlugin: Plugin = {
   id: 'centerLabel',
   afterDraw(chart) {
@@ -215,7 +231,7 @@ const centerLabelPlugin: Plugin = {
   },
 };
 
-// Wrapped side label for doughnut/pie
+// Wrapped side label for doughnut/pie (kept)
 const sideLabelPlugin: Plugin = {
   id: 'sideLabel',
   afterDraw(chart) {
@@ -364,18 +380,37 @@ export default function ChartJSBlock({
       if (axis.ticks.callback == null) axis.ticks.callback = (value: any) => `${value} ${unit}`;
     }
 
-    // gradients
+    // ====== POLISH FOR FILLS ======
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
-        if (typeof ds.backgroundColor === 'string') {
-          const hex = cssColorToHex(ds.backgroundColor);
-          if (hex) ds.backgroundColor = gradientFrom(hex);
-        } else if (Array.isArray(ds.backgroundColor)) {
-          ds.backgroundColor = ds.backgroundColor.map((c: any) => {
-            if (typeof c !== 'string') return c;
-            const hex = cssColorToHex(c);
-            return hex ?? c;
-          });
+        // Doughnut/Pie: rounded ends + radial gradient fills
+        if (isPieLike) {
+          if (ds.borderRadius == null) ds.borderRadius = typeof opts.arcRadius === 'number' ? opts.arcRadius : 10;
+          if (ds.spacing == null) ds.spacing = 2;     // subtle separation
+          if (ds.borderWidth == null) ds.borderWidth = 0;
+
+          if (typeof ds.backgroundColor === 'string') {
+            const hex = cssColorToHex(ds.backgroundColor);
+            if (hex) ds.backgroundColor = arcGradientFrom(hex);
+          } else if (Array.isArray(ds.backgroundColor)) {
+            ds.backgroundColor = ds.backgroundColor.map((c: any) => {
+              if (typeof c !== 'string') return c;
+              const hex = cssColorToHex(c);
+              return hex ? arcGradientFrom(hex) : c;
+            });
+          }
+        } else {
+          // Bars/lines: keep linear gradient conversion you already had
+          if (typeof ds.backgroundColor === 'string') {
+            const hex = cssColorToHex(ds.backgroundColor);
+            if (hex) ds.backgroundColor = linearGradientFrom(hex);
+          } else if (Array.isArray(ds.backgroundColor)) {
+            ds.backgroundColor = ds.backgroundColor.map((c: any) => {
+              if (typeof c !== 'string') return c;
+              const hex = cssColorToHex(c);
+              return hex ?? c;
+            });
+          }
         }
       });
     }
@@ -395,8 +430,7 @@ export default function ChartJSBlock({
     };
 
     // center value (donut/pie)
-    const isPie = isPieLike;
-    const centerOn = isPie && (((opts.plugins as any).centerLabel?.display) || (typeof unit === 'string' && unit.includes('%')));
+    const centerOn = isPieLike && (((opts.plugins as any).centerLabel?.display) || (typeof unit === 'string' && unit.includes('%')));
     (opts.plugins as any).centerLabel = {
       ...((opts.plugins as any).centerLabel ?? {}),
       display: centerOn,
@@ -407,12 +441,12 @@ export default function ChartJSBlock({
 
     // side label (donut/pie)
     const sideCfg = (opts.plugins as any).sideLabel ?? {};
-    const sideOn = isPie && (sideCfg.display ?? true);
+    const sideOn = isPieLike && (sideCfg.display ?? true);
     const offset = sideCfg.offset ?? 18;
     const desiredMax = sideCfg.maxWidth ?? 280;
     (opts.plugins as any).sideLabel = { ...sideCfg, display: sideOn, maxWidth: desiredMax, offset };
 
-    if (isPie && sideOn) {
+    if (isPieLike && sideOn) {
       const desiredRightPad = desiredMax + offset + 16;
       opts.layout = opts.layout ?? {};
       const prev = (opts.layout.padding ?? {}) as any;
@@ -439,6 +473,7 @@ export default function ChartJSBlock({
     </figure>
   );
 }
+
 
 
 
