@@ -83,31 +83,43 @@ export default async function ArticlePage({
       <Header />
 
       <main className="bg-neutral-50">
-        {/* HERO */}
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 z-0 bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-500" />
-          <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-10 text-white">
-            <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">EcoFocus Insights</p>
-            <h1 className="mt-2 text-3xl sm:text-4xl font-semibold leading-tight max-w-4xl">{post.title}</h1>
-            <PostMeta author={post.author} date={post.publishedAt} readTime={readTime} />
-          </div>
-          <div className="absolute inset-x-0 bottom-0 z-0 h-24 bg-gradient-to-t from-neutral-50 to-transparent" />
-        </section>
-
-        {/* COVER */}
-        {post.coverImage?.url && (
-          <div className="relative mx-auto max-w-5xl px-4 sm:px-6 mt-4">
-            <div className="relative h-[320px] w-full overflow-hidden rounded-2xl shadow ring-1 ring-black/5">
+        {/* HERO (cover image as background) */}
+        <section className="relative isolate overflow-hidden">
+          {/* Background image or brand gradient */}
+          <div className="absolute inset-0 -z-10">
+            {post.coverImage?.url ? (
               <Image
                 src={post.coverImage.url}
-                alt={post.coverImage.alt || post.title}
+                alt="" // decorative background
                 fill
-                className="object-cover"
                 priority
+                className="object-cover"
               />
-            </div>
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-500" />
+            )}
           </div>
-        )}
+
+          {/* Readability scrim */}
+          <div className="pointer-events-none absolute inset-0 -z-0">
+            <div className="h-full w-full bg-gradient-to-br from-black/55 via-emerald-950/35 to-blue-950/45" />
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-16 pb-10 text-white">
+            <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">EcoFocus Insights</p>
+            <h1
+              id="article-title"
+              className="mt-2 text-3xl sm:text-4xl font-semibold leading-tight max-w-4xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+            >
+              {post.title}
+            </h1>
+            <PostMeta author={post.author} date={post.publishedAt} readTime={readTime} />
+          </div>
+
+          {/* Bottom fade into page background */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-neutral-50 to-transparent" />
+        </section>
 
         {/* BREADCRUMBS */}
         <Breadcrumbs
@@ -230,6 +242,7 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
+
 
 
 

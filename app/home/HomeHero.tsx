@@ -15,7 +15,7 @@ export default function HomeHero() {
       </span>
     </>
   }
-  subhead="Reliable Sustainability Data to Support Your Next Big Decision"
+  subhead="Reliable Sustainability Data to Support Your Next Big Marketing Decision"
   ctaPrimary={{ label: "Explore Benefits", href: "/benefits" }}
   ctaSecondary={{ label: "Request Details", href: "/contact" }}
   videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
