@@ -63,12 +63,29 @@ function hexToRgb(hex: string) {
 }
 function shadeHex(hex: string, pct: number) {
   const c = hexToRgb(hex); if (!c) return hex;
-  const mixUp = (x: number) => clamp(Math.round(x + (255 - x) * pct), 0, 255);
-  const mixDown = (x: number) => clamp(Math.round(x * (1 + pct)), 0, 255);
-  const r = pct >= 0 ? mixUp(c.r) : mixDown(c.r);
-  const g = pct >= 0 ? mixUp(c.g) : mixDown(c.g);
-  const b = pct >= 0 ? mixUp(c.b) : mixDown(c.b);
+  const up = (x: number) => clamp(Math.round(x + (255 - x) * pct), 0, 255);
+  const down = (x: number) => clamp(Math.round(x * (1 + pct)), 0, 255);
+  const r = pct >= 0 ? up(c.r) : down(c.r);
+  const g = pct >= 0 ? up(c.g) : down(c.g);
+  const b = pct >= 0 ? up(c.b) : down(c.b);
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+/** Try to resolve any color string (hex, rgb(a), or var(--x)) to hex */
+function resolveToHex(s: string): string | null {
+  const direct = cssColorToHex(s);
+  if (direct) return direct;
+  if (typeof window !== 'undefined' && /^var\(.+\)$/.test(s)) {
+    const span = document.createElement('span');
+    span.style.color = s;
+    span.style.position = 'absolute';
+    span.style.left = '-99999px';
+    document.body.appendChild(span);
+    const computed = getComputedStyle(span).color;
+    span.remove();
+    return cssColorToHex(computed);
+  }
+  return null;
 }
 
 /** Linear gradient for bars */
@@ -84,15 +101,15 @@ function linearGradientFrom(baseHex: string) {
       horizontal ? chartArea.right : 0,
       horizontal ? 0 : chartArea.top,
     );
-    const c0 = shadeHex(baseHex, 0.20);   // lighter at start
-    const c1 = shadeHex(baseHex, -0.08);  // slightly darker at end
+    const c0 = shadeHex(baseHex, 0.20);
+    const c1 = shadeHex(baseHex, -0.08);
     grad.addColorStop(0, c0);
     grad.addColorStop(1, c1);
     return grad;
   };
 }
 
-/** Radial gradient for doughnut/pie (inner lighter ➜ outer slightly darker) */
+/** Radial gradient for doughnut/pie */
 function arcGradientFrom(baseHex: string) {
   return (ctx: any) => {
     const { chart, datasetIndex, dataIndex } = ctx;
@@ -127,14 +144,12 @@ function drawWrapped(
     else { lines.push(cur); cur = w; }
   }
   if (cur) lines.push(cur);
-
   const totalH = lines.length * lineHeight;
   let y0 = y - totalH / 2 + lineHeight / 2;
   for (const line of lines) { ctx.fillText(line, x, y0); y0 += lineHeight; }
 }
 
 /* ---------- plugins ---------- */
-// Value labels at bar ends (kept)
 const valueLabelPlugin: Plugin = {
   id: 'valueLabel',
   afterDatasetsDraw(chart) {
@@ -193,7 +208,6 @@ const valueLabelPlugin: Plugin = {
   },
 };
 
-// Center value for doughnut/pie (kept)
 const centerLabelPlugin: Plugin = {
   id: 'centerLabel',
   afterDraw(chart) {
@@ -231,7 +245,6 @@ const centerLabelPlugin: Plugin = {
   },
 };
 
-// Wrapped side label for doughnut/pie (kept)
 const sideLabelPlugin: Plugin = {
   id: 'sideLabel',
   afterDraw(chart) {
@@ -350,10 +363,7 @@ export default function ChartJSBlock({
       opts.scales[categoryAxisKey] = cat;
     } else {
       delete opts.scales;
-      // default slightly smaller doughnut if not specified
-      if (effectiveType === 'doughnut' && opts.cutout == null) {
-        opts.cutout = '58%';
-      }
+      if (effectiveType === 'doughnut' && opts.cutout == null) opts.cutout = '58%';
     }
 
     // defaults
@@ -380,34 +390,32 @@ export default function ChartJSBlock({
       if (axis.ticks.callback == null) axis.ticks.callback = (value: any) => `${value} ${unit}`;
     }
 
-    // ====== POLISH FOR FILLS ======
+    // ====== POLISH FOR FILLS (with color resolver) ======
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
-        // Doughnut/Pie: rounded ends + radial gradient fills
         if (isPieLike) {
           if (ds.borderRadius == null) ds.borderRadius = typeof opts.arcRadius === 'number' ? opts.arcRadius : 10;
-          if (ds.spacing == null) ds.spacing = 2;     // subtle separation
+          if (ds.spacing == null) ds.spacing = 2;
           if (ds.borderWidth == null) ds.borderWidth = 0;
 
           if (typeof ds.backgroundColor === 'string') {
-            const hex = cssColorToHex(ds.backgroundColor);
+            const hex = resolveToHex(ds.backgroundColor);
             if (hex) ds.backgroundColor = arcGradientFrom(hex);
           } else if (Array.isArray(ds.backgroundColor)) {
             ds.backgroundColor = ds.backgroundColor.map((c: any) => {
               if (typeof c !== 'string') return c;
-              const hex = cssColorToHex(c);
-              return hex ? arcGradientFrom(hex) : c;
+              const hex = resolveToHex(c);
+              return hex ? arcGradientFrom(hex) : c; // if still not resolvable, leave as-is
             });
           }
         } else {
-          // Bars/lines: keep linear gradient conversion you already had
           if (typeof ds.backgroundColor === 'string') {
-            const hex = cssColorToHex(ds.backgroundColor);
+            const hex = resolveToHex(ds.backgroundColor);
             if (hex) ds.backgroundColor = linearGradientFrom(hex);
           } else if (Array.isArray(ds.backgroundColor)) {
             ds.backgroundColor = ds.backgroundColor.map((c: any) => {
               if (typeof c !== 'string') return c;
-              const hex = cssColorToHex(c);
+              const hex = resolveToHex(c);
               return hex ?? c;
             });
           }
