@@ -51,7 +51,8 @@ const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(ma
 const toHex = (x: number) => clamp(Math.round(x), 0, 255).toString(16).padStart(2, '0');
 
 function cssColorToHex(s: string): string | null {
-  const t = s.trim();
+  const t = s?.trim?.() ?? '';
+  if (!t) return null;
   if (t[0] === '#') return t.length === 4 ? `#${t[1]}${t[1]}${t[2]}${t[2]}${t[3]}${t[3]}` : t.slice(0, 7);
   const m = /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i.exec(t);
   if (m) { const r = Number(m[1]), g = Number(m[2]), b = Number(m[3]); return `#${toHex(r)}${toHex(g)}${toHex(b)}`; }
@@ -71,8 +72,9 @@ function shadeHex(hex: string, pct: number) {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
-/** Try to resolve any color string (hex, rgb(a), or var(--x)) to hex */
-function resolveToHex(s: string): string | null {
+/** Resolve any color string (hex, rgb(a), or var(--x)) to hex */
+function resolveToHex(s: any): string | null {
+  if (typeof s !== 'string') return null;
   const direct = cssColorToHex(s);
   if (direct) return direct;
   if (typeof window !== 'undefined' && /^var\(.+\)$/.test(s)) {
@@ -390,33 +392,44 @@ export default function ChartJSBlock({
       if (axis.ticks.callback == null) axis.ticks.callback = (value: any) => `${value} ${unit}`;
     }
 
-    // ====== POLISH FOR FILLS (with color resolver) ======
+    // ====== FILLS (bars vs doughnut/pie) ======
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
         if (isPieLike) {
+          // rounded arcs + small gap
           if (ds.borderRadius == null) ds.borderRadius = typeof opts.arcRadius === 'number' ? opts.arcRadius : 10;
           if (ds.spacing == null) ds.spacing = 2;
           if (ds.borderWidth == null) ds.borderWidth = 0;
 
+          // Build a single scriptable function that returns a gradient per slice
+          let baseHexes: string[] = [];
           if (typeof ds.backgroundColor === 'string') {
-            const hex = resolveToHex(ds.backgroundColor);
-            if (hex) ds.backgroundColor = arcGradientFrom(hex);
-          } else if (Array.isArray(ds.backgroundColor)) {
-            ds.backgroundColor = ds.backgroundColor.map((c: any) => {
-              if (typeof c !== 'string') return c;
-              const hex = resolveToHex(c);
-              return hex ? arcGradientFrom(hex) : c; // if still not resolvable, leave as-is
-            });
+            const hx = resolveToHex(ds.backgroundColor) ?? '#2E7D32';
+            baseHexes = [hx];
+          } else if (Array.isArray(ds.backgroundColor) && ds.backgroundColor.length) {
+            baseHexes = ds.backgroundColor.map((c: any) => resolveToHex(c) ?? '#2E7D32');
+          } else {
+            // fallback: green + light gray if we detect 2-slice donut
+            const n = Array.isArray(ds.data) ? ds.data.length : 2;
+            baseHexes = n > 1 ? ['#2E7D32', '#E6E9EE'] : ['#2E7D32'];
           }
+
+          ds.backgroundColor = (ctx: any) => {
+            const idx = Math.max(0, ctx.dataIndex ?? 0);
+            const base = baseHexes[idx % baseHexes.length];
+            return arcGradientFrom(base)(ctx);
+          };
         } else {
+          // bars / lines
           if (typeof ds.backgroundColor === 'string') {
             const hex = resolveToHex(ds.backgroundColor);
             if (hex) ds.backgroundColor = linearGradientFrom(hex);
           } else if (Array.isArray(ds.backgroundColor)) {
+            // keep solids (strip CSS vars) but not per-bar gradients here
             ds.backgroundColor = ds.backgroundColor.map((c: any) => {
               if (typeof c !== 'string') return c;
-              const hex = resolveToHex(c);
-              return hex ?? c;
+              return resolveToHex(c) ?? c;
+              // If you want per-bar gradients too, swap to a single scriptable like the donut path.
             });
           }
         }
@@ -481,12 +494,3 @@ export default function ChartJSBlock({
     </figure>
   );
 }
-
-
-
-
-
-
-
-
-
