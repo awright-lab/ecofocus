@@ -111,15 +111,46 @@ function linearGradientFrom(baseHex: string) {
   };
 }
 
-/** Radial gradient for doughnut/pie */
+/** Radial gradient for doughnut/pie — hardened against pre-layout calls */
 function arcGradientFrom(baseHex: string) {
   return (ctx: any) => {
     const { chart, datasetIndex, dataIndex } = ctx;
-    const meta = chart.getDatasetMeta(datasetIndex);
-    const arc = meta?.data?.[dataIndex] as any;
-    if (!arc) return baseHex;
     const g = chart.ctx;
-    const grad = g.createRadialGradient(arc.x, arc.y, arc.innerRadius, arc.x, arc.y, arc.outerRadius);
+    const area = chart.chartArea;
+    if (!area) return baseHex; // no layout yet
+
+    // Try to use the arc’s geometry if it’s ready
+    let cx: number | undefined;
+    let cy: number | undefined;
+    let innerR: number | undefined;
+    let outerR: number | undefined;
+
+    if (Number.isFinite(datasetIndex) && Number.isFinite(dataIndex)) {
+      const meta = chart.getDatasetMeta(datasetIndex);
+      const el = meta?.data?.[dataIndex] as any;
+      if (el) {
+        const { x, y, innerRadius, outerRadius } = el;
+        if ([x, y, innerRadius, outerRadius].every((v: any) => Number.isFinite(v))) {
+          cx = x; cy = y;
+          innerR = Math.max(0, innerRadius);
+          outerR = Math.max(innerR + 1, outerRadius); // ensure > innerR
+        }
+      }
+    }
+
+    // Fallback to chart-area center if arc values aren’t ready
+    if (!Number.isFinite(cx!) || !Number.isFinite(cy!) || !Number.isFinite(innerR!) || !Number.isFinite(outerR!)) {
+      cx = (area.left + area.right) / 2;
+      cy = (area.top + area.bottom) / 2;
+      const r = Math.min(area.width, area.height) / 2;
+      innerR = Math.max(0, r * 0.55);
+      outerR = Math.max(innerR + 1, r);
+    }
+
+    // If anything is still bad, use a solid fill
+    if (![cx, cy, innerR, outerR].every((v) => Number.isFinite(v))) return baseHex;
+
+    const grad = g.createRadialGradient(cx!, cy!, innerR!, cx!, cy!, outerR!);
     const c0 = shadeHex(baseHex, 0.15);
     const c1 = shadeHex(baseHex, -0.08);
     grad.addColorStop(0, c0);
@@ -151,7 +182,7 @@ function drawWrapped(
   for (const line of lines) { ctx.fillText(line, x, y0); y0 += lineHeight; }
 }
 
-/* ---------- plugins ---------- */
+/* ---------- plugins (unchanged from your last file) ---------- */
 const valueLabelPlugin: Plugin = {
   id: 'valueLabel',
   afterDatasetsDraw(chart) {
@@ -409,7 +440,6 @@ export default function ChartJSBlock({
           } else if (Array.isArray(ds.backgroundColor) && ds.backgroundColor.length) {
             baseHexes = ds.backgroundColor.map((c: any) => resolveToHex(c) ?? '#2E7D32');
           } else {
-            // fallback: green + light gray if we detect 2-slice donut
             const n = Array.isArray(ds.data) ? ds.data.length : 2;
             baseHexes = n > 1 ? ['#2E7D32', '#E6E9EE'] : ['#2E7D32'];
           }
@@ -425,11 +455,9 @@ export default function ChartJSBlock({
             const hex = resolveToHex(ds.backgroundColor);
             if (hex) ds.backgroundColor = linearGradientFrom(hex);
           } else if (Array.isArray(ds.backgroundColor)) {
-            // keep solids (strip CSS vars) but not per-bar gradients here
             ds.backgroundColor = ds.backgroundColor.map((c: any) => {
               if (typeof c !== 'string') return c;
               return resolveToHex(c) ?? c;
-              // If you want per-bar gradients too, swap to a single scriptable like the donut path.
             });
           }
         }
