@@ -56,14 +56,8 @@ const toHex = (x: number) => clamp(Math.round(x), 0, 255).toString(16).padStart(
 
 function cssColorToHex(s: string): string | null {
   const t = s.trim();
-  // #abc or #aabbcc
-  if (t[0] === '#') {
-    if (t.length === 4) {
-      const r = t[1], g = t[2], b = t[3];
-      return `#${r}${r}${g}${g}${b}${b}`;
-    }
-    return t.slice(0, 7); // ignore alpha channel if #RRGGBBAA
-  }
+  // #abc or #aabbcc (strip #RRGGBBAA to #RRGGBB)
+  if (t[0] === '#') return t.length === 4 ? `#${t[1]}${t[1]}${t[2]}${t[2]}${t[3]}${t[3]}` : t.slice(0, 7);
   // rgb/rgba
   const m = /rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)(?:\s*,\s*([\d.]+))?\s*\)/i.exec(t);
   if (m) {
@@ -111,7 +105,7 @@ function gradientFrom(baseHex: string) {
   };
 }
 
-/* ------------------ tiny plugins ------------------ */
+/* ------------------ tiny plugin ------------------ */
 
 // Value labels at the end of bars
 const valueLabelPlugin: Plugin = {
@@ -199,8 +193,10 @@ export default function ChartJSBlock({
       if (opts.indexAxis == null) opts.indexAxis = 'x';
     }
 
-    const numericAxisKey: 'x' | 'y' =
-      effectiveType === 'bar' && opts.indexAxis === 'y' ? 'x' : 'y';
+    const isBar = effectiveType === 'bar';
+    const isHorizontal = isBar && opts.indexAxis === 'y';
+    const categoryAxisKey: 'x' | 'y' = isHorizontal ? 'y' : 'x';
+    const valueAxisKey: 'x' | 'y' = isHorizontal ? 'x' : 'y';
 
     // Rounded corners & no borders by default for bars
     if (effectiveType === 'bar' && Array.isArray(dataObj.datasets)) {
@@ -208,7 +204,6 @@ export default function ChartJSBlock({
         if (ds.type && ds.type !== 'bar') continue;
         if (ds.borderRadius == null) ds.borderRadius = typeof opts.barRadius === 'number' ? opts.barRadius : 10;
         if (ds.borderSkipped == null) ds.borderSkipped = false;
-        // respect explicit barBorderWidth; default = 0 (no border)
         const borderW = typeof opts.barBorderWidth === 'number' ? opts.barBorderWidth : 0;
         ds.borderWidth = borderW;
         if (borderW === 0) ds.borderColor = undefined;
@@ -226,18 +221,29 @@ export default function ChartJSBlock({
       opts.elements.line = { ...(opts.elements.line ?? {}), fill: true };
     }
 
-    // Subtle grid & no axis borders
+    // Subtle grid & no axis borders + category tick color = black
     const faint = 'rgba(0,0,0,0.08)';
     opts.scales = opts.scales ?? {};
     for (const ax of ['x', 'y'] as const) {
       opts.scales[ax] = opts.scales[ax] ?? {};
-      const grid = opts.scales[ax].grid = opts.scales[ax].grid ?? {};
+      const grid = (opts.scales[ax].grid = opts.scales[ax].grid ?? {});
       if (grid.display !== false && grid.color == null) grid.color = faint;
-      const border = opts.scales[ax].border = opts.scales[ax].border ?? {};
+
+      const border = (opts.scales[ax].border = opts.scales[ax].border ?? {});
       if (typeof border.display !== 'boolean') border.display = false;
-      const ticks = opts.scales[ax].ticks = opts.scales[ax].ticks ?? {};
-      if (ticks.color == null) ticks.color = 'rgba(0,0,0,0.45)';
+
+      const ticks = (opts.scales[ax].ticks = opts.scales[ax].ticks ?? {});
+      if (ticks.color == null) ticks.color = 'rgba(0,0,0,0.45)'; // default numeric gray
     }
+    // Make category axis labels solid black (and a touch bolder)
+    opts.scales[categoryAxisKey].ticks = {
+      ...(opts.scales[categoryAxisKey].ticks ?? {}),
+      color: '#000',
+      font: {
+        ...(opts.scales[categoryAxisKey].ticks?.font ?? {}),
+        weight: '500',
+      },
+    };
 
     // Defaults
     if (opts.responsive == null) opts.responsive = true;
@@ -258,9 +264,9 @@ export default function ChartJSBlock({
       };
     }
 
-    // Axis unit suffix
+    // Axis unit suffix on value axis
     if (unit) {
-      const axis = opts.scales[numericAxisKey] = opts.scales[numericAxisKey] ?? {};
+      const axis = opts.scales[valueAxisKey] = opts.scales[valueAxisKey] ?? {};
       axis.ticks = axis.ticks ?? {};
       if (axis.ticks.callback == null) {
         axis.ticks.callback = (value: any) => `${value} ${unit}`;
@@ -268,26 +274,30 @@ export default function ChartJSBlock({
     }
 
     // ---- FORCE SOLID FILLS + APPLY GRADIENT ----
-    // If CMS sent rgba(..., a<1), convert to hex and make a gradient so bars never look "washed out".
     if (Array.isArray(dataObj.datasets)) {
       dataObj.datasets.forEach((ds: any) => {
-        // normalize single string color
+        // if CMS sent a single color (rgba or hex), convert to hex & use gradient
         if (typeof ds.backgroundColor === 'string') {
           const hex = cssColorToHex(ds.backgroundColor);
-          if (hex) ds.backgroundColor = gradientFrom(hex);
+          if (hex) {
+            ds.backgroundColor = gradientFrom(hex);
+            if (!ds.borderColor && (typeof opts.barBorderWidth !== 'number' || opts.barBorderWidth === 0)) {
+              ds.borderColor = undefined;
+            }
+          }
         }
-        // normalize array of colors (rare for bars, but safe)
+        // array case: make them solid (strip alpha) but keep as array
         if (Array.isArray(ds.backgroundColor)) {
           ds.backgroundColor = ds.backgroundColor.map((c: any) => {
             if (typeof c !== 'string') return c;
             const hex = cssColorToHex(c);
-            return hex ? hex : c;
+            return hex ?? c;
           });
         }
       });
     }
 
-    // Enable value labels (auto-on if unit includes '%')
+    // Value labels (auto-on if unit contains '%', or enable via options.plugins.valueLabel.display)
     const wantLabels =
       (opts.plugins && (opts.plugins as any).valueLabel?.display) ??
       (typeof unit === 'string' && unit.includes('%'));
@@ -325,6 +335,7 @@ export default function ChartJSBlock({
     </figure>
   );
 }
+
 
 
 
