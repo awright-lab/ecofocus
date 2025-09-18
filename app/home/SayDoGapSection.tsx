@@ -43,7 +43,7 @@ export default function SayDoGapSection({
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.5 }}
           >
-            Turning Intent into Action: Closing the{' '}
+            From Intent to Action: Closing the{' '}
             <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
               Say–Do Gap
             </span>
@@ -56,7 +56,7 @@ export default function SayDoGapSection({
             viewport={{ once: true, amount: 0.6 }}
             transition={{ delay: 0.15, duration: 0.5 }}
           >
-            People say they care about sustainability—sales don’t always reflect it. Don’t dismiss it; diagnose it.
+            Millennials and Gen Z say they value sustainability — but their purchases don’t always match. For agencies, this gap can make or break a campaign. EcoFocus helps you diagnose what holds consumers back and design campaigns that move them forward.
           </motion.p>
         </div>
 
@@ -78,10 +78,10 @@ export default function SayDoGapSection({
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900 line-clamp-2 sm:line-clamp-none">
-                    Message clarity & proof
+                  Diagnose the Blockers
                   </div>
                   <p className="text-sm text-gray-600">
-                    Clear sustainability value props with credible support—no greenhushing, no jargon.
+                  price, access, clarity, authenticity.
                   </p>
                 </div>
               </li>
@@ -92,10 +92,10 @@ export default function SayDoGapSection({
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900 line-clamp-2 sm:line-clamp-none">
-                    Availability at the moment of choice
+                  Design Campaigns that Convert
                   </div>
                   <p className="text-sm text-gray-600">
-                    Presence on shelf and online where shoppers decide—plus easy findability.
+                  align messaging, optimize claims, position products clearly.
                   </p>
                 </div>
               </li>
@@ -105,9 +105,9 @@ export default function SayDoGapSection({
                   <Tag className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Perceived value</div>
+                  <div className="font-semibold text-gray-900">Validate Before Scaling</div>
                   <p className="text-sm text-gray-600">
-                    Pricing, pack, and claims that make the sustainable choice feel like the smart choice.
+                  test concepts, monitor reactions, iterate confidently.
                   </p>
                 </div>
               </li>

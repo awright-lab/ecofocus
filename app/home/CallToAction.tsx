@@ -42,7 +42,7 @@ export default function CallToAction() {
               id="cta-heading"
               className="mb-4 md:mb-6 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
             >
-              Ready to Elevate Your Sustainability Strategy?
+              Ready to give your clients a campaign that connects with the purpose-driven generation? Let’s talk.
             </h2>
             <p className="mx-auto md:mx-0 max-w-xl text-sm text-gray-600 sm:text-base">
               Book a consultation with our experts today and start turning data into actionable impact.
@@ -64,7 +64,7 @@ export default function CallToAction() {
                          before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
               aria-label="Request a Consultation"
             >
-              <span className="relative z-10">Request a Consultation</span>
+              <span className="relative z-10">Book an Agency Insight Session</span>
             </Link>
 
             <Link

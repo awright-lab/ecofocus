@@ -28,7 +28,7 @@ export default function CoreServices({ services }: Props) {
       title: 'Interactive Dashboard',
       kicker: '90k+ data points. Real-time crosstabs.',
       description:
-        'Self-serve, real-time crosstabs and charts across 90k+ data points with 13 years of trends.',
+        'Your instant library of 13+ years of sustainability data. Build charts and exports for client briefs, campaign pitches, and trend reports.',
       href: '/dashboard',
       image: '/images/solutions-dashboard.png',
       bullets: [
@@ -42,7 +42,7 @@ export default function CoreServices({ services }: Props) {
       title: 'Syndicated Study',
       kicker: 'Your questions. Executive-ready insights.',
       description:
-        'Join the 2025 EcoFocus wave and add proprietary questions. Deliverables include dashboard access, crosstabs, and executive reporting.',
+        'Comprehensive, census-balanced, and ready to fuel client strategy. Add custom modules to answer client-specific questions.',
       href: '/solutions/syndicated-buy-in',
       image: '/images/solutions-syndicated.png',
       bullets: [
@@ -56,7 +56,7 @@ export default function CoreServices({ services }: Props) {
       title: 'Data Integration',
       kicker: 'Fuse datasets. Sharpen personas.',
       description:
-        'Blend our validated 2024 dataset with your internal data for richer personas, better forecasting, and unified analytics.',
+        'Fuse EcoFocus with client datasets to sharpen personas, uncover shifts, and prove ROI on sustainability claims.',
       href: '/solutions/enhance-your-data',
       image: '/images/solutions-enhance.png',
       bullets: ['Raw files or secure data share', 'Schema mapping & QA support', 'Optional dashboard overlay'],
@@ -66,7 +66,7 @@ export default function CoreServices({ services }: Props) {
       title: 'Custom Studies',
       kicker: 'Answer your exact questions.',
       description:
-        'Audience-specific surveys, concept tests, and packaging/claims validation—designed to answer your exact questions.',
+        'When your clients face unique questions, our team designs fast, credible, and campaign-ready studies.',
       href: '/solutions/custom',
       image: '/images/solutions-custom.png',
       bullets: ['Quant & qual study design', 'Rapid polls & deep dives', 'Executive-ready storytelling'],
@@ -84,14 +84,14 @@ export default function CoreServices({ services }: Props) {
           <span className="text-black/60">Core Services</span>
         </div>
 
-        <h2
+        <h3
           id="core-services-heading"
           className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
         >
-          Solutions That Drive Change
-        </h2>
+          Solutions That Power Agencies Across Every Industry
+        </h3>
         <p className="mt-2 text-sm sm:text-base text-gray-600">
-          Choose the path that fits your goals—then scale from insights to impact.
+        From dashboards to custom studies, EcoFocus equips agencies with the sustainability insights they need to guide clients in food, fashion, energy, retail, and beyond.
         </p>
 
         {/* Mobile carousel */}
