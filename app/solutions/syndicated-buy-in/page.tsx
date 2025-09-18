@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -334,6 +333,7 @@ export default function SyndicatedBuyInPage() {
       {/* Hero (using reusable component) */}
       <Hero
         variant="report"
+        size="short"                        // ← shorter hero
         badge="Syndicated Study Buy-In (2025)"
         headline={
           <>
@@ -349,16 +349,6 @@ export default function SyndicatedBuyInPage() {
         videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
         posterSrc="/images/hero-6-poster.jpg"
         overlay="dense"
-        rightVisual={
-          <div className="relative w-full aspect-square">
-            <Image
-              src="/images/laptop.png"
-              alt="EcoFocus Dashboard Preview"
-              fill
-              className="rounded-xl shadow-2xl object-cover"
-            />
-          </div>
-        }
       />
 
       {/* Sticky Section Nav */}
