@@ -88,42 +88,60 @@ function gradientFrom(baseHex: string) {
 
 /* ---------- plugins ---------- */
 // bar end value labels (unchanged)
+// Value labels at the end of each individual bar (no overlap)
 const valueLabelPlugin: Plugin = {
-  id: 'valueLabel',
-  afterDatasetsDraw(chart) {
-    const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
-    if (!cfg.display || !chart.scales?.x || !chart.scales?.y) return;
-    const unit: string = cfg.unit ?? '';
-    const color: string = cfg.color ?? '#334155';
-    const fontSize: number = cfg.fontSize ?? 12;
-    const padding: number = cfg.padding ?? 6;
-
-    const ctx = chart.ctx;
-    const horizontal = chart.options?.indexAxis === 'y';
-    const valueScale = chart.scales[horizontal ? 'x' : 'y'];
-    const catScale = chart.scales[horizontal ? 'y' : 'x'];
-
-    ctx.save();
-    ctx.fillStyle = color;
-    ctx.font = `${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
-    ctx.textBaseline = 'middle';
-
-    chart.data.datasets.forEach((ds: any, di: number) => {
-      const meta = chart.getDatasetMeta(di);
-      meta?.data?.forEach((_el: any, i: number) => {
-        const raw = Array.isArray(ds.data) ? ds.data[i] : undefined;
-        if (raw == null || isNaN(raw)) return;
-        const val = Number(raw);
-        const endPx = valueScale.getPixelForValue(val);
-        const catPx = catScale.getPixelForValue(i);
-        const text = `${val}${unit ? ` ${unit}` : ''}`;
-        if (horizontal) { ctx.textAlign = 'left'; ctx.fillText(text, endPx + padding, catPx); }
-        else { ctx.textAlign = 'center'; ctx.fillText(text, catPx, endPx - padding); }
+    id: 'valueLabel',
+    afterDatasetsDraw(chart) {
+      const cfg: any = (chart.options?.plugins as any)?.valueLabel || {};
+      if (!cfg.display) return;
+  
+      const unit: string   = cfg.unit ?? '';
+      const color: string  = cfg.color ?? '#1f2937';
+      const fontSize: number = cfg.fontSize ?? 12;
+      const padding: number  = cfg.padding ?? 6;
+  
+      const ctx = chart.ctx;
+      const area = chart.chartArea;
+      const horizontal = chart.options?.indexAxis === 'y';
+  
+      ctx.save();
+      ctx.fillStyle = color;
+      ctx.font = `${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+      ctx.textBaseline = 'middle';
+  
+      chart.data.datasets.forEach((ds: any, di: number) => {
+        const meta = chart.getDatasetMeta(di);
+        if (!meta?.data) return;
+  
+        meta.data.forEach((el: any, i: number) => {
+          const raw = Array.isArray(ds.data) ? ds.data[i] : undefined;
+          if (raw == null || isNaN(raw)) return;
+  
+          const val = Number(raw);
+          const { x, y } = el.getProps(['x', 'y'], true); // <-- use the bar's own center
+          const label = `${val}${unit ? ` ${unit}` : ''}`;
+  
+          if (horizontal) {
+            let tx = x + padding; // place to the right of the bar end
+            const tw = ctx.measureText(label).width;
+            // if it would overflow, draw it just inside the end of the bar instead
+            if (tx + tw > area.right) {
+              ctx.textAlign = 'right';
+              tx = x - padding;
+            } else {
+              ctx.textAlign = 'left';
+            }
+            ctx.fillText(label, tx, y);
+          } else {
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x, y - padding);
+          }
+        });
       });
-    });
-    ctx.restore();
-  },
-};
+  
+      ctx.restore();
+    },
+  };  
 
 function drawWrapped(
   ctx: CanvasRenderingContext2D,
