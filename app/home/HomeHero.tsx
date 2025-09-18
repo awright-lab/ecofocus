@@ -6,7 +6,7 @@ export default function HomeHero() {
   return (
     <Hero
   variant="home"
-  size="short"                                   // ← shorter hero
+  size="normal"                                   // ← shorter hero
   headline="Decoding the Purpose-Driven Generation"
   subhead="Reliable Sustainability Data to Support Your Next Big Decision"
   ctaPrimary={{ label: "Explore Benefits", href: "/benefits" }}
