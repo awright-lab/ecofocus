@@ -90,7 +90,7 @@ export default function Leadership() {
               transition={{ duration: 0.45, delay: i * 0.08 }}
               className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
             >
-              <div className="relative aspect-[4/3]">
+              <div className="relative aspect-square">
                 <Image
                   src={p.img}
                   alt={p.name}
@@ -112,4 +112,5 @@ export default function Leadership() {
     </section>
   );
 }
+
 

@@ -2,8 +2,9 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-export default function MethodologyPage() {
+export default function MethodologyClient() {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -20,6 +21,7 @@ export default function MethodologyPage() {
           >
             Technical Overview
           </motion.p>
+
           <motion.h1
             initial={reduceMotion ? false : { opacity: 0, y: -10 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -29,6 +31,7 @@ export default function MethodologyPage() {
           >
             Methodology Agencies Can Defend
           </motion.h1>
+
           <motion.p
             initial={reduceMotion ? false : { opacity: 0 }}
             whileInView={reduceMotion ? undefined : { opacity: 1 }}
@@ -75,7 +78,7 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Overview */}
+      {/* Sections */}
       <Section id="overview" title="Overview">
         <p>
           EcoFocus conducts recurring, nationally representative research on U.S. adults (18+),
@@ -94,14 +97,13 @@ export default function MethodologyPage() {
         />
       </Section>
 
-      {/* Sampling & Frame */}
       <Section id="sampling" title="Sampling & Frame" icon="ri-community-line">
         <List
           items={[
             "Universe: U.S. adults 18+ (nationally representative).",
             "Sampling: Online panel sources with strict supplier vetting and traffic allocation caps.",
             "Quotas: Balanced to Census benchmarks on age, gender, region, ethnicity, and other key demographics.",
-            "Incidence & eligibility: Standard screeners ensure relevant participation and appropriate base sizes for key segments.",
+            "Incidence & eligibility: Screeners ensure relevant participation and appropriate base sizes for key segments.",
           ]}
         />
         <Note>
@@ -110,7 +112,6 @@ export default function MethodologyPage() {
         </Note>
       </Section>
 
-      {/* Weighting */}
       <Section id="weighting" title="Weighting & Representativeness" icon="ri-equalizer-line">
         <p>
           Final data are weighted to align with U.S. Census distributions using industry-standard
@@ -127,7 +128,6 @@ export default function MethodologyPage() {
         />
       </Section>
 
-      {/* Quality Controls */}
       <Section id="quality" title="Fieldwork Quality & Fraud Controls" icon="ri-shield-check-line">
         <List
           items={[
@@ -143,19 +143,17 @@ export default function MethodologyPage() {
         </Note>
       </Section>
 
-      {/* Questionnaire Governance */}
       <Section id="questionnaire" title="Questionnaire Governance" icon="ri-file-text-line">
         <List
           items={[
-            "Core tracker: stable constructs to preserve trend integrity (question wording and order locked, barring methodological reviews).",
-            "Topical modules: rotating/seasonal topics designed for current market questions (e.g., packaging claims, values language, pricing tolerance).",
+            "Core tracker: stable constructs to preserve trend integrity (wording and order locked, barring methodological reviews).",
+            "Topical modules: rotating topics designed for current market questions (e.g., packaging claims, values language, pricing tolerance).",
             "Pilot & timing checks ensure clarity and realistic survey length.",
             "Accessibility and plain-language reviews reduce respondent burden and bias.",
           ]}
         />
       </Section>
 
-      {/* Margins & Stats */}
       <Section id="moe" title="Margins of Error & Statistical Interpretation" icon="ri-bar-chart-2-line">
         <p>
           For national totals at n≈4,000, the approximate margin of error is ±1.55% at 95% confidence.
@@ -165,13 +163,12 @@ export default function MethodologyPage() {
         <List
           items={[
             "Report both absolute percentages and key deltas relative to prior waves.",
-            "Highlight directionally consistent shifts across multiple related metrics.",
+            "Highlight directionally consistent shifts across related metrics.",
             "Avoid over-interpreting differences within the MoE; validate with additional waves or qual.",
           ]}
         />
       </Section>
 
-      {/* Trend Design */}
       <Section id="trends" title="Trend Design (Since 2010)" icon="ri-timer-line">
         <p>
           The tracker emphasizes construct stability to enable like-for-like comparisons across time.
@@ -187,7 +184,6 @@ export default function MethodologyPage() {
         />
       </Section>
 
-      {/* Data Access */}
       <Section id="access" title="Data Access & Integrations" icon="ri-database-2-line">
         <p>
           Agencies can access findings through interactive dashboards, exports for decks/briefs, or via
@@ -204,7 +200,6 @@ export default function MethodologyPage() {
         />
       </Section>
 
-      {/* Transparency & Downloads */}
       <Section id="transparency" title="Transparency & Technical Documentation" icon="ri-article-line">
         <p>
           We document questionnaire versions, sampling/weighting specs, supplier mixes, and quality
@@ -220,12 +215,18 @@ export default function MethodologyPage() {
           ]}
         />
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 flex items-center justify-center gap-4">
           <Link
             href="/contact"
             className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
           >
             Book an Agency Briefing
+          </Link>
+          <Link
+            href="/about"
+            className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+          >
+            Back to About
           </Link>
         </div>
       </Section>
@@ -234,7 +235,6 @@ export default function MethodologyPage() {
 }
 
 /* ---------- Reusable UI bits ---------- */
-
 function Section({
   id,
   title,
@@ -244,11 +244,11 @@ function Section({
   id: string;
   title: string;
   icon?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="relative">
+    <section id={id} aria-labelledby={`${id}-title`} className="relative scroll-mt-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: -10 }}
@@ -276,10 +276,7 @@ function List({ items }: { items: string[] }) {
     <ul role="list" className="mt-4 space-y-2.5 text-sm">
       {items.map((t) => (
         <li key={t} className="flex items-start gap-3">
-          <span
-            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500"
-            aria-hidden="true"
-          />
+          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
           <span>{t}</span>
         </li>
       ))}
@@ -287,7 +284,7 @@ function List({ items }: { items: string[] }) {
   );
 }
 
-function Note({ children }: { children: React.ReactNode }) {
+function Note({ children }: { children: ReactNode }) {
   return (
     <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs text-emerald-900">
       {children}
@@ -295,11 +292,7 @@ function Note({ children }: { children: React.ReactNode }) {
   );
 }
 
-function StatGrid({
-  items,
-}: {
-  items: { label: string; value: string }[];
-}) {
+function StatGrid({ items }: { items: { label: string; value: string }[] }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.div
@@ -319,11 +312,7 @@ function StatGrid({
   );
 }
 
-function DownloadRow({
-  items,
-}: {
-  items: { label: string; href: string }[];
-}) {
+function DownloadRow({ items }: { items: { label: string; href: string }[] }) {
   const reduceMotion = useReducedMotion();
   return (
     <motion.div
@@ -346,3 +335,5 @@ function DownloadRow({
     </motion.div>
   );
 }
+
+

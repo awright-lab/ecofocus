@@ -6,7 +6,7 @@ export default function AboutHero() {
   return (
     <Hero
       variant="solutions"
-      size="normal"                 // compact height
+      size="normal" // compact height
       badge="Our Story"
       headline={
         <>
@@ -25,7 +25,7 @@ export default function AboutHero() {
       }
       videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
       posterSrc="/images/hero-6-poster.jpg"
-      overlay="dense"             // heavier tint than Home
+      overlay="dense" // heavier tint than Home
     />
   );
 }

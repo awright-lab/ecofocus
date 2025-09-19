@@ -1,26 +1,42 @@
-// app/about/page.tsx
-import AboutHero from '@/app/about/AboutHero';
-//import SnapshotBand from '@/app/about/SnapshotBand';
-import MissionApproach from '@/app/about/MissionApproach';
-import Leadership from '@/app/about/Leadership';
-import MethodologyHighlights from '@/app/about/MethodologyHighlights';
-//import PartnersBand from '@/app/about/PartnersBand';
-import BottomCTA from '@/app/about/BottomCTA';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import Outcomes from './Outcomes';
+import type { Metadata } from "next";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+
+import AboutHero from "@/app/about/AboutHero";
+import MissionApproach from "@/app/about/MissionApproach";
+import Outcomes from "@/app/about/Outcomes";
+import Leadership from "@/app/about/Leadership";
+import MethodologyHighlights from "@/app/about/MethodologyHighlights";
+import FinalCTA from "@/app/about/FinalCTA";
+
+export const metadata: Metadata = {
+  title: "About EcoFocus",
+  description:
+    "We help agencies turn sustainability insights into campaign results. Since 2010: nationally representative studies, transparent methods, and actionable dashboards.",
+  alternates: { canonical: "/about" },
+  openGraph: { url: "/about" },
+};
 
 export default function AboutPage() {
   return (
-    <main id="main" className="bg-white">
+    <>
       <Header />
-      <AboutHero />
-      <MissionApproach />
-      <Outcomes />
-      <Leadership />
-      <MethodologyHighlights />
-      <BottomCTA />
+      <main className="bg-white">
+        <AboutHero />
+        <MissionApproach />
+        <Outcomes />
+        <Leadership />
+        <MethodologyHighlights />
+        <FinalCTA
+          eyebrow="Next Steps"
+          headline="Your next campaign starts with better insights."
+          ctaLabel="See the Data in Action"
+          ctaHref="/contact"
+        />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
+
+

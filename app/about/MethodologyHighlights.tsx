@@ -77,7 +77,7 @@ export default function MethodologyHighlights() {
           ))}
         </div>
 
-        {/* Optional footnote + CTA */}
+        {/* Optional footnote + link */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0 }}
           whileInView={reduceMotion ? undefined : { opacity: 1 }}
@@ -90,7 +90,7 @@ export default function MethodologyHighlights() {
           </p>
           <div className="mt-4">
             <a
-              href="/about/methodology"
+              href="/methodology"
               className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
             >
               View Full Methodology
@@ -101,6 +101,7 @@ export default function MethodologyHighlights() {
     </section>
   );
 }
+
 
 
   

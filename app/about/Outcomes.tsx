@@ -16,7 +16,7 @@ export default function Outcomes() {
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
+            className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
           >
             Outcomes for Agencies
           </motion.h2>
@@ -73,7 +73,7 @@ export default function Outcomes() {
           />
         </div>
 
-        {/* Stat strip (optional) */}
+        {/* Stat strip */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 8 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -85,22 +85,6 @@ export default function Outcomes() {
           <Stat label="Data points" value="90k+" />
           <Stat label="Respondents / wave" value="4,000+" />
           <Stat label="MoE (national)" value="±1.55%" />
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="mt-8 text-center"
-        >
-          <a
-            href="/contact"
-            className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-          >
-            Book an Agency Briefing
-          </a>
         </motion.div>
       </div>
     </section>
@@ -142,3 +126,4 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+

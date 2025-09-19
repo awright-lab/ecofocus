@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from "framer-motion";
 
 export default function MissionApproach() {
   const reduceMotion = useReducedMotion();
@@ -15,9 +15,9 @@ export default function MissionApproach() {
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]"
+            className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
           >
-            Our Mission & Approach
+            Our Mission &amp; Approach
           </motion.h2>
           <motion.p
             initial={reduceMotion ? false : { opacity: 0 }}
@@ -26,8 +26,8 @@ export default function MissionApproach() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-gray-600"
           >
-            We exist to help agencies and brand teams navigate the purpose-driven generation. 
-            By pairing syndicated trend data with custom studies and activation support, 
+            We exist to help agencies and brand teams navigate the purpose-driven generation.
+            By pairing syndicated trend data with custom studies and activation support,
             we turn sustainability insights into strategies that resonate and convert.
           </motion.p>
         </div>
@@ -37,18 +37,18 @@ export default function MissionApproach() {
             className="md:col-span-6"
             title="What we do"
             items={[
-              'Track sustainability trends across the U.S. population',
-              'Deliver custom qual + quant for agency briefs and client campaigns',
-              'Infuse validated insights into BI tools, personas, and strategy decks',
+              "Track sustainability trends across the U.S. population",
+              "Deliver custom qual + quant for agency briefs and client campaigns",
+              "Infuse validated insights into client BI tools, personas, and strategy decks",
             ]}
           />
           <Card
             className="md:col-span-6"
             title="How we do it"
             items={[
-              'Census-balanced samples and rigorous methodology',
-              'Connect attitudes and behaviors to close the say–do gap',
-              'Support activation with training, consulting, and rollout enablement',
+              "Census-balanced samples and rigorous methodology",
+              "Connect attitudes and behaviors to close the say–do gap",
+              "Support activation with training, consulting, and rollout enablement",
             ]}
           />
         </div>
@@ -57,7 +57,15 @@ export default function MissionApproach() {
   );
 }
 
-function Card({ title, items, className = '' }: { title: string; items: string[]; className?: string }) {
+function Card({
+  title,
+  items,
+  className = "",
+}: {
+  title: string;
+  items: string[];
+  className?: string;
+}) {
   return (
     <div className={`rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
       <h3 className="text-lg font-semibold text-gray-900">{title}</h3>

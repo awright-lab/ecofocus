@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 
-export default function BottomCTA({
+export default function FinalCTA({
   eyebrow = "Get Started",
   headline = "Turn sustainability insights into campaigns that resonate.",
   ctaLabel = "Book an Agency Briefing",
@@ -73,4 +73,5 @@ export default function BottomCTA({
     </section>
   );
 }
+
 
