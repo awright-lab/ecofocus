@@ -14,14 +14,7 @@ export default function SolutionsFeaturedOfferings() {
         "Access trend data with dashboard seats and white-label charts. Option to add proprietary questions.",
       bullets: ["n≈4,000/wave; ±1.55% MoE", "Seats for strategy & creative", "Optional buy-ins for custom Qs"],
       href: "/solutions/syndicated",
-    },
-    {
-      badge: "Fastest",
-      title: "Interactive Dashboard — Seat Pack",
-      body:
-        "Pitch-ready filters and chart exports for POVs and briefs. Ideal for day-to-day concepting.",
-      bullets: ["Immediate access", "PNG/CSV exports", "Gen Z & Millennial cuts"],
-      href: "/contact",
+      pillar: "Syndicated Study",
     },
     {
       badge: "Most versatile",
@@ -30,6 +23,7 @@ export default function SolutionsFeaturedOfferings() {
         "Blend EcoFocus with client data to sharpen personas and validate claims before launch.",
       bullets: ["Secure merges & schemas", "Bucket/API delivery", "Analyst-friendly docs"],
       href: "/contact",
+      pillar: "Data Integration",
     },
     {
       badge: "Bespoke",
@@ -38,6 +32,16 @@ export default function SolutionsFeaturedOfferings() {
         "Qual + quant tailored to a specific decision (claims, packs, pricing, targeting).",
       bullets: ["Method scoped to outcome", "Say–do gap diagnostics", "Executive-ready reporting"],
       href: "/solutions/custom",
+      pillar: "Custom Studies",
+    },
+    {
+      badge: "Access",
+      title: "Interactive Dashboard — Seat Pack",
+      body:
+        "Additional seats for your team to explore, filter, and export charts from EcoFocus data.",
+      bullets: ["Seat-based access", "PNG/CSV exports", "White-label visuals"],
+      href: "/contact",
+      pillar: "Delivery & Access",
     },
   ];
 
@@ -65,9 +69,12 @@ export default function SolutionsFeaturedOfferings() {
               transition={{ duration: 0.45, delay: i * 0.07 }}
               className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
             >
-              <span className="inline-flex w-fit items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
-                {o.badge}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="inline-flex w-fit items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+                  {o.badge}
+                </span>
+                <span className="text-[11px] text-gray-500">{o.pillar}</span>
+              </div>
               <h3 className="mt-3 text-lg font-semibold text-gray-900">{o.title}</h3>
               <p className="mt-2 text-sm text-gray-700">{o.body}</p>
               <ul className="mt-3 space-y-2.5 text-sm text-gray-700">
@@ -93,6 +100,7 @@ export default function SolutionsFeaturedOfferings() {
     </section>
   );
 }
+
 
 
 

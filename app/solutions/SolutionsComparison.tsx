@@ -5,13 +5,12 @@ import { motion, useReducedMotion } from "framer-motion";
 export default function SolutionsComparison() {
   const reduceMotion = useReducedMotion();
 
-  const cols = ["Interactive Dashboard", "Syndicated Study", "Data Integration", "Custom Studies"] as const;
+  const cols = ["Syndicated Study", "Data Integration", "Custom Studies"] as const;
   const rows: { label: string; values: string[] }[] = [
     {
       label: "Best for",
       values: [
-        "Fast POVs, pitches & approvals",
-        "Annual/quarterly tracking with defendable MoE",
+        "Trendlines & defendable evidence",
         "Joining EcoFocus with client/BI data",
         "Answering a specific decision with bespoke evidence",
       ],
@@ -19,45 +18,50 @@ export default function SolutionsComparison() {
     {
       label: "Typical outputs",
       values: [
-        "Filtered charts, exports to PNG/CSV",
         "Executive deck, dashboard seats, crosstabs",
-        "Merged datasets, schemas, dashboard",
-        "Report + appendix, raw data as scoped",
+        "Merged datasets, schemas, optional dashboard views",
+        "Report + appendix; raw data as scoped",
       ],
     },
     {
       label: "Speed to value",
-      values: ["Hours–days", "Weeks", "1–3 weeks", "2–8 weeks (scope-dependent)"],
+      values: ["Weeks", "1–3 weeks", "2–8 weeks (scope-dependent)"],
     },
     {
       label: "Audience depth",
-      values: ["Gen pop cuts", "n≈4,000/wave; segmentable", "Depends on client data + EcoFocus joins", "As designed (qual + quant)"],
+      values: [
+        "n≈4,000/wave; segmentable (incl. Gen Z/Millennial cuts)",
+        "Depends on client data + EcoFocus joins",
+        "As designed (qual + quant)",
+      ],
     },
     {
-      label: "Licensing / access",
-      values: ["Seat-based", "Agency license; optional buy-ins", "SOW + DPA; secure delivery/API", "Project SOW"],
+      label: "Dashboard access",
+      values: [
+        "Included seats (agency license) + white-label charts",
+        "Optional dashboard module; otherwise dataset/API",
+        "Optional dashboard module; default executive deck",
+      ],
     },
     {
       label: "When it’s ideal",
       values: [
-        "You need credible stats in the deck today",
-        "You need trendlines & defendable evidence",
+        "You need credible stats & trends to anchor a pitch/POV",
         "You need client-specific personas/validation",
-        "You must prove or optimize a decision",
+        "You must prove or optimize a high-stakes decision",
       ],
     },
     {
       label: "Not great for",
       values: [
-        "Building new custom measures",
         "One-off niche questions only",
-        "Exploration without client data",
+        "Exploration without any client data",
         "Immediate answers today",
       ],
     },
   ];
 
-  const badges = ["Fastest", "Most-used", "Most versatile", "Deepest"] as const;
+  const badges = ["Most-used", "Most versatile", "Deepest"] as const;
 
   return (
     <section id="compare" className="relative bg-white" aria-labelledby="compare-title">
@@ -74,7 +78,7 @@ export default function SolutionsComparison() {
         </motion.h2>
 
         <div className="mt-6 overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-          <table className="min-w-[800px] w-full text-sm">
+          <table className="min-w-[780px] w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-gray-900">
                 <th className="px-4 py-3 text-left font-semibold"> </th>
@@ -110,5 +114,6 @@ export default function SolutionsComparison() {
     </section>
   );
 }
+
 
 

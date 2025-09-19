@@ -8,40 +8,27 @@ export default function SolutionsOverview() {
 
   const cards = [
     {
-      tag: "Fastest",
-      title: "Interactive Dashboard",
-      body:
-        "Pitch-ready charts and filters over 13+ years of EcoFocus data. Great for POVs, briefs, and approvals—today.",
-      bullets: [
-        "Immediate answers for pitches & POVs",
-        "Gen Z / Millennial cuts, segments & trends",
-        "Export charts to slides or CSV",
-      ],
-      href: "#compare",
-      hrefSecondary: "/contact",
-    },
-    {
       tag: "Most-used by agencies",
       title: "Syndicated Study",
       body:
-        "Nationally representative tracking since 2010—large samples and defendable MoE, with optional custom modules.",
+        "Nationally representative tracking since 2010—large samples, defendable MoE, and agency-ready outputs.",
       bullets: [
         "n≈4,000 per wave; ±1.55% MoE (nat’l)",
-        "Add proprietary questions (buy-ins)",
-        "Dashboard seats & white-label charts",
+        "Gen Z & Millennial cuts, segments & trends",
+        "White-label charts for decks & POVs",
       ],
       href: "/solutions/syndicated",
-      hrefSecondary: "#featured",
+      hrefSecondary: "#compare",
     },
     {
       tag: "Most versatile",
       title: "Data Integration",
       body:
-        "Blend EcoFocus benchmarks with client sales, CRM or BI to sharpen personas and validate claims before launch.",
+        "Blend EcoFocus benchmarks with client sales/CRM/BI to sharpen personas and validate claims pre-launch.",
       bullets: [
-        "Secure merges; schema & data dictionary",
-        "CSV/Parquet deliveries or bucket access",
-        "API option for enterprise",
+        "Secure merges; schemas & data dictionary",
+        "CSV/Parquet, bucket or API delivery",
+        "Optional dashboard views on top of joins",
       ],
       href: "#featured",
       hrefSecondary: "/contact",
@@ -50,9 +37,9 @@ export default function SolutionsOverview() {
       tag: "Deepest evidence",
       title: "Custom Studies",
       body:
-        "Audience, claims, pricing, packs, concept tests—mix qual + quant to answer the question you have to defend.",
+        "Audience, claims, pricing, packs, concepts—mix qual + quant to answer the decision you must defend.",
       bullets: [
-        "Method scoped to decision",
+        "Method scoped to outcome",
         "Say–do gap diagnostics",
         "Executive-ready reporting",
       ],
@@ -82,11 +69,11 @@ export default function SolutionsOverview() {
           transition={{ duration: 0.5, delay: 0.08 }}
           className="mx-auto mt-3 max-w-3xl text-center text-sm sm:text-base text-gray-700"
         >
-          Pick the path that fits your brief. All options include clear methodology and
-          agency-ready outputs.
+          Pick the path that fits your brief. Delivery is consistent and agency-friendly.
         </motion.p>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* 3 pillar cards */}
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {cards.map((c, i) => (
             <motion.article
               key={c.title}
@@ -126,6 +113,30 @@ export default function SolutionsOverview() {
             </motion.article>
           ))}
         </div>
+
+        {/* Delivery callout: Interactive Dashboard */}
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, delay: 0.2 }}
+          className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+        >
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Access & Delivery: Interactive Dashboard</p>
+              <p className="mt-1 text-sm text-gray-700">
+                The EcoFocus dashboard is how you explore and export results across offerings—seat-based access with white-label charts and CSV exports.
+              </p>
+            </div>
+            <Link
+              href="#featured"
+              className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              See seat packs
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
