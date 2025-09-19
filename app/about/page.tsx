@@ -32,12 +32,7 @@ export default function AboutPage() {
         <Leadership />
         <SoftDivider />
         <MethodologyHighlights />
-        <FinalCTA
-          eyebrow="Next Steps"
-          headline="Your next campaign starts with better insights."
-          ctaLabel="See the Data in Action"
-          ctaHref="/contact"
-        />
+        <FinalCTA />
       </main>
       <Footer />
     </>

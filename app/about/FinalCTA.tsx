@@ -4,22 +4,22 @@ import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 
 export default function FinalCTA({
-  eyebrow = "Get Started",
-  headline = "Turn sustainability insights into campaigns that resonate.",
-  ctaLabel = "Book an Agency Briefing",
-  ctaHref = "/contact",
+  eyebrow = "Next Steps",
+  headline = "Ready to Elevate Your Sustainability Strategy?",
+  primary = { label: "Request Details", href: "/contact" },
+  secondary = { label: "Explore Benefits", href: "/solutions" },
   subcopy,
 }: {
   eyebrow?: string;
   headline?: string;
-  ctaLabel?: string;
-  ctaHref?: string;
+  primary?: { label: string; href: string };
+  secondary?: { label: string; href: string };
   subcopy?: string;
 }) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#E0F4FF_0%,white_90%)]">
+    <section className="relative section-slab-deep bg-grid-soft">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="mx-auto max-w-3xl text-center">
           <motion.p
@@ -27,7 +27,7 @@ export default function FinalCTA({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="text-xs font-semibold uppercase tracking-wider text-emerald-700"
+            className="text-xs font-semibold uppercase tracking-wider text-emerald-300"
           >
             {eyebrow}
           </motion.p>
@@ -37,7 +37,7 @@ export default function FinalCTA({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="mt-2 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
+            className="mt-2 font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.2rem)]"
           >
             {headline}
           </motion.h2>
@@ -48,7 +48,7 @@ export default function FinalCTA({
               whileInView={reduceMotion ? undefined : { opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: 0.08 }}
-              className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-gray-700"
+              className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-white/85"
             >
               {subcopy}
             </motion.p>
@@ -59,19 +59,16 @@ export default function FinalCTA({
             whileInView={reduceMotion ? undefined : { opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.45, delay: 0.12 }}
-            className="mt-6"
+            className="mt-6 flex flex-wrap items-center justify-center gap-3"
           >
-            <Link
-              href={ctaHref}
-              className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            >
-              {ctaLabel}
-            </Link>
+            <Link href={primary.href} className="btn-primary-emerald">{primary.label}</Link>
+            <Link href={secondary.href} className="btn-secondary-light">{secondary.label}</Link>
           </motion.div>
         </div>
       </div>
     </section>
   );
 }
+
 
 

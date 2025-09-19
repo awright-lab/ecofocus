@@ -9,15 +9,15 @@ export default function MethodologyClient() {
 
   return (
     <main className="bg-white">
-      {/* Hero: blue tint + soft grid */}
-      <section className="relative overflow-hidden bg-brand-tint-blue bg-grid-soft">
+      {/* Hero: deep slab (no grid) */}
+      <section className="relative overflow-hidden section-slab-deep">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
           <motion.p
             initial={reduceMotion ? false : { opacity: 0, y: -6 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="mx-auto mb-2 text-center text-xs font-semibold uppercase tracking-wider text-emerald-700"
+            className="mx-auto mb-2 text-center text-xs font-semibold uppercase tracking-wider text-emerald-300"
           >
             Technical Overview
           </motion.p>
@@ -27,7 +27,7 @@ export default function MethodologyClient() {
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55 }}
-            className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.8rem,5.2vw,2.6rem)]"
+            className="text-center font-bold leading-tight text-white text-[clamp(1.8rem,5.2vw,2.6rem)]"
           >
             Methodology Agencies Can Defend
           </motion.h1>
@@ -37,7 +37,7 @@ export default function MethodologyClient() {
             whileInView={reduceMotion ? undefined : { opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.08 }}
-            className="mx-auto mt-3 max-w-2xl text-center text-sm sm:text-base text-gray-700"
+            className="mx-auto mt-3 max-w-2xl text-center text-sm sm:text-base text-white/85"
           >
             A transparent view into how EcoFocus captures and validates sustainability insights—so
             your briefs, POVs, and campaigns are grounded in evidence, not assumptions.
@@ -78,8 +78,8 @@ export default function MethodologyClient() {
         </div>
       </section>
 
-      {/* Alternating tinted sections */}
-      <Section id="overview" title="Overview" tint="emerald">
+      {/* Alternating sections: emerald slabs + white sections (no grid) */}
+      <Section id="overview" title="Overview" tint="emerald" slab>
         <p>
           EcoFocus conducts recurring, nationally representative research on U.S. adults (18+),
           tracking attitudes and behaviors tied to sustainability. Each wave combines foundational
@@ -112,7 +112,7 @@ export default function MethodologyClient() {
         </Note>
       </Section>
 
-      <Section id="weighting" title="Weighting & Representativeness" icon="ri-equalizer-line" tint="emerald">
+      <Section id="weighting" title="Weighting & Representativeness" icon="ri-equalizer-line" tint="emerald" slab>
         <p>
           Final data are weighted to align with U.S. Census distributions using industry-standard
           raking (iterative proportional fitting). Weight variables typically include age, gender,
@@ -143,7 +143,7 @@ export default function MethodologyClient() {
         </Note>
       </Section>
 
-      <Section id="questionnaire" title="Questionnaire Governance" icon="ri-file-text-line" tint="emerald">
+      <Section id="questionnaire" title="Questionnaire Governance" icon="ri-file-text-line" tint="emerald" slab>
         <List
           items={[
             "Core tracker: stable constructs to preserve trend integrity (wording and order locked, barring methodological reviews).",
@@ -169,7 +169,7 @@ export default function MethodologyClient() {
         />
       </Section>
 
-      <Section id="trends" title="Trend Design (Since 2010)" icon="ri-timer-line" tint="emerald">
+      <Section id="trends" title="Trend Design (Since 2010)" icon="ri-timer-line" tint="emerald" slab>
         <p>
           The tracker emphasizes construct stability to enable like-for-like comparisons across time.
           When improvements are required (e.g., clarity, modernized terminology), we employ split-sample
@@ -200,7 +200,7 @@ export default function MethodologyClient() {
         />
       </Section>
 
-      <Section id="transparency" title="Transparency & Technical Documentation" icon="ri-article-line" tint="emerald">
+      <Section id="transparency" title="Transparency & Technical Documentation" icon="ri-article-line" tint="emerald" slab>
         <p>
           We document questionnaire versions, sampling/weighting specs, supplier mixes, and quality
           thresholds each wave. Technical appendices and data dictionaries are available to agency and
@@ -234,37 +234,39 @@ export default function MethodologyClient() {
   );
 }
 
-/* ---------- Reusable UI bits with surface control ---------- */
+/* ---------- Reusable UI bits with surface control (no grid) ---------- */
 
 function Section({
   id,
   title,
   icon,
-  tint,        // 'emerald' | 'blue' | undefined
-  grid = false,
+  tint,            // 'emerald' | 'blue' | undefined
+  slab = false,    // bold emerald slab
   children,
 }: {
   id: string;
   title: string;
   icon?: string;
   tint?: "emerald" | "blue";
-  grid?: boolean;
+  slab?: boolean;
   children: ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
+
+  // Map tint + slab to backgrounds
   const bg =
-    tint === "emerald"
+    slab && tint === "emerald"
+      ? "section-slab-emerald"
+      : tint === "emerald"
       ? "bg-brand-tint-emerald"
       : tint === "blue"
-      ? "bg-brand-tint-blue"
+      ? "bg-white" // keep high contrast vs emerald slabs
       : "bg-white";
 
+  const isDark = slab && tint === "emerald";
+
   return (
-    <section
-      id={id}
-      aria-labelledby={`${id}-title`}
-      className={`relative scroll-mt-24 ${bg} ${grid ? "bg-grid-soft" : ""}`}
-    >
+    <section id={id} aria-labelledby={`${id}-title`} className={`relative scroll-mt-24 ${bg}`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: -10 }}
@@ -273,15 +275,22 @@ function Section({
           transition={{ duration: 0.5 }}
           className="mb-6 flex items-center justify-center gap-3 text-center"
         >
-          {icon ? <i className={`${icon} text-xl text-emerald-600`} aria-hidden="true" /> : null}
+          {icon ? (
+            <i
+              className={`${icon} text-xl ${isDark ? "text-emerald-300" : "text-emerald-600"}`}
+              aria-hidden="true"
+            />
+          ) : null}
           <h2
             id={`${id}-title`}
-            className="font-bold leading-tight text-gray-900 text-[clamp(1.4rem,4.6vw,2.0rem)]"
+            className={`font-bold leading-tight ${
+              isDark ? "text-white" : "text-gray-900"
+            } text-[clamp(1.4rem,4.6vw,2.0rem)]`}
           >
             {title}
           </h2>
         </motion.div>
-        <div className="mx-auto max-w-3xl text-gray-700">{children}</div>
+        <div className={`mx-auto max-w-3xl ${isDark ? "text-white/85" : "text-gray-700"}`}>{children}</div>
       </div>
     </section>
   );
@@ -292,10 +301,7 @@ function List({ items }: { items: string[] }) {
     <ul role="list" className="mt-4 space-y-2.5 text-sm">
       {items.map((t) => (
         <li key={t} className="flex items-start gap-3">
-          <span
-            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500"
-            aria-hidden="true"
-          />
+          <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
           <span>{t}</span>
         </li>
       ))}
@@ -354,4 +360,5 @@ function DownloadRow({ items }: { items: { label: string; href: string }[] }) {
     </motion.div>
   );
 }
+
 

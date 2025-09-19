@@ -53,7 +53,7 @@ export default function Leadership() {
 
   return (
     <section
-      className="relative bg-[linear-gradient(180deg,white_0%,#E0F4FF_90%)]"
+      className="relative section-slab-deep bg-grid-soft"
       aria-labelledby="leadership"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
@@ -63,7 +63,7 @@ export default function Leadership() {
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-3 text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
+          className="mb-3 text-center font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
           Leadership
         </motion.h2>
@@ -73,7 +73,7 @@ export default function Leadership() {
           whileInView={reduceMotion ? undefined : { opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mx-auto mb-10 max-w-2xl text-center text-sm sm:text-base text-gray-600"
+          className="mx-auto mb-10 max-w-2xl text-center text-sm sm:text-base text-white/85"
         >
           A senior team dedicated to translating sustainability insights into
           agency-ready strategies, with the rigor and clarity to stand up in the
@@ -88,7 +88,7 @@ export default function Leadership() {
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: i * 0.08 }}
-              className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
+              className="overflow-hidden rounded-2xl border border-white/15 bg-white shadow-lg"
             >
               <div className="relative aspect-square">
                 <Image
@@ -112,5 +112,6 @@ export default function Leadership() {
     </section>
   );
 }
+
 
 

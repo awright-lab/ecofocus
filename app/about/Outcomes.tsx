@@ -6,7 +6,7 @@ export default function Outcomes() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative bg-brand-tint-blue" aria-labelledby="outcomes">
+    <section className="relative bg-brand-tint-blue bg-grid-soft" aria-labelledby="outcomes">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="mb-8 text-center">
           <motion.h2
@@ -71,17 +71,18 @@ export default function Outcomes() {
           />
         </div>
 
+        {/* Bold emerald stat slab */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 8 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mt-8 grid grid-cols-2 gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:grid-cols-4"
+          className="mt-8 grid grid-cols-2 gap-4 rounded-2xl section-slab-emerald p-6 shadow-lg sm:grid-cols-4"
         >
-          <Stat label="Years tracking" value="13+" />
-          <Stat label="Data points" value="90k+" />
-          <Stat label="Respondents / wave" value="4,000+" />
-          <Stat label="MoE (national)" value="±1.55%" />
+          <Stat label="Years tracking" value="13+" inverse />
+          <Stat label="Data points" value="90k+" inverse />
+          <Stat label="Respondents / wave" value="4,000+" inverse />
+          <Stat label="MoE (national)" value="±1.55%" inverse />
         </motion.div>
       </div>
     </section>
@@ -98,12 +99,15 @@ function BenefitCard({
   className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-gray-200 bg-white p-6 shadow-sm ${className}`}>
+    <div className={`rounded-2xl border border-gray-200 bg-white p-6 shadow-lg ${className}`}>
       <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
       <ul role="list" className="mt-3 space-y-2.5 text-sm text-gray-700">
         {points.map((p) => (
           <li key={p} className="flex items-start gap-3">
-            <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+            <span
+              className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+              aria-hidden="true"
+            />
             <span>{p}</span>
           </li>
         ))}
@@ -112,13 +116,22 @@ function BenefitCard({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  inverse = false,
+}: {
+  label: string;
+  value: string;
+  inverse?: boolean;
+}) {
   return (
     <div className="text-center">
-      <div className="text-2xl font-bold text-gray-900">{value}</div>
-      <div className="mt-0.5 text-xs text-gray-600">{label}</div>
+      <div className={`text-2xl font-bold ${inverse ? "text-white" : "text-gray-900"}`}>{value}</div>
+      <div className={`mt-0.5 text-xs ${inverse ? "text-white/85" : "text-gray-600"}`}>{label}</div>
     </div>
   );
 }
+
 
 
