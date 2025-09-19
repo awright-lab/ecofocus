@@ -1,86 +1,129 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import Image from 'next/image';
+import { motion, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 
 export default function SolutionsOverview() {
-  const solutions = [
+  const reduceMotion = useReducedMotion();
+
+  const cards = [
     {
-      title: 'Syndicated Research',
-      description: 'Annual study with 4000+ U.S. consumers covering key sustainability trends.',
-      link: '/solutions/syndicated',
-      image: '/images/solutions-syndicated.png',
-      overlayColor: 'bg-[#00767a]/60', // deep teal
+      tag: "Fastest",
+      title: "Interactive Dashboard",
+      body:
+        "Pitch-ready charts and filters over 13+ years of EcoFocus data. Great for POVs, briefs, and approvals—today.",
+      bullets: [
+        "Immediate answers for pitches & POVs",
+        "Gen Z / Millennial cuts, segments & trends",
+        "Export charts to slides or CSV",
+      ],
+      href: "#compare",
+      hrefSecondary: "/contact",
     },
     {
-      title: 'Custom Research',
-      description: 'Tailored studies designed to answer your brand-specific questions.',
-      link: '/solutions/custom',
-      image: '/images/solutions-custom.png',
-      overlayColor: 'bg-[#dd803e]/60', // warm orange
+      tag: "Most-used by agencies",
+      title: "Syndicated Study",
+      body:
+        "Nationally representative tracking since 2010—large samples and defendable MoE, with optional custom modules.",
+      bullets: [
+        "n≈4,000 per wave; ±1.55% MoE (nat’l)",
+        "Add proprietary questions (buy-ins)",
+        "Dashboard seats & white-label charts",
+      ],
+      href: "/solutions/syndicated",
+      hrefSecondary: "#featured",
     },
     {
-      title: 'Data Infusion',
-      description: 'Blend your internal data with EcoFocus insights for enhanced sustainability context.',
-      link: '/solutions/data-infusion',
-      image: '/images/solutions-infusion.png',
-      overlayColor: 'bg-[#9bbd3f]/60', // green
+      tag: "Most versatile",
+      title: "Data Integration",
+      body:
+        "Blend EcoFocus benchmarks with client sales, CRM or BI to sharpen personas and validate claims before launch.",
+      bullets: [
+        "Secure merges; schema & data dictionary",
+        "CSV/Parquet deliveries or bucket access",
+        "API option for enterprise",
+      ],
+      href: "#featured",
+      hrefSecondary: "/contact",
+    },
+    {
+      tag: "Deepest evidence",
+      title: "Custom Studies",
+      body:
+        "Audience, claims, pricing, packs, concept tests—mix qual + quant to answer the question you have to defend.",
+      bullets: [
+        "Method scoped to decision",
+        "Say–do gap diagnostics",
+        "Executive-ready reporting",
+      ],
+      href: "/solutions/custom",
+      hrefSecondary: "/contact",
     },
   ];
 
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6 text-center">
+    <section className="relative bg-white" aria-labelledby="solutions-overview">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.h2
-          className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          id="solutions-overview"
+          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
+          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Which Ecofocus Solution Is Right for You?
+          Solutions that power agencies
         </motion.h2>
-        <p className="text-gray-600 text-lg mb-16">
-          Explore how EcoFocus helps brands harness the power of data to lead in sustainability.
-        </p>
 
-        <div className="grid md:grid-cols-3 gap-10">
-          {solutions.map((solution, index) => (
-            <motion.div
-              key={index}
-              className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all flex flex-col"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+        <motion.p
+          initial={reduceMotion ? false : { opacity: 0 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.08 }}
+          className="mx-auto mt-3 max-w-3xl text-center text-sm sm:text-base text-gray-700"
+        >
+          Pick the path that fits your brief. All options include clear methodology and
+          agency-ready outputs.
+        </motion.p>
+
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {cards.map((c, i) => (
+            <motion.article
+              key={c.title}
+              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.45, delay: i * 0.07 }}
+              className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
             >
-              <div className="relative w-full h-48 md:h-56">
-                <Image
-                  src={solution.image}
-                  alt={solution.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-                <div className={`absolute inset-0 ${solution.overlayColor} mix-blend-multiply`}></div>
-                <div className="absolute inset-0 bg-black/20"></div> {/* optional dark overlay */}
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-between text-left">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">{solution.title}</h3>
-                  <p className="text-gray-600 mb-4">{solution.description}</p>
-                </div>
+              <span className="inline-flex w-fit items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+                {c.tag}
+              </span>
+              <h3 className="mt-3 text-lg font-semibold text-gray-900">{c.title}</h3>
+              <p className="mt-2 text-sm text-gray-700">{c.body}</p>
+              <ul className="mt-3 space-y-2.5 text-sm text-gray-700">
+                {c.bullets.map((b) => (
+                  <li key={b} className="flex gap-3">
+                    <span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 flex gap-2">
                 <Link
-                  href={solution.link}
-                  className="relative inline-block px-5 py-2 text-sm font-semibold text-white rounded-full bg-[#124734] overflow-hidden transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
-                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                  href={c.href}
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
                 >
-                  <span className="relative z-10">Learn More →</span>
+                  Learn more
+                </Link>
+                <Link
+                  href={c.hrefSecondary}
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+                >
+                  Talk to us
                 </Link>
               </div>
-            </motion.div>
+            </motion.article>
           ))}
         </div>
       </div>

@@ -1,156 +1,136 @@
-'use client';
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
-import {
-  BarChart3, Users, BadgeCheck, Layers3, BrainCog, Database, Sparkles, LineChart
-} from 'lucide-react';
-import { useState } from 'react';
-
-type TabKey = 'syndicated' | 'custom' | 'infusion';
-
-const TABS: { key: TabKey; label: string; gradient: string }[] = [
-  { key: 'syndicated', label: 'Syndicated', gradient: 'from-[#00767a] to-[#2C7FB8]' },
-  { key: 'custom',     label: 'Custom',     gradient: 'from-[#dd803e] to-[#FFD26F]' },
-  { key: 'infusion',   label: 'Data Infusion', gradient: 'from-[#9bbd3f] to-[#56a96f]' },
-];
-
-const CONTENT: Record<TabKey, {
-  bullets: { icon: JSX.Element; text: string; sub?: string }[];
-  ctas: { href: string; label: string; variant?: 'primary'|'ghost' }[];
-}> = {
-  syndicated: {
-    bullets: [
-      { icon: <BarChart3 className="w-5 h-5 text-emerald-600" />, text: '90,000+ data points, refreshed annually', sub: '4,000 U.S. adults, census‑balanced, ±1.55% MoE' },
-      { icon: <LineChart className="w-5 h-5 text-emerald-600" />, text: '14 years of trend tracking', sub: 'Spot shifts early across categories & cohorts' },
-      { icon: <BadgeCheck className="w-5 h-5 text-emerald-600" />, text: 'Instant dashboard access', sub: 'Crosstabs, export, and ready‑made visuals' },
-    ],
-    ctas: [
-      { href: '/demo?source=syndicated', label: 'Book a Dashboard Demo', variant: 'primary' },
-      { href: '/solutions/syndicated#coverage', label: 'See Coverage' },
-    ],
-  },
-  custom: {
-    bullets: [
-      { icon: <Layers3 className="w-5 h-5 text-orange-500" />, text: 'Proprietary questions in syndicated context', sub: 'Reduce bias with rich benchmarks' },
-      { icon: <Users className="w-5 h-5 text-orange-500" />, text: 'Qual + quant tailored to your objectives', sub: 'B2B/B2C audiences, robust PM' },
-      { icon: <BadgeCheck className="w-5 h-5 text-orange-500" />, text: 'Deliverables that travel', sub: 'Exec summary, insights, tables, dashboard access' },
-    ],
-    ctas: [
-      { href: '/contact?type=custom-project', label: 'Start a Custom Project', variant: 'primary' },
-      { href: '/work/case-studies', label: 'View Case Studies' },
-    ],
-  },
-  infusion: {
-    bullets: [
-      { icon: <Database className="w-5 h-5 text-lime-600" />, text: 'Fuse our data with your own', sub: 'Enrich personas, journeys, and models' },
-      { icon: <BrainCog className="w-5 h-5 text-lime-600" />, text: 'Cohort-level sustainability signals', sub: 'Gen Z, Parents, Health‑seekers, and more' },
-      { icon: <Sparkles className="w-5 h-5 text-lime-600" />, text: 'Faster insights, higher ROI', sub: 'Leverage existing datasets for speed to value' },
-    ],
-    ctas: [
-      { href: '/contact?type=data-infusion', label: 'Discuss Data Infusion', variant: 'primary' },
-      { href: '/reports/latest', label: 'Read the Latest Report' },
-    ],
-  },
-};
+import { motion, useReducedMotion } from "framer-motion";
 
 export default function SolutionsHighlights() {
-  const [active, setActive] = useState<TabKey>('syndicated');
+  const reduceMotion = useReducedMotion();
 
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Heading */}
-        <div className="text-center mb-10">
+    <section className="relative section-slab-deep" aria-labelledby="outcomes">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <div className="mb-8 text-center">
           <motion.h2
-            className="text-3xl md:text-4xl font-bold text-gray-900"
-            initial={{ opacity: 0, y: -20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            id="outcomes"
+            initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
+            className="font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.2rem)]"
           >
-            What Makes Our Solutions Different?
+            Outcomes for Agencies
           </motion.h2>
-          <p className="text-gray-600 mt-3">Clear advantages you won’t get from a generic research vendor.</p>
+
+          <motion.p
+            initial={reduceMotion ? false : { opacity: 0 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-white/85"
+          >
+            Turn EcoFocus insights into on-brief, pitch-winning work—faster. Equip strategy and
+            creative with defendable evidence clients can trust.
+          </motion.p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setActive(t.key)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition
-                ${active === t.key
-                  ? `text-white bg-gradient-to-r ${t.gradient} shadow`
-                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200'}`}
-              aria-pressed={active === t.key}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
+          <BenefitCard
+            className="md:col-span-6 lg:col-span-3"
+            title="Win pitches & approvals"
+            points={[
+              "White-label charts for decks and POVs",
+              "Proof points aligned to Gen Z & Millennial values",
+              "Cuts you can brief straight to creative",
+            ]}
+          />
+          <BenefitCard
+            className="md:col-span-6 lg:col-span-3"
+            title="Resonate without risk"
+            points={[
+              "Say–do gap metrics to avoid backlash",
+              "Validate claims before launch",
+              "Diagnose price, access & authenticity blockers",
+            ]}
+          />
+          <BenefitCard
+            className="md:col-span-6 lg:col-span-3"
+            title="Move faster with evidence"
+            points={[
+              "13+ years of trend data on tap",
+              "Exports for slides/CSV in minutes",
+              "Cut research spin; ship concepts sooner",
+            ]}
+          />
+          <BenefitCard
+            className="md:col-span-6 lg:col-span-3"
+            title="Executive-ready proof"
+            points={[
+              "Census-balanced, rigorous methods",
+              "Clear MoE & sample design for scrutiny",
+              "Findings you can defend in the boardroom",
+            ]}
+          />
         </div>
 
-        {/* Panel */}
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={active}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.35 }}
-              className="grid md:grid-cols-12 gap-8 items-start"
-            >
-              {/* Bullets */}
-              <div className="md:col-span-8">
-                <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6">
-                  <ul className="space-y-5">
-                    {CONTENT[active].bullets.map((b, i) => (
-                      <li key={i} className="flex gap-3">
-                        <div className="shrink-0">{b.icon}</div>
-                        <div>
-                          <div className="text-gray-900 font-medium">{b.text}</div>
-                          {b.sub && <div className="text-sm text-gray-600">{b.sub}</div>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* CTA Card */}
-              <div className="md:col-span-4">
-                <div className="rounded-2xl border border-gray-200 p-6 bg-white shadow-sm">
-                  <h3 className={`text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r ${TABS.find(t => t.key === active)!.gradient} mb-3`}>
-                    Next steps
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-5">
-                    Choose how you want to explore this solution.
-                  </p>
-                  <div className="flex flex-col gap-3">
-                    {CONTENT[active].ctas.map((c, i) => (
-                      <Link
-                        key={i}
-                        href={c.href}
-                        className={`
-                          inline-block text-center rounded-full px-5 py-2 text-sm font-semibold transition
-                          ${c.variant === 'primary'
-                            ? 'text-white bg-[#124734] hover:opacity-95'
-                            : 'text-emerald-700 border border-emerald-200 hover:bg-emerald-50'}
-                        `}
-                      >
-                        {c.label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+        {/* Emerald stat slab */}
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mt-8 grid grid-cols-2 gap-4 rounded-2xl section-slab-emerald p-6 shadow-lg sm:grid-cols-4"
+        >
+          <Stat label="Years tracking" value="13+" inverse />
+          <Stat label="Data points" value="90k+" inverse />
+          <Stat label="Respondents / wave" value="4,000+" inverse />
+          <Stat label="MoE (national)" value="±1.55%" inverse />
+        </motion.div>
       </div>
     </section>
   );
 }
+
+function BenefitCard({
+  title,
+  points,
+  className = "",
+}: {
+  title: string;
+  points: string[];
+  className?: string;
+}) {
+  return (
+    <div className={`rounded-2xl border border-white/15 bg-white p-6 shadow-lg ${className}`}>
+      <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      <ul role="list" className="mt-3 space-y-2.5 text-sm text-gray-700">
+        {points.map((p) => (
+          <li key={p} className="flex items-start gap-3">
+            <span
+              className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+              aria-hidden="true"
+            />
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  value,
+  inverse = false,
+}: {
+  label: string;
+  value: string;
+  inverse?: boolean;
+}) {
+  return (
+    <div className="text-center">
+      <div className={`text-2xl font-bold ${inverse ? "text-white" : "text-gray-900"}`}>{value}</div>
+      <div className={`mt-0.5 text-xs ${inverse ? "text-white/85" : "text-gray-600"}`}>{label}</div>
+    </div>
+  );
+}
+
 
