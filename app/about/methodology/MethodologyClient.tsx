@@ -41,6 +41,7 @@ export default function MethodologyClient() {
           { label: "About", href: "/about" },
           { label: "Methodology" },
         ]}
+        maxWidth="max-w-5xl"
       />
 
       {/* Sleek ToC strip */}
