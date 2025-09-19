@@ -1,53 +1,76 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 
-export default function BottomCTA() {
+export default function BottomCTA({
+  eyebrow = "Get Started",
+  headline = "Turn sustainability insights into campaigns that resonate.",
+  ctaLabel = "Book an Agency Briefing",
+  ctaHref = "/contact",
+  subcopy,
+}: {
+  eyebrow?: string;
+  headline?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  subcopy?: string;
+}) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section aria-labelledby="cta" className="relative overflow-hidden bg-white">
-      <div className="pointer-events-none absolute -top-20 -left-24 h-56 w-56 rounded-full bg-emerald-100 blur-3xl opacity-30" />
-      <div className="pointer-events-none absolute -bottom-24 -right-28 h-60 w-60 rounded-full bg-blue-100 blur-3xl opacity-30" />
-
+    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#E0F4FF_0%,white_90%)]">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="grid grid-cols-1 items-center gap-6 md:grid-cols-12 md:gap-10"
-        >
-          <div className="text-center md:col-span-7 md:text-left">
-            <h2 id="cta" className="mb-4 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)]">
-              Ready to put the data to work?
-            </h2>
-            <p className="mx-auto max-w-xl text-sm text-gray-600 sm:text-base md:mx-0">
-              Book a consultation and we’ll map the fastest path from insight to impact.
-            </p>
-          </div>
+        <div className="mx-auto max-w-3xl text-center">
+          <motion.p
+            initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="text-xs font-semibold uppercase tracking-wider text-emerald-700"
+          >
+            {eyebrow}
+          </motion.p>
 
-          <div className="md:col-span-5 flex items-center justify-center gap-3 sm:justify-end">
-            <Link
-              href="/contact"
-              className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                         before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+          <motion.h2
+            initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mt-2 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
+          >
+            {headline}
+          </motion.h2>
+
+          {subcopy ? (
+            <motion.p
+              initial={reduceMotion ? false : { opacity: 0 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: 0.08 }}
+              className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-gray-700"
             >
-              <span className="relative z-10">Request a Consultation</span>
-            </Link>
+              {subcopy}
+            </motion.p>
+          ) : null}
+
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45, delay: 0.12 }}
+            className="mt-6"
+          >
             <Link
-              href="/solutions"
-              className="relative inline-flex items-center justify-center rounded-full bg-[#FFC107] px-5 py-2.5 text-sm font-semibold text-black overflow-hidden transition-all duration-300
-                         before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
-                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+              href={ctaHref}
+              className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
             >
-              <span className="relative z-10">Explore Solutions</span>
+              {ctaLabel}
             </Link>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
+

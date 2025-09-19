@@ -1,40 +1,76 @@
+"use client";
 
-'use client';
+import { motion, useReducedMotion } from "framer-motion";
+import Link from "next/link";
 
-import Link from 'next/link';
+export default function CTASection({
+  eyebrow = "Get Started",
+  headline = "Turn sustainability insights into campaigns that resonate.",
+  ctaLabel = "Book an Agency Briefing",
+  ctaHref = "/contact",
+  subcopy,
+}: {
+  eyebrow?: string;
+  headline?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  subcopy?: string;
+}) {
+  const reduceMotion = useReducedMotion();
 
-export default function CTASection() {
   return (
-    <section className="py-24 bg-gradient-to-br from-emerald-600 to-blue-600 text-white relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
-      </div>
+    <section className="relative overflow-hidden bg-[linear-gradient(180deg,#E0F4FF_0%,white_90%)]">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <div className="mx-auto max-w-3xl text-center">
+          <motion.p
+            initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="text-xs font-semibold uppercase tracking-wider text-emerald-700"
+          >
+            {eyebrow}
+          </motion.p>
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm mb-6">
-            <i className="ri-rocket-line text-white"></i>
-            Transform Your Impact
-          </div>
+          <motion.h2
+            initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mt-2 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
+          >
+            {headline}
+          </motion.h2>
 
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Ready to Transform Your Sustainability Strategy?
-          </h2>
-          <p className="text-xl mb-10 text-white/90 max-w-3xl mx-auto leading-relaxed">
-            Partner with EcoFocus to unlock the power of sustainability data and drive meaningful environmental impact for your organization.
-          </p>
+          {subcopy ? (
+            <motion.p
+              initial={reduceMotion ? false : { opacity: 0 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: 0.08 }}
+              className="mx-auto mt-3 max-w-xl text-sm sm:text-base text-gray-700"
+            >
+              {subcopy}
+            </motion.p>
+          ) : null}
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/contact" className="bg-white text-emerald-600 px-8 py-4 rounded-full text-lg font-semibold hover:bg-emerald-50 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl whitespace-nowrap cursor-pointer">
-              Schedule a Consultation
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45, delay: 0.12 }}
+            className="mt-6"
+          >
+            <Link
+              href={ctaHref}
+              className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            >
+              {ctaLabel}
             </Link>
-            <Link href="/reports" className="border-2 border-white text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white hover:text-emerald-600 transition-all shadow-lg hover:shadow-xl whitespace-nowrap cursor-pointer">
-              Browse Our Reports
-            </Link>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 }
+

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { motion, useReducedMotion } from 'framer-motion';
 
@@ -26,8 +26,9 @@ export default function MissionApproach() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-gray-600"
           >
-            We believe robust data and solid insights should guide every decision—from product strategy to
-            go-to-market. That’s why we combine syndicated trend research with custom studies and enablement.
+            We exist to help agencies and brand teams navigate the purpose-driven generation. 
+            By pairing syndicated trend data with custom studies and activation support, 
+            we turn sustainability insights into strategies that resonate and convert.
           </motion.p>
         </div>
 
@@ -36,18 +37,18 @@ export default function MissionApproach() {
             className="md:col-span-6"
             title="What we do"
             items={[
-              'Syndicated sustainability tracking (U.S. gen pop)',
-              'Custom qual + quant for B2C and B2B',
-              'Data infusion into your BI & personas',
+              'Track sustainability trends across the U.S. population',
+              'Deliver custom qual + quant for agency briefs and client campaigns',
+              'Infuse validated insights into BI tools, personas, and strategy decks',
             ]}
           />
           <Card
             className="md:col-span-6"
             title="How we do it"
             items={[
-              'Census-balanced samples with rigorous methods',
-              'Attitudes + behaviors to close the say–do gap',
-              'Activation with training and consulting',
+              'Census-balanced samples and rigorous methodology',
+              'Connect attitudes and behaviors to close the say–do gap',
+              'Support activation with training, consulting, and rollout enablement',
             ]}
           />
         </div>
