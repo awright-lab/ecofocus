@@ -6,7 +6,7 @@ export default function MissionApproach() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative bg-white" aria-labelledby="mission">
+    <section className="relative bg-brand-tint-emerald" aria-labelledby="mission">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="mb-8 text-center">
           <motion.h2
@@ -80,4 +80,5 @@ function Card({
     </div>
   );
 }
+
 

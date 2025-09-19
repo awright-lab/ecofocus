@@ -6,9 +6,8 @@ export default function Outcomes() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative bg-white" aria-labelledby="outcomes">
+    <section className="relative bg-brand-tint-blue bg-grid-soft" aria-labelledby="outcomes">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-        {/* Heading */}
         <div className="mb-8 text-center">
           <motion.h2
             id="outcomes"
@@ -26,14 +25,13 @@ export default function Outcomes() {
             whileInView={reduceMotion ? undefined : { opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-gray-600"
+            className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-gray-700"
           >
             Turn sustainability insights into campaigns that resonate, avoid backlash, and drive
             measurable impact—without reinventing research for every client brief.
           </motion.p>
         </div>
 
-        {/* 4-up benefits */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
           <BenefitCard
             className="md:col-span-6 lg:col-span-3"
@@ -73,7 +71,6 @@ export default function Outcomes() {
           />
         </div>
 
-        {/* Stat strip */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 8 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -106,10 +103,7 @@ function BenefitCard({
       <ul role="list" className="mt-3 space-y-2.5 text-sm text-gray-700">
         {points.map((p) => (
           <li key={p} className="flex items-start gap-3">
-            <span
-              className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500"
-              aria-hidden="true"
-            />
+            <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
             <span>{p}</span>
           </li>
         ))}
@@ -126,4 +120,5 @@ function Stat({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
 

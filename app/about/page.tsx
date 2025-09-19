@@ -8,6 +8,7 @@ import Outcomes from "@/app/about/Outcomes";
 import Leadership from "@/app/about/Leadership";
 import MethodologyHighlights from "@/app/about/MethodologyHighlights";
 import FinalCTA from "@/app/about/FinalCTA";
+import SoftDivider from "@/components/SoftDivider";
 
 export const metadata: Metadata = {
   title: "About EcoFocus",
@@ -23,9 +24,13 @@ export default function AboutPage() {
       <Header />
       <main className="bg-white">
         <AboutHero />
+        <SoftDivider />
         <MissionApproach />
+        <SoftDivider />
         <Outcomes />
+        <SoftDivider />
         <Leadership />
+        <SoftDivider />
         <MethodologyHighlights />
         <FinalCTA
           eyebrow="Next Steps"
