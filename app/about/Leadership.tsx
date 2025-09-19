@@ -53,7 +53,7 @@ export default function Leadership() {
 
   return (
     <section
-      className="relative section-slab-deep bg-grid-soft"
+      className="relative section-slab-deep"
       aria-labelledby="leadership"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">

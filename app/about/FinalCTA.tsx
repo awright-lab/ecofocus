@@ -19,7 +19,7 @@ export default function FinalCTA({
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative section-slab-deep bg-grid-soft">
+    <section className="relative section-slab-deep">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="mx-auto max-w-3xl text-center">
           <motion.p
