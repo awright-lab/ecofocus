@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
+import Hero from "@/components/Hero";
+import Breadcrumbs from "@/components/Breadcrumbs";
 import type { ReactNode } from "react";
 
 export default function MethodologyClient() {
@@ -9,50 +11,50 @@ export default function MethodologyClient() {
 
   return (
     <main className="bg-white">
-      {/* Hero: deep slab (no grid) */}
-      <section className="relative overflow-hidden section-slab-deep">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-          <motion.p
-            initial={reduceMotion ? false : { opacity: 0, y: -6 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="mx-auto mb-2 text-center text-xs font-semibold uppercase tracking-wider text-emerald-300"
-          >
-            Technical Overview
-          </motion.p>
+      {/* Hero with moving background (matches other pages) */}
+      <Hero
+        variant="solutions"
+        size="normal"
+        badge="Methodology"
+        headline={
+          <>
+            Methodology agencies can{" "}
+            <span className="brand-gradient-text animate-gradient">defend</span>
+          </>
+        }
+        subhead={
+          <>
+            A transparent view into how EcoFocus captures and validates sustainability
+            insights—so your briefs, POVs, and campaigns are grounded in evidence,
+            not assumptions.
+          </>
+        }
+        videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
+        posterSrc="/images/hero-6-poster.jpg"
+        overlay="dense"
+      />
 
-          <motion.h1
-            initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
-            className="text-center font-bold leading-tight text-white text-[clamp(1.8rem,5.2vw,2.6rem)]"
-          >
-            Methodology Agencies Can Defend
-          </motion.h1>
+      {/* Breadcrumbs bar (your component) */}
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "About", href: "/about" },
+          { label: "Methodology" },
+        ]}
+      />
 
-          <motion.p
-            initial={reduceMotion ? false : { opacity: 0 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="mx-auto mt-3 max-w-2xl text-center text-sm sm:text-base text-white/85"
-          >
-            A transparent view into how EcoFocus captures and validates sustainability insights—so
-            your briefs, POVs, and campaigns are grounded in evidence, not assumptions.
-          </motion.p>
-
-          {/* Mini ToC */}
+      {/* Mini ToC (clean white strip) */}
+      <section className="relative bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
           <motion.nav
             initial={reduceMotion ? false : { opacity: 0 }}
             whileInView={reduceMotion ? undefined : { opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.12 }}
+            transition={{ duration: 0.4 }}
             aria-label="On this page"
-            className="mx-auto mt-6 max-w-3xl"
+            className="mx-auto max-w-3xl"
           >
-            <ul className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm">
+            <ul className="flex flex-wrap items-center justify-start gap-2 text-xs sm:text-sm">
               {[
                 ["Overview", "#overview"],
                 ["Sampling", "#sampling"],
@@ -78,14 +80,16 @@ export default function MethodologyClient() {
         </div>
       </section>
 
-      {/* Alternating sections: emerald slabs + white sections (no grid) */}
+      {/* Alternating sections: emerald slabs + white sections (no soft grid) */}
       <Section id="overview" title="Overview" tint="emerald" slab>
         <p>
-          EcoFocus conducts recurring, nationally representative research on U.S. adults (18+),
-          tracking attitudes and behaviors tied to sustainability. Each wave combines foundational
-          trend measures with topical modules that agencies can apply directly to briefs, creative
-          strategy, and go-to-market. Findings are produced with documented methodology, clear
-          margins of error, and segmentable outputs suitable for stakeholder scrutiny.
+          EcoFocus conducts recurring, nationally representative research on U.S.
+          adults (18+), tracking attitudes and behaviors tied to sustainability.
+          Each wave combines foundational trend measures with topical modules that
+          agencies can apply directly to briefs, creative strategy, and
+          go-to-market. Findings are produced with documented methodology, clear
+          margins of error, and segmentable outputs suitable for stakeholder
+          scrutiny.
         </p>
         <StatGrid
           items={[
@@ -156,9 +160,9 @@ export default function MethodologyClient() {
 
       <Section id="moe" title="Margins of Error & Statistical Interpretation" icon="ri-bar-chart-2-line" tint="blue">
         <p>
-          For national totals at n≈4,000, the approximate margin of error is ±1.55% at 95% confidence.
-          Segment MoE depends on base size and should be considered when interpreting differences. We
-          provide guidance tables and flag small-base reads in deliverables.
+          For national totals at n≈4,000, the approximate margin of error is ±1.55% at 95%
+          confidence. Segment MoE depends on base size and should be considered when interpreting
+          differences. We provide guidance tables and flag small-base reads in deliverables.
         </p>
         <List
           items={[
@@ -172,8 +176,8 @@ export default function MethodologyClient() {
       <Section id="trends" title="Trend Design (Since 2010)" icon="ri-timer-line" tint="emerald" slab>
         <p>
           The tracker emphasizes construct stability to enable like-for-like comparisons across time.
-          When improvements are required (e.g., clarity, modernized terminology), we employ split-sample
-          bridges or parallel measures to preserve continuity.
+          When improvements are required (e.g., clarity, modernized terminology), we employ
+          split-sample bridges or parallel measures to preserve continuity.
         </p>
         <List
           items={[
@@ -186,9 +190,9 @@ export default function MethodologyClient() {
 
       <Section id="access" title="Data Access & Integrations" icon="ri-database-2-line" tint="blue">
         <p>
-          Agencies can access findings through interactive dashboards, exports for decks/briefs, or via
-          secure data deliveries for BI integration. We support merges with client data to sharpen
-          personas, forecast shifts, and validate claims before launch.
+          Agencies can access findings through interactive dashboards, exports for decks/briefs, or
+          via secure data deliveries for BI integration. We support merges with client data to
+          sharpen personas, forecast shifts, and validate claims before launch.
         </p>
         <List
           items={[
@@ -360,5 +364,6 @@ function DownloadRow({ items }: { items: { label: string; href: string }[] }) {
     </motion.div>
   );
 }
+
 
 
