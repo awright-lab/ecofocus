@@ -34,7 +34,7 @@ export default function MethodologyClient() {
         overlay="dense"
       />
 
-      {/* Breadcrumbs bar (your component) */}
+      {/* Your breadcrumbs (contained by their own component) */}
       <Breadcrumbs
         items={[
           { label: "Home", href: "/" },
@@ -43,33 +43,35 @@ export default function MethodologyClient() {
         ]}
       />
 
-      {/* Mini ToC (clean white strip) */}
-      <section className="relative bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
+      {/* Sleek ToC strip */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-4">
           <motion.nav
-            initial={reduceMotion ? false : { opacity: 0 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1 }}
+            initial={reduceMotion ? false : { opacity: 0, y: -4 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.35 }}
             aria-label="On this page"
-            className="mx-auto max-w-3xl"
+            className="mx-auto max-w-5xl rounded-xl border border-gray-100 bg-white/80 backdrop-blur px-3 py-3"
           >
-            <ul className="flex flex-wrap items-center justify-start gap-2 text-xs sm:text-sm">
-              {[
-                ["Overview", "#overview"],
-                ["Sampling", "#sampling"],
-                ["Weighting", "#weighting"],
-                ["Quality Controls", "#quality"],
-                ["Questionnaire", "#questionnaire"],
-                ["Margins & Stats", "#moe"],
-                ["Trend Design", "#trends"],
-                ["Data Access", "#access"],
-                ["Transparency", "#transparency"],
-              ].map(([label, href]) => (
+            <ul className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+              {(
+                [
+                  ["Overview", "#overview"],
+                  ["Sampling", "#sampling"],
+                  ["Weighting", "#weighting"],
+                  ["Quality Controls", "#quality"],
+                  ["Questionnaire", "#questionnaire"],
+                  ["Margins & Stats", "#moe"],
+                  ["Trend Design", "#trends"],
+                  ["Data Access", "#access"],
+                  ["Transparency", "#transparency"],
+                ] as const
+              ).map(([label, href]) => (
                 <li key={href}>
                   <Link
                     href={href}
-                    className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-emerald-800 hover:bg-emerald-50"
+                    className="inline-flex items-center rounded-full border border-gray-200 px-3 py-1 text-gray-700 hover:border-emerald-300 hover:text-emerald-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                   >
                     {label}
                   </Link>
@@ -80,7 +82,7 @@ export default function MethodologyClient() {
         </div>
       </section>
 
-      {/* Alternating sections: emerald slabs + white sections (no soft grid) */}
+      {/* Content sections (alternating emerald slabs + white) */}
       <Section id="overview" title="Overview" tint="emerald" slab>
         <p>
           EcoFocus conducts recurring, nationally representative research on U.S.
@@ -238,14 +240,14 @@ export default function MethodologyClient() {
   );
 }
 
-/* ---------- Reusable UI bits with surface control (no grid) ---------- */
+/* ---------- helpers (no soft grid) ---------- */
 
 function Section({
   id,
   title,
   icon,
   tint,            // 'emerald' | 'blue' | undefined
-  slab = false,    // bold emerald slab
+  slab = false,    // bold emerald slab for strong contrast
   children,
 }: {
   id: string;
@@ -257,14 +259,13 @@ function Section({
 }) {
   const reduceMotion = useReducedMotion();
 
-  // Map tint + slab to backgrounds
   const bg =
     slab && tint === "emerald"
       ? "section-slab-emerald"
       : tint === "emerald"
       ? "bg-brand-tint-emerald"
       : tint === "blue"
-      ? "bg-white" // keep high contrast vs emerald slabs
+      ? "bg-white"
       : "bg-white";
 
   const isDark = slab && tint === "emerald";
@@ -280,16 +281,11 @@ function Section({
           className="mb-6 flex items-center justify-center gap-3 text-center"
         >
           {icon ? (
-            <i
-              className={`${icon} text-xl ${isDark ? "text-emerald-300" : "text-emerald-600"}`}
-              aria-hidden="true"
-            />
+            <i className={`${icon} text-xl ${isDark ? "text-emerald-300" : "text-emerald-600"}`} aria-hidden="true" />
           ) : null}
           <h2
             id={`${id}-title`}
-            className={`font-bold leading-tight ${
-              isDark ? "text-white" : "text-gray-900"
-            } text-[clamp(1.4rem,4.6vw,2.0rem)]`}
+            className={`font-bold leading-tight ${isDark ? "text-white" : "text-gray-900"} text-[clamp(1.4rem,4.6vw,2.0rem)]`}
           >
             {title}
           </h2>
@@ -364,6 +360,7 @@ function DownloadRow({ items }: { items: { label: string; href: string }[] }) {
     </motion.div>
   );
 }
+
 
 
 
