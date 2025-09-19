@@ -58,7 +58,7 @@ export default function CoreServices({ services }: Props) {
       description:
         'Fuse EcoFocus with client datasets to sharpen personas, uncover shifts, and prove ROI on sustainability claims.',
       href: '/solutions/enhance-your-data',
-      image: '/images/solutions-enhance.png',
+      image: '/images/solutions-infusion.png',
       bullets: ['Raw files or secure data share', 'Schema mapping & QA support', 'Optional dashboard overlay'],
       icon: 'ri-database-2-line',
     },
