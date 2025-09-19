@@ -1,25 +1,38 @@
-'use client';
+// app/solutions/syndicated/page.tsx
+"use client";
 
-import Header from '@/components/Header';
-import CoverageGrid from './CoverageGrid';
-import DataAccessOptions from './DataAccessOptions';
-import DataSnapshotPreview from './DataSnapshotPreview';
-import DifferentiatorsGrid from './DifferentiatorsGrid';
-import SyndicatedBenefits from './SyndicatedBenefits';
-import SyndicatedHero from './SyndicatedHero';
-import SyndicatedOverview from './SyndicatedOverview';
-import SyndicatedReportHighlight from './SyndicatedReportHighlight';
-import TopicsGrid from './TopicsGrid';
-import UseCasesGrid from './UseCasesGrid';
-import SyndicatedCTA from './SyndicatedCTA';
-import Footer from '@/components/Footer';
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Breadcrumbs from "@/components/Breadcrumbs";
+
+import SyndicatedHero from "./SyndicatedHero";
+import SyndicatedOverview from "./SyndicatedOverview";
+import SyndicatedBenefits from "./SyndicatedBenefits";
+import CoverageGrid from "./CoverageGrid";
+import SyndicatedReportHighlight from "./SyndicatedReportHighlight";
+import DataAccessOptions from "./DataAccessOptions";
+import UseCasesGrid from "./UseCasesGrid";
+import DifferentiatorsGrid from "./DifferentiatorsGrid";
+import TopicsGrid from "./TopicsGrid";
+import DataSnapshotPreview from "./DataSnapshotPreview";
+import SyndicatedCTA from "./SyndicatedCTA";
 
 export default function SyndicatedResearchPage() {
   return (
     <main className="bg-white text-gray-900">
       <Header />
       <SyndicatedHero />
-      <SyndicatedOverview/>
+
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Solutions", href: "/solutions" },
+          { label: "Syndicated Research" },
+        ]}
+        maxWidth="max-w-7xl"
+      />
+
+      <SyndicatedOverview />
       <SyndicatedBenefits />
       <CoverageGrid />
       <SyndicatedReportHighlight />
@@ -30,7 +43,7 @@ export default function SyndicatedResearchPage() {
       <DataSnapshotPreview />
       <SyndicatedCTA />
       <Footer />
-
     </main>
   );
 }
+
