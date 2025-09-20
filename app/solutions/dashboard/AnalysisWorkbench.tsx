@@ -92,7 +92,7 @@ export default function AnalysisWorkbench() {
                   className="h-auto w-full object-cover"
                 />
                 <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-emerald-950 shadow-sm">
-                  Workbench preview
+                  Workbench Preview
                 </span>
               </div>
             </div>

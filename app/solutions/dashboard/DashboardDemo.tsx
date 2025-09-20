@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import Link from "next/link";
 
 export default function DashboardDemo() {
   const reduceMotion = useReducedMotion();
@@ -34,22 +33,21 @@ export default function DashboardDemo() {
   return (
     <section id="demo" className="relative section-slab-emerald" aria-labelledby="dash-demo">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-        {/* Header row */}
-        <div className="mb-6 flex flex-col items-center justify-between gap-3 sm:flex-row">
+        {/* Centered heading + badge */}
+        <div className="mb-6 text-center">
           <motion.h2
             id="dash-demo"
             initial={reduceMotion ? false : { opacity: 0, y: -10 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-center sm:text-left font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.2rem)]"
+            className="font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.2rem)]"
           >
-            See the dashboard in action
+            Inside the Interactive Dashboard
           </motion.h2>
-
-          <span className="inline-flex items-center rounded-full bg-amber-400/20 px-2.5 py-1 text-xs font-semibold text-amber-300 ring-1 ring-amber-300/30">
-            Demo video
-          </span>
+          <div className="mt-2 inline-flex items-center rounded-full bg-amber-400/20 px-2.5 py-1 text-xs font-semibold text-amber-300 ring-1 ring-amber-300/30">
+            Demo Video
+          </div>
         </div>
 
         {/* Video frame */}
@@ -80,7 +78,6 @@ export default function DashboardDemo() {
                   poster="/images/thumbnail.png"  // replace with your poster
                   src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/demo.mp4"            // replace with your asset
                 >
-                  {/* If you have captions, uncomment and provide the .vtt file */}
                   {/* <track default kind="captions" src="/videos/dashboard-demo.vtt" srcLang="en" label="English" /> */}
                 </video>
 
@@ -94,15 +91,10 @@ export default function DashboardDemo() {
                     className="group absolute inset-0 grid place-items-center focus:outline-none"
                   >
                     <span className="relative inline-flex items-center justify-center rounded-full bg-white/90 px-6 py-3 text-sm font-semibold text-emerald-900 shadow-lg ring-1 ring-emerald-200 transition group-hover:scale-[1.03]">
-                      <svg
-                        className="-ml-1 mr-2 h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
+                      <svg className="-ml-1 mr-2 h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path d="M6 4l10 6-10 6V4z" />
                       </svg>
-                      Play demo
+                      Play Demo
                     </span>
                   </button>
                 )}
@@ -111,32 +103,18 @@ export default function DashboardDemo() {
           </div>
         </motion.div>
 
-        {/* CTAs */}
-        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Link
-            href="/solutions/seat-packs"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
-          >
-            See Seat Packs
-          </Link>
-          <Link
-            href="/contact"
-            className="inline-flex items-center justify-center rounded-full border border-white/40 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-emerald-300"
-          >
-            Request a walkthrough
-          </Link>
-        </div>
-
-        {/* Transcript toggle (optional but useful for accessibility/SEO) */}
+        {/* Centered transcript toggle */}
         <div className="mx-auto mt-6 max-w-4xl">
-          <button
-            type="button"
-            onClick={() => setShowTranscript((v) => !v)}
-            className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-xs font-semibold text-white ring-1 ring-white/20 hover:bg-white/20"
-          >
-            <i className="ri-article-line text-base" />
-            {showTranscript ? "Hide Quick Transcript" : "View Quick Transcript"}
-          </button>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowTranscript((v) => !v)}
+              className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-xs font-semibold text-white ring-1 ring-white/20 hover:bg-white/20"
+            >
+              <i className="ri-article-line text-base" />
+              {showTranscript ? "Hide Quick Transcript" : "View Quick Transcript"}
+            </button>
+          </div>
 
           {showTranscript && (
             <div className="mt-3 rounded-xl bg-white/10 p-4 text-xs text-white/90 ring-1 ring-white/20">
@@ -147,9 +125,7 @@ export default function DashboardDemo() {
                 <li><strong>2:11–2:50</strong> – Trends & Say–Do views; annotations when wording changes.</li>
                 <li><strong>2:51–3:20</strong> – Exports: white-label PNGs & CSVs; saved views for reuse.</li>
               </ul>
-              <p className="mt-3 text-white/75">
-                Feature availability may vary by license and modules.
-              </p>
+              <p className="mt-3 text-white/75">Feature availability may vary by license and modules.</p>
             </div>
           )}
         </div>
@@ -157,5 +133,6 @@ export default function DashboardDemo() {
     </section>
   );
 }
+
 
 
