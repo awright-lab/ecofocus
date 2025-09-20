@@ -104,15 +104,16 @@ export default function DashboardIntro() {
         <div className="mt-7 flex items-center justify-center gap-3">
           <Link
             href="#dashboard"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                         before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+            className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                           touch-manipulation
+                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
           >
             See the Dashboard
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center rounded-full bg-[#FFC107] px-5 py-2.5 text-sm sm:text-base font-semibold text-black overflow-hidden transition-all duration-300 min-h-[44px]
+            className="relative inline-flex  w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#FFC107] px-5 py-3 text-sm sm:py-2.5 font-semibold text-black overflow-hidden transition-all duration-300 touch-manipulation
                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
                        before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
           >

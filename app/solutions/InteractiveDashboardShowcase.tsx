@@ -74,7 +74,7 @@ export default function InteractiveDashboardShowcase() {
             <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
               <div className="relative overflow-hidden rounded-2xl ring-1 ring-white/20">
                 <Image
-                  src="/images/dashboard/overview.jpg"  // <-- replace with your real asset
+                  src="/images/solutions-dashboard.png"  // <-- replace with your real asset
                   alt="EcoFocus Interactive Dashboard"
                   width={1400}
                   height={900}
