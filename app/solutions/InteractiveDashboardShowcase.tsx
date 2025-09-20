@@ -19,7 +19,7 @@ export default function InteractiveDashboardShowcase() {
             transition={{ duration: 0.5 }}
             className="md:col-span-5"
           >
-            <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10">
+            <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
                 <span className="text-emerald-300">Delivery & Access</span>
           </span>
