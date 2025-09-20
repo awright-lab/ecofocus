@@ -26,7 +26,7 @@ export default function InteractiveDashboardShowcase() {
               id="dashboard-title"
               className="mt-3 font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.3rem)]"
             >
-              Explore, filter, export—<span className="text-amber-300">all in one place</span>
+              Explore, filter, export—<span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">all in one place</span>
             </h2>
             <p className="mt-3 text-white/85 text-sm sm:text-base">
               The Interactive Dashboard is how agencies use EcoFocus: filter by audiences (Gen Z, Millennials, parents),
@@ -50,13 +50,16 @@ export default function InteractiveDashboardShowcase() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="#featured"
-                className="inline-flex items-center justify-center rounded-xl border border-amber-400 bg-amber-400 px-5 py-3 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-amber-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+                className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                           touch-manipulation
+                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
               >
-                See seat packs
+                <span className="relative z-10">See seat packs</span>
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center rounded-xl border border-white/40 bg-transparent px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="inline-flex items-center justify-center rounded-full border border-white/40 bg-transparent px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               >
                 Request a demo
               </Link>

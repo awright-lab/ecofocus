@@ -16,8 +16,8 @@ export default function SolutionsHero() {
       }
       subhead={
         <>
-          Syndicated research, data integration, and custom studies—delivered through our{" "}
-          <span className="text-amber-500">Interactive Dashboard</span> with white-label exports.
+          Syndicated research, data integration, and custom studies—delivered through our
+          Interactive Dashboard with white-label exports.
         </>
       }
       ctaPrimary={{ label: "See the Dashboard", href: "#dashboard" }}
