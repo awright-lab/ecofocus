@@ -40,7 +40,7 @@ export default function DashboardIntro() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          How agencies use the <span className="text-amber-500">Interactive Dashboard</span>
+          How agencies use the <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Interactive Dashboard</span>
         </motion.h2>
 
         <motion.p
@@ -93,7 +93,7 @@ export default function DashboardIntro() {
           ].map((t) => (
             <span
               key={t}
-              className="rounded-full bg-amber-400/15 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-300/40"
+              className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide text-black/60"
             >
               {t}
             </span>
@@ -104,13 +104,17 @@ export default function DashboardIntro() {
         <div className="mt-7 flex items-center justify-center gap-3">
           <Link
             href="#dashboard"
-            className="inline-flex items-center justify-center rounded-xl border border-amber-400 bg-amber-400 px-4 py-2.5 text-sm font-semibold text-emerald-950 shadow-sm hover:bg-amber-300"
+            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                         before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
           >
             See the Dashboard
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+            className="inline-flex items-center justify-center rounded-full bg-[#FFC107] px-5 py-2.5 text-sm sm:text-base font-semibold text-black overflow-hidden transition-all duration-300 min-h-[44px]
+                       before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
+                       before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
           >
             Request a demo
           </Link>
