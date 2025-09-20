@@ -1,6 +1,4 @@
-// app/solutions/syndicated/SyndicatedHero.tsx
 "use client";
-
 import Hero from "@/components/Hero";
 
 export default function SyndicatedHero() {
@@ -8,16 +6,22 @@ export default function SyndicatedHero() {
     <Hero
       variant="solutions"
       size="normal"
-      badge="Syndicated Research"
+      badge="Syndicated Study"
       headline={
         <>
-          Track the purpose-driven{" "}
-          <span className="brand-gradient-text animate-gradient">generation</span>
+          Defendable sustainability{" "}
+          <span className="text-amber-500">trendlines</span> since 2010
         </>
       }
       subhead={
-        <>Nationally representative sustainability tracking since 2010—with large samples, deep cuts, and executive-ready evidence.</>
+        <>
+          Nationally representative insights that decode the purpose-driven
+          generations. Delivered seat-based in the Interactive Dashboard—so your
+          team can explore, segment, and export with confidence.
+        </>
       }
+      ctaPrimary={{ label: "See Seat Packs", href: "/solutions/seat-packs" }}
+      ctaSecondary={{ label: "View Methodology", href: "/about/methodology" }}
       videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
       posterSrc="/images/hero-6-poster.jpg"
       overlay="dense"

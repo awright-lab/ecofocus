@@ -1,4 +1,3 @@
-// app/solutions/syndicated/page.tsx
 "use client";
 
 import Header from "@/components/Header";
@@ -6,44 +5,41 @@ import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 import SyndicatedHero from "./SyndicatedHero";
-import SyndicatedOverview from "./SyndicatedOverview";
-import SyndicatedBenefits from "./SyndicatedBenefits";
-import CoverageGrid from "./CoverageGrid";
-import SyndicatedReportHighlight from "./SyndicatedReportHighlight";
-import DataAccessOptions from "./DataAccessOptions";
-import UseCasesGrid from "./UseCasesGrid";
-import DifferentiatorsGrid from "./DifferentiatorsGrid";
-import TopicsGrid from "./TopicsGrid";
-import DataSnapshotPreview from "./DataSnapshotPreview";
+import StudyOverview from "./StudyOverview";
+import UseCasesForAgencies from "./UseCasesForAgencies";
+import WhatYouGet from "./WhatYouGet";
+import MethodologyStripe from "./MethodologyStripe";
+import SampleVisual from "./SampleVisual";
 import SyndicatedCTA from "./SyndicatedCTA";
+import FAQSyndicated from "./FAQSyndicated";
 
-export default function SyndicatedResearchPage() {
+export default function SyndicatedPage() {
   return (
-    <main className="bg-white text-gray-900">
+    <>
       <Header />
-      <SyndicatedHero />
+      <main className="bg-white text-gray-900">
+        <SyndicatedHero />
 
-      <Breadcrumbs
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Solutions", href: "/solutions" },
-          { label: "Syndicated Research" },
-        ]}
-        maxWidth="max-w-7xl"
-      />
+        <Breadcrumbs
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Solutions", href: "/solutions" },
+            { label: "Syndicated Study" },
+          ]}
+          maxWidth="max-w-7xl"
+        />
 
-      <SyndicatedOverview />
-      <SyndicatedBenefits />
-      <CoverageGrid />
-      <SyndicatedReportHighlight />
-      <DataAccessOptions />
-      <UseCasesGrid />
-      <DifferentiatorsGrid />
-      <TopicsGrid />
-      <DataSnapshotPreview />
-      <SyndicatedCTA />
+        <StudyOverview />
+        <UseCasesForAgencies />
+        <WhatYouGet />
+        <MethodologyStripe />
+        <SampleVisual />
+        <FAQSyndicated />
+        <SyndicatedCTA />
+      </main>
       <Footer />
-    </main>
+    </>
   );
 }
+
 
