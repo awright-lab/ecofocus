@@ -17,7 +17,7 @@ export default function DashboardAccessCTA() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Ready to get your team inside?
+          Ready to Get Your Team Inside?
         </motion.h2>
 
         <p className="mx-auto mt-3 max-w-3xl text-center text-sm sm:text-base text-gray-700">

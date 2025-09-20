@@ -43,7 +43,7 @@ export default function SecurityOps() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Security, reliability & documentation
+          Security, Reliability & <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Documentation</span>
         </motion.h2>
 
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">

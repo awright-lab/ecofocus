@@ -46,7 +46,7 @@ export default function CollaborationGovernance() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Collaboration & governance
+          Collaboration & Governance
         </motion.h2>
 
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
