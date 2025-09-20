@@ -13,14 +13,16 @@ export default function InteractiveDashboardShowcase() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
           {/* Copy */}
           <motion.div
-                    initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-                    whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.6 }}
-                    transition={{ duration: 0.6 }}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4"
-                  >
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-                    <span className="text-emerald-300">Delivery & Access</span>
+            initial={reduceMotion ? false : { opacity: 0, y: -8 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="md:col-span-5"
+          >
+            <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                <span className="text-emerald-300">Delivery & Access</span>
+          </span>
             <h2
               id="dashboard-title"
               className="mt-3 font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.3rem)]"
