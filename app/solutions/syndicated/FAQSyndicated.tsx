@@ -1,61 +1,81 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useState } from "react";
+
+const faqs = [
+  {
+    q: "How are seats counted?",
+    a: "One seat equals one named user with dashboard access. You can reassign seats as team members change.",
+  },
+  {
+    q: "Can we add seats mid-cycle?",
+    a: "Yes. We’ll prorate additional seats for the remainder of your term.",
+  },
+  {
+    q: "Does an agency license include seats?",
+    a: "Syndicated Study agency licenses include a base number of seats. Seat Packs add more access for broader teams.",
+  },
+  {
+    q: "Do you support SSO?",
+    a: "Single sign-on is available on Studio and Enterprise (and as an add-on for eligible Team plans).",
+  },
+  {
+    q: "What about security and DPAs?",
+    a: "We support security reviews and data-processing agreements on Enterprise. Talk to us about your requirements.",
+  },
+];
 
 export default function FAQSyndicated() {
-  const r = useReducedMotion();
-
-  const faqs = [
-    {
-      q: "How is the study delivered?",
-      a: "Seat-based access to the Interactive Dashboard. Teams can filter, build segments, compare to total, and export white-label charts or CSVs.",
-    },
-    {
-      q: "Can we add our own segments?",
-      a: "Yes—use Segment Builder in the dashboard or ask us to configure flags ahead of time for recurring views.",
-    },
-    {
-      q: "Do you provide raw data?",
-      a: "CSV exports are available in-app. For BI joins or deeper analysis, secure data deliveries are available on eligible plans under DPA.",
-    },
-    {
-      q: "How often is it updated?",
-      a: "Trend integrity is maintained wave-to-wave. Contact us for current fielding cadence and release dates.",
-    },
-  ];
-
   return (
-    <section className="relative bg-white" aria-labelledby="faq-syndicated">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 md:py-14">
-        <motion.h2
-          id="faq-syndicated"
-          initial={r ? false : { opacity: 0, y: -10 }}
-          whileInView={r ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.5rem,5vw,2rem)]"
+    <section className="relative bg-white" aria-labelledby="syndicated-faq">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <h2
+          id="syndicated-faq"
+          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.0rem)]"
         >
-          Frequently Asked Questions
-        </motion.h2>
+          Syndicated Study <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">FAQs</span>
+        </h2>
 
-        <div className="mx-auto mt-6 grid max-w-4xl grid-cols-1 gap-4">
-          {faqs.map(({ q, a }, i) => (
-            <motion.details
-              key={q}
-              initial={r ? false : { opacity: 0, y: 8 }}
-              whileInView={r ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.04 }}
-              className="group rounded-xl border border-gray-200 bg-white p-4 shadow-sm open:shadow-md"
-            >
-              <summary className="cursor-pointer select-none text-sm font-semibold text-gray-900">
-                {q}
-              </summary>
-              <p className="mt-2 text-sm text-gray-700">{a}</p>
-            </motion.details>
+        <div className="mt-8 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white shadow-sm">
+          {faqs.map((f, i) => (
+            <FAQItem key={i} {...f} defaultOpen={i === 0} />
           ))}
         </div>
       </div>
     </section>
   );
 }
+
+function FAQItem({
+  q,
+  a,
+  defaultOpen = false,
+}: {
+  q: string;
+  a: string;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <details
+      open={open}
+      onToggle={() => setOpen((v) => !v)}
+      className="group"
+    >
+      <summary className="cursor-pointer list-none px-5 py-4 sm:px-6 sm:py-5">
+        <div className="flex items-center justify-between gap-4">
+          <h3 className="text-sm sm:text-base font-semibold text-gray-900">
+            {q}
+          </h3>
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-amber-400 text-emerald-950 text-xs">
+            {open ? "–" : "+"}
+          </span>
+        </div>
+      </summary>
+      <div className="px-5 pb-5 sm:px-6 sm:pb-6 text-sm text-gray-700">
+        {a}
+      </div>
+    </details>
+  );
+}
+

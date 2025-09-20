@@ -22,7 +22,7 @@ export default function MethodologyStripe() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Methodology you can defend
+          Methodology You Can <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Defend</span>
         </motion.h2>
 
         <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-white/10 p-6 backdrop-blur sm:grid-cols-4">

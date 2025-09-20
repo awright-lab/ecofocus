@@ -43,7 +43,7 @@ export default function UseCasesForAgencies() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Built for <span className="text-amber-500">agency workflows</span>
+          Built for <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Agency Workflows</span>
         </motion.h2>
 
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">

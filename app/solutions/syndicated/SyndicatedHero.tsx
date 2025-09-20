@@ -9,8 +9,8 @@ export default function SyndicatedHero() {
       badge="Syndicated Study"
       headline={
         <>
-          Defendable sustainability{" "}
-          <span className="text-amber-500">trendlines</span> since 2010
+          Defendable Sustainability{" "}
+          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Trendlines</span> Since 2010
         </>
       }
       subhead={

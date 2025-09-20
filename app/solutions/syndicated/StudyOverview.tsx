@@ -37,7 +37,7 @@ export default function StudyOverview() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          What the Syndicated Study <span className="text-amber-500">covers</span>
+          What the Syndicated Study Covers
         </motion.h2>
 
         <motion.p
