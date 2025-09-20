@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 import DashboardHero from "./DashboardHero";
-import DashboardOverview from "./DashBoardOverview";
+import DashboardOverview from "./DashboardOverview";
 import DashboardDemo from "./DashboardDemo";
 import DashboardFeatures from "./DashboardFeatures";
 import DashboardAccessCTA from "./DashboardAccessCTA";
