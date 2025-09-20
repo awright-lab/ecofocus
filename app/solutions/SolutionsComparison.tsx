@@ -65,7 +65,7 @@ export default function SolutionsComparison() {
   const badges = ["Most-used", "Most versatile", "Deepest"] as const;
 
   return (
-    <section id="compare" className="relative bg-white" aria-labelledby="compare-title">
+    <section id="compare" className="relative bg-brand-tint-blue" aria-labelledby="compare-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.h2
           id="compare-title"

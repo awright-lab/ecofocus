@@ -8,7 +8,7 @@ export default function InteractiveDashboardShowcase() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section id="dashboard" className="relative section-slab-emerald" aria-labelledby="dashboard-title">
+    <section id="dashboard" className="relative section-slab-deep" aria-labelledby="dashboard-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
           {/* Copy */}
@@ -26,7 +26,7 @@ export default function InteractiveDashboardShowcase() {
               id="dashboard-title"
               className="mt-3 font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.3rem)]"
             >
-              Explore, filter, export—<span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">all in one place</span>
+              Explore, filter, export. <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">All in one place</span>
             </h2>
             <p className="mt-3 text-white/85 text-sm sm:text-base">
               The Interactive Dashboard is how agencies use EcoFocus: filter by audiences (Gen Z, Millennials, parents),
@@ -49,13 +49,13 @@ export default function InteractiveDashboardShowcase() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="#featured"
+                href="/solutions/dashboard"
                 className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
                            touch-manipulation
                            before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
                            before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
               >
-                <span className="relative z-10">See seat packs</span>
+                <span className="relative z-10">Learn More</span>
               </Link>
               <Link
                 href="/contact"

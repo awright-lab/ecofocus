@@ -65,7 +65,7 @@ export default function DashboardIntro() {
               className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
             >
               <div className="flex items-center gap-3">
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 text-[13px] font-bold text-emerald-950 ring-1 ring-amber-300/50">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
                   {i + 1}
                 </span>
                 <h3 className="text-base font-semibold text-gray-900">{s.title}</h3>

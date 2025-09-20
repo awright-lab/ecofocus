@@ -96,10 +96,9 @@ export default function SolutionsOverview() {
               <div className="mt-5 flex justify-center">
                 <Link
                   href={c.href}
-                  className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                           touch-manipulation
-                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                  className="relative inline-flex w-full sm:w-auto sm:min-w-[180px] items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2
+                           overflow-hidden touch-manipulation
+                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                 >
                   <span className="relative z-10">Learn more</span>
                 </Link>
@@ -125,10 +124,9 @@ export default function SolutionsOverview() {
             </div>
             <Link
               href="#featured"
-              className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                           touch-manipulation
-                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+              className="relative inline-flex w-full sm:w-auto sm:min-w-[180px] items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2
+                           overflow-hidden touch-manipulation
+                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
             >
               <span className="relative z-10">See seat packs</span>
             </Link>
@@ -138,6 +136,7 @@ export default function SolutionsOverview() {
     </section>
   );
 }
+
 
 
 
