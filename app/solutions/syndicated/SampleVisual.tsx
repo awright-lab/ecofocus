@@ -62,9 +62,12 @@ export default function SampleVisual() {
               <div className="mt-4">
                 <Link
                   href="/solutions/dashboard#demo"
-                  className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
+                  className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                           touch-manipulation
+                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                 >
-                  Watch Dashboard Demo
+                  <span className="relative z-10">Watch Dashboard Demo</span>
                 </Link>
               </div>
             </div>
