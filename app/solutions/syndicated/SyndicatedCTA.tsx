@@ -23,7 +23,7 @@ export default function SyndicatedCTA() {
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/solutions/seat-packs"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+            className="inline-flex items-center justify-center rounded-full relative overflow-hidden min-h-[44px] bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white transition-all duration-300
                            touch-manipulation
                            before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
                            before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
@@ -32,7 +32,7 @@ export default function SyndicatedCTA() {
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center rounded-full bg-[#FFC107] px-5 py-2.5 text-[15px] sm:text-base font-semibold text-black relative overflow-hidden min-h-[44px]
+            className="inline-flex items-center justify-center rounded-full  bg-[#FFC107] px-5 py-2.5 text-[15px] sm:text-base font-semibold text-black relative overflow-hidden min-h-[44px]
                            before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
                            before:scale-0 before:transition-transform before:duration-500 group-hover:before:scale-110 before:z-0"
           >
