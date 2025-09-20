@@ -37,8 +37,8 @@ export default function DashboardDemo() {
               controls
               playsInline
               preload="metadata"
-              src="/videos/dashboard-demo.mp4"               // <- replace with your asset
-              poster="/images/dashboard/demo-poster.jpg"     // <- replace with your poster
+              src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/demo.mp4"               // <- replace with your asset
+              poster="/images/thumbnail.png"     // <- replace with your poster
             />
           </div>
         </motion.div>

@@ -85,7 +85,7 @@ export default function AnalysisWorkbench() {
             <div className="relative rounded-3xl bg-white p-2 ring-1 ring-gray-200 shadow-xl">
               <div className="relative overflow-hidden rounded-2xl">
                 <Image
-                  src="/images/dashboard/overview.jpg" // replace with focused ‘tabs/filters’ screenshot
+                  src="/images/workbench-preview.png" // replace with focused ‘tabs/filters’ screenshot
                   alt="Analysis workbench preview"
                   width={1360}
                   height={900}
