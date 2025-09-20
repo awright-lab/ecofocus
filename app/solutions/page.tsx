@@ -3,7 +3,6 @@
 import { useReducedMotion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
 
 import SolutionsHero from "./SolutionsHero";
 import InteractiveDashboardShowcase from "./InteractiveDashboardShowcase";
@@ -12,6 +11,7 @@ import SolutionsComparison from "./SolutionsComparison";
 import SolutionsFeaturedOfferings from "./SolutionsFeaturedOfferings";
 import SolutionsHighlights from "./SolutionsHighlights";
 import FinalCTA from "./FinalCTA";
+import DashboardIntro from "./DashboardIntro";
 
 export default function SolutionsPage() {
   useReducedMotion();
@@ -21,7 +21,8 @@ export default function SolutionsPage() {
       <Header />
       <main className="bg-white text-gray-900">
         <SolutionsHero />
-        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Solutions" }]} maxWidth="max-w-7xl" />
+
+        <DashboardIntro />
 
         {/* Heavier weight: delivery layer */}
         <InteractiveDashboardShowcase />
