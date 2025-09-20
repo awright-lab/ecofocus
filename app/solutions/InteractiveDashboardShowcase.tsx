@@ -19,7 +19,7 @@ export default function InteractiveDashboardShowcase() {
             transition={{ duration: 0.5 }}
             className="md:col-span-5"
           >
-            <span className="inline-flex items-center rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
                 <span className="text-emerald-300">Delivery & Access</span>
           </span>
@@ -27,7 +27,7 @@ export default function InteractiveDashboardShowcase() {
               id="dashboard-title"
               className="mt-3 font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.3rem)]"
             >
-              Explore, filter, export. <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">All in one place</span>
+              Explore, filter, export. <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">All in one place.</span>
             </h2>
             <p className="mt-3 text-white/85 text-sm sm:text-base">
               The Interactive Dashboard is how agencies use EcoFocus: filter by audiences (Gen Z, Millennials, parents),
@@ -85,10 +85,6 @@ export default function InteractiveDashboardShowcase() {
                   className="h-auto w-full object-cover"
                   priority
                 />
-                {/* Subtle marigold corner tag */}
-                <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-emerald-950 shadow-sm">
-                  Live preview
-                </span>
               </div>
             </div>
             <p className="mt-2 text-center text-xs text-white/70">

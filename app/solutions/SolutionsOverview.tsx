@@ -123,7 +123,7 @@ export default function SolutionsOverview() {
               </p>
             </div>
             <Link
-              href="#featured"
+              href="/solutions/seat-packs"
               className="relative inline-flex w-full sm:w-auto sm:min-w-[180px] items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2
                            overflow-hidden touch-manipulation
                            before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)] before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
