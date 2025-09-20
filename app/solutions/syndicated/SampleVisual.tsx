@@ -31,7 +31,7 @@ export default function SampleVisual() {
           >
             <div className="relative overflow-hidden rounded-3xl bg-white p-2 ring-1 ring-gray-200 shadow-xl">
               <Image
-                src="/images/syndicated/sample.jpg" // add an actual dashboard chart export or mock
+                src="/images/white-label.gif" // add an actual dashboard chart export or mock
                 alt="Sample white-label chart export from the Interactive Dashboard"
                 width={1280}
                 height={800}
