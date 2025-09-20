@@ -10,7 +10,7 @@ export default function DashboardHero() {
       badge="Interactive Dashboard"
       headline={
         <>
-          The EcoFocus sustainability <span className="text-amber-500">insights workbench</span>
+          The EcoFocus Sustainability <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Insights Workbench</span>
         </>
       }
       subhead={

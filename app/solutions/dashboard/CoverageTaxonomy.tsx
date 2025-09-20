@@ -7,7 +7,7 @@ export default function CoverageTaxonomy() {
 
   const blocks = [
     {
-      title: "Population coverage",
+      title: "Population Coverage",
       items: [
         "U.S. adults 18+; nationally representative",
         "Census-balanced weighting; clear MoE guidance",
@@ -16,7 +16,7 @@ export default function CoverageTaxonomy() {
       icon: "ri-community-line",
     },
     {
-      title: "Question taxonomy",
+      title: "Question Taxonomy",
       items: [
         "Attitudes, behaviors, and say–do diagnostics",
         "Claims/packaging/values language, purchase drivers",
@@ -25,7 +25,7 @@ export default function CoverageTaxonomy() {
       icon: "ri-file-list-3-line",
     },
     {
-      title: "Data structure",
+      title: "Data Structure",
       items: [
         "Stable variable names & code frames each wave",
         "Change-log notes for wording/scale bridges",
@@ -46,7 +46,7 @@ export default function CoverageTaxonomy() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Coverage & taxonomy (what’s inside)
+          Coverage & Taxonomy (What’s Inside)
         </motion.h2>
 
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
