@@ -129,8 +129,8 @@ export default function Hero({
                 {ctaPrimary && (
                   <Link
                     href={ctaPrimary.href}
-                    className="relative inline-block rounded-full bg-[#124734] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all
-                    before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#2F5D3A,_#1B6C7A)]
+                    className="relative inline-block rounded-full bg-emerald-600  overflow-hidden px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all
+                    before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
                     before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                   >
                     <span className="relative z-10">{ctaPrimary.label}</span>
