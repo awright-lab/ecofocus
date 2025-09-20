@@ -10,14 +10,13 @@ export default function DashboardHero() {
       badge="Interactive Dashboard"
       headline={
         <>
-          Explore, filter, export—{" "}
-          <span className="text-amber-500">all in one place</span>
+          The EcoFocus sustainability <span className="text-amber-500">insights workbench</span>
         </>
       }
       subhead={
         <>
-          Seat-based access to EcoFocus data since 2010. Filter Gen Z & Millennials, explore
-          attitudes vs. behaviors, and export white-label charts or CSVs for decks, POVs, and briefs.
+          Go beyond toplines: segment builder, crosstabs, trend comparisons, and export-ready visuals.
+          Everything is seat-based and agency-friendly.
         </>
       }
       ctaPrimary={{ label: "Watch the demo", href: "#demo" }}
@@ -28,3 +27,4 @@ export default function DashboardHero() {
     />
   );
 }
+

@@ -24,7 +24,6 @@ export default function DashboardDemo() {
           </span>
         </div>
 
-        {/* Responsive video container */}
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 10 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
@@ -38,17 +37,17 @@ export default function DashboardDemo() {
               controls
               playsInline
               preload="metadata"
-              // ⬇️ Replace with your actual demo asset & poster
-              src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/demo.mp4"
-              poster="/images/dashboard/demo-poster.jpg"
+              src="/videos/dashboard-demo.mp4"               // <- replace with your asset
+              poster="/images/dashboard/demo-poster.jpg"     // <- replace with your poster
             />
           </div>
         </motion.div>
 
         <p className="mt-3 text-center text-xs text-white/75">
-          Example demo. Feature availability may vary by license and modules.
+          Feature availability may vary by license and modules.
         </p>
       </div>
     </section>
   );
 }
+

@@ -5,9 +5,12 @@ import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 import DashboardHero from "./DashboardHero";
-import DashboardOverview from "./DashboardOverview";
 import DashboardDemo from "./DashboardDemo";
-import DashboardFeatures from "./DashboardFeatures";
+import CoverageTaxonomy from "./CoverageTaxonomy";
+import AnalysisWorkbench from "./AnalysisWorkbench";
+import ExportsAndTheming from "./ExportsAndTheming";
+import CollaborationGovernance from "./CollaborationGovernance";
+import SecurityOps from "./SecurityOps";
 import DashboardAccessCTA from "./DashboardAccessCTA";
 
 export default function DashboardPage() {
@@ -26,20 +29,22 @@ export default function DashboardPage() {
           maxWidth="max-w-7xl"
         />
 
-        {/* White prelude that explains how teams actually use it */}
-        <DashboardOverview />
+        {/* Deep-dive sections (no repeats from Solutions) */}
+        <CoverageTaxonomy />
+        <AnalysisWorkbench />
 
-        {/* Bold emerald slab with the demo video */}
+        {/* Demo slab */}
         <DashboardDemo />
 
-        {/* Feature cards grid (exports, filters, saved views, etc.) */}
-        <DashboardFeatures />
+        <ExportsAndTheming />
+        <CollaborationGovernance />
+        <SecurityOps />
 
-        {/* Seat packs / pricing CTA */}
         <DashboardAccessCTA />
       </main>
       <Footer />
     </>
   );
 }
+
 

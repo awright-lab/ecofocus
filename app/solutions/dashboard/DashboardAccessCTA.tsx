@@ -20,26 +20,20 @@ export default function DashboardAccessCTA() {
           Ready to get your team inside?
         </motion.h2>
 
-        <motion.p
-          initial={reduceMotion ? false : { opacity: 0 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.06 }}
-          className="mx-auto mt-3 max-w-3xl text-center text-sm sm:text-base text-gray-700"
-        >
+        <p className="mx-auto mt-3 max-w-3xl text-center text-sm sm:text-base text-gray-700">
           Choose a Seat Pack to start, or ask for a quick walkthrough.
-        </motion.p>
+        </p>
 
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/solutions/seat-packs"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
             See Seat Packs
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+            className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-800 hover:bg-gray-50 focus-visible:ring-2 focus-visible:ring-emerald-500"
           >
             Request a demo
           </Link>
@@ -48,3 +42,4 @@ export default function DashboardAccessCTA() {
     </section>
   );
 }
+
