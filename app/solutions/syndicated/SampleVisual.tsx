@@ -18,7 +18,7 @@ export default function SampleVisual() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          What the <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Output</span> Looks Like
+          What the Output Looks Like
         </motion.h2>
 
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-12">

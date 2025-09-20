@@ -17,7 +17,7 @@ export default function SyndicatedCTA() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Ready to Put The <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Trendlines</span> to Work?
+          Ready to Put The Trendlines to Work?
         </motion.h2>
 
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
