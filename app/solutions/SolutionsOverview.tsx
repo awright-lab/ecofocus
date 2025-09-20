@@ -18,7 +18,6 @@ export default function SolutionsOverview() {
         "White-label charts for decks & POVs",
       ],
       href: "/solutions/syndicated",
-      hrefSecondary: "#compare",
     },
     {
       tag: "Most versatile",
@@ -30,8 +29,7 @@ export default function SolutionsOverview() {
         "CSV/Parquet, bucket or API delivery",
         "Optional dashboard views on top of joins",
       ],
-      href: "#featured",
-      hrefSecondary: "/contact",
+      href: "/solutions/enhance-your-data",
     },
     {
       tag: "Deepest evidence",
@@ -44,7 +42,6 @@ export default function SolutionsOverview() {
         "Executive-ready reporting",
       ],
       href: "/solutions/custom",
-      hrefSecondary: "/contact",
     },
   ];
 
@@ -96,18 +93,15 @@ export default function SolutionsOverview() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-5 flex gap-2">
+              <div className="mt-5 flex justify-center">
                 <Link
                   href={c.href}
-                  className="inline-flex w-full items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+                  className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                           touch-manipulation
+                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
                 >
-                  Learn more
-                </Link>
-                <Link
-                  href={c.hrefSecondary}
-                  className="inline-flex w-full items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-800 hover:bg-gray-50"
-                >
-                  Talk to us
+                  <span className="relative z-10">Learn more</span>
                 </Link>
               </div>
             </motion.article>
@@ -131,9 +125,12 @@ export default function SolutionsOverview() {
             </div>
             <Link
               href="#featured"
-              className="inline-flex items-center justify-center rounded-xl border border-emerald-600 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+              className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                           touch-manipulation
+                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
             >
-              See seat packs
+              <span className="relative z-10">See seat packs</span>
             </Link>
           </div>
         </motion.div>
@@ -141,5 +138,6 @@ export default function SolutionsOverview() {
     </section>
   );
 }
+
 
 

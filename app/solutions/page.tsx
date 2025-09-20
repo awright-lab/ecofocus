@@ -8,7 +8,7 @@ import SolutionsHero from "./SolutionsHero";
 import InteractiveDashboardShowcase from "./InteractiveDashboardShowcase";
 import SolutionsOverview from "./SolutionsOverview";
 import SolutionsComparison from "./SolutionsComparison";
-import SolutionsFeaturedOfferings from "./SolutionsFeaturedOfferings";
+//import SolutionsFeaturedOfferings from "./SolutionsFeaturedOfferings";
 import SolutionsHighlights from "./SolutionsHighlights";
 import FinalCTA from "./FinalCTA";
 import DashboardIntro from "./DashboardIntro";
@@ -32,9 +32,6 @@ export default function SolutionsPage() {
 
         {/* Compare the pillars (dashboard handled in rows, not a column) */}
         <SolutionsComparison />
-
-        {/* SKUs mapped to pillars + seat packs */}
-        <SolutionsFeaturedOfferings />
 
         {/* Outcomes band */}
         <SolutionsHighlights />
