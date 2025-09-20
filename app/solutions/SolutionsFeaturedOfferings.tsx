@@ -70,7 +70,7 @@ export default function SolutionsFeaturedOfferings() {
               className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
             >
               <div className="flex items-center justify-between">
-                <span className="inline-flex w-fit items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+              <span className="inline-flex w-fit items-center rounded-full bg-amber-400/20 px-2.5 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-300/40">
                   {o.badge}
                 </span>
                 <span className="text-[11px] text-gray-500">{o.pillar}</span>

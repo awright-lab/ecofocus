@@ -1,4 +1,3 @@
-// app/solutions/page.tsx
 "use client";
 
 import { useReducedMotion } from "framer-motion";
@@ -7,48 +6,45 @@ import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 import SolutionsHero from "./SolutionsHero";
+import InteractiveDashboardShowcase from "./InteractiveDashboardShowcase";
 import SolutionsOverview from "./SolutionsOverview";
-import SolutionsHighlights from "./SolutionsHighlights";
-import SolutionsFeaturedOfferings from "./SolutionsFeaturedOfferings";
 import SolutionsComparison from "./SolutionsComparison";
+import SolutionsFeaturedOfferings from "./SolutionsFeaturedOfferings";
+import SolutionsHighlights from "./SolutionsHighlights";
 import FinalCTA from "./FinalCTA";
 
 export default function SolutionsPage() {
-  useReducedMotion(); // keeps parity with other pages even if unused below
+  useReducedMotion();
 
   return (
     <>
       <Header />
       <main className="bg-white text-gray-900">
         <SolutionsHero />
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Solutions" }]} maxWidth="max-w-7xl" />
 
-        {/* Breadcrumbs aligned with content width */}
-        <Breadcrumbs
-          items={[{ label: "Home", href: "/" }, { label: "Solutions" }]}
-          maxWidth="max-w-7xl"
-        />
+        {/* Heavier weight: delivery layer */}
+        <InteractiveDashboardShowcase />
 
-        {/* Page sections – keep existing components but ensure the same rhythm as Home */}
-        <div id="solutions-overview">
-          <SolutionsOverview />
-        </div>
+        {/* 3 pillars */}
+        <SolutionsOverview />
 
-        {/* Tabs/feature band */}
-        <SolutionsHighlights />
-
-        {/* Featured products / bundles */}
-        <SolutionsFeaturedOfferings />
-
-        {/* Comparison grid */}
+        {/* Compare the pillars (dashboard handled in rows, not a column) */}
         <SolutionsComparison />
 
-        {/* Bold CTA slab (already styled inside component) */}
+        {/* SKUs mapped to pillars + seat packs */}
+        <SolutionsFeaturedOfferings />
+
+        {/* Outcomes band */}
+        <SolutionsHighlights />
+
         <FinalCTA />
       </main>
       <Footer />
     </>
   );
 }
+
 
 
 
