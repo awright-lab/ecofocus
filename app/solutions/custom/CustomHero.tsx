@@ -10,9 +10,9 @@ export default function CustomHero() {
       badge="Custom Research"
       headline={
         <>
-          Custom research, built around{" "}
+          Custom Research, Built Around{" "}
           <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-            the decision
+            the Decision
           </span>
         </>
       }

@@ -17,7 +17,7 @@ export default function CustomCTA() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Have a decision you need to defend?
+          Have a Decision You Need to Defend?
         </motion.h2>
 
         <motion.p

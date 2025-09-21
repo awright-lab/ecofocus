@@ -39,7 +39,7 @@ export default function DashboardIntro() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          How agencies use the Interactive Dashboard
+          How Agencies Use the Interactive Dashboard
         </motion.h2>
 
         <motion.p

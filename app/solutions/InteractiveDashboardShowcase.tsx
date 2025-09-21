@@ -27,7 +27,7 @@ export default function InteractiveDashboardShowcase() {
               id="dashboard-title"
               className="mt-3 font-bold leading-tight text-white text-[clamp(1.6rem,5.2vw,2.3rem)]"
             >
-              Explore, filter, export. <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">All in one place.</span>
+              Explore, Filter, Export. <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">All in One Place.</span>
             </h2>
             <p className="mt-3 text-white/85 text-sm sm:text-base">
               The Interactive Dashboard is how agencies use EcoFocus: filter by audiences (Gen Z, Millennials, parents),

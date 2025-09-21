@@ -10,8 +10,8 @@ export default function SolutionsHero() {
       badge="Core Services"
       headline={
         <>
-          Solutions for sustainable{" "}
-          <span className="brand-gradient-text animate-gradient">growth</span>
+          Solutions for Sustainable{" "}
+          <span className="brand-gradient-text animate-gradient">Growth</span>
         </>
       }
       subhead={

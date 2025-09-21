@@ -37,8 +37,7 @@ export default function CustomOverview() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Custom studies for{" "}
-          <span className="text-amber-500">high-stakes decisions</span>
+          Custom Studies for High-Stakes Decisions
         </motion.h2>
 
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">

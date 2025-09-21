@@ -56,7 +56,7 @@ export default function SolutionsOverview() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Solutions that power agencies
+          Solutions That Power Agencies
         </motion.h2>
 
         <motion.p

@@ -33,7 +33,7 @@ export default function SampleJoinVisual() {
             <div className="relative overflow-hidden rounded-3xl bg-white p-2 ring-1 ring-gray-200 shadow-xl">
               <Image
                 // Replace with your real white-label export (joined dataset) image or GIF
-                src="/images/integration/white-label-join.gif"
+                src="/images/white-label.gif"
                 alt="White-label export showing a joined EcoFocus + client dataset"
                 width={1280}
                 height={800}

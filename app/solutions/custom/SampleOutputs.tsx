@@ -18,7 +18,7 @@ export default function SampleOutputs() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          What the output looks like
+          What the Output Looks Like
         </motion.h2>
 
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-12">
@@ -31,7 +31,7 @@ export default function SampleOutputs() {
           >
             <div className="relative overflow-hidden rounded-3xl bg-white p-2 ring-1 ring-gray-200 shadow-xl">
               <Image
-                src="/images/custom/white-label-custom.gif" // replace with your sample deck/export visual
+                src="/images/white-label.gif" // replace with your sample deck/export visual
                 alt="White-label export from a custom study (claims/concept read)"
                 width={1280}
                 height={800}
