@@ -28,7 +28,7 @@ export default function DataWeJoin() {
   };
 
   return (
-    <section className="relative bg-brand-tint-blue" aria-labelledby="data-we-join">
+    <section className="relative bg-white" aria-labelledby="data-we-join">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.h2
           id="data-we-join"
@@ -38,7 +38,7 @@ export default function DataWeJoin() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          What we <span className="text-amber-500">merge</span>
+          What We Merge
         </motion.h2>
 
         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">

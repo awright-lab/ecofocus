@@ -10,8 +10,8 @@ export default function IntegrationHero() {
       badge="Data Integration"
       headline={
         <>
-          Sustainability + your data:{" "}
-          <span className="text-amber-500">sharper personas, stronger proof</span>
+          Sustainability + Your Data:{" "}
+          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Sharper Personas, Stronger Proof</span>
         </>
       }
       subhead={

@@ -20,6 +20,17 @@ export default function IntegrationCTA() {
           Ready to enhance your data?
         </motion.h2>
 
+        <motion.p
+          initial={r ? false : { opacity: 0 }}
+          whileInView={r ? undefined : { opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, delay: 0.06 }}
+          className="mx-auto mt-3 max-w-2xl text-center text-sm sm:text-base text-gray-700"
+        >
+          Blend EcoFocus trendlines with your client datasets to sharpen personas, validate claims,
+          and de-risk launches—delivered securely with optional dashboard views.
+        </motion.p>
+
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/contact"
@@ -44,3 +55,4 @@ export default function IntegrationCTA() {
     </section>
   );
 }
+

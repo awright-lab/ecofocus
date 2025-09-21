@@ -1,80 +1,55 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Link from "next/link";
 
 export default function DeliverablesIntegrations() {
   const r = useReducedMotion();
 
-  const cols = [
-    {
-      title: "Included",
-      items: [
-        "Merged dataset (CSV/Parquet) with schema",
-        "Code frames & data dictionary",
-        "Appendix with checks, flags, and notes",
-      ],
-      icon: "ri-checkbox-circle-line",
-    },
-    {
-      title: "Options",
-      items: [
-        "Interactive Dashboard module for joined data",
-        "Secure bucket or API delivery",
-        "Executive summary deck",
-      ],
-      icon: "ri-add-circle-line",
-    },
+  const items: { title: string; sub: string }[] = [
+    { title: "Merged Dataset (CSV/Parquet)", sub: "Includes schema + data dictionary" },
+    { title: "Saved Views & Crosstabs", sub: "Deltas and significance flags" },
+    { title: "Dashboard Module (Optional)", sub: "Filter, segment, export white-label charts" },
+    { title: "Secure Delivery", sub: "Bucket or API with signed URLs" },
+    { title: "Appendix & QA Notes", sub: "Checks, flags, and assumptions documented" },
+    { title: "Executive Summary (Optional)", sub: "Briefing-ready slides for stakeholders" },
   ];
 
   return (
-    <section className="relative bg-white" aria-labelledby="deliverables">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+    <section className="relative section-slab-emerald" aria-labelledby="deliverables">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16 text-white">
         <motion.h2
           id="deliverables"
           initial={r ? false : { opacity: 0, y: -10 }}
           whileInView={r ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
+          className="text-center font-bold leading-tight text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          What you <span className="text-amber-500">receive</span>
+          What You{" "}
+          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+            Receive
+          </span>
         </motion.h2>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {cols.map((c, i) => (
-            <motion.div
-              key={c.title}
-              initial={r ? false : { opacity: 0, y: 12 }}
-              whileInView={r ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.06 }}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
-            >
-              <div className="mb-2 flex items-center gap-3">
-                <i className={`${c.icon} text-xl text-emerald-600`} />
-                <h3 className="text-base font-semibold text-gray-900">{c.title}</h3>
-              </div>
-              <ul className="mt-2 space-y-2.5 text-sm text-gray-700">
-                {c.items.map((t) => (
-                  <li key={t} className="flex items-start gap-3">
-                    <span className="mt-1.5 h-2 w-2 rounded-full bg-amber-400" />
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+        {/* Translucent grid like MethodologyStripe */}
+        <motion.div
+          initial={r ? false : { opacity: 0, y: 8 }}
+          whileInView={r ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-white/10 p-6 backdrop-blur sm:grid-cols-3"
+        >
+          {items.map((it) => (
+            <div key={it.title} className="text-center px-2">
+              <div className="text-sm font-semibold">{it.title}</div>
+              <div className="mt-1 text-xs text-white/80">{it.sub}</div>
+            </div>
           ))}
-        </div>
+        </motion.div>
 
-        <div className="mt-6 text-center">
-          <Link
-            href="/solutions/dashboard"
-            className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-emerald-700 focus-visible:ring-2 focus-visible:ring-emerald-500"
-          >
-            See the Dashboard Module
-          </Link>
-        </div>
+        <p className="mt-3 text-center text-xs text-white/75">
+          Formats and options depend on scope and plan. Small-base reads are flagged; joins and assumptions are documented.
+        </p>
       </div>
     </section>
   );
