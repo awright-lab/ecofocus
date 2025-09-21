@@ -105,7 +105,7 @@ function BenefitCard({
         {points.map((p) => (
           <li key={p} className="flex items-start gap-3">
             <span
-              className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500"
+              className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-400"
               aria-hidden="true"
             />
             <span>{p}</span>

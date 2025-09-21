@@ -88,7 +88,7 @@ export default function SolutionsOverview() {
               <ul className="mt-3 space-y-2.5 text-sm text-gray-700">
                 {c.bullets.map((b) => (
                   <li key={b} className="flex gap-3">
-                    <span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                    <span className="mt-1.5 h-2 w-2 rounded-full bg-amber-400" aria-hidden="true" />
                     <span>{b}</span>
                   </li>
                 ))}
