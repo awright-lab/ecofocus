@@ -1,17 +1,22 @@
+// app/reports/[id]/page.tsx
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 
-import { REPORTS, Report } from "./data";
+import { REPORTS, type Report } from "./data";
 
 import CoverHero from "./CoverHero";
 import AbstractAndSpecs from "./AbstractAndSpecs";
 import PreviewCarousel from "./PreviewCarousel";
 import ReportCTA from "./ReportCTA";
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const r = REPORTS[params.id];
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id } = await params;
+  const r = REPORTS[id];
   if (!r) return {};
   const title = `${r.title} | EcoFocus Reports`;
   const description = r.subtitle || r.abstract || "EcoFocus syndicated report.";
@@ -23,13 +28,17 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
       title,
       description,
       images: [{ url: ogImg, width: 1200, height: 630, alt: r.title }],
-      type: "article" as const,
+      type: "article",
     },
   };
 }
 
-export default function ReportDetailPage({ params }: { params: { id: string } }) {
-  const report: Report | undefined = REPORTS[params.id];
+// Also async here to await params
+export default async function ReportDetailPage(
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const report: Report | undefined = REPORTS[id];
   if (!report) return notFound();
 
   return (
@@ -55,6 +64,7 @@ export default function ReportDetailPage({ params }: { params: { id: string } })
     </>
   );
 }
+
 
 
 
