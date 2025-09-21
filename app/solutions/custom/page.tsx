@@ -1,4 +1,3 @@
-// app/solutions/custom/page.tsx
 "use client";
 
 import Header from "@/components/Header";
@@ -6,14 +5,13 @@ import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 import CustomHero from "./CustomHero";
-
-// keep your local sections as they are
-import Approaches from "./Approaches";
-import Deliverables from "./Deliverables";
-import Process from "./Process";
-import UseCases from "./UseCases";
-import WhyCustom from "./WhyCustom";
-import FinalCTA from "./FinalCTA";
+import CustomOverview from "./CustomOverview";
+import CustomMethods from "./CustomMethods";
+import CustomWorkflow from "./CustomWorkflow";
+import DeliverablesCustom from "./DeliverablesCustom";
+import SampleOutputs from "./SampleOutputs";
+import FAQCustom from "./FAQCustom";
+import CustomCTA from "./CustomCTA";
 
 export default function CustomResearchPage() {
   return (
@@ -31,20 +29,19 @@ export default function CustomResearchPage() {
           maxWidth="max-w-7xl"
         />
 
-        {/* Your existing sections */}
-        <Approaches />
-        <WhyCustom />
-        <Process />
-        <Deliverables />
-        <UseCases />
-
-        {/* Reuse your CTA or the shared one */}
-        <FinalCTA />
+        <CustomOverview />
+        <CustomMethods />
+        <CustomWorkflow />
+        <DeliverablesCustom />
+        <SampleOutputs />
+        <FAQCustom />
+        <CustomCTA />
       </main>
       <Footer />
     </>
   );
 }
+
 
 
 
