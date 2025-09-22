@@ -12,7 +12,7 @@ export type ListReportsInput = {
   year?: string;
   topic?: string;
   type?: string;
-  access?: Access | string; // tolerate any case
+  access?: Access | string;
   sort?: Sort;
   limit?: number;
   cursor?: string | null;
@@ -28,8 +28,7 @@ export type ReportListItem = {
   tags?: string[];
   description?: string;
   thumbnail?: string | null;
-
-  // optional extras used by UI
+  // extras
   priceId?: string;
   freeHref?: string;
   sampleHref?: string;
@@ -66,11 +65,10 @@ export type ReportDetail = {
   thumbnail?: string | null;
 };
 
-// handy alias some components import
 export type Report = ReportDetail;
 
 /* =========================
-   Helpers / toggles
+   Config & helpers
    ========================= */
 function normalizeAccess(val?: string | null): "All" | "Free" | "Premium" {
   if (!val) return "All";
@@ -81,14 +79,19 @@ function normalizeAccess(val?: string | null): "All" | "Free" | "Premium" {
   return "All";
 }
 
-const RAW_BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload"|"mock"
+function normText(s: string) {
+  // remove punctuation/whitespace differences so "packaging-claims" matches "Packaging & Claims"
+  return s.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+const RAW_BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload" | "mock"
 const PAYLOAD_BASE_URL = process.env.PAYLOAD_BASE_URL || "";
 const PAYLOAD_TOKEN = process.env.PAYLOAD_API_TOKEN || "";
 const WANT_PAYLOAD = RAW_BACKEND === "payload" && !!PAYLOAD_BASE_URL;
 const DISABLE_FALLBACK = process.env.REPORTS_DISABLE_FALLBACK === "1";
 
 /* =========================
-   MOCK BACKEND
+   MOCK DATA
    ========================= */
 
 const MOCK_BASE_LIST: ReportListItem[] = [
@@ -163,7 +166,6 @@ const MOCK_BASE_LIST: ReportListItem[] = [
   },
 ];
 
-// inflate to simulate hundreds
 function cloneList(base: ReportListItem[], n: number): ReportListItem[] {
   const out: ReportListItem[] = [];
   for (let i = 0; i < n; i++) {
@@ -200,6 +202,9 @@ const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_LIST_DATA.map((r) => ({
   thumbnail: r.thumbnail,
 }));
 
+/* =========================
+   Filtering (reused for both backends)
+   ========================= */
 function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
   let filtered = data.slice();
 
@@ -207,7 +212,7 @@ function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
   const acc = normalizeAccess(input.access as any);
   if (acc === "Free" || acc === "Premium") {
     filtered = filtered.filter(
-      (r) => normalizeAccess(r.access) === acc || (acc === "Free" && r.price === 0)
+      (r) => normalizeAccess(r.access) === acc || (acc === "Free" && Number(r.price) === 0)
     );
   }
 
@@ -217,30 +222,30 @@ function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
     if (!Number.isNaN(y)) filtered = filtered.filter((r) => r.year === y);
   }
 
-  // Topic (slug-ish)
+  // Topic (robust match)
   if (input.topic && input.topic !== "All") {
-    const norm = input.topic.replace(/-/g, " ").toLowerCase();
+    const want = normText(input.topic.replace(/-/g, " "));
     filtered = filtered.filter((r) => {
-      const tags = (r.tags || []).map((t) => t.toLowerCase());
-      const tfield = (r.topic || "").toLowerCase();
-      return tags.some((t) => t.includes(norm)) || tfield.includes(norm);
+      const tags = (r.tags || []).map((t) => normText(t));
+      const tfield = normText(r.topic || "");
+      return tags.some((t) => t.includes(want)) || tfield.includes(want);
     });
   }
 
-  // Type (no-op unless your CMS lists a 'type' field)
+  // Type (no-op here unless you add a 'type' field)
 
   // q
   if (input.q) {
-    const q = input.q.toLowerCase();
+    const q = normText(input.q);
     filtered = filtered.filter(
       (r) =>
-        r.title.toLowerCase().includes(q) ||
-        (r.description || "").toLowerCase().includes(q) ||
-        (r.tags || []).some((t) => t.toLowerCase().includes(q))
+        normText(r.title).includes(q) ||
+        normText(r.description || "").includes(q) ||
+        (r.tags || []).some((t) => normText(t).includes(q))
     );
   }
 
-  // sort
+  // Sort
   if (input.sort === "AtoZ") {
     filtered.sort((a, b) => a.title.localeCompare(b.title));
   } else {
@@ -250,6 +255,9 @@ function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
   return filtered;
 }
 
+/* =========================
+   MOCK BACKEND
+   ========================= */
 async function listReportsMock(input: ListReportsInput): Promise<ListReportsResult> {
   const limit = Math.max(1, Math.min(60, input.limit || 12));
   const filtered = applyPostFilter(MOCK_LIST_DATA, input);
@@ -269,15 +277,9 @@ async function getMockDetailBy(key: "id" | "slug", val: string) {
    ========================= */
 function payloadWhereFromInput(input: ListReportsInput) {
   const where: any = { and: [] as any[] };
-
   const acc = normalizeAccess(input.access as any);
   if (acc === "Free" || acc === "Premium") {
-    where.and.push({
-      or: [
-        { access: { equals: acc } },
-        { access: { equals: acc.toLowerCase() } }, // tolerate lowercase enum
-      ],
-    });
+    where.and.push({ or: [{ access: { equals: acc } }, { access: { equals: acc.toLowerCase() } }] });
   }
   if (input.year && input.year !== "All") {
     const y = parseInt(input.year, 10);
@@ -286,11 +288,7 @@ function payloadWhereFromInput(input: ListReportsInput) {
   if (input.topic && input.topic !== "All") {
     const t = input.topic.replace(/-/g, " ");
     where.and.push({
-      or: [
-        { topics: { contains: input.topic } }, // slug array
-        { tags: { contains: t } },
-        { topic: { like: t } },
-      ],
+      or: [{ topics: { contains: input.topic } }, { tags: { contains: t } }, { topic: { like: t } }],
     });
   }
   if (input.type && input.type !== "All") {
@@ -300,7 +298,6 @@ function payloadWhereFromInput(input: ListReportsInput) {
     const q = input.q;
     where.and.push({ or: [{ title: { like: q } }, { description: { like: q } }, { tags: { contains: q } }] });
   }
-
   if (where.and.length === 0) delete where.and;
   return where;
 }
@@ -370,7 +367,6 @@ async function listReportsPayload(input: ListReportsInput): Promise<ListReportsR
     headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
     cache: "no-store",
   });
-
   if (!res.ok) {
     const body = await res.text().catch(() => "");
     console.error("[reports] Payload list error", res.status, body);
@@ -392,10 +388,7 @@ async function getPayloadDetailById(id: string): Promise<ReportDetail | null> {
     headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
     cache: "no-store",
   });
-  if (!res.ok) {
-    console.error("[reports] Payload detail (id) error", res.status);
-    throw new Error(`Payload detail error: ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`Payload detail error: ${res.status}`);
   const doc = await res.json();
   return normalizePayloadDetail(doc);
 }
@@ -407,17 +400,14 @@ async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null
     headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
     cache: "no-store",
   });
-  if (!res.ok) {
-    console.error("[reports] Payload detail (slug) error", res.status);
-    throw new Error(`Payload detail error: ${res.status}`);
-  }
+  if (!res.ok) throw new Error(`Payload detail error: ${res.status}`);
   const data = await res.json();
   const doc = data?.docs?.[0];
   return doc ? normalizePayloadDetail(doc) : null;
 }
 
 /* =========================
-   Public API (with post-filter + fallback)
+   Public API with post-filter & fallback
    ========================= */
 export async function listReports(input: ListReportsInput): Promise<ListReportsResult> {
   const withNorm: ListReportsInput = { ...input, access: normalizeAccess(input.access as any) };
@@ -425,19 +415,20 @@ export async function listReports(input: ListReportsInput): Promise<ListReportsR
   if (WANT_PAYLOAD) {
     try {
       const res = await listReportsPayload(withNorm);
-      // guarantee correctness even if CMS where clause isn't aligned
       const cleaned = applyPostFilter(res.items, withNorm);
+
+      // If CMS returns empty/mismatched, fall back to mock (unless explicitly disabled)
       if (DISABLE_FALLBACK || cleaned.length > 0) {
+        const pageSize = Math.max(1, Math.min(60, withNorm.limit || 12));
         return {
           items: cleaned,
-          // if the CMS already paged, keep cursor only if we still filled the page
-          nextCursor: cleaned.length >= Math.max(1, Math.min(60, withNorm.limit || 12)) ? res.nextCursor ?? null : null,
+          nextCursor: cleaned.length >= pageSize ? res.nextCursor ?? null : null,
           total: res.total ?? cleaned.length,
         };
       }
-      console.warn("[reports] Payload returned mismatched/empty after post-filter; falling back to mock.");
+      console.warn("[reports] CMS returned empty after post-filter — falling back to mock.");
     } catch (e) {
-      console.warn("[reports] Payload error; falling back to mock.", e);
+      console.warn("[reports] CMS error — falling back to mock.", e);
       if (DISABLE_FALLBACK) throw e;
     }
   }
@@ -450,11 +441,7 @@ export async function getReportById(id: string): Promise<ReportDetail | null> {
     try {
       const d = await getPayloadDetailById(id);
       if (DISABLE_FALLBACK || d) return d;
-      console.warn("[reports] Payload detail (id) missing; falling back to mock.");
-    } catch (e) {
-      console.warn("[reports] Payload detail (id) error; falling back to mock.", e);
-      if (DISABLE_FALLBACK) throw e;
-    }
+    } catch {}
   }
   return getMockDetailBy("id", id);
 }
@@ -464,14 +451,11 @@ export async function getReportBySlug(slug: string): Promise<ReportDetail | null
     try {
       const d = await getPayloadDetailBySlug(slug);
       if (DISABLE_FALLBACK || d) return d;
-      console.warn("[reports] Payload detail (slug) missing; falling back to mock.");
-    } catch (e) {
-      console.warn("[reports] Payload detail (slug) error; falling back to mock.", e);
-      if (DISABLE_FALLBACK) throw e;
-    }
+    } catch {}
   }
   return getMockDetailBy("slug", slug);
 }
+
 
 
   
