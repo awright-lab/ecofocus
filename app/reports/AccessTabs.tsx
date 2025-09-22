@@ -1,6 +1,5 @@
 // app/reports/sections/AccessTabs.tsx
 "use client";
-
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const TABS = ["All", "Free", "Premium"] as const;
@@ -20,7 +19,7 @@ export default function AccessTabs() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-2">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-4">
       <div className="flex w-full items-center justify-center gap-2">
         {TABS.map((t) => {
           const active = t === current;
@@ -28,11 +27,13 @@ export default function AccessTabs() {
             <button
               key={t}
               onClick={() => set(t)}
-              className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-medium
-                ${active
+              className={[
+                "inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold transition",
+                active
                   ? "bg-emerald-600 text-white shadow"
-                  : "bg-white text-gray-900 border border-gray-300 hover:bg-gray-50"
-                }`}
+                  : "bg-white text-gray-900 border border-gray-300 hover:bg-gray-50",
+              ].join(" ")}
+              aria-pressed={active}
             >
               {t}
             </button>

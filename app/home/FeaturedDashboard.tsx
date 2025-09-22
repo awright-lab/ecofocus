@@ -108,7 +108,7 @@ export default function FeaturedDashboard() {
             </ul>
 
             <Link
-              href="/dashboard"
+              href="/solutions/dashboard"
               className="mt-5 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white"
               aria-label="View Dashboard Demo"
             >

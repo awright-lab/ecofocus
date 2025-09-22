@@ -29,7 +29,7 @@ export default function CoreServices({ services }: Props) {
       kicker: '90k+ data points. Real-time crosstabs.',
       description:
         'Your instant library of 13+ years of sustainability data. Build charts and exports for client briefs, campaign pitches, and trend reports.',
-      href: '/dashboard',
+      href: '/solutions/dashboard',
       image: '/images/solutions-dashboard.png',
       bullets: [
         'Seat licensing with onboarding',
@@ -43,7 +43,7 @@ export default function CoreServices({ services }: Props) {
       kicker: 'Your questions. Executive-ready insights.',
       description:
         'Comprehensive, census-balanced, and ready to fuel client strategy. Add custom modules to answer client-specific questions.',
-      href: '/solutions/syndicated-buy-in',
+      href: '/solutions/syndicated',
       image: '/images/solutions-syndicated.png',
       bullets: [
         '4,000+ U.S. respondents (Gen Pop)',

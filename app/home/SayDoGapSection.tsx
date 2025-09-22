@@ -21,7 +21,7 @@ type Props = {
 };
 
 export default function SayDoGapSection({
-  ctaHref = '/solutions/syndicated#methodology',
+  ctaHref = '/about/methodology',
   ctaLabel = 'See How We Measure What Matters',
 }: Props) {
   const reduceMotion = useReducedMotion();
