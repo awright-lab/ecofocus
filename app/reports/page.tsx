@@ -5,6 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 
 import ReportsHero from "./ReportsHero";
 import ReportsFilters from "./ReportsFilters";
+import AccessTabs from "./AccessTabs";
 import ReportsGrid from "./ReportsGrid";
 import ReportsBundles from "./ReportsBundles";
 import ReportsCTA from "./ReportsCTA";
@@ -42,6 +43,7 @@ export default async function ReportsPage({
         />
 
         <ReportsFilters />
+        <AccessTabs />
         <ReportsGrid initial={initial} query={query} />
 
         <ReportsBundles />
@@ -51,6 +53,7 @@ export default async function ReportsPage({
     </>
   );
 }
+
 
 
 

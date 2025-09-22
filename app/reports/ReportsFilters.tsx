@@ -1,20 +1,31 @@
+// app/reports/sections/ReportsFilters.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
-/**
- * Lightweight, client-side filter bar.
- * You can wire this to server data later; for now it just emits a custom event
- * the grid listens to (`reports:filters`).
- */
 export default function ReportsFilters() {
   const r = useReducedMotion();
-  const [q, setQ] = useState("");
-  const [year, setYear] = useState<string>("All");
-  const [topic, setTopic] = useState<string>("All");
-  const [type, setType] = useState<string>("All");
-  const [sort, setSort] = useState<string>("Newest");
+  const pathname = usePathname();
+  const router = useRouter();
+  const sp = useSearchParams();
+
+  const [q, setQ] = useState(sp.get("q") ?? "");
+  const [year, setYear] = useState(sp.get("year") ?? "All");
+  const [topic, setTopic] = useState(sp.get("topic") ?? "All");
+  const [type, setType] = useState(sp.get("type") ?? "All");
+  const [access, setAccess] = useState(sp.get("access") ?? "All");
+  const [sort, setSort] = useState(sp.get("sort") ?? "Newest");
+
+  useEffect(() => {
+    setQ(sp.get("q") ?? "");
+    setYear(sp.get("year") ?? "All");
+    setTopic(sp.get("topic") ?? "All");
+    setType(sp.get("type") ?? "All");
+    setAccess(sp.get("access") ?? "All");
+    setSort(sp.get("sort") ?? "Newest");
+  }, [sp]);
 
   const years = useMemo(() => ["All", "2025", "2024", "2023", "2019–2022"], []);
   const topics = useMemo(
@@ -22,27 +33,35 @@ export default function ReportsFilters() {
     []
   );
   const types = useMemo(() => ["All", "Full Report", "Brief/One-Pager", "Infographic"], []);
+  const accesses = useMemo(() => ["All", "Free", "Premium"], []);
 
-  function emit() {
-    window.dispatchEvent(
-      new CustomEvent("reports:filters", {
-        detail: { q, year, topic, type, sort },
-      })
-    );
+  function push(params: Record<string, string>) {
+    const next = new URLSearchParams(sp.toString());
+    Object.entries(params).forEach(([k, v]) => {
+      if (!v || v === "All" || (k === "q" && v.trim() === "")) next.delete(k);
+      else next.set(k, v);
+    });
+    next.delete("cursor");
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  }
+
+  function onSubmit(e?: React.FormEvent) {
+    e?.preventDefault();
+    push({ q, year, topic, type, access, sort });
   }
 
   return (
     <section className="relative bg-white" aria-labelledby="reports-filters">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-8">
-        <motion.div
+        <motion.form
           initial={r ? false : { opacity: 0, y: -8 }}
           whileInView={r ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45 }}
+          onSubmit={onSubmit}
           className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
         >
           <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
-            {/* Search */}
             <div className="md:col-span-4">
               <label htmlFor="report-search" className="sr-only">Search reports</label>
               <input
@@ -51,74 +70,35 @@ export default function ReportsFilters() {
                 placeholder="Search titles, topics…"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                onBlur={emit}
-                onKeyDown={(e) => e.key === "Enter" && emit()}
+                onBlur={onSubmit}
+                onKeyDown={(e) => e.key === "Enter" && onSubmit()}
                 className="w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
 
-            {/* Year */}
-            <Select
-              label="Year"
-              value={year}
-              onChange={(v) => { setYear(v); emit(); }}
-              options={years}
-              className="md:col-span-2"
-            />
-
-            {/* Topic */}
-            <Select
-              label="Topic"
-              value={topic}
-              onChange={(v) => { setTopic(v); emit(); }}
-              options={topics}
-              className="md:col-span-3"
-            />
-
-            {/* Type */}
-            <Select
-              label="Type"
-              value={type}
-              onChange={(v) => { setType(v); emit(); }}
-              options={types}
-              className="md:col-span-2"
-            />
-
-            {/* Sort */}
-            <Select
-              label="Sort"
-              value={sort}
-              onChange={(v) => { setSort(v); emit(); }}
-              options={["Newest", "A–Z"]}
-              className="md:col-span-1"
-            />
+            <Select label="Year" value={year} onChange={(v) => { setYear(v); push({ year: v }); }} options={years} className="md:col-span-2" />
+            <Select label="Topic" value={topic} onChange={(v) => { setTopic(v); push({ topic: v }); }} options={topics} className="md:col-span-3" />
+            <Select label="Type" value={type} onChange={(v) => { setType(v); push({ type: v }); }} options={types} className="md:col-span-2" />
+            <Select label="Access" value={access} onChange={(v) => { setAccess(v); push({ access: v }); }} options={accesses} className="md:col-span-1" />
+            <Select label="Sort" value={sort} onChange={(v) => { setSort(v); push({ sort: v }); }} options={["Newest", "A–Z"]} className="md:col-span-0 md:col-start-12" />
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Chip label="Gen Z" onClick={() => { setTopic("Gen Z"); emit(); }} />
-            <Chip label="Packaging & Claims" onClick={() => { setTopic("Packaging & Claims"); emit(); }} />
-            <Chip label="Food & Bev" onClick={() => { setTopic("Category: Food & Bev"); emit(); }} />
-            <Chip label="Millennials" onClick={() => { setTopic("Millennials"); emit(); }} />
-            <Chip label="Sustainability Attitudes" onClick={() => { setTopic("Sustainability Attitudes"); emit(); }} />
+            <Chip label="Free" onClick={() => { setAccess("Free"); push({ access: "Free" }); }} />
+            <Chip label="Premium" onClick={() => { setAccess("Premium"); push({ access: "Premium" }); }} />
+            <Chip label="Gen Z" onClick={() => { setTopic("Gen Z"); push({ topic: "Gen Z" }); }} />
+            <Chip label="Packaging & Claims" onClick={() => { setTopic("Packaging & Claims"); push({ topic: "Packaging & Claims" }); }} />
           </div>
-        </motion.div>
+        </motion.form>
       </div>
     </section>
   );
 }
 
 function Select({
-  label,
-  value,
-  onChange,
-  options,
-  className = "",
+  label, value, onChange, options, className = "",
 }: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-  className?: string;
+  label: string; value: string; onChange: (v: string) => void; options: string[]; className?: string;
 }) {
   return (
     <div className={className}>
@@ -145,3 +125,4 @@ function Chip({ label, onClick }: { label: string; onClick: () => void }) {
     </button>
   );
 }
+

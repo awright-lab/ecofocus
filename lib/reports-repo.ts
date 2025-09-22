@@ -4,22 +4,23 @@ export type Access = "Free" | "Premium";
 export type Report = {
   id: string;
   title: string;
+  subtitle?: string;
   cover: string;
-  date: string;        // ISO string
-  year: string;        // "2025"
+  date: string; // ISO
+  year: string; // "2025"
   type: "Full Report" | "Brief/One-Pager" | "Infographic";
-  topic: string;       // e.g., "Gen Z"
-  wave?: string;       // "2025 H1"
+  topic: string;
+  wave?: string;
   pages?: number;
-  format?: string;     // "PDF"
+  format?: string;
   sampleHref?: string;
   detailHref: string;
 
-  // NEW
+  // Access & commerce
   access: Access;
-  freeHref?: string;        // direct download for free items
-  priceCents?: number;      // premium pricing (optional)
-  priceDisplay?: string;    // human-readable label (e.g., "$149")
+  freeHref?: string;      // for Free items
+  priceId?: string;       // Stripe Price ID for Premium
+  priceDisplay?: string;  // e.g., "$149"
 };
 
 export type ListQuery = {
@@ -33,10 +34,12 @@ export type ListQuery = {
   cursor?: string;
 };
 
-const SEED: Report[] = [
+// ---- Seed (replace with real CMS data when ready) ----
+const REPORTS: Report[] = [
   {
     id: "2025-genz-brand-purpose",
     title: "Gen Z & Brand Purpose: Signals that move behavior (2025 H1)",
+    subtitle: "What actually changes purchase, advocacy, and loyalty among Gen Z.",
     cover: "/images/reports/cover-genz-purpose-2025.jpg",
     date: "2025-06-15",
     year: "2025",
@@ -48,12 +51,13 @@ const SEED: Report[] = [
     sampleHref: "/files/reports/2025-genz-purpose-sample.pdf",
     detailHref: "/reports/2025-genz-brand-purpose",
     access: "Premium",
-    priceCents: 14900,
+    priceId: "price_12345_gzpurpose_2025", // <-- put real Stripe price id
     priceDisplay: "$149",
   },
   {
     id: "2024-claims-packaging",
     title: "Sustainability Claims & Packaging Language (Cross-Gen)",
+    subtitle: "Which claims are credible, and which trigger backlash.",
     cover: "/images/reports/cover-claims-packaging-2024.jpg",
     date: "2024-10-02",
     year: "2024",
@@ -65,12 +69,13 @@ const SEED: Report[] = [
     sampleHref: "/files/reports/2024-claims-packaging-sample.pdf",
     detailHref: "/reports/2024-claims-packaging",
     access: "Premium",
-    priceCents: 12900,
+    priceId: "price_12345_claims_2024",
     priceDisplay: "$129",
   },
   {
     id: "2025-foodbev-values",
     title: "Category Focus: Food & Beverage Values Map (2025)",
+    subtitle: "Where purpose and purchase behavior meet in Food & Bev.",
     cover: "/images/reports/cover-foodbev-2025.jpg",
     date: "2025-04-01",
     year: "2025",
@@ -87,6 +92,7 @@ const SEED: Report[] = [
   {
     id: "2023-sustainability-attitudes",
     title: "Sustainability Attitudes: Say–Do Gap Watchlist",
+    subtitle: "Key attitude clusters and where behavior diverges.",
     cover: "/images/reports/cover-attitudes-2023.jpg",
     date: "2023-09-09",
     year: "2023",
@@ -112,9 +118,11 @@ function applyFilters(
 ) {
   const qq = (q || "").trim().toLowerCase();
   return list.filter((r) => {
-    const matchQ = !qq || r.title.toLowerCase().includes(qq) || r.topic.toLowerCase().includes(qq);
+    const matchQ =
+      !qq || r.title.toLowerCase().includes(qq) || r.topic.toLowerCase().includes(qq);
     const matchYear =
-      !year || year === "All" || r.year === year || (year === "2019–2022" && ["2019","2020","2021","2022"].includes(r.year));
+      !year || year === "All" || r.year === year ||
+      (year === "2019–2022" && ["2019", "2020", "2021", "2022"].includes(r.year));
     const matchTopic = !topic || topic === "All" || r.topic === topic;
     const matchType = !type || type === "All" || r.type === type;
     const matchAccess = !access || access === "All" || r.access === access;
@@ -129,14 +137,17 @@ function applySort(list: Report[], sort?: "Newest" | "A–Z") {
 
 export async function listReports(query: ListQuery) {
   const { q, year, topic, type, access = "All", sort = "Newest", limit = 24, cursor } = query;
-
-  const filtered = applySort(applyFilters(SEED, q, year, topic, type, access), sort);
+  const filtered = applySort(applyFilters(REPORTS, q, year, topic, type, access), sort);
   const start = cursor ? Number(cursor) || 0 : 0;
   const end = Math.min(start + limit, filtered.length);
   const items = filtered.slice(start, end);
   const nextCursor = end < filtered.length ? String(end) : undefined;
-
   return { items, nextCursor, total: filtered.length };
 }
+
+export async function getReportById(id: string) {
+  return REPORTS.find((r) => r.id === id) || null;
+}
+
 
   

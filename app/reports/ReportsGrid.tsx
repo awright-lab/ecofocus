@@ -1,3 +1,4 @@
+// app/reports/sections/ReportsGrid.tsx
 "use client";
 
 import Image from "next/image";
@@ -9,6 +10,7 @@ import { motion, useReducedMotion } from "framer-motion";
 type Report = {
   id: string;
   title: string;
+  subtitle?: string;
   cover: string;
   date: string;
   year: string;
@@ -21,7 +23,7 @@ type Report = {
   detailHref: string;
   access: "Free" | "Premium";
   freeHref?: string;
-  priceCents?: number;
+  priceId?: string;
   priceDisplay?: string;
 };
 
@@ -155,7 +157,7 @@ export default function ReportsGrid({
                 transition={{ duration: 0.4, delay: (i % 12) * 0.02 }}
                 className="flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-lg"
               >
-                {/* IMAGE + BADGES */}
+                {/* image + badges */}
                 <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-white ring-1 ring-gray-200">
                   <Image
                     src={rep.cover}
@@ -164,11 +166,9 @@ export default function ReportsGrid({
                     className="object-contain"
                     sizes="(min-width:1280px) 22vw, (min-width:1024px) 28vw, (min-width:640px) 45vw, 92vw"
                   />
-                  {/* Type badge (top-left) */}
                   <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-gray-900/80 px-2 py-0.5 text-[11px] font-semibold text-white shadow">
                     {rep.type}
                   </span>
-                  {/* Access / Price (top-right) */}
                   {rep.access === "Free" ? (
                     <span className="absolute right-3 top-3 inline-flex items-center rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-emerald-950 shadow">
                       Free
@@ -181,7 +181,7 @@ export default function ReportsGrid({
                   )}
                 </div>
 
-                {/* META */}
+                {/* meta */}
                 <div className="mt-3 flex-1">
                   <h3 className="text-sm font-semibold leading-snug text-gray-900">{rep.title}</h3>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
@@ -194,17 +194,15 @@ export default function ReportsGrid({
 
                 {/* CTAs */}
                 <div className="mt-3 grid grid-cols-2 gap-2">
-                  {rep.sampleHref ? (
-                    <a
-                      href={rep.sampleHref}
-                      className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-900 hover:bg-gray-50"
-                    >
-                      Sample
-                    </a>
-                  ) : (
-                    <span />
-                  )}
-
+                  <Link
+                    href={rep.detailHref}
+                    className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300
+                               before:content-[''] before:absolute before:inset-0 before:rounded-full
+                               before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                               before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                  >
+                    <span className="relative z-10">View details</span>
+                  </Link>
                   {rep.access === "Free" && rep.freeHref ? (
                     <a
                       href={rep.freeHref}
@@ -215,17 +213,14 @@ export default function ReportsGrid({
                     >
                       <span className="relative z-10">Download free</span>
                     </a>
-                  ) : (
-                    <Link
-                      href={rep.detailHref}
-                      className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300
-                                 before:content-[''] before:absolute before:inset-0 before:rounded-full
-                                 before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                                 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                  ) : rep.sampleHref ? (
+                    <a
+                      href={rep.sampleHref}
+                      className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-900 hover:bg-gray-50"
                     >
-                      <span className="relative z-10">View details</span>
-                    </Link>
-                  )}
+                      Sample
+                    </a>
+                  ) : <span />}
                 </div>
               </motion.article>
             ))}
@@ -254,5 +249,6 @@ export default function ReportsGrid({
     </section>
   );
 }
+
 
 
