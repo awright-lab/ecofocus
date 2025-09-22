@@ -2,9 +2,9 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import type { Report } from "@/lib/reports-repo";
+import type { ReportDetail } from "@/lib/reports-repo";
 
-export default function CoverHero({ report }: { report: Report }) {
+export default function CoverHero({ report }: { report: ReportDetail }) {
   const r = useReducedMotion();
   return (
     <section className="relative overflow-hidden section-hero-deep">

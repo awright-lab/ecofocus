@@ -1,10 +1,8 @@
-// app/reports/[id]/page.tsx
+// app/reports/[slug]/page.tsx
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
-
-import { getReportById } from "@/lib/reports-repo";
-
+import { getReportBySlug } from "@/lib/reports-repo";
 import CoverHero from "./CoverHero";
 import PurchaseButtons from "./PurchaseButtons";
 import FreeGateButton from "./FreeGateButton";
@@ -12,10 +10,10 @@ import FreeGateButton from "./FreeGateButton";
 export default async function ReportDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { slug: string };
 }) {
-  const { id } = await params;
-  const report = await getReportById(id);
+  const { slug } = params;
+  const report = await getReportBySlug(slug);
 
   if (!report) {
     return (
@@ -39,7 +37,11 @@ export default async function ReportDetailPage({
         <CoverHero report={report} />
 
         <Breadcrumbs
-          items={[{ label: "Home", href: "/" }, { label: "Reports", href: "/reports" }, { label: report.title }]}
+          items={[
+            { label: "Home", href: "/" },
+            { label: "Reports", href: "/reports" },
+            { label: report.title },
+          ]}
           maxWidth="max-w-7xl"
         />
 
@@ -65,7 +67,7 @@ export default async function ReportDetailPage({
               <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600">
                   {report.wave && <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{report.wave}</span>}
-                  <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{report.topic}</span>
+                  {report.topic && <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{report.topic}</span>}
                   <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{report.year}</span>
                   {report.pages && <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{report.pages} pp</span>}
                   {report.format && <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{report.format}</span>}
@@ -80,7 +82,10 @@ export default async function ReportDetailPage({
                   <div className="mt-4">
                     <FreeGateButton fileHref={report.freeHref!} />
                     {report.sampleHref && (
-                      <a href={report.sampleHref} className="ml-2 inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50">
+                      <a
+                        href={report.sampleHref}
+                        className="ml-2 inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-50"
+                      >
                         Sample
                       </a>
                     )}
@@ -95,6 +100,7 @@ export default async function ReportDetailPage({
     </>
   );
 }
+
 
 
 

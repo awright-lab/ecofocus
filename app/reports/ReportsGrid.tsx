@@ -3,241 +3,142 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
+/** Match your existing API shape */
 type Report = {
   id: string;
+  slug: string;
   title: string;
-  subtitle?: string;
-  cover: string;
-  date: string;
-  year: string;
-  type: "Full Report" | "Brief/One-Pager" | "Infographic";
-  topic: string;
-  wave?: string;
-  pages?: number;
-  format?: string;
-  sampleHref?: string;
-  detailHref: string;
-  access: "Free" | "Premium";
-  freeHref?: string;
-  priceId?: string;
-  priceDisplay?: string;
+  year: number | string;
+  price: number;                  // 0 for free
+  access: "Free" | "Premium" | string;
+  tags?: string[];
+  description?: string;
+  cover?: string;                 // optional thumbnail/cover
 };
 
-type Initial = {
+type ApiResponse = {
   items: Report[];
-  nextCursor?: string;
-  total: number;
+  nextCursor?: string | null;
+  total?: number;
 };
 
-export default function ReportsGrid({
-  initial,
-  query,
-}: {
-  initial: Initial;
-  query: {
-    q?: string;
-    year?: string;
-    topic?: string;
-    type?: string;
-    access?: "All" | "Free" | "Premium";
-    sort?: "Newest" | "A–Z";
-    limit?: number;
-    cursor?: string;
-  };
-}) {
+const PAGE_LIMIT = 12;
+
+export default function ReportsGrid() {
   const r = useReducedMotion();
   const sp = useSearchParams();
 
-  const [items, setItems] = useState<Report[]>(initial.items);
-  const [cursor, setCursor] = useState<string | undefined>(initial.nextCursor);
-  const [total, setTotal] = useState<number>(initial.total);
-  const [loading, setLoading] = useState(false);
+  // read current filters (keep your canonical params)
+  const q = sp.get("q") ?? "";
+  const year = sp.get("year") ?? "All";
+  const topic = sp.get("topic") ?? "All";
+  const type = sp.get("type") ?? "All";
+  const access = (sp.get("access") ?? "All") as "All" | "Free" | "Premium";
+  const sort = (sp.get("sort") ?? "Newest") as "Newest" | "AtoZ";
 
-  const didMount = useRef(false);
-  const key = sp.toString();
+  const [items, setItems] = useState<Report[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null | undefined>(null);
+  const [total, setTotal] = useState<number | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
 
+  // Build base query (without cursor); mirrors your /api/reports route.ts
+  const baseQuery = useMemo(() => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    if (access !== "All") p.set("access", access.toLowerCase()); // free|premium
+    if (year !== "All") p.set("year", year);
+    if (topic !== "All") p.set("topic", topic);
+    if (type !== "All") p.set("type", type);
+    p.set("sort", sort);
+    p.set("limit", String(PAGE_LIMIT));
+    return p;
+  }, [q, access, year, topic, type, sort]);
+
+  // Initial fetch whenever filters change
   useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true;
-      return;
-    }
-    let cancelled = false;
-
-    async function refetch() {
-      setLoading(true);
-      const url =
-        "/api/reports?" +
-        new URLSearchParams({
-          q: sp.get("q") ?? "",
-          year: sp.get("year") ?? "All",
-          topic: sp.get("topic") ?? "All",
-          type: sp.get("type") ?? "All",
-          access: sp.get("access") ?? "All",
-          sort: sp.get("sort") ?? "Newest",
-          limit: String(query.limit ?? 24),
-        }).toString();
-
-      const res = await fetch(url, { cache: "no-store" });
-      const data = (await res.json()) as Initial;
-      if (cancelled) return;
-
-      setItems(data.items);
-      setCursor(data.nextCursor);
-      setTotal(data.total);
-      setLoading(false);
-    }
-
-    refetch();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
-
-  async function loadMore() {
-    if (!cursor || loading) return;
+    let ignore = false;
     setLoading(true);
 
-    const url =
-      "/api/reports?" +
-      new URLSearchParams({
-        q: sp.get("q") ?? "",
-        year: sp.get("year") ?? "All",
-        topic: sp.get("topic") ?? "All",
-        type: sp.get("type") ?? "All",
-        access: sp.get("access") ?? "All",
-        sort: sp.get("sort") ?? "Newest",
-        limit: String(query.limit ?? 24),
-        cursor,
-      }).toString();
+    const p = new URLSearchParams(baseQuery.toString());
+    fetch(`/api/reports?${p.toString()}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((json: ApiResponse) => {
+        if (ignore) return;
+        setItems(json.items || []);
+        setNextCursor(json.nextCursor ?? null);
+        setTotal(json.total);
+      })
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
 
-    const res = await fetch(url, { cache: "no-store" });
-    const data = (await res.json()) as Initial;
+    return () => {
+      ignore = true;
+    };
+  }, [baseQuery]);
 
-    setItems((prev) => [...prev, ...data.items]);
-    setCursor(data.nextCursor);
-    setTotal(data.total);
+  async function loadMore() {
+    if (!nextCursor) return;
+    setLoading(true);
+    const p = new URLSearchParams(baseQuery.toString());
+    p.set("cursor", nextCursor);
+    const res = await fetch(`/api/reports?${p.toString()}`, { cache: "no-store" });
+    const json: ApiResponse = await res.json();
+    setItems((prev) => prev.concat(json.items || []));
+    setNextCursor(json.nextCursor ?? null);
     setLoading(false);
   }
 
-  const shown = items.length;
-  const empty = shown === 0 && !loading;
-
   return (
-    <section className="relative bg-white" aria-labelledby="reports-grid">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pb-12 sm:pb-14 md:pb-16">
-        <motion.h2
-          id="reports-grid"
-          initial={r ? false : { opacity: 0, y: -10 }}
-          whileInView={r ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
-        >
-          Latest reports & briefs
-        </motion.h2>
+    <section className="relative" aria-labelledby="reports-grid">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
+        {/* Header row: count + (optional) helper text */}
+        <div className="mb-4 flex items-center justify-between">
+          <h2 id="reports-grid" className="sr-only">
+            Reports
+          </h2>
+          <p className="text-sm text-emerald-800">
+            {loading ? "Loading…" : `Showing ${items.length}${typeof total === "number" ? ` of ${total}` : ""}`}
+          </p>
+        </div>
 
-        <p className="mt-2 text-center text-xs text-gray-600">
-          Showing {shown} of {total}
-          {cursor ? "+" : ""} results
-        </p>
+        {/* LIST VIEW (replaces card grid): zebra rows + strong dividers */}
+        <ul className="divide-y divide-emerald-100 rounded-2xl ring-1 ring-emerald-100 bg-white overflow-hidden">
+          {loading && items.length === 0 && (
+            <li className="py-10 text-center text-emerald-700">Loading results…</li>
+          )}
 
-        {!empty ? (
-          <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {items.map((rep, i) => (
-              <motion.article
-                key={rep.id}
-                initial={r ? false : { opacity: 0, y: 12 }}
-                whileInView={r ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: (i % 12) * 0.02 }}
-                className="flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-lg"
-              >
-                {/* image + badges */}
-                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-white ring-1 ring-gray-200">
-                  <Image
-                    src={rep.cover}
-                    alt={`${rep.title} cover`}
-                    fill
-                    className="object-contain"
-                    sizes="(min-width:1280px) 22vw, (min-width:1024px) 28vw, (min-width:640px) 45vw, 92vw"
-                  />
-                  <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-gray-900/80 px-2 py-0.5 text-[11px] font-semibold text-white shadow">
-                    {rep.type}
-                  </span>
-                  {rep.access === "Free" ? (
-                    <span className="absolute right-3 top-3 inline-flex items-center rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-emerald-950 shadow">
-                      Free
-                    </span>
-                  ) : (
-                    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200 shadow">
-                      <i className="ri-lock-2-line text-[12px] opacity-70" aria-hidden />
-                      {rep.priceDisplay ?? "Premium"}
-                    </span>
-                  )}
-                </div>
+          {!loading && items.length === 0 && (
+            <li className="py-10 text-center text-emerald-700">No results match your filters.</li>
+          )}
 
-                {/* meta */}
-                <div className="mt-3 flex-1">
-                  <h3 className="text-sm font-semibold leading-snug text-gray-900">{rep.title}</h3>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
-                    {rep.wave && <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.wave}</span>}
-                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.topic}</span>
-                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.year}</span>
-                    {rep.pages ? <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.pages} pp</span> : null}
-                  </div>
-                </div>
+          {items.map((report, idx) => (
+            <motion.li
+              key={report.id}
+              initial={r ? false : { opacity: 0, y: 6 }}
+              whileInView={r ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-20% 0px -10% 0px" }}
+              transition={{ duration: 0.28, delay: (idx % 6) * 0.02 }}
+              className={idx % 2 === 1 ? "bg-emerald-50/30" : "bg-white"}
+            >
+              <ReportRow report={report} />
+            </motion.li>
+          ))}
+        </ul>
 
-                {/* CTAs */}
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <Link
-                    href={rep.detailHref}
-                    className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300
-                               before:content-[''] before:absolute before:inset-0 before:rounded-full
-                               before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                               before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                  >
-                    <span className="relative z-10">View details</span>
-                  </Link>
-                  {rep.access === "Free" && rep.freeHref ? (
-                    <a
-                      href={rep.freeHref}
-                      className="relative inline-flex items-center justify-center rounded-full bg-[#FFC107] px-3 py-2 text-xs font-semibold text-emerald-950 transition-all duration-300
-                                 before:content-[''] before:absolute before:inset-0 before:rounded-full
-                                 before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
-                                 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                    >
-                      <span className="relative z-10">Download free</span>
-                    </a>
-                  ) : rep.sampleHref ? (
-                    <a
-                      href={rep.sampleHref}
-                      className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-gray-900 hover:bg-gray-50"
-                    >
-                      Sample
-                    </a>
-                  ) : <span />}
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-12 text-center text-sm text-gray-600">
-            No reports match your filters. Try clearing one or more filters.
-          </div>
-        )}
-
-        {cursor && (
+        {/* Load more (cursor) */}
+        {nextCursor && (
           <div className="mt-8 flex justify-center">
             <button
               onClick={loadMore}
               disabled={loading}
-              className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300
-                         before:content-[''] before:absolute before:inset-0 before:rounded-full
+              className="relative inline-flex items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold text-white
+                         bg-emerald-600 hover:bg-emerald-700 transition
+                         before:absolute before:inset-0 before:rounded-xl before:opacity-20
                          before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
                          before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 disabled:opacity-60"
             >
@@ -249,6 +150,125 @@ export default function ReportsGrid({
     </section>
   );
 }
+
+/* --------------------- Row UI --------------------- */
+
+function ReportRow({ report }: { report: Report }) {
+  const isFree = String(report.access).toLowerCase() === "free" || Number(report.price) === 0;
+
+  return (
+    <div className="px-4 sm:px-6 py-5">
+      <div className="grid grid-cols-12 gap-4 items-start">
+        {/* Thumbnail (optional) */}
+        <div className="col-span-12 md:col-span-1 hidden sm:block">
+          {report.cover ? (
+            <Image
+              src={report.cover}
+              alt=""
+              width={80}
+              height={112}
+              className="h-28 w-20 rounded-md object-cover ring-1 ring-emerald-200"
+            />
+          ) : (
+            <div className="h-28 w-20 rounded-md bg-emerald-100 ring-1 ring-emerald-200" />
+          )}
+        </div>
+
+        {/* Title + meta */}
+        <div className="col-span-12 md:col-span-7">
+          <div className="flex items-center gap-2 mb-1">
+            <span
+              className={[
+                "inline-flex items-center rounded-full text-[11px] px-2 py-0.5 ring-1",
+                isFree
+                  ? "bg-emerald-100 text-emerald-800 ring-emerald-200"
+                  : "bg-marigold-100 text-marigold-900 ring-marigold-200",
+              ].join(" ")}
+            >
+              {isFree ? "Free" : "Premium"}
+            </span>
+            {report.year && (
+              <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-800 text-[11px] px-2 py-0.5 ring-1 ring-emerald-100">
+                {report.year}
+              </span>
+            )}
+          </div>
+
+          <h3 className="text-lg font-semibold text-emerald-950 leading-snug">
+            <Link href={`/reports/${report.slug}`} className="hover:underline">
+              {report.title}
+            </Link>
+          </h3>
+
+          {report.description && (
+            <p className="mt-1 text-sm text-emerald-800/80 line-clamp-2">
+              {report.description}
+            </p>
+          )}
+
+          {!!report.tags?.length && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {report.tags.map((t) => (
+                <span
+                  key={t}
+                  className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 ring-1 ring-emerald-100 text-emerald-800"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Price + CTAs */}
+        <div className="col-span-12 md:col-span-4 md:text-right">
+          {isFree ? (
+            <div className="text-sm text-emerald-700">No cost</div>
+          ) : (
+            <>
+              <div className="text-xs text-emerald-700">Excl. tax</div>
+              <div className="text-2xl font-bold text-emerald-950">
+                ${Number(report.price).toLocaleString()}
+              </div>
+            </>
+          )}
+
+          <div className="mt-3 flex md:justify-end gap-2">
+            <Link
+              href={`/reports/${report.slug}`}
+              className="px-3 py-2 rounded-lg border border-emerald-200 hover:bg-emerald-50 text-emerald-900"
+            >
+              View details
+            </Link>
+
+            {isFree ? (
+              <Link
+                href={`/reports/${report.slug}`}
+                className="px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                Download
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className="px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                onClick={() => {
+                  // Hook to your cart/Stripe. This matches your current pattern.
+                  window.dispatchEvent(
+                    new CustomEvent("cart:add", { detail: { id: report.id, slug: report.slug } })
+                  );
+                }}
+              >
+                Add to cart
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 
 
