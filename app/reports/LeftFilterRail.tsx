@@ -1,13 +1,20 @@
-// components/reports/LeftFilterRail.tsx
+// app/reports/LeftFilterRail.tsx
 "use client";
 
 import { YEARS, TOPIC_MAP, TYPE_MAP } from "./filter.constants";
 import type { Access } from "./useReportSearchParams";
 
 export function LeftFilterRail({
-  access, year, topic, type, setParam,
+  access,
+  year,
+  topic,
+  type,
+  setParam,
 }: {
-  access: Access; year: string; topic: string; type: string;
+  access: Access;
+  year: string;
+  topic: string;
+  type: string;
   setParam: (k: string, v?: string | number | null) => void;
 }) {
   return (
@@ -15,18 +22,17 @@ export function LeftFilterRail({
       <h3 className="text-sm font-semibold tracking-wide text-emerald-900">Refine</h3>
       <div className="soft-divider my-3" />
 
-      {/* Access segmented */}
+      {/* Access */}
       <div>
         <div className="text-xs font-medium text-emerald-900 mb-2">Access</div>
         <div className="inline-grid grid-cols-3 gap-1 bg-white rounded-lg p-1 border border-emerald-100">
           {(["All", "Free", "Premium"] as Access[]).map((v) => (
             <button
               key={v}
-              onClick={() => setParam("access", v === "All" ? undefined : v)}
+              onClick={() => setParam("access", v === "All" ? undefined : v)} // keep case
               className={[
                 "px-3 py-1.5 rounded-md text-sm transition",
-                access === v ? "bg-emerald-600 text-white"
-                              : "text-emerald-900 hover:bg-emerald-50",
+                access === v ? "bg-emerald-600 text-white" : "text-emerald-900 hover:bg-emerald-50",
               ].join(" ")}
               aria-pressed={access === v}
             >
@@ -52,8 +58,7 @@ export function LeftFilterRail({
               onClick={() => setParam("year", y)}
               className={[
                 "text-sm rounded-md px-2 py-1 text-left",
-                year === String(y) ? "bg-emerald-100 text-emerald-900"
-                                   : "hover:bg-emerald-50 text-emerald-800",
+                year === String(y) ? "bg-emerald-100 text-emerald-900" : "hover:bg-emerald-50 text-emerald-800",
               ].join(" ")}
               aria-pressed={year === String(y)}
             >
@@ -105,14 +110,22 @@ export function LeftFilterRail({
   );
 }
 
-function Chip({ label, active, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+function Chip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
       onClick={onClick}
       className={[
         "text-xs px-2 py-1 rounded-full border transition",
         active
-          ? "bg-amber-50 border-amber-200 text-amber-900"   // marigold accent via Tailwind's amber
+          ? "bg-amber-50 border-amber-200 text-amber-900"
           : "bg-emerald-50 border-emerald-100 text-emerald-900 hover:bg-emerald-100",
       ].join(" ")}
       aria-pressed={!!active}
@@ -121,4 +134,5 @@ function Chip({ label, active, onClick }: { label: string; active?: boolean; onC
     </button>
   );
 }
+
 

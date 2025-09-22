@@ -70,7 +70,7 @@ function ReportsPageInner() {
           </main>
         </div>
 
-        {/* FULL-WIDTH sections under the grid */}
+        {/* FULL-WIDTH sections below the grid */}
         <div className="mt-12 space-y-12">
           <ReportsBundles />
           <ReportsCTA />
@@ -86,7 +86,6 @@ function ReportsPageInner() {
         type={type}
         setParam={(k, v) => {
           setParam(k, v);
-          // setMobileOpen(false); // enable if you want auto-close on first change
         }}
       />
     </div>

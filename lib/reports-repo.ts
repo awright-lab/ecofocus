@@ -10,13 +10,13 @@ export type Sort = "Newest" | "AtoZ";
 
 export type ListReportsInput = {
   q?: string;
-  year?: string;     // "All" or "2025"
-  topic?: string;    // slug or "All"
-  type?: string;     // slug or "All"
-  access?: Access;   // "All" | "Free" | "Premium"
-  sort?: Sort;       // "Newest" | "AtoZ"
-  limit?: number;    // default 12
-  cursor?: string | null; // opaque index for paging
+  year?: string;
+  topic?: string;
+  type?: string;
+  access?: Access | string; // tolerate any case
+  sort?: Sort;
+  limit?: number;
+  cursor?: string | null;
 };
 
 export type ReportListItem = {
@@ -29,7 +29,8 @@ export type ReportListItem = {
   tags?: string[];
   description?: string;
   thumbnail?: string | null;
-  // optional extras (ignored by list UI if absent)
+
+  // optional
   priceId?: string;
   freeHref?: string;
   sampleHref?: string;
@@ -52,19 +53,34 @@ export type ReportDetail = {
   subtitle?: string;
   year: number;
   topic?: string;
-  wave?: string;         // e.g., "2025 H1"
-  pages?: number;        // e.g., 42
-  format?: string;       // "PDF", "Slides", ...
+  wave?: string;
+  pages?: number;
+  format?: string;
   access: "Free" | "Premium";
   price?: number;
-  priceDisplay?: string; // "$149"
-  priceId?: string;      // Stripe price id
-  freeHref?: string;     // for free gate
-  sampleHref?: string;   // optional
+  priceDisplay?: string;
+  priceId?: string;
+  freeHref?: string;
+  sampleHref?: string;
   description?: string;
   body?: string;
   thumbnail?: string | null;
 };
+
+// convenient alias (some components import Report)
+export type Report = ReportDetail;
+
+/* =========================
+   Helpers
+   ========================= */
+
+function normalizeAccess(val?: string | null): "All" | "Free" | "Premium" {
+  if (!val) return "All";
+  const x = String(val).trim().toLowerCase();
+  if (x === "free") return "Free";
+  if (x === "premium") return "Premium";
+  return "All";
+}
 
 /* =========================
    Backend toggle
@@ -73,10 +89,9 @@ export type ReportDetail = {
 const BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload" | "mock"
 
 /* =========================
-   MOCK BACKEND (dev/default)
+   MOCK BACKEND
    ========================= */
 
-// Seed data for list
 const MOCK_BASE_LIST: ReportListItem[] = [
   {
     id: "1",
@@ -86,7 +101,8 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     price: 149,
     access: "Premium",
     tags: ["Gen Z", "Packaging & Claims", "Global"],
-    description: "Defendable stats, trend context, and white-label visuals from the EcoFocus syndicated study.",
+    description:
+      "Defendable stats, trend context, and white-label visuals from the EcoFocus syndicated study.",
     thumbnail: null,
     priceId: "price_123",
     wave: "2025 H1",
@@ -102,7 +118,8 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     price: 0,
     access: "Free",
     tags: ["Packaging & Claims", "US"],
-    description: "Top packaging messages driving purchase intent and trust—benchmarks and examples.",
+    description:
+      "Top packaging messages driving purchase intent and trust—benchmarks and examples.",
     thumbnail: null,
     freeHref: "/files/packaging-claims-2025.pdf",
     sampleHref: "/files/packaging-claims-2025-sample.pdf",
@@ -119,7 +136,8 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     price: 499,
     access: "Premium",
     tags: ["Sustainability", "US", "Retail"],
-    description: "Longitudinal read on attitudes and behaviors, with breakouts by generation and income.",
+    description:
+      "Longitudinal read on attitudes and behaviors, with breakouts by generation and income.",
     thumbnail: null,
     priceId: "price_456",
     wave: "2024 Annual",
@@ -135,7 +153,8 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     price: 0,
     access: "Free",
     tags: ["Beverage", "Global"],
-    description: "Where function meets flavor: growth territories and consumer language that resonates.",
+    description:
+      "Where function meets flavor: growth territories and consumer language that resonates.",
     thumbnail: null,
     freeHref: "/files/functional-beverage-2025.pdf",
     wave: "2025",
@@ -158,15 +177,15 @@ function cloneList(base: ReportListItem[], n: number): ReportListItem[] {
   }
   return out;
 }
-
 const MOCK_LIST_DATA: ReportListItem[] = cloneList(MOCK_BASE_LIST, 120);
 
-// Separate mock detail dataset so we can look up by id/slug without calling listReports
-const MOCK_BASE_DETAIL: ReportDetail[] = MOCK_BASE_LIST.map((r) => ({
+// build separate mock detail data so we don't call list inside detail APIs
+const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_LIST_DATA.map((r) => ({
   id: r.id,
   slug: r.slug,
   title: r.title,
-  subtitle: "A focused EcoFocus analysis with segmentable reads and agency-ready outputs.",
+  subtitle:
+    "A focused EcoFocus analysis with segmentable reads and agency-ready outputs.",
   year: r.year,
   topic: r.topic || r.tags?.[0],
   wave: r.wave,
@@ -174,7 +193,8 @@ const MOCK_BASE_DETAIL: ReportDetail[] = MOCK_BASE_LIST.map((r) => ({
   format: r.format || "PDF",
   access: r.access,
   price: r.price,
-  priceDisplay: r.price ? `$${Number(r.price).toLocaleString()}` : "$0",
+  priceDisplay:
+    typeof r.price === "number" ? `$${Number(r.price).toLocaleString()}` : "",
   priceId: r.priceId,
   freeHref: r.freeHref,
   sampleHref: r.sampleHref,
@@ -182,27 +202,18 @@ const MOCK_BASE_DETAIL: ReportDetail[] = MOCK_BASE_LIST.map((r) => ({
   thumbnail: r.thumbnail,
 }));
 
-function cloneDetail(base: ReportDetail[], n: number): ReportDetail[] {
-  const out: ReportDetail[] = [];
-  for (let i = 0; i < n; i++) {
-    const b = base[i % base.length];
-    out.push({
-      ...b,
-      id: `${b.id}-${i}`,
-      slug: `${b.slug}-${i}`,
-      year: b.year - (i % 4 === 0 ? 1 : 0),
-    });
-  }
-  return out;
-}
-const MOCK_DETAIL_DATA: ReportDetail[] = cloneDetail(MOCK_BASE_DETAIL, 120);
-
-function filterListByInput(data: ReportListItem[], input: ListReportsInput): ReportListItem[] {
+function filterListByInput(
+  data: ReportListItem[],
+  input: ListReportsInput
+): ReportListItem[] {
   let filtered = data.slice();
 
-  // Access
-  if (input.access === "Free" || input.access === "Premium") {
-    filtered = filtered.filter((r) => r.access === input.access);
+  // Access (case-insensitive)
+  const acc = normalizeAccess(input.access as any);
+  if (acc === "Free" || acc === "Premium") {
+    filtered = filtered.filter(
+      (r) => normalizeAccess(r.access as any) === acc
+    );
   }
 
   // Year
@@ -211,7 +222,7 @@ function filterListByInput(data: ReportListItem[], input: ListReportsInput): Rep
     if (!Number.isNaN(y)) filtered = filtered.filter((r) => r.year === y);
   }
 
-  // Topic (slug) — try loose match against tags or topic field
+  // Topic (slug-ish) – loose match to tags/topic
   if (input.topic && input.topic !== "All") {
     const norm = input.topic.replace(/-/g, " ").toLowerCase();
     filtered = filtered.filter((r) => {
@@ -221,12 +232,9 @@ function filterListByInput(data: ReportListItem[], input: ListReportsInput): Rep
     });
   }
 
-  // Type (slug) — no-op in mock unless you store it; included for parity
-  if (input.type && input.type !== "All") {
-    // If you later add r.type, filter here. For now, ignore in mock.
-  }
+  // Type – no-op in mock unless you add a type field
 
-  // q search
+  // q
   if (input.q) {
     const q = input.q.toLowerCase();
     filtered = filtered.filter(
@@ -247,7 +255,9 @@ function filterListByInput(data: ReportListItem[], input: ListReportsInput): Rep
   return filtered;
 }
 
-async function listReportsMock(input: ListReportsInput): Promise<ListReportsResult> {
+async function listReportsMock(
+  input: ListReportsInput
+): Promise<ListReportsResult> {
   const limit = Math.max(1, Math.min(60, input.limit || 12));
   const filtered = filterListByInput(MOCK_LIST_DATA, input);
   const start = input.cursor ? parseInt(input.cursor, 10) || 0 : 0;
@@ -261,60 +271,64 @@ async function listReportsMock(input: ListReportsInput): Promise<ListReportsResu
   };
 }
 
-async function getMockDetailBy(key: "id" | "slug", val: string): Promise<ReportDetail | null> {
+async function getMockDetailBy(
+  key: "id" | "slug",
+  val: string
+): Promise<ReportDetail | null> {
   const found = MOCK_DETAIL_DATA.find((r) => String(r[key]) === String(val));
   return found ?? null;
 }
 
 /* =========================
-   PAYLOAD BACKEND (prod)
-   =========================
-   Env:
-     REPORTS_BACKEND=payload
-     PAYLOAD_BASE_URL=https://your-payload-host
-     PAYLOAD_API_TOKEN=<optional JWT if required>
-*/
+   PAYLOAD BACKEND
+   ========================= */
 
 function payloadWhereFromInput(input: ListReportsInput) {
   const where: any = { and: [] as any[] };
 
-  if (input.access === "Free" || input.access === "Premium") {
-    where.and.push({ access: { equals: input.access } });
+  const acc = normalizeAccess(input.access as any);
+  if (acc === "Free" || acc === "Premium") {
+    where.and.push({
+      or: [
+        { access: { equals: acc } }, // "Free" / "Premium"
+        { access: { equals: acc.toLowerCase() } }, // tolerate "free" / "premium"
+      ],
+    });
   }
+
   if (input.year && input.year !== "All") {
     const y = parseInt(input.year, 10);
     if (!Number.isNaN(y)) where.and.push({ year: { equals: y } });
   }
+
   if (input.topic && input.topic !== "All") {
-    // prefer a topics (slug) field if you have it; otherwise tags contains
+    const t = input.topic.replace(/-/g, " ");
     where.and.push({
       or: [
-        { topics: { contains: input.topic } },
-        { tags: { contains: input.topic.replace(/-/g, " ") } },
-        { topic: { like: input.topic.replace(/-/g, " ") } },
+        { topics: { contains: input.topic } }, // slug array
+        { tags: { contains: t } },
+        { topic: { like: t } },
       ],
     });
   }
+
   if (input.type && input.type !== "All") {
-    // if your schema has a "type" field (slug)
     where.and.push({ type: { equals: input.type } });
   }
+
   if (input.q) {
     const q = input.q;
     where.and.push({
-      or: [
-        { title: { like: q } },
-        { description: { like: q } },
-        { tags: { contains: q } },
-      ],
+      or: [{ title: { like: q } }, { description: { like: q } }, { tags: { contains: q } }],
     });
   }
+
   if (where.and.length === 0) delete where.and;
   return where;
 }
 
 function payloadSortFromInput(sort?: Sort) {
-  return sort === "AtoZ" ? "title" : "-year, title"; // newest first then A–Z
+  return sort === "AtoZ" ? "title" : "-year, title";
 }
 
 function mapPayloadListDoc(d: any): ReportListItem {
@@ -324,9 +338,12 @@ function mapPayloadListDoc(d: any): ReportListItem {
     title: d.title,
     year: Number(d.year),
     price: Number(d.price || 0),
-    access: (d.access === "Free" ? "Free" : "Premium") as "Free" | "Premium",
+    access: normalizeAccess(d.access) as "Free" | "Premium",
     tags: d.tags || d.topics || [],
-    description: typeof d.description === "string" ? d.description : d.description?.plainText ?? "",
+    description:
+      typeof d.description === "string"
+        ? d.description
+        : d.description?.plainText ?? "",
     thumbnail: d.thumbnail?.url ?? null,
     priceId: d.priceId ?? undefined,
     freeHref: d.freeHref ?? undefined,
@@ -349,26 +366,31 @@ function normalizePayloadDetail(d: any): ReportDetail {
     wave: d.wave ?? "",
     pages: d.pages ? Number(d.pages) : undefined,
     format: d.format ?? "PDF",
-    access: (d.access === "Free" ? "Free" : "Premium") as "Free" | "Premium",
+    access: normalizeAccess(d.access) as "Free" | "Premium",
     price: d.price ? Number(d.price) : undefined,
-    priceDisplay: d.priceDisplay ?? (d.price ? `$${Number(d.price).toLocaleString()}` : ""),
+    priceDisplay:
+      d.priceDisplay ?? (d.price ? `$${Number(d.price).toLocaleString()}` : ""),
     priceId: d.priceId ?? undefined,
     freeHref: d.freeHref ?? undefined,
     sampleHref: d.sampleHref ?? undefined,
-    description: typeof d.description === "string" ? d.description : d.description?.plainText ?? "",
+    description:
+      typeof d.description === "string"
+        ? d.description
+        : d.description?.plainText ?? "",
     body: typeof d.body === "string" ? d.body : d.body?.plainText ?? "",
     thumbnail: d.thumbnail?.url ?? null,
   };
 }
 
-async function listReportsPayload(input: ListReportsInput): Promise<ListReportsResult> {
+async function listReportsPayload(
+  input: ListReportsInput
+): Promise<ListReportsResult> {
   const base = process.env.PAYLOAD_BASE_URL!;
   const token = process.env.PAYLOAD_API_TOKEN;
   const limit = Math.max(1, Math.min(60, input.limit || 12));
   const sort = payloadSortFromInput(input.sort);
   const where = payloadWhereFromInput(input);
 
-  // cursor maps to an index; Payload is page/limit
   const start = input.cursor ? parseInt(input.cursor, 10) || 0 : 0;
   const page = Math.floor(start / limit) + 1;
 
@@ -409,7 +431,9 @@ async function getPayloadDetailById(id: string): Promise<ReportDetail | null> {
   return normalizePayloadDetail(doc);
 }
 
-async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null> {
+async function getPayloadDetailBySlug(
+  slug: string
+): Promise<ReportDetail | null> {
   const base = process.env.PAYLOAD_BASE_URL!;
   const token = process.env.PAYLOAD_API_TOKEN;
   const url = new URL(`${base}/api/reports`);
@@ -428,26 +452,32 @@ async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null
    Public API
    ========================= */
 
-export async function listReports(input: ListReportsInput): Promise<ListReportsResult> {
-  if (BACKEND === "payload") {
-    return listReportsPayload(input);
-  }
-  return listReportsMock(input);
+export async function listReports(
+  input: ListReportsInput
+): Promise<ListReportsResult> {
+  // Normalize once for both backends
+  const withNorm: ListReportsInput = {
+    ...input,
+    access: normalizeAccess(input.access as any),
+  };
+  if (BACKEND === "payload") return listReportsPayload(withNorm);
+  return listReportsMock(withNorm);
 }
 
-export async function getReportById(id: string): Promise<ReportDetail | null> {
-  if (BACKEND === "payload") {
-    return getPayloadDetailById(id);
-  }
+export async function getReportById(
+  id: string
+): Promise<ReportDetail | null> {
+  if (BACKEND === "payload") return getPayloadDetailById(id);
   return getMockDetailBy("id", id);
 }
 
-export async function getReportBySlug(slug: string): Promise<ReportDetail | null> {
-  if (BACKEND === "payload") {
-    return getPayloadDetailBySlug(slug);
-  }
+export async function getReportBySlug(
+  slug: string
+): Promise<ReportDetail | null> {
+  if (BACKEND === "payload") return getPayloadDetailBySlug(slug);
   return getMockDetailBy("slug", slug);
 }
+
 
   
   
