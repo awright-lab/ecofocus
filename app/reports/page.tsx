@@ -8,9 +8,8 @@ import ReportsGrid from "./ReportsGrid";
 import { LeftFilterRail } from "./LeftFilterRail";
 import { MobileFilterDrawer } from "./MobileFilterDrawer";
 import { useReportSearchParams } from "./useReportSearchParams";
-// ⬇️ FIX: import AccessTabs from the sections folder
-import AccessTabs from "./AccessTabs";
 import ReportsHero from "./ReportsHero";
+import AccessTabs from "./AccessTabs";
 import ReportsBundles from "./ReportsBundles";
 import ReportsCTA from "./ReportsCTA";
 
@@ -39,13 +38,14 @@ function ReportsPageInner() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Top hero + access tabs */}
       <ReportsHero />
-
-      {/* ⬇️ FIX: render AccessTabs with NO props */}
       <AccessTabs />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        {/* Filter rail + list */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* LEFT rail */}
           <aside className="lg:col-span-3">
             <button
               className="lg:hidden w-full rounded-xl border border-emerald-200 py-2 text-emerald-900"
@@ -64,11 +64,16 @@ function ReportsPageInner() {
             </div>
           </aside>
 
-          <main className="lg:col-span-9 space-y-10">
+          {/* RIGHT: list only */}
+          <main className="lg:col-span-9">
             <ReportsGrid />
-            <ReportsBundles />
-            <ReportsCTA />
           </main>
+        </div>
+
+        {/* FULL-WIDTH sections under the grid */}
+        <div className="mt-12 space-y-12">
+          <ReportsBundles />
+          <ReportsCTA />
         </div>
       </div>
 
@@ -81,11 +86,13 @@ function ReportsPageInner() {
         type={type}
         setParam={(k, v) => {
           setParam(k, v);
+          // setMobileOpen(false); // enable if you want auto-close on first change
         }}
       />
     </div>
   );
 }
+
 
 
 

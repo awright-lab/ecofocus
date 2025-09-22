@@ -22,7 +22,7 @@ export function LeftFilterRail({
           {(["All", "Free", "Premium"] as Access[]).map((v) => (
             <button
               key={v}
-              onClick={() => setParam("access", v === "All" ? undefined : v.toLowerCase())}
+              onClick={() => setParam("access", v === "All" ? undefined : v)}
               className={[
                 "px-3 py-1.5 rounded-md text-sm transition",
                 access === v ? "bg-emerald-600 text-white"

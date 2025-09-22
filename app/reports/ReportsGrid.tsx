@@ -47,7 +47,7 @@ export default function ReportsGrid() {
   const baseQuery = React.useMemo(() => {
     const p = new URLSearchParams();
     if (q) p.set("q", q);
-    if (access !== "All") p.set("access", access.toLowerCase()); // free|premium
+    if (access !== "All") p.set("access", access); // "Free" | "Premium"
     if (year !== "All") p.set("year", year);
     if (topic !== "All") p.set("topic", topic);
     if (type !== "All") p.set("type", type);
