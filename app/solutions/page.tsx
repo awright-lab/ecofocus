@@ -22,13 +22,13 @@ export default function SolutionsPage() {
       <main className="bg-white text-gray-900">
         <SolutionsHero />
 
-        <DashboardIntro />
+        {/* 3 pillars */}
+        <SolutionsOverview />
 
         {/* Heavier weight: delivery layer */}
         <InteractiveDashboardShowcase />
 
-        {/* 3 pillars */}
-        <SolutionsOverview />
+        <DashboardIntro />
 
         {/* Compare the pillars (dashboard handled in rows, not a column) */}
         <SolutionsComparison />
