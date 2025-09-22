@@ -14,9 +14,10 @@ export default function ReportsFilters() {
   const [year, setYear] = useState(sp.get("year") ?? "All");
   const [topic, setTopic] = useState(sp.get("topic") ?? "All");
   const [type, setType] = useState(sp.get("type") ?? "All");
-  const [access, setAccess] = useState(sp.get("access") ?? "All");
+  const [access, setAccess] = useState(sp.get("access") ?? "All"); // All | Free | Premium
   const [sort, setSort] = useState(sp.get("sort") ?? "Newest");
 
+  // Keep state in sync when URL changes (back/forward, external nav)
   useEffect(() => {
     setQ(sp.get("q") ?? "");
     setYear(sp.get("year") ?? "All");
@@ -24,15 +25,23 @@ export default function ReportsFilters() {
     setType(sp.get("type") ?? "All");
     setAccess(sp.get("access") ?? "All");
     setSort(sp.get("sort") ?? "Newest");
-  }, [sp]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sp?.toString()]);
 
   const years = useMemo(() => ["All", "2025", "2024", "2023", "2019–2022"], []);
   const topics = useMemo(
-    () => ["All", "Gen Z", "Millennials", "Packaging & Claims", "Category: Food & Bev", "Category: Apparel/Beauty", "Sustainability Attitudes"],
+    () => [
+      "All",
+      "Gen Z",
+      "Millennials",
+      "Packaging & Claims",
+      "Category: Food & Bev",
+      "Category: Apparel/Beauty",
+      "Sustainability Attitudes",
+    ],
     []
   );
   const types = useMemo(() => ["All", "Full Report", "Brief/One-Pager", "Infographic"], []);
-  const accesses = useMemo(() => ["All", "Free", "Premium"], []);
 
   function push(params: Record<string, string>) {
     const next = new URLSearchParams(sp.toString());
@@ -40,8 +49,10 @@ export default function ReportsFilters() {
       if (!v || v === "All" || (k === "q" && v.trim() === "")) next.delete(k);
       else next.set(k, v);
     });
+    // Reset pagination if you add cursor-based paging later
     next.delete("cursor");
-    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
   function onSubmit(e?: React.FormEvent) {
@@ -50,19 +61,56 @@ export default function ReportsFilters() {
   }
 
   return (
-    <section className="relative bg-white" aria-labelledby="reports-filters">
+    <section
+      className="relative isolate bg-white" // isolate creates its own stacking context
+      aria-labelledby="reports-filters"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-8">
+        {/* Segmented control (All / Free / Premium) */}
+        <div
+          role="radiogroup"
+          aria-label="Access"
+          className="relative z-20 mb-4 flex items-center justify-center gap-2"
+        >
+          <SegPill
+            label="All"
+            active={access === "All"}
+            onClick={() => {
+              setAccess("All");
+              push({ access: "All" });
+            }}
+          />
+          <SegPill
+            label="Free"
+            active={access === "Free"}
+            onClick={() => {
+              setAccess("Free");
+              push({ access: "Free" });
+            }}
+          />
+          <SegPill
+            label="Premium"
+            active={access === "Premium"}
+            onClick={() => {
+              setAccess("Premium");
+              push({ access: "Premium" });
+            }}
+          />
+        </div>
+
         <motion.form
           initial={r ? false : { opacity: 0, y: -8 }}
           whileInView={r ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45 }}
           onSubmit={onSubmit}
-          className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+          className="relative z-10 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
         >
           <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
             <div className="md:col-span-4">
-              <label htmlFor="report-search" className="sr-only">Search reports</label>
+              <label htmlFor="report-search" className="sr-only">
+                Search reports
+              </label>
               <input
                 id="report-search"
                 type="search"
@@ -75,18 +123,78 @@ export default function ReportsFilters() {
               />
             </div>
 
-            <Select label="Year" value={year} onChange={(v) => { setYear(v); push({ year: v }); }} options={years} className="md:col-span-2" />
-            <Select label="Topic" value={topic} onChange={(v) => { setTopic(v); push({ topic: v }); }} options={topics} className="md:col-span-3" />
-            <Select label="Type" value={type} onChange={(v) => { setType(v); push({ type: v }); }} options={types} className="md:col-span-2" />
-            <Select label="Access" value={access} onChange={(v) => { setAccess(v); push({ access: v }); }} options={accesses} className="md:col-span-1" />
-            <Select label="Sort" value={sort} onChange={(v) => { setSort(v); push({ sort: v }); }} options={["Newest", "A–Z"]} className="md:col-span-0 md:col-start-12" />
+            <Select
+              label="Year"
+              value={year}
+              onChange={(v) => {
+                setYear(v);
+                push({ year: v });
+              }}
+              options={years}
+              className="md:col-span-2"
+            />
+            <Select
+              label="Topic"
+              value={topic}
+              onChange={(v) => {
+                setTopic(v);
+                push({ topic: v });
+              }}
+              options={topics}
+              className="md:col-span-3"
+            />
+            <Select
+              label="Type"
+              value={type}
+              onChange={(v) => {
+                setType(v);
+                push({ type: v });
+              }}
+              options={types}
+              className="md:col-span-2"
+            />
+            <Select
+              label="Sort"
+              value={sort}
+              onChange={(v) => {
+                setSort(v);
+                push({ sort: v });
+              }}
+              options={["Newest", "A–Z"]}
+              className="md:col-span-1 md:col-start-12"
+            />
           </div>
 
+          {/* Quick chips */}
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Chip label="Free" onClick={() => { setAccess("Free"); push({ access: "Free" }); }} />
-            <Chip label="Premium" onClick={() => { setAccess("Premium"); push({ access: "Premium" }); }} />
-            <Chip label="Gen Z" onClick={() => { setTopic("Gen Z"); push({ topic: "Gen Z" }); }} />
-            <Chip label="Packaging & Claims" onClick={() => { setTopic("Packaging & Claims"); push({ topic: "Packaging & Claims" }); }} />
+            <Chip
+              label="Free"
+              onClick={() => {
+                setAccess("Free");
+                push({ access: "Free" });
+              }}
+            />
+            <Chip
+              label="Premium"
+              onClick={() => {
+                setAccess("Premium");
+                push({ access: "Premium" });
+              }}
+            />
+            <Chip
+              label="Gen Z"
+              onClick={() => {
+                setTopic("Gen Z");
+                push({ topic: "Gen Z" });
+              }}
+            />
+            <Chip
+              label="Packaging & Claims"
+              onClick={() => {
+                setTopic("Packaging & Claims");
+                push({ topic: "Packaging & Claims" });
+              }}
+            />
           </div>
         </motion.form>
       </div>
@@ -94,10 +202,48 @@ export default function ReportsFilters() {
   );
 }
 
-function Select({
-  label, value, onChange, options, className = "",
+/* ---------- UI bits ---------- */
+
+function SegPill({
+  label,
+  active,
+  onClick,
 }: {
-  label: string; value: string; onChange: (v: string) => void; options: string[]; className?: string;
+  label: "All" | "Free" | "Premium";
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={active}
+      onClick={onClick}
+      className={[
+        "inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold border transition select-none",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
+        active
+          ? "bg-emerald-600 text-white border-emerald-600 shadow-md"
+          : "bg-white text-gray-800 border-gray-300 hover:bg-gray-50",
+      ].join(" ")}
+    >
+      {label}
+    </button>
+  );
+}
+
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  className?: string;
 }) {
   return (
     <div className={className}>
@@ -107,7 +253,9 @@ function Select({
         onChange={(e) => onChange(e.target.value)}
         className="w-full appearance-none rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
       >
-        {options.map((o) => <option key={o}>{o}</option>)}
+        {options.map((o) => (
+          <option key={o}>{o}</option>
+        ))}
       </select>
     </div>
   );
@@ -124,5 +272,6 @@ function Chip({ label, onClick }: { label: string; onClick: () => void }) {
     </button>
   );
 }
+
 
 
