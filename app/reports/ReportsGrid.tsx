@@ -35,9 +35,7 @@ export default function ReportsGrid() {
 
     fetch(`/api/reports?${qs}`, { signal: ctrl.signal, cache: "no-store" })
       .then((r) => r.json())
-      .then((j: ApiResp) => {
-        if (alive) setData(j);
-      })
+      .then((j: ApiResp) => alive && setData(j))
       .catch((e) => {
         if (alive && e?.name !== "AbortError") setError("Failed to load reports.");
       })
@@ -89,16 +87,8 @@ export default function ReportsGrid() {
       {/* Pagination */}
       {totalPages > 1 && (
         <nav className="mt-6 flex items-center justify-center gap-2">
-          <PagBtn
-            disabled={page <= 1}
-            onClick={() => setParam("page", page - 1)}
-            label="Prev"
-          />
-          <PageNumbers
-            page={page}
-            totalPages={totalPages}
-            onSelect={(p) => setParam("page", p)}
-          />
+          <PagBtn disabled={page <= 1} onClick={() => setParam("page", page - 1)} label="Prev" />
+          <PageNumbers page={page} totalPages={totalPages} onSelect={(p) => setParam("page", p)} />
           <PagBtn
             disabled={page >= totalPages}
             onClick={() => setParam("page", page + 1)}
@@ -149,7 +139,9 @@ function PageNumbers({
     <>
       {nums.map((n, i) =>
         n === "…" ? (
-          <span key={`e${i}`} className="px-2 text-emerald-700/70">…</span>
+          <span key={`e${i}`} className="px-2 text-emerald-700/70">
+            …
+          </span>
         ) : (
           <button
             key={n}
@@ -157,9 +149,7 @@ function PageNumbers({
             aria-current={n === page ? "page" : undefined}
             className={[
               "rounded-xl px-3 py-2 text-sm font-semibold",
-              n === page
-                ? "bg-emerald-700 text-white shadow"
-                : "text-emerald-900 hover:bg-emerald-50",
+              n === page ? "bg-emerald-700 text-white shadow" : "text-emerald-900 hover:bg-emerald-50",
             ].join(" ")}
           >
             {n}
@@ -174,13 +164,9 @@ function PageNumbers({
 function compactRange(page: number, total: number) {
   const res: (number | "…")[] = [];
   const add = (n: number | "…") => res.push(n);
-  const window = 1; // neighbors on each side
-
+  const window = 1;
   for (let i = 1; i <= total; i++) {
-    const near =
-      i === 1 ||
-      i === total ||
-      (i >= page - window && i <= page + window);
+    const near = i === 1 || i === total || (i >= page - window && i <= page + window);
     if (near) add(i);
     else if (res[res.length - 1] !== "…") add("…");
   }
@@ -192,55 +178,69 @@ function ReportCard({ item }: { item: ReportListItem }) {
   const href = `/reports/${item.id}`;
 
   return (
-    <div className="group relative rounded-2xl border bg-white shadow-sm transition border-emerald-200 hover:border-emerald-300 hover:shadow-md">
+    <div
+      className={[
+        // Deep brand slab per card
+        "relative overflow-hidden rounded-2xl section-slab-deep",
+        // subtle border on dark
+        "border border-white/10 shadow-sm",
+      ].join(" ")}
+    >
       {/* right price/cta */}
       <div className="absolute right-4 top-4 flex items-center gap-3">
         <div className="text-right">
-          <div className="text-xs uppercase tracking-wide text-emerald-800/70">
+          <div className="text-xs uppercase tracking-wide text-white/70">
             {isFree ? "No cost" : "Excl. tax"}
           </div>
           {!isFree && (
-            <div className="text-lg font-bold text-emerald-900">
-              ${Number(item.price).toLocaleString()}
-            </div>
+            <div className="text-lg font-bold text-white">${Number(item.price).toLocaleString()}</div>
           )}
         </div>
         {isFree ? (
-          <a href={item.freeHref || "#"} className="btn-primary-emerald !py-2 !px-4 rounded-xl">
+          <a
+            href={item.freeHref || "#"}
+            className="inline-flex items-center justify-center rounded-xl border border-emerald-400 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
             Download
           </a>
         ) : (
-          <Link href={href} className="btn-primary-emerald !py-2 !px-4 rounded-xl">
+          <Link
+            href={href}
+            className="inline-flex items-center justify-center rounded-xl border border-emerald-400 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
             Add to cart
           </Link>
         )}
       </div>
 
       {/* body */}
-      <div className="p-5 sm:p-6 pr-40">
+      <div className="p-5 sm:p-6 pr-40 text-white">
         {/* badges */}
         <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-900 ring-1 ring-amber-200">
+          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-300 text-emerald-900">
             {item.year}
           </span>
         </div>
 
-        <h3 className="mt-2 text-[clamp(1.0rem,2.4vw,1.125rem)] font-semibold text-emerald-950 leading-snug">
-          <Link href={href} className="hover:underline decoration-amber-400 underline-offset-4">
+        {/* title */}
+        <h3 className="mt-2 text-[clamp(1.0rem,2.4vw,1.125rem)] font-semibold leading-snug">
+          <Link href={href} className="hover:underline decoration-amber-300 underline-offset-4">
             {item.title}
           </Link>
         </h3>
 
+        {/* description */}
         {item.description && (
-          <p className="mt-2 text-sm text-emerald-900/80 line-clamp-2">{item.description}</p>
+          <p className="mt-2 text-sm text-white/90 line-clamp-2">{item.description}</p>
         )}
 
+        {/* tags */}
         {(item.tags?.length ?? 0) > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {item.tags!.slice(0, 6).map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-xs text-emerald-900 ring-1 ring-emerald-200"
+                className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-xs text-white ring-1 ring-white/20"
               >
                 {t}
               </span>
@@ -248,10 +248,11 @@ function ReportCard({ item }: { item: ReportListItem }) {
           </div>
         )}
 
+        {/* secondary CTA */}
         <div className="mt-4">
           <Link
             href={href}
-            className="inline-flex items-center rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-50"
+            className="inline-flex items-center rounded-xl border border-white/25 bg-transparent px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
           >
             View details
           </Link>
@@ -265,15 +266,16 @@ function ListSkeleton() {
   return (
     <ul className="space-y-4">
       {Array.from({ length: 3 }).map((_, i) => (
-        <li key={i} className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
-          <div className="h-5 w-1/3 bg-emerald-100 rounded" />
-          <div className="mt-3 h-4 w-2/3 bg-emerald-100 rounded" />
-          <div className="mt-2 h-4 w-1/2 bg-emerald-100 rounded" />
+        <li key={i} className="rounded-2xl section-slab-deep border border-white/10 p-6 shadow-sm">
+          <div className="h-5 w-1/3 bg-white/15 rounded" />
+          <div className="mt-3 h-4 w-2/3 bg-white/15 rounded" />
+          <div className="mt-2 h-4 w-1/2 bg-white/15 rounded" />
         </li>
       ))}
     </ul>
   );
 }
+
 
 
 
