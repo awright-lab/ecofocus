@@ -29,7 +29,7 @@ export function LeftFilterRail({
           {(["All", "Free", "Premium"] as Access[]).map((v) => (
             <button
               key={v}
-              onClick={() => setParam("access", v === "All" ? undefined : v)} // keep case
+              onClick={() => setParam("access", v === "All" ? undefined : v.toLowerCase())}
               className={[
                 "px-3 py-1.5 rounded-md text-sm transition",
                 access === v ? "bg-emerald-600 text-white" : "text-emerald-900 hover:bg-emerald-50",
@@ -134,5 +134,6 @@ function Chip({
     </button>
   );
 }
+
 
 

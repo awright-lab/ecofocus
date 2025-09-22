@@ -1,5 +1,6 @@
 // app/reports/sections/AccessTabs.tsx
 "use client";
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const TABS = ["All", "Free", "Premium"] as const;
@@ -8,12 +9,20 @@ export default function AccessTabs() {
   const sp = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const current = (sp.get("access") ?? "All") as (typeof TABS)[number];
 
-  function set(access: string) {
+  // Treat any case as valid; display label from URL if present.
+  const raw = sp.get("access");
+  const current =
+    raw?.toLowerCase() === "free"
+      ? "Free"
+      : raw?.toLowerCase() === "premium"
+      ? "Premium"
+      : "All";
+
+  function set(access: (typeof TABS)[number]) {
     const next = new URLSearchParams(sp.toString());
     if (access === "All") next.delete("access");
-    else next.set("access", access);
+    else next.set("access", access.toLowerCase()); // canonical slug
     next.delete("cursor");
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
