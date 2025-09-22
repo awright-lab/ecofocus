@@ -10,8 +10,8 @@ export type Sort = "Newest" | "AtoZ";
 export type ListReportsInput = {
   q?: string;
   year?: string;
-  topic?: string;
-  type?: string;
+  topic?: string; // slug or label-ish
+  type?: string;  // optional future use
   access?: Access | string;
   sort?: Sort;
   limit?: number;
@@ -27,8 +27,11 @@ export type ReportListItem = {
   access: "Free" | "Premium";
   tags?: string[];
   description?: string;
+  // image fields (support both names; grid uses `cover`)
+  cover?: string | null;
   thumbnail?: string | null;
-  // extras
+
+  // optional extras used by UI
   priceId?: string;
   freeHref?: string;
   sampleHref?: string;
@@ -62,9 +65,12 @@ export type ReportDetail = {
   sampleHref?: string;
   description?: string;
   body?: string;
+  // image fields
+  cover?: string | null;
   thumbnail?: string | null;
 };
 
+// convenient alias for components that import { Report }
 export type Report = ReportDetail;
 
 /* =========================
@@ -78,9 +84,7 @@ function normalizeAccess(val?: string | null): "All" | "Free" | "Premium" {
   if (x === "all") return "All";
   return "All";
 }
-
 function normText(s: string) {
-  // remove punctuation/whitespace differences so "packaging-claims" matches "Packaging & Claims"
   return s.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
@@ -91,9 +95,8 @@ const WANT_PAYLOAD = RAW_BACKEND === "payload" && !!PAYLOAD_BASE_URL;
 const DISABLE_FALLBACK = process.env.REPORTS_DISABLE_FALLBACK === "1";
 
 /* =========================
-   MOCK DATA
+   MOCK DATA (no cloning)
    ========================= */
-
 const MOCK_BASE_LIST: ReportListItem[] = [
   {
     id: "1",
@@ -105,6 +108,7 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     tags: ["Gen Z", "Packaging & Claims", "Global"],
     description:
       "Defendable stats, trend context, and white-label visuals from the EcoFocus syndicated study.",
+    cover: null,
     thumbnail: null,
     priceId: "price_123",
     wave: "2025 H1",
@@ -122,6 +126,7 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     tags: ["Packaging & Claims", "US"],
     description:
       "Top packaging messages driving purchase intent and trust—benchmarks and examples.",
+    cover: null,
     thumbnail: null,
     freeHref: "/files/packaging-claims-2025.pdf",
     sampleHref: "/files/packaging-claims-2025-sample.pdf",
@@ -140,6 +145,7 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     tags: ["Sustainability", "US", "Retail"],
     description:
       "Longitudinal read on attitudes and behaviors, with breakouts by generation and income.",
+    cover: null,
     thumbnail: null,
     priceId: "price_456",
     wave: "2024 Annual",
@@ -157,6 +163,7 @@ const MOCK_BASE_LIST: ReportListItem[] = [
     tags: ["Beverage", "Global"],
     description:
       "Where function meets flavor: growth territories and consumer language that resonates.",
+    cover: null,
     thumbnail: null,
     freeHref: "/files/functional-beverage-2025.pdf",
     wave: "2025",
@@ -166,21 +173,9 @@ const MOCK_BASE_LIST: ReportListItem[] = [
   },
 ];
 
-function cloneList(base: ReportListItem[], n: number): ReportListItem[] {
-  const out: ReportListItem[] = [];
-  for (let i = 0; i < n; i++) {
-    const b = base[i % base.length];
-    out.push({
-      ...b,
-      id: `${b.id}-${i}`,
-      slug: `${b.slug}-${i}`,
-      year: b.year - (i % 4 === 0 ? 1 : 0),
-    });
-  }
-  return out;
-}
-const MOCK_LIST_DATA: ReportListItem[] = cloneList(MOCK_BASE_LIST, 120);
-const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_LIST_DATA.map((r) => ({
+const MOCK_LIST_DATA: ReportListItem[] = MOCK_BASE_LIST;
+
+const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_BASE_LIST.map((r) => ({
   id: r.id,
   slug: r.slug,
   title: r.title,
@@ -199,7 +194,8 @@ const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_LIST_DATA.map((r) => ({
   freeHref: r.freeHref,
   sampleHref: r.sampleHref,
   description: r.description,
-  thumbnail: r.thumbnail,
+  cover: r.cover ?? null,
+  thumbnail: r.thumbnail ?? null,
 }));
 
 /* =========================
@@ -222,7 +218,7 @@ function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
     if (!Number.isNaN(y)) filtered = filtered.filter((r) => r.year === y);
   }
 
-  // Topic (robust match)
+  // Topic (robust match: slug or label)
   if (input.topic && input.topic !== "All") {
     const want = normText(input.topic.replace(/-/g, " "));
     filtered = filtered.filter((r) => {
@@ -232,7 +228,7 @@ function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
     });
   }
 
-  // Type (no-op here unless you add a 'type' field)
+  // Type (no-op here unless you add a 'type' field on records)
 
   // q
   if (input.q) {
@@ -256,7 +252,7 @@ function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
 }
 
 /* =========================
-   MOCK BACKEND
+   MOCK BACKEND impl
    ========================= */
 async function listReportsMock(input: ListReportsInput): Promise<ListReportsResult> {
   const limit = Math.max(1, Math.min(60, input.limit || 12));
@@ -278,8 +274,14 @@ async function getMockDetailBy(key: "id" | "slug", val: string) {
 function payloadWhereFromInput(input: ListReportsInput) {
   const where: any = { and: [] as any[] };
   const acc = normalizeAccess(input.access as any);
+
   if (acc === "Free" || acc === "Premium") {
-    where.and.push({ or: [{ access: { equals: acc } }, { access: { equals: acc.toLowerCase() } }] });
+    where.and.push({
+      or: [
+        { access: { equals: acc } },
+        { access: { equals: acc.toLowerCase() } }, // tolerate lowercase in CMS
+      ],
+    });
   }
   if (input.year && input.year !== "All") {
     const y = parseInt(input.year, 10);
@@ -288,7 +290,11 @@ function payloadWhereFromInput(input: ListReportsInput) {
   if (input.topic && input.topic !== "All") {
     const t = input.topic.replace(/-/g, " ");
     where.and.push({
-      or: [{ topics: { contains: input.topic } }, { tags: { contains: t } }, { topic: { like: t } }],
+      or: [
+        { topics: { contains: input.topic } }, // slug array
+        { tags: { contains: t } },
+        { topic: { like: t } },
+      ],
     });
   }
   if (input.type && input.type !== "All") {
@@ -296,7 +302,9 @@ function payloadWhereFromInput(input: ListReportsInput) {
   }
   if (input.q) {
     const q = input.q;
-    where.and.push({ or: [{ title: { like: q } }, { description: { like: q } }, { tags: { contains: q } }] });
+    where.and.push({
+      or: [{ title: { like: q } }, { description: { like: q } }, { tags: { contains: q } }],
+    });
   }
   if (where.and.length === 0) delete where.and;
   return where;
@@ -307,6 +315,7 @@ function payloadSortFromInput(sort?: Sort) {
 }
 
 function mapPayloadListDoc(d: any): ReportListItem {
+  const thumb = d.thumbnail?.url ?? d.cover?.url ?? null;
   return {
     id: String(d.id),
     slug: d.slug,
@@ -316,7 +325,9 @@ function mapPayloadListDoc(d: any): ReportListItem {
     access: (normalizeAccess(d.access) as "Free" | "Premium") || "Premium",
     tags: d.tags || d.topics || [],
     description: typeof d.description === "string" ? d.description : d.description?.plainText ?? "",
-    thumbnail: d.thumbnail?.url ?? null,
+    // publish both names so UI can read either
+    cover: thumb,
+    thumbnail: thumb,
     priceId: d.priceId ?? undefined,
     freeHref: d.freeHref ?? undefined,
     sampleHref: d.sampleHref ?? undefined,
@@ -328,6 +339,7 @@ function mapPayloadListDoc(d: any): ReportListItem {
 }
 
 function normalizePayloadDetail(d: any): ReportDetail {
+  const thumb = d.thumbnail?.url ?? d.cover?.url ?? null;
   return {
     id: String(d.id),
     slug: d.slug,
@@ -346,7 +358,9 @@ function normalizePayloadDetail(d: any): ReportDetail {
     sampleHref: d.sampleHref ?? undefined,
     description: typeof d.description === "string" ? d.description : d.description?.plainText ?? "",
     body: typeof d.body === "string" ? d.body : d.body?.plainText ?? "",
-    thumbnail: d.thumbnail?.url ?? null,
+    // expose both names
+    cover: thumb,
+    thumbnail: thumb,
   };
 }
 
@@ -417,7 +431,6 @@ export async function listReports(input: ListReportsInput): Promise<ListReportsR
       const res = await listReportsPayload(withNorm);
       const cleaned = applyPostFilter(res.items, withNorm);
 
-      // If CMS returns empty/mismatched, fall back to mock (unless explicitly disabled)
       if (DISABLE_FALLBACK || cleaned.length > 0) {
         const pageSize = Math.max(1, Math.min(60, withNorm.limit || 12));
         return {
@@ -426,7 +439,7 @@ export async function listReports(input: ListReportsInput): Promise<ListReportsR
           total: res.total ?? cleaned.length,
         };
       }
-      console.warn("[reports] CMS returned empty after post-filter — falling back to mock.");
+      console.warn("[reports] CMS returned empty/misaligned after post-filter — falling back to mock.");
     } catch (e) {
       console.warn("[reports] CMS error — falling back to mock.", e);
       if (DISABLE_FALLBACK) throw e;
@@ -455,6 +468,7 @@ export async function getReportBySlug(slug: string): Promise<ReportDetail | null
   }
   return getMockDetailBy("slug", slug);
 }
+
 
 
 
