@@ -1,5 +1,4 @@
-"use client";
-
+// app/reports/page.tsx
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -10,7 +9,27 @@ import ReportsGrid from "./ReportsGrid";
 import ReportsBundles from "./ReportsBundles";
 import ReportsCTA from "./ReportsCTA";
 
-export default function ReportsPage() {
+import { listReports } from "@/lib/reports-repo";
+
+export default async function ReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const query = {
+    q: (sp.q as string) || "",
+    year: (sp.year as string) || "All",
+    topic: (sp.topic as string) || "All",
+    type: (sp.type as string) || "All",
+    sort: (sp.sort as "Newest" | "A–Z") || "Newest",
+    limit: Number(sp.limit ?? 24),
+    cursor: (sp.cursor as string) || undefined,
+  };
+
+  // SSR the first page for speed/SEO:
+  const initial = await listReports(query);
+
   return (
     <>
       <Header />
@@ -26,7 +45,10 @@ export default function ReportsPage() {
         />
 
         <ReportsFilters />
-        <ReportsGrid />
+
+        {/* Hydrate a client grid with the first page and the query */}
+        <ReportsGrid initial={initial} query={query} />
+
         <ReportsBundles />
         <ReportsCTA />
       </main>
@@ -34,6 +56,7 @@ export default function ReportsPage() {
     </>
   );
 }
+
 
 
 
