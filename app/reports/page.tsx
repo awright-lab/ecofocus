@@ -1,34 +1,51 @@
-"use client";
+// app/reports/page.tsx
+import { Suspense } from "react";
 
-import { useState } from "react";
-import { useReportSearchParams } from "./useReportSearchParams";
+// If you split these, keep them:
+import ReportsGrid from "./ReportsGrid";
 import { LeftFilterRail } from "./LeftFilterRail";
 import { MobileFilterDrawer } from "./MobileFilterDrawer";
-import ReportsGrid from "./ReportsGrid";
+import { useReportSearchParams } from "./useReportSearchParams";
 
-// import your existing sections:
-// import ReportsHero from "./sections/ReportsHero";
-// import ReportsFiltersTop from "./sections/ReportsFiltersTop"; // (remove if you don’t want the old horizontal bar anymore)
-// import AccessTabs from "./sections/AccessTabs";
-// import ReportsBundles from "./sections/ReportsBundles";
-// import ReportsCTA from "./sections/ReportsCTA";
+// If you render hero / tabs / bundles / CTA above/below, leave those imports & JSX as-is.
+
+// Optional: force dynamic to avoid static prerender with searchParams
+export const dynamic = "force-dynamic";
 
 export default function ReportsPage() {
+  return (
+    <Suspense fallback={<ReportsPageFallback />}>
+      <ReportsPageInner />
+    </Suspense>
+  );
+}
+
+function ReportsPageFallback() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 text-emerald-800">
+      Loading reports…
+    </div>
+  );
+}
+
+// ---- Everything below used to be your page body that reads useSearchParams ----
+function ReportsPageInner() {
+  // This hook calls useSearchParams(), so it MUST be inside Suspense
   const { values, setParam } = useReportSearchParams();
   const { access, year, topic, type } = values;
 
-  const [mobileOpen, setMobileOpen] = useState(false);
+  // local mobile drawer state can live here
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Keep your hero and any content above */}
+      {/* Keep your hero / breadcrumbs / top content here if you render them */}
       {/* <ReportsHero /> */}
+      {/* <AccessTabs />  // optional if you still want them visible */}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* If you want to keep your existing top search bar or breadcrumbs, render it here */}
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* LEFT rail (desktop) + mobile button */}
+          {/* LEFT: rail */}
           <aside className="lg:col-span-3">
             <button
               className="lg:hidden w-full rounded-xl border border-emerald-200 py-2 text-emerald-900"
@@ -37,19 +54,22 @@ export default function ReportsPage() {
               Filters
             </button>
             <div className="hidden lg:block">
-              <LeftFilterRail access={access} year={year} topic={topic} type={type} setParam={setParam} />
+              <LeftFilterRail
+                access={access}
+                year={year}
+                topic={topic}
+                type={type}
+                setParam={setParam}
+              />
             </div>
           </aside>
 
-          {/* RIGHT column: keep all your existing sections here */}
+          {/* RIGHT: list + the rest of your sections */}
           <main className="lg:col-span-9 space-y-10">
-            {/* If you want to keep access tabs (All / Free / Premium) visible on the right above list, keep them; they still sync via URL params */}
-            {/* <AccessTabs /> */}
-
-            {/* This is the ONLY part we swapped earlier: reports list in horizontal rows */}
+            {/* The list component also reads useSearchParams, but it's now inside Suspense via ReportsPageInner */}
             <ReportsGrid />
 
-            {/* Keep your other sections intact */}
+            {/* Keep your other sections intact below */}
             {/* <ReportsBundles /> */}
             {/* <ReportsCTA /> */}
           </main>
@@ -65,13 +85,17 @@ export default function ReportsPage() {
         type={type}
         setParam={(k, v) => {
           setParam(k, v);
-          // Keep open so users can set multiple filters; close if you prefer:
+          // optionally close after first change:
           // setMobileOpen(false);
         }}
       />
     </div>
   );
 }
+
+// Tiny import for useState without adding 'use client' to the whole page module
+import * as React from "react";
+
 
 
 
