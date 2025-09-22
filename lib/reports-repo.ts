@@ -12,7 +12,7 @@ export type ListReportsInput = {
   year?: string;
   topic?: string;
   type?: string;
-  access?: Access | string; // accept either case from URL
+  access?: Access | string; // tolerate any case
   sort?: Sort;
   limit?: number;
   cursor?: string | null;
@@ -66,7 +66,7 @@ export type ReportDetail = {
   thumbnail?: string | null;
 };
 
-// convenient alias for components that import { Report }
+// handy alias some components import
 export type Report = ReportDetail;
 
 /* =========================
@@ -77,10 +77,11 @@ function normalizeAccess(val?: string | null): "All" | "Free" | "Premium" {
   const x = String(val).trim().toLowerCase();
   if (x === "free") return "Free";
   if (x === "premium") return "Premium";
+  if (x === "all") return "All";
   return "All";
 }
 
-const RAW_BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload" | "mock"
+const RAW_BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload"|"mock"
 const PAYLOAD_BASE_URL = process.env.PAYLOAD_BASE_URL || "";
 const PAYLOAD_TOKEN = process.env.PAYLOAD_API_TOKEN || "";
 const WANT_PAYLOAD = RAW_BACKEND === "payload" && !!PAYLOAD_BASE_URL;
@@ -89,6 +90,7 @@ const DISABLE_FALLBACK = process.env.REPORTS_DISABLE_FALLBACK === "1";
 /* =========================
    MOCK BACKEND
    ========================= */
+
 const MOCK_BASE_LIST: ReportListItem[] = [
   {
     id: "1",
@@ -161,7 +163,7 @@ const MOCK_BASE_LIST: ReportListItem[] = [
   },
 ];
 
-// clone out to make ~120 items for paging demos
+// inflate to simulate hundreds
 function cloneList(base: ReportListItem[], n: number): ReportListItem[] {
   const out: ReportListItem[] = [];
   for (let i = 0; i < n; i++) {
@@ -176,8 +178,6 @@ function cloneList(base: ReportListItem[], n: number): ReportListItem[] {
   return out;
 }
 const MOCK_LIST_DATA: ReportListItem[] = cloneList(MOCK_BASE_LIST, 120);
-
-// derive detail dataset directly from list dataset
 const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_LIST_DATA.map((r) => ({
   id: r.id,
   slug: r.slug,
@@ -200,17 +200,14 @@ const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_LIST_DATA.map((r) => ({
   thumbnail: r.thumbnail,
 }));
 
-function filterListByInput(
-  data: ReportListItem[],
-  input: ListReportsInput
-): ReportListItem[] {
+function applyPostFilter(data: ReportListItem[], input: ListReportsInput) {
   let filtered = data.slice();
 
-  // Access (case-insensitive)
+  // Access
   const acc = normalizeAccess(input.access as any);
   if (acc === "Free" || acc === "Premium") {
     filtered = filtered.filter(
-      (r) => normalizeAccess(r.access as any) === acc
+      (r) => normalizeAccess(r.access) === acc || (acc === "Free" && r.price === 0)
     );
   }
 
@@ -230,7 +227,7 @@ function filterListByInput(
     });
   }
 
-  // Type (no-op in mock unless you add a field)
+  // Type (no-op unless your CMS lists a 'type' field)
 
   // q
   if (input.q) {
@@ -253,22 +250,16 @@ function filterListByInput(
   return filtered;
 }
 
-async function listReportsMock(
-  input: ListReportsInput
-): Promise<ListReportsResult> {
+async function listReportsMock(input: ListReportsInput): Promise<ListReportsResult> {
   const limit = Math.max(1, Math.min(60, input.limit || 12));
-  const filtered = filterListByInput(MOCK_LIST_DATA, input);
+  const filtered = applyPostFilter(MOCK_LIST_DATA, input);
   const start = input.cursor ? parseInt(input.cursor, 10) || 0 : 0;
   const slice = filtered.slice(start, start + limit);
   const next = start + limit < filtered.length ? String(start + limit) : null;
-
   return { items: slice, nextCursor: next, total: filtered.length };
 }
 
-async function getMockDetailBy(
-  key: "id" | "slug",
-  val: string
-): Promise<ReportDetail | null> {
+async function getMockDetailBy(key: "id" | "slug", val: string) {
   const found = MOCK_DETAIL_DATA.find((r) => String(r[key]) === String(val));
   return found ?? null;
 }
@@ -284,36 +275,30 @@ function payloadWhereFromInput(input: ListReportsInput) {
     where.and.push({
       or: [
         { access: { equals: acc } },
-        { access: { equals: acc.toLowerCase() } },
+        { access: { equals: acc.toLowerCase() } }, // tolerate lowercase enum
       ],
     });
   }
-
   if (input.year && input.year !== "All") {
     const y = parseInt(input.year, 10);
     if (!Number.isNaN(y)) where.and.push({ year: { equals: y } });
   }
-
   if (input.topic && input.topic !== "All") {
     const t = input.topic.replace(/-/g, " ");
     where.and.push({
       or: [
-        { topics: { contains: input.topic } },
+        { topics: { contains: input.topic } }, // slug array
         { tags: { contains: t } },
         { topic: { like: t } },
       ],
     });
   }
-
   if (input.type && input.type !== "All") {
     where.and.push({ type: { equals: input.type } });
   }
-
   if (input.q) {
     const q = input.q;
-    where.and.push({
-      or: [{ title: { like: q } }, { description: { like: q } }, { tags: { contains: q } }],
-    });
+    where.and.push({ or: [{ title: { like: q } }, { description: { like: q } }, { tags: { contains: q } }] });
   }
 
   if (where.and.length === 0) delete where.and;
@@ -331,12 +316,9 @@ function mapPayloadListDoc(d: any): ReportListItem {
     title: d.title,
     year: Number(d.year),
     price: Number(d.price || 0),
-    access: normalizeAccess(d.access) as "Free" | "Premium",
+    access: (normalizeAccess(d.access) as "Free" | "Premium") || "Premium",
     tags: d.tags || d.topics || [],
-    description:
-      typeof d.description === "string"
-        ? d.description
-        : d.description?.plainText ?? "",
+    description: typeof d.description === "string" ? d.description : d.description?.plainText ?? "",
     thumbnail: d.thumbnail?.url ?? null,
     priceId: d.priceId ?? undefined,
     freeHref: d.freeHref ?? undefined,
@@ -359,25 +341,19 @@ function normalizePayloadDetail(d: any): ReportDetail {
     wave: d.wave ?? "",
     pages: d.pages ? Number(d.pages) : undefined,
     format: d.format ?? "PDF",
-    access: normalizeAccess(d.access) as "Free" | "Premium",
+    access: (normalizeAccess(d.access) as "Free" | "Premium") || "Premium",
     price: d.price ? Number(d.price) : undefined,
-    priceDisplay:
-      d.priceDisplay ?? (d.price ? `$${Number(d.price).toLocaleString()}` : ""),
+    priceDisplay: d.priceDisplay ?? (d.price ? `$${Number(d.price).toLocaleString()}` : ""),
     priceId: d.priceId ?? undefined,
     freeHref: d.freeHref ?? undefined,
     sampleHref: d.sampleHref ?? undefined,
-    description:
-      typeof d.description === "string"
-        ? d.description
-        : d.description?.plainText ?? "",
+    description: typeof d.description === "string" ? d.description : d.description?.plainText ?? "",
     body: typeof d.body === "string" ? d.body : d.body?.plainText ?? "",
     thumbnail: d.thumbnail?.url ?? null,
   };
 }
 
-async function listReportsPayload(
-  input: ListReportsInput
-): Promise<ListReportsResult> {
+async function listReportsPayload(input: ListReportsInput): Promise<ListReportsResult> {
   const limit = Math.max(1, Math.min(60, input.limit || 12));
   const sort = payloadSortFromInput(input.sort);
   const where = payloadWhereFromInput(input);
@@ -441,7 +417,7 @@ async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null
 }
 
 /* =========================
-   Public API (with fallback)
+   Public API (with post-filter + fallback)
    ========================= */
 export async function listReports(input: ListReportsInput): Promise<ListReportsResult> {
   const withNorm: ListReportsInput = { ...input, access: normalizeAccess(input.access as any) };
@@ -449,13 +425,23 @@ export async function listReports(input: ListReportsInput): Promise<ListReportsR
   if (WANT_PAYLOAD) {
     try {
       const res = await listReportsPayload(withNorm);
-      if (DISABLE_FALLBACK || res.items.length > 0) return res;
-      console.warn("[reports] Payload returned 0 items; falling back to mock.");
+      // guarantee correctness even if CMS where clause isn't aligned
+      const cleaned = applyPostFilter(res.items, withNorm);
+      if (DISABLE_FALLBACK || cleaned.length > 0) {
+        return {
+          items: cleaned,
+          // if the CMS already paged, keep cursor only if we still filled the page
+          nextCursor: cleaned.length >= Math.max(1, Math.min(60, withNorm.limit || 12)) ? res.nextCursor ?? null : null,
+          total: res.total ?? cleaned.length,
+        };
+      }
+      console.warn("[reports] Payload returned mismatched/empty after post-filter; falling back to mock.");
     } catch (e) {
       console.warn("[reports] Payload error; falling back to mock.", e);
       if (DISABLE_FALLBACK) throw e;
     }
   }
+
   return listReportsMock(withNorm);
 }
 
