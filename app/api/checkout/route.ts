@@ -1,30 +1,31 @@
 // app/api/checkout/route.ts
+// app/api/checkout/route.ts
 import { NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripeServer } from "@/lib/stripe";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { items, successUrl, cancelUrl } = body as {
-    items: { price: string; quantity: number }[];
-    successUrl: string;
-    cancelUrl: string;
-  };
+  const { items, successUrl, cancelUrl } = await req.json();
 
-  if (!items?.length) {
-    return NextResponse.json({ error: "No items" }, { status: 400 });
+  try {
+    const stripe = getStripeServer();
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: items, // [{ price, quantity }]
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      // Optionally attach metadata to unlock reports later:
+      // metadata: { reportId: "abc123" },
+    });
+    return NextResponse.json({ url: session.url });
+  } catch (e: any) {
+    const msg = e?.message ?? "Checkout error";
+    console.error("Checkout error:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    line_items: items,
-    allow_promotion_codes: true,
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    billing_address_collection: "auto",
-    automatic_tax: { enabled: false },
-  });
-
-  return NextResponse.json({ url: session.url });
 }
+
 
 

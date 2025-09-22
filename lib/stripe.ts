@@ -1,30 +1,37 @@
 // lib/stripe.ts
 import Stripe from "stripe";
 
-// --- Server SDK (Node) ---
-const secret = process.env.STRIPE_SECRET_KEY;
-if (!secret) throw new Error("Missing STRIPE_SECRET_KEY");
+// ----- SERVER (Node) -----
+let stripeServerSingleton: Stripe | null = null;
 
-export const stripe = new Stripe(secret, {
-  // Let the SDK use its pinned apiVersion to avoid TS literal mismatches
-  appInfo: { name: "EcoFocus Website", version: "1.0.0" },
-});
+/** Get a singleton Stripe server SDK instance lazily at runtime. */
+export function getStripeServer(): Stripe {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) {
+    // Throw ONLY when actually used at runtime, not during module import.
+    throw new Error("STRIPE_SECRET_KEY is not set");
+  }
+  if (!stripeServerSingleton) {
+    stripeServerSingleton = new Stripe(key, {
+      // Let the SDK use its pinned apiVersion (avoids TS literal mismatches)
+      appInfo: { name: "EcoFocus Website", version: "1.0.0" },
+    });
+  }
+  return stripeServerSingleton;
+}
 
-// --- Optional: Stripe.js loader for CLIENT code only ---
-// Use this in client components/pages when you need Stripe.js.
-// import { getStripeJs } from "@/lib/stripe"; await getStripeJs();
+// ----- CLIENT (Browser) -----
+// Optional helper to load Stripe.js where needed in client components/pages.
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
 
 let stripeJsPromise: Promise<StripeJs | null> | null = null;
-
 export function getStripeJs() {
   if (!stripeJsPromise) {
     const pk = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
     if (!pk) {
       if (process.env.NODE_ENV !== "production") {
-        console.warn("Missing NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY");
+        console.warn("NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is not set");
       }
-      // Still initialize to avoid runtime checks everywhere
       stripeJsPromise = Promise.resolve(null);
     } else {
       stripeJsPromise = loadStripe(pk);
