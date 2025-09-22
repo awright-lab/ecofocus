@@ -9,12 +9,11 @@ import type { ReportListItem } from "@/lib/reports-repo";
 type ApiResp = { items: ReportListItem[]; nextCursor?: string | null; total?: number };
 
 export default function ReportsGrid() {
-  const { values } = useReportSearchParams();
+  const { values, setParam } = useReportSearchParams();
   const [data, setData] = React.useState<ApiResp | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  // Build canonical query (no cursor yet)
   const qs = React.useMemo(() => {
     const p = new URLSearchParams();
     if (values.q) p.set("q", values.q);
@@ -24,6 +23,7 @@ export default function ReportsGrid() {
     if (values.access && values.access !== "All") p.set("access", values.access.toLowerCase());
     p.set("sort", values.sort || "Newest");
     p.set("limit", String(values.limit || 24));
+    if (values.page > 1) p.set("page", String(values.page));
     return p.toString();
   }, [values]);
 
@@ -36,12 +36,10 @@ export default function ReportsGrid() {
     fetch(`/api/reports?${qs}`, { signal: ctrl.signal, cache: "no-store" })
       .then((r) => r.json())
       .then((j: ApiResp) => {
-        if (!alive) return;
-        setData(j);
+        if (alive) setData(j);
       })
       .catch((e) => {
-        if (!alive) return;
-        if (e?.name !== "AbortError") setError("Failed to load reports.");
+        if (alive && e?.name !== "AbortError") setError("Failed to load reports.");
       })
       .finally(() => alive && setLoading(false));
 
@@ -52,6 +50,9 @@ export default function ReportsGrid() {
   }, [qs]);
 
   const total = data?.total ?? 0;
+  const limit = values.limit || 24;
+  const page = values.page || 1;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return (
     <div>
@@ -85,9 +86,105 @@ export default function ReportsGrid() {
         ))}
       </ul>
 
-      {/* Pagination hook-up can be added later; keeping UI simple for now */}
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <nav className="mt-6 flex items-center justify-center gap-2">
+          <PagBtn
+            disabled={page <= 1}
+            onClick={() => setParam("page", page - 1)}
+            label="Prev"
+          />
+          <PageNumbers
+            page={page}
+            totalPages={totalPages}
+            onSelect={(p) => setParam("page", p)}
+          />
+          <PagBtn
+            disabled={page >= totalPages}
+            onClick={() => setParam("page", page + 1)}
+            label="Next"
+          />
+        </nav>
+      )}
     </div>
   );
+}
+
+function PagBtn({
+  disabled,
+  onClick,
+  label,
+}: {
+  disabled?: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className={[
+        "rounded-xl border px-3 py-2 text-sm font-medium",
+        disabled
+          ? "border-emerald-100 text-emerald-400 cursor-not-allowed"
+          : "border-emerald-200 text-emerald-900 hover:bg-emerald-50",
+      ].join(" ")}
+    >
+      {label}
+    </button>
+  );
+}
+
+function PageNumbers({
+  page,
+  totalPages,
+  onSelect,
+}: {
+  page: number;
+  totalPages: number;
+  onSelect: (p: number) => void;
+}) {
+  const nums = compactRange(page, totalPages);
+  return (
+    <>
+      {nums.map((n, i) =>
+        n === "…" ? (
+          <span key={`e${i}`} className="px-2 text-emerald-700/70">…</span>
+        ) : (
+          <button
+            key={n}
+            onClick={() => onSelect(n)}
+            aria-current={n === page ? "page" : undefined}
+            className={[
+              "rounded-xl px-3 py-2 text-sm font-semibold",
+              n === page
+                ? "bg-emerald-700 text-white shadow"
+                : "text-emerald-900 hover:bg-emerald-50",
+            ].join(" ")}
+          >
+            {n}
+          </button>
+        )
+      )}
+    </>
+  );
+}
+
+// 1 … 4 5 [6] 7 8 … 20
+function compactRange(page: number, total: number) {
+  const res: (number | "…")[] = [];
+  const add = (n: number | "…") => res.push(n);
+  const window = 1; // neighbors on each side
+
+  for (let i = 1; i <= total; i++) {
+    const near =
+      i === 1 ||
+      i === total ||
+      (i >= page - window && i <= page + window);
+    if (near) add(i);
+    else if (res[res.length - 1] !== "…") add("…");
+  }
+  return res;
 }
 
 function ReportCard({ item }: { item: ReportListItem }) {
@@ -95,12 +192,7 @@ function ReportCard({ item }: { item: ReportListItem }) {
   const href = `/reports/${item.id}`;
 
   return (
-    <div
-      className={[
-        "group relative rounded-2xl border bg-white shadow-sm transition",
-        "border-emerald-200 hover:border-emerald-300 hover:shadow-md",
-      ].join(" ")}
-    >
+    <div className="group relative rounded-2xl border bg-white shadow-sm transition border-emerald-200 hover:border-emerald-300 hover:shadow-md">
       {/* right price/cta */}
       <div className="absolute right-4 top-4 flex items-center gap-3">
         <div className="text-right">
@@ -114,10 +206,7 @@ function ReportCard({ item }: { item: ReportListItem }) {
           )}
         </div>
         {isFree ? (
-          <a
-            href={item.freeHref || "#"}
-            className="btn-primary-emerald !py-2 !px-4 rounded-xl"
-          >
+          <a href={item.freeHref || "#"} className="btn-primary-emerald !py-2 !px-4 rounded-xl">
             Download
           </a>
         ) : (
@@ -134,26 +223,18 @@ function ReportCard({ item }: { item: ReportListItem }) {
           <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-900 ring-1 ring-amber-200">
             {item.year}
           </span>
-          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-emerald-600 text-white">
-            {item.access}
-          </span>
         </div>
 
-        {/* title */}
         <h3 className="mt-2 text-[clamp(1.0rem,2.4vw,1.125rem)] font-semibold text-emerald-950 leading-snug">
           <Link href={href} className="hover:underline decoration-amber-400 underline-offset-4">
             {item.title}
           </Link>
         </h3>
 
-        {/* description */}
         {item.description && (
-          <p className="mt-2 text-sm text-emerald-900/80 line-clamp-2">
-            {item.description}
-          </p>
+          <p className="mt-2 text-sm text-emerald-900/80 line-clamp-2">{item.description}</p>
         )}
 
-        {/* tags */}
         {(item.tags?.length ?? 0) > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
             {item.tags!.slice(0, 6).map((t) => (
@@ -167,7 +248,6 @@ function ReportCard({ item }: { item: ReportListItem }) {
           </div>
         )}
 
-        {/* secondary CTA */}
         <div className="mt-4">
           <Link
             href={href}

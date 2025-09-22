@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { listReports } from "@/lib/reports-repo";
 
-export const revalidate = 0; // do not prerender this route
+export const revalidate = 0;
 
 function normalizeAccess(val: string | null): "All" | "Free" | "Premium" {
   if (!val) return "All";
@@ -16,27 +16,27 @@ function normalizeAccess(val: string | null): "All" | "Free" | "Premium" {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
-  const q = searchParams.get("q") || undefined;
-  const year = searchParams.get("year") || undefined;
-  const topic = searchParams.get("topic") || undefined;
-  const type = searchParams.get("type") || undefined;
-  const sort = ((searchParams.get("sort") as any) || "Newest") as "Newest" | "AtoZ";
   const limit = Number(searchParams.get("limit") || 24);
-  const cursor = searchParams.get("cursor") || undefined;
-
-  const access = normalizeAccess(searchParams.get("access"));
+  const page = Math.max(1, Number(searchParams.get("page") || 1));
+  const cursor = String((page - 1) * limit); // 0-based start index
 
   const data = await listReports({
-    q, year, topic, type, access, sort, limit, cursor,
+    q: searchParams.get("q") || undefined,
+    year: searchParams.get("year") || undefined,
+    topic: searchParams.get("topic") || undefined,
+    type: searchParams.get("type") || undefined,
+    access: normalizeAccess(searchParams.get("access")),
+    sort: ((searchParams.get("sort") as any) || "Newest") as "Newest" | "AtoZ",
+    limit,
+    cursor,
   });
 
   return NextResponse.json(data, {
     headers: {
-      // Kill caching while we stabilize filters:
       "Cache-Control": "no-store, must-revalidate",
-      // Quick inspection helpers:
       "x-reports-total": String(data.total ?? data.items.length),
-      "x-reports-access": access,
+      "x-reports-limit": String(limit),
+      "x-reports-page": String(page),
     },
   });
 }
