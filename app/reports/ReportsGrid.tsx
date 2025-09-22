@@ -3,258 +3,199 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useReportSearchParams } from "./useReportSearchParams";
+import type { ReportListItem } from "@/lib/reports-repo";
 
-type Report = {
-  id: string;
-  slug: string;
-  title: string;
-  year: number | string;
-  price: number;
-  access: "Free" | "Premium" | string;
-  tags?: string[];
-  description?: string;
-  cover?: string | null;
-};
-
-type ApiResponse = {
-  items: Report[];
-  nextCursor?: string | null;
-  total?: number;
-};
-
-const PAGE_LIMIT = 12;
+type ApiResp = { items: ReportListItem[]; nextCursor?: string | null; total?: number };
 
 export default function ReportsGrid() {
-  const sp = useSearchParams();
+  const { values } = useReportSearchParams();
+  const [data, setData] = React.useState<ApiResp | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const q = sp.get("q") ?? "";
-  const year = sp.get("year") ?? "All";
-  const topic = sp.get("topic") ?? "All";
-  const type = sp.get("type") ?? "All";
-  const access = (sp.get("access") ?? "All") as "All" | "Free" | "Premium";
-  const sort = (sp.get("sort") ?? "Newest") as "Newest" | "AtoZ";
-
-  const [items, setItems] = React.useState<Report[]>([]);
-  const [nextCursor, setNextCursor] = React.useState<string | null>(null);
-  const [total, setTotal] = React.useState<number | undefined>(undefined);
-  const [loading, setLoading] = React.useState(true);
-
-  const baseQuery = React.useMemo(() => {
+  // Build canonical query (no cursor yet)
+  const qs = React.useMemo(() => {
     const p = new URLSearchParams();
-    if (q) p.set("q", q);
-    if (access !== "All") p.set("access", access); // <- DO NOT lowercase
-    if (year !== "All") p.set("year", year);
-    if (topic !== "All") p.set("topic", topic);
-    if (type !== "All") p.set("type", type);
-    p.set("sort", sort);
-    p.set("limit", String(PAGE_LIMIT));
-    return p;
-  }, [q, access, year, topic, type, sort]);
+    if (values.q) p.set("q", values.q);
+    if (values.year && values.year !== "All") p.set("year", String(values.year));
+    if (values.topic && values.topic !== "All") p.set("topic", values.topic);
+    if (values.type && values.type !== "All") p.set("type", values.type);
+    if (values.access && values.access !== "All") p.set("access", values.access.toLowerCase());
+    p.set("sort", values.sort || "Newest");
+    p.set("limit", String(values.limit || 24));
+    return p.toString();
+  }, [values]);
 
   React.useEffect(() => {
-    let ignore = false;
+    let alive = true;
+    const ctrl = new AbortController();
     setLoading(true);
+    setError(null);
 
-    const p = new URLSearchParams(baseQuery.toString());
-    fetch(`/api/reports?${p.toString()}`, { cache: "no-store" })
+    fetch(`/api/reports?${qs}`, { signal: ctrl.signal, cache: "no-store" })
       .then((r) => r.json())
-      .then((json: ApiResponse) => {
-        if (ignore) return;
-        setItems(json.items || []);
-        setNextCursor(json.nextCursor ?? null);
-        setTotal(json.total);
+      .then((j: ApiResp) => {
+        if (!alive) return;
+        setData(j);
       })
-      .finally(() => !ignore && setLoading(false));
+      .catch((e) => {
+        if (!alive) return;
+        if (e?.name !== "AbortError") setError("Failed to load reports.");
+      })
+      .finally(() => alive && setLoading(false));
 
     return () => {
-      ignore = true;
+      alive = false;
+      ctrl.abort();
     };
-  }, [baseQuery]);
+  }, [qs]);
 
-  async function loadMore() {
-    if (!nextCursor) return;
-    setLoading(true);
-    const p = new URLSearchParams(baseQuery.toString());
-    p.set("cursor", nextCursor);
-    const res = await fetch(`/api/reports?${p.toString()}`, {
-      cache: "no-store",
-    });
-    const json: ApiResponse = await res.json();
-    setItems((prev) => prev.concat(json.items || []));
-    setNextCursor(json.nextCursor ?? null);
-    setLoading(false);
-  }
+  const total = data?.total ?? 0;
 
   return (
-    <section aria-labelledby="reports-list">
-      <h2 id="reports-list" className="sr-only">
-        Reports
-      </h2>
-
-      <div className="flex items-center justify-between gap-4 pb-3 mb-4 soft-divider">
-        <div className="text-sm text-emerald-900">
-          <strong>Reports</strong>{" "}
-          {loading
-            ? "— Loading…"
-            : `— Showing ${items.length}${
-                typeof total === "number" ? ` of ${total}` : ""
-              }`}
-        </div>
+    <div>
+      {/* Header */}
+      <div className="mb-3 flex items-center justify-between">
+        <p className="text-sm text-emerald-900">
+          <span className="font-semibold">Reports</span>{" "}
+          <span className="text-emerald-800/80">
+            — Showing {data?.items?.length ?? 0} of {total}
+          </span>
+        </p>
       </div>
+      <div className="soft-divider mb-6" />
 
-      <ul className="divide-y divide-emerald-100 rounded-2xl bg-white overflow-hidden">
-        {loading && items.length === 0 && (
-          <li className="py-10 text-center text-emerald-700">
-            Loading results…
-          </li>
-        )}
+      {/* States */}
+      {loading && <ListSkeleton />}
+      {error && <div className="text-red-600 text-sm">{error}</div>}
+      {!loading && !error && (data?.items?.length ?? 0) === 0 && (
+        <div className="rounded-2xl border border-emerald-200 bg-white p-8 text-center">
+          <p className="text-emerald-900 font-medium">No results match your filters.</p>
+          <p className="text-emerald-900/70 text-sm mt-1">Try clearing a filter or two.</p>
+        </div>
+      )}
 
-        {!loading && items.length === 0 && (
-          <li className="py-10 text-center text-emerald-700">
-            No results match your filters.
-          </li>
-        )}
-
-        {items.map((report, idx) => (
-          <li
-            key={report.id}
-            className={idx % 2 === 1 ? "bg-emerald-50/40" : "bg-white"}
-          >
-            <Row report={report} />
+      {/* List */}
+      <ul className="space-y-4">
+        {data?.items?.map((r) => (
+          <li key={r.id}>
+            <ReportCard item={r} />
           </li>
         ))}
       </ul>
 
-      {nextCursor && (
-        <div className="mt-8 flex justify-center">
-          <button
-            onClick={loadMore}
-            disabled={loading}
-            className="btn-primary-emerald px-5 py-3 rounded-xl disabled:opacity-60"
-          >
-            {loading ? "Loading…" : "Load more"}
-          </button>
-        </div>
-      )}
-    </section>
+      {/* Pagination hook-up can be added later; keeping UI simple for now */}
+    </div>
   );
 }
 
-function Row({ report }: { report: Report }) {
-  const isFree =
-    String(report.access).toLowerCase() === "free" || Number(report.price) === 0;
+function ReportCard({ item }: { item: ReportListItem }) {
+  const isFree = item.access === "Free" || Number(item.price) === 0;
+  const href = `/reports/${item.id}`;
 
   return (
-    <div className="px-4 sm:px-6 py-5">
-      <div className="rounded-2xl bg-emerald-50/40 border border-emerald-100 p-4 sm:p-5 transition-shadow hover:shadow-md">
-        <div className="grid grid-cols-12 gap-4 items-start">
-          <div className="col-span-12 md:col-span-1 hidden sm:block">
-            {report.cover ? (
-              <Image
-                src={report.cover}
-                alt=""
-                width={80}
-                height={112}
-                className="h-28 w-20 rounded-md object-cover border border-emerald-100"
-              />
-            ) : (
-              <div className="h-28 w-20 rounded-md bg-emerald-100 border border-emerald-200" />
-            )}
+    <div
+      className={[
+        "group relative rounded-2xl border bg-white shadow-sm transition",
+        "border-emerald-200 hover:border-emerald-300 hover:shadow-md",
+      ].join(" ")}
+    >
+      {/* right price/cta */}
+      <div className="absolute right-4 top-4 flex items-center gap-3">
+        <div className="text-right">
+          <div className="text-xs uppercase tracking-wide text-emerald-800/70">
+            {isFree ? "No cost" : "Excl. tax"}
           </div>
+          {!isFree && (
+            <div className="text-lg font-bold text-emerald-900">
+              ${Number(item.price).toLocaleString()}
+            </div>
+          )}
+        </div>
+        {isFree ? (
+          <a
+            href={item.freeHref || "#"}
+            className="btn-primary-emerald !py-2 !px-4 rounded-xl"
+          >
+            Download
+          </a>
+        ) : (
+          <Link href={href} className="btn-primary-emerald !py-2 !px-4 rounded-xl">
+            Add to cart
+          </Link>
+        )}
+      </div>
 
-          <div className="col-span-12 md:col-span-7">
-            <div className="flex items-center gap-2 mb-1">
+      {/* body */}
+      <div className="p-5 sm:p-6 pr-40">
+        {/* badges */}
+        <div className="flex flex-wrap gap-2">
+          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-900 ring-1 ring-amber-200">
+            {item.year}
+          </span>
+          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-emerald-600 text-white">
+            {item.access}
+          </span>
+        </div>
+
+        {/* title */}
+        <h3 className="mt-2 text-[clamp(1.0rem,2.4vw,1.125rem)] font-semibold text-emerald-950 leading-snug">
+          <Link href={href} className="hover:underline decoration-amber-400 underline-offset-4">
+            {item.title}
+          </Link>
+        </h3>
+
+        {/* description */}
+        {item.description && (
+          <p className="mt-2 text-sm text-emerald-900/80 line-clamp-2">
+            {item.description}
+          </p>
+        )}
+
+        {/* tags */}
+        {(item.tags?.length ?? 0) > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {item.tags!.slice(0, 6).map((t) => (
               <span
-                className={[
-                  "inline-flex items-center rounded-full text-[11px] px-2 py-0.5 border",
-                  isFree
-                    ? "bg-emerald-100 text-emerald-900 border-emerald-200"
-                    : "bg-amber-100 text-amber-900 border-amber-200",
-                ].join(" ")}
+                key={t}
+                className="inline-flex items-center rounded-full bg-white px-2 py-0.5 text-xs text-emerald-900 ring-1 ring-emerald-200"
               >
-                {isFree ? "Free" : "Premium"}
+                {t}
               </span>
-              {report.year && (
-                <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-900 text-[11px] px-2 py-0.5 border border-emerald-100">
-                  {report.year}
-                </span>
-              )}
-            </div>
-
-            <h3 className="text-lg font-semibold text-emerald-950 leading-snug">
-              <Link
-                href={`/reports/${report.slug}`}
-                className="hover:underline underline-offset-4"
-              >
-                {report.title}
-              </Link>
-            </h3>
-
-            {report.description && (
-              <p className="mt-1 text-sm text-emerald-800/90 line-clamp-2">
-                {report.description}
-              </p>
-            )}
-
-            {!!report.tags?.length && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {report.tags.map((t) => (
-                  <span
-                    key={t}
-                    className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-900"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
+        )}
 
-          <div className="col-span-12 md:col-span-4 md:text-right">
-            {isFree ? (
-              <div className="text-sm text-emerald-700">No cost</div>
-            ) : (
-              <>
-                <div className="text-xs text-emerald-700">Excl. tax</div>
-                <div className="text-2xl font-bold text-emerald-950">
-                  ${Number(report.price).toLocaleString()}
-                </div>
-              </>
-            )}
-
-            <div className="mt-3 flex md:justify-end gap-2">
-              <Link href={`/reports/${report.slug}`} className="btn-secondary-light px-3 py-2 rounded-lg">
-                View details
-              </Link>
-
-              {isFree ? (
-                <Link href={`/reports/${report.slug}`} className="btn-primary-emerald px-3 py-2 rounded-lg">
-                  Download
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() =>
-                    window.dispatchEvent(
-                      new CustomEvent("cart:add", {
-                        detail: { id: report.id, slug: report.slug },
-                      })
-                    )
-                  }
-                  className="btn-primary-emerald px-3 py-2 rounded-lg"
-                >
-                  Add to cart
-                </button>
-              )}
-            </div>
-          </div>
+        {/* secondary CTA */}
+        <div className="mt-4">
+          <Link
+            href={href}
+            className="inline-flex items-center rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-50"
+          >
+            View details
+          </Link>
         </div>
       </div>
     </div>
   );
 }
+
+function ListSkeleton() {
+  return (
+    <ul className="space-y-4">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <li key={i} className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
+          <div className="h-5 w-1/3 bg-emerald-100 rounded" />
+          <div className="mt-3 h-4 w-2/3 bg-emerald-100 rounded" />
+          <div className="mt-2 h-4 w-1/2 bg-emerald-100 rounded" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+
 
 
 

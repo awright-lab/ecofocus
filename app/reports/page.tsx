@@ -1,18 +1,18 @@
 // app/reports/page.tsx
-"use client";
-
 import { Suspense } from "react";
-import * as React from "react";
 
+// keep these imports
 import ReportsGrid from "./ReportsGrid";
 import { LeftFilterRail } from "./LeftFilterRail";
 import { MobileFilterDrawer } from "./MobileFilterDrawer";
 import { useReportSearchParams } from "./useReportSearchParams";
-import ReportsHero from "./ReportsHero";
+
+// your existing sections (leave as-is if they already exist)
 import AccessTabs from "./AccessTabs";
 import ReportsBundles from "./ReportsBundles";
 import ReportsCTA from "./ReportsCTA";
 
+// keep dynamic to avoid static prerender with searchParams
 export const dynamic = "force-dynamic";
 
 export default function ReportsPage() {
@@ -32,18 +32,19 @@ function ReportsPageFallback() {
 }
 
 function ReportsPageInner() {
+  // This hook calls useSearchParams(), so it MUST live inside <Suspense>
   const { values, setParam } = useReportSearchParams();
   const { access, year, topic, type } = values;
+
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top hero + access tabs */}
-      <ReportsHero />
+    <>
+      {/* Optional hero if you render one above */}
       <AccessTabs />
 
+      {/* Centered container: left rail + results */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filter rail + list */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* LEFT rail */}
           <aside className="lg:col-span-3">
@@ -64,19 +65,27 @@ function ReportsPageInner() {
             </div>
           </aside>
 
-          {/* RIGHT: list only */}
-          <main className="lg:col-span-9">
+          {/* RIGHT: listing */}
+          <main className="lg:col-span-9 space-y-10">
             <ReportsGrid />
           </main>
         </div>
-
-        {/* FULL-WIDTH sections below the grid */}
-        <div className="mt-12 space-y-12">
-          <ReportsBundles />
-          <ReportsCTA />
-        </div>
       </div>
 
+      {/* FULL-WIDTH slabs below listing */}
+      <section className="section-slab-emerald py-12 sm:py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <ReportsBundles />
+        </div>
+      </section>
+
+      <section className="section-slab-deep py-12 sm:py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <ReportsCTA />
+        </div>
+      </section>
+
+      {/* Mobile drawer */}
       <MobileFilterDrawer
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
@@ -86,11 +95,15 @@ function ReportsPageInner() {
         type={type}
         setParam={(k, v) => {
           setParam(k, v);
+          // setMobileOpen(false); // uncomment if you want to auto-close after a change
         }}
       />
-    </div>
+    </>
   );
 }
+
+import * as React from "react";
+
 
 
 
