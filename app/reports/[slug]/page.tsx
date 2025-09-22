@@ -1,8 +1,8 @@
-// app/reports/[slug]/page.tsx
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { getReportBySlug } from "@/lib/reports-repo";
+
 import CoverHero from "./CoverHero";
 import PurchaseButtons from "./PurchaseButtons";
 import FreeGateButton from "./FreeGateButton";
@@ -10,9 +10,9 @@ import FreeGateButton from "./FreeGateButton";
 export default async function ReportDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>; // <-- your project expects a Promise
 }) {
-  const { slug } = params;
+  const { slug } = await params;     // <-- await it
   const report = await getReportBySlug(slug);
 
   if (!report) {
@@ -100,6 +100,7 @@ export default async function ReportDetailPage({
     </>
   );
 }
+
 
 
 
