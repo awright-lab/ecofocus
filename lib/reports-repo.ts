@@ -4,7 +4,6 @@ import "server-only";
 /* =========================
    Types
    ========================= */
-
 export type Access = "All" | "Free" | "Premium";
 export type Sort = "Newest" | "AtoZ";
 
@@ -13,7 +12,7 @@ export type ListReportsInput = {
   year?: string;
   topic?: string;
   type?: string;
-  access?: Access | string; // tolerate any case
+  access?: Access | string; // accept either case from URL
   sort?: Sort;
   limit?: number;
   cursor?: string | null;
@@ -24,13 +23,13 @@ export type ReportListItem = {
   slug: string;
   title: string;
   year: number;
-  price: number;              // 0 for free
+  price: number; // 0 => free
   access: "Free" | "Premium";
   tags?: string[];
   description?: string;
   thumbnail?: string | null;
 
-  // optional
+  // optional extras used by UI
   priceId?: string;
   freeHref?: string;
   sampleHref?: string;
@@ -67,13 +66,12 @@ export type ReportDetail = {
   thumbnail?: string | null;
 };
 
-// convenient alias (some components import Report)
+// convenient alias for components that import { Report }
 export type Report = ReportDetail;
 
 /* =========================
-   Helpers
+   Helpers / toggles
    ========================= */
-
 function normalizeAccess(val?: string | null): "All" | "Free" | "Premium" {
   if (!val) return "All";
   const x = String(val).trim().toLowerCase();
@@ -82,16 +80,15 @@ function normalizeAccess(val?: string | null): "All" | "Free" | "Premium" {
   return "All";
 }
 
-/* =========================
-   Backend toggle
-   ========================= */
-
-const BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload" | "mock"
+const RAW_BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload" | "mock"
+const PAYLOAD_BASE_URL = process.env.PAYLOAD_BASE_URL || "";
+const PAYLOAD_TOKEN = process.env.PAYLOAD_API_TOKEN || "";
+const WANT_PAYLOAD = RAW_BACKEND === "payload" && !!PAYLOAD_BASE_URL;
+const DISABLE_FALLBACK = process.env.REPORTS_DISABLE_FALLBACK === "1";
 
 /* =========================
    MOCK BACKEND
    ========================= */
-
 const MOCK_BASE_LIST: ReportListItem[] = [
   {
     id: "1",
@@ -164,6 +161,7 @@ const MOCK_BASE_LIST: ReportListItem[] = [
   },
 ];
 
+// clone out to make ~120 items for paging demos
 function cloneList(base: ReportListItem[], n: number): ReportListItem[] {
   const out: ReportListItem[] = [];
   for (let i = 0; i < n; i++) {
@@ -179,7 +177,7 @@ function cloneList(base: ReportListItem[], n: number): ReportListItem[] {
 }
 const MOCK_LIST_DATA: ReportListItem[] = cloneList(MOCK_BASE_LIST, 120);
 
-// build separate mock detail data so we don't call list inside detail APIs
+// derive detail dataset directly from list dataset
 const MOCK_DETAIL_DATA: ReportDetail[] = MOCK_LIST_DATA.map((r) => ({
   id: r.id,
   slug: r.slug,
@@ -222,7 +220,7 @@ function filterListByInput(
     if (!Number.isNaN(y)) filtered = filtered.filter((r) => r.year === y);
   }
 
-  // Topic (slug-ish) – loose match to tags/topic
+  // Topic (slug-ish)
   if (input.topic && input.topic !== "All") {
     const norm = input.topic.replace(/-/g, " ").toLowerCase();
     filtered = filtered.filter((r) => {
@@ -232,7 +230,7 @@ function filterListByInput(
     });
   }
 
-  // Type – no-op in mock unless you add a type field
+  // Type (no-op in mock unless you add a field)
 
   // q
   if (input.q) {
@@ -264,11 +262,7 @@ async function listReportsMock(
   const slice = filtered.slice(start, start + limit);
   const next = start + limit < filtered.length ? String(start + limit) : null;
 
-  return {
-    items: slice,
-    nextCursor: next,
-    total: filtered.length,
-  };
+  return { items: slice, nextCursor: next, total: filtered.length };
 }
 
 async function getMockDetailBy(
@@ -282,7 +276,6 @@ async function getMockDetailBy(
 /* =========================
    PAYLOAD BACKEND
    ========================= */
-
 function payloadWhereFromInput(input: ListReportsInput) {
   const where: any = { and: [] as any[] };
 
@@ -290,8 +283,8 @@ function payloadWhereFromInput(input: ListReportsInput) {
   if (acc === "Free" || acc === "Premium") {
     where.and.push({
       or: [
-        { access: { equals: acc } }, // "Free" / "Premium"
-        { access: { equals: acc.toLowerCase() } }, // tolerate "free" / "premium"
+        { access: { equals: acc } },
+        { access: { equals: acc.toLowerCase() } },
       ],
     });
   }
@@ -305,7 +298,7 @@ function payloadWhereFromInput(input: ListReportsInput) {
     const t = input.topic.replace(/-/g, " ");
     where.and.push({
       or: [
-        { topics: { contains: input.topic } }, // slug array
+        { topics: { contains: input.topic } },
         { tags: { contains: t } },
         { topic: { like: t } },
       ],
@@ -385,28 +378,27 @@ function normalizePayloadDetail(d: any): ReportDetail {
 async function listReportsPayload(
   input: ListReportsInput
 ): Promise<ListReportsResult> {
-  const base = process.env.PAYLOAD_BASE_URL!;
-  const token = process.env.PAYLOAD_API_TOKEN;
   const limit = Math.max(1, Math.min(60, input.limit || 12));
   const sort = payloadSortFromInput(input.sort);
   const where = payloadWhereFromInput(input);
-
   const start = input.cursor ? parseInt(input.cursor, 10) || 0 : 0;
   const page = Math.floor(start / limit) + 1;
 
-  const url = new URL(`${base}/api/reports`);
+  const url = new URL(`${PAYLOAD_BASE_URL}/api/reports`);
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("sort", sort);
   if (where) url.searchParams.set("where", JSON.stringify(where));
 
   const res = await fetch(url.toString(), {
-    headers: token ? { Authorization: `JWT ${token}` } : undefined,
+    headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
     cache: "no-store",
   });
+
   if (!res.ok) {
-    console.error("Payload list error", await res.text());
-    return { items: [], nextCursor: null, total: 0 };
+    const body = await res.text().catch(() => "");
+    console.error("[reports] Payload list error", res.status, body);
+    throw new Error(`Payload list error: ${res.status}`);
   }
 
   const data = await res.json();
@@ -420,61 +412,78 @@ async function listReportsPayload(
 }
 
 async function getPayloadDetailById(id: string): Promise<ReportDetail | null> {
-  const base = process.env.PAYLOAD_BASE_URL!;
-  const token = process.env.PAYLOAD_API_TOKEN;
-  const res = await fetch(`${base}/api/reports/${id}`, {
-    headers: token ? { Authorization: `JWT ${token}` } : undefined,
+  const res = await fetch(`${PAYLOAD_BASE_URL}/api/reports/${id}`, {
+    headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
     cache: "no-store",
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error("[reports] Payload detail (id) error", res.status);
+    throw new Error(`Payload detail error: ${res.status}`);
+  }
   const doc = await res.json();
   return normalizePayloadDetail(doc);
 }
 
-async function getPayloadDetailBySlug(
-  slug: string
-): Promise<ReportDetail | null> {
-  const base = process.env.PAYLOAD_BASE_URL!;
-  const token = process.env.PAYLOAD_API_TOKEN;
-  const url = new URL(`${base}/api/reports`);
+async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null> {
+  const url = new URL(`${PAYLOAD_BASE_URL}/api/reports`);
   url.searchParams.set("where", JSON.stringify({ slug: { equals: slug } }));
   const res = await fetch(url.toString(), {
-    headers: token ? { Authorization: `JWT ${token}` } : undefined,
+    headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
     cache: "no-store",
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.error("[reports] Payload detail (slug) error", res.status);
+    throw new Error(`Payload detail error: ${res.status}`);
+  }
   const data = await res.json();
   const doc = data?.docs?.[0];
   return doc ? normalizePayloadDetail(doc) : null;
 }
 
 /* =========================
-   Public API
+   Public API (with fallback)
    ========================= */
+export async function listReports(input: ListReportsInput): Promise<ListReportsResult> {
+  const withNorm: ListReportsInput = { ...input, access: normalizeAccess(input.access as any) };
 
-export async function listReports(
-  input: ListReportsInput
-): Promise<ListReportsResult> {
-  // Normalize once for both backends
-  const withNorm: ListReportsInput = {
-    ...input,
-    access: normalizeAccess(input.access as any),
-  };
-  if (BACKEND === "payload") return listReportsPayload(withNorm);
+  if (WANT_PAYLOAD) {
+    try {
+      const res = await listReportsPayload(withNorm);
+      if (DISABLE_FALLBACK || res.items.length > 0) return res;
+      console.warn("[reports] Payload returned 0 items; falling back to mock.");
+    } catch (e) {
+      console.warn("[reports] Payload error; falling back to mock.", e);
+      if (DISABLE_FALLBACK) throw e;
+    }
+  }
   return listReportsMock(withNorm);
 }
 
-export async function getReportById(
-  id: string
-): Promise<ReportDetail | null> {
-  if (BACKEND === "payload") return getPayloadDetailById(id);
+export async function getReportById(id: string): Promise<ReportDetail | null> {
+  if (WANT_PAYLOAD) {
+    try {
+      const d = await getPayloadDetailById(id);
+      if (DISABLE_FALLBACK || d) return d;
+      console.warn("[reports] Payload detail (id) missing; falling back to mock.");
+    } catch (e) {
+      console.warn("[reports] Payload detail (id) error; falling back to mock.", e);
+      if (DISABLE_FALLBACK) throw e;
+    }
+  }
   return getMockDetailBy("id", id);
 }
 
-export async function getReportBySlug(
-  slug: string
-): Promise<ReportDetail | null> {
-  if (BACKEND === "payload") return getPayloadDetailBySlug(slug);
+export async function getReportBySlug(slug: string): Promise<ReportDetail | null> {
+  if (WANT_PAYLOAD) {
+    try {
+      const d = await getPayloadDetailBySlug(slug);
+      if (DISABLE_FALLBACK || d) return d;
+      console.warn("[reports] Payload detail (slug) missing; falling back to mock.");
+    } catch (e) {
+      console.warn("[reports] Payload detail (slug) error; falling back to mock.", e);
+      if (DISABLE_FALLBACK) throw e;
+    }
+  }
   return getMockDetailBy("slug", slug);
 }
 
