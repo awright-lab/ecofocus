@@ -19,6 +19,10 @@ type Report = {
   format?: string;
   sampleHref?: string;
   detailHref: string;
+  access: "Free" | "Premium";
+  freeHref?: string;
+  priceCents?: number;
+  priceDisplay?: string;
 };
 
 type Initial = {
@@ -37,6 +41,7 @@ export default function ReportsGrid({
     year?: string;
     topic?: string;
     type?: string;
+    access?: "All" | "Free" | "Premium";
     sort?: "Newest" | "A–Z";
     limit?: number;
     cursor?: string;
@@ -50,17 +55,14 @@ export default function ReportsGrid({
   const [total, setTotal] = useState<number>(initial.total);
   const [loading, setLoading] = useState(false);
 
-  // Skip the first effect run so we don't refetch immediately on mount (SSR already provided initial)
   const didMount = useRef(false);
-
-  // Re-run when URL params change
   const key = sp.toString();
+
   useEffect(() => {
     if (!didMount.current) {
       didMount.current = true;
       return;
     }
-
     let cancelled = false;
 
     async function refetch() {
@@ -72,6 +74,7 @@ export default function ReportsGrid({
           year: sp.get("year") ?? "All",
           topic: sp.get("topic") ?? "All",
           type: sp.get("type") ?? "All",
+          access: sp.get("access") ?? "All",
           sort: sp.get("sort") ?? "Newest",
           limit: String(query.limit ?? 24),
         }).toString();
@@ -104,6 +107,7 @@ export default function ReportsGrid({
         year: sp.get("year") ?? "All",
         topic: sp.get("topic") ?? "All",
         type: sp.get("type") ?? "All",
+        access: sp.get("access") ?? "All",
         sort: sp.get("sort") ?? "Newest",
         limit: String(query.limit ?? 24),
         cursor,
@@ -114,7 +118,7 @@ export default function ReportsGrid({
 
     setItems((prev) => [...prev, ...data.items]);
     setCursor(data.nextCursor);
-    setTotal(data.total); // keep count accurate
+    setTotal(data.total);
     setLoading(false);
   }
 
@@ -151,6 +155,7 @@ export default function ReportsGrid({
                 transition={{ duration: 0.4, delay: (i % 12) * 0.02 }}
                 className="flex flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-lg"
               >
+                {/* IMAGE + BADGES */}
                 <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-white ring-1 ring-gray-200">
                   <Image
                     src={rep.cover}
@@ -159,33 +164,35 @@ export default function ReportsGrid({
                     className="object-contain"
                     sizes="(min-width:1280px) 22vw, (min-width:1024px) 28vw, (min-width:640px) 45vw, 92vw"
                   />
-                  <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-emerald-950 shadow-sm">
+                  {/* Type badge (top-left) */}
+                  <span className="absolute left-3 top-3 inline-flex items-center rounded-full bg-gray-900/80 px-2 py-0.5 text-[11px] font-semibold text-white shadow">
                     {rep.type}
                   </span>
+                  {/* Access / Price (top-right) */}
+                  {rep.access === "Free" ? (
+                    <span className="absolute right-3 top-3 inline-flex items-center rounded-full bg-amber-400 px-2 py-0.5 text-[11px] font-semibold text-emerald-950 shadow">
+                      Free
+                    </span>
+                  ) : (
+                    <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-gray-900 ring-1 ring-gray-200 shadow">
+                      <i className="ri-lock-2-line text-[12px] opacity-70" aria-hidden />
+                      {rep.priceDisplay ?? "Premium"}
+                    </span>
+                  )}
                 </div>
 
+                {/* META */}
                 <div className="mt-3 flex-1">
                   <h3 className="text-sm font-semibold leading-snug text-gray-900">{rep.title}</h3>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600">
-                    {rep.wave && (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">
-                        {rep.wave}
-                      </span>
-                    )}
-                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">
-                      {rep.topic}
-                    </span>
-                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">
-                      {rep.year}
-                    </span>
-                    {rep.pages ? (
-                      <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">
-                        {rep.pages} pp
-                      </span>
-                    ) : null}
+                    {rep.wave && <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.wave}</span>}
+                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.topic}</span>
+                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.year}</span>
+                    {rep.pages ? <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5">{rep.pages} pp</span> : null}
                   </div>
                 </div>
 
+                {/* CTAs */}
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {rep.sampleHref ? (
                     <a
@@ -197,15 +204,28 @@ export default function ReportsGrid({
                   ) : (
                     <span />
                   )}
-                  <Link
-                    href={rep.detailHref}
-                    className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300
-                               before:content-[''] before:absolute before:inset-0 before:rounded-full
-                               before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                               before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                  >
-                    <span className="relative z-10">View details</span>
-                  </Link>
+
+                  {rep.access === "Free" && rep.freeHref ? (
+                    <a
+                      href={rep.freeHref}
+                      className="relative inline-flex items-center justify-center rounded-full bg-[#FFC107] px-3 py-2 text-xs font-semibold text-emerald-950 transition-all duration-300
+                                 before:content-[''] before:absolute before:inset-0 before:rounded-full
+                                 before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
+                                 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                    >
+                      <span className="relative z-10">Download free</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={rep.detailHref}
+                      className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-all duration-300
+                                 before:content-[''] before:absolute before:inset-0 before:rounded-full
+                                 before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                                 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                    >
+                      <span className="relative z-10">View details</span>
+                    </Link>
+                  )}
                 </div>
               </motion.article>
             ))}

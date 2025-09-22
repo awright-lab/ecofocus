@@ -22,12 +22,12 @@ export default async function ReportsPage({
     year: (sp.year as string) || "All",
     topic: (sp.topic as string) || "All",
     type: (sp.type as string) || "All",
+    access: (sp.access as "All" | "Free" | "Premium") || "All",
     sort: (sp.sort as "Newest" | "A–Z") || "Newest",
     limit: Number(sp.limit ?? 24),
     cursor: (sp.cursor as string) || undefined,
   };
 
-  // SSR the first page for speed/SEO:
   const initial = await listReports(query);
 
   return (
@@ -37,16 +37,11 @@ export default async function ReportsPage({
         <ReportsHero />
 
         <Breadcrumbs
-          items={[
-            { label: "Home", href: "/" },
-            { label: "Reports" },
-          ]}
+          items={[{ label: "Home", href: "/" }, { label: "Reports" }]}
           maxWidth="max-w-7xl"
         />
 
         <ReportsFilters />
-
-        {/* Hydrate a client grid with the first page and the query */}
         <ReportsGrid initial={initial} query={query} />
 
         <ReportsBundles />
@@ -56,6 +51,7 @@ export default async function ReportsPage({
     </>
   );
 }
+
 
 
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -10,19 +10,19 @@ export default function ReportsFilters() {
   const router = useRouter();
   const sp = useSearchParams();
 
-  // Read current params
   const [q, setQ] = useState(sp.get("q") ?? "");
   const [year, setYear] = useState(sp.get("year") ?? "All");
   const [topic, setTopic] = useState(sp.get("topic") ?? "All");
   const [type, setType] = useState(sp.get("type") ?? "All");
+  const [access, setAccess] = useState(sp.get("access") ?? "All");
   const [sort, setSort] = useState(sp.get("sort") ?? "Newest");
 
-  // Keep local state in sync when nav changes (e.g., back/forward)
   useEffect(() => {
     setQ(sp.get("q") ?? "");
     setYear(sp.get("year") ?? "All");
     setTopic(sp.get("topic") ?? "All");
     setType(sp.get("type") ?? "All");
+    setAccess(sp.get("access") ?? "All");
     setSort(sp.get("sort") ?? "Newest");
   }, [sp]);
 
@@ -32,6 +32,7 @@ export default function ReportsFilters() {
     []
   );
   const types = useMemo(() => ["All", "Full Report", "Brief/One-Pager", "Infographic"], []);
+  const accesses = useMemo(() => ["All", "Free", "Premium"], []);
 
   function push(params: Record<string, string>) {
     const next = new URLSearchParams(sp.toString());
@@ -39,13 +40,13 @@ export default function ReportsFilters() {
       if (!v || v === "All" || (k === "q" && v.trim() === "")) next.delete(k);
       else next.set(k, v);
     });
-    next.delete("cursor"); // reset pagination when filters change
+    next.delete("cursor");
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
 
   function onSubmit(e?: React.FormEvent) {
     e?.preventDefault();
-    push({ q, year, topic, type, sort });
+    push({ q, year, topic, type, access, sort });
   }
 
   return (
@@ -60,7 +61,6 @@ export default function ReportsFilters() {
           className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
         >
           <div className="grid grid-cols-1 gap-3 md:grid-cols-12">
-            {/* Search */}
             <div className="md:col-span-4">
               <label htmlFor="report-search" className="sr-only">Search reports</label>
               <input
@@ -78,15 +78,15 @@ export default function ReportsFilters() {
             <Select label="Year" value={year} onChange={(v) => { setYear(v); push({ year: v }); }} options={years} className="md:col-span-2" />
             <Select label="Topic" value={topic} onChange={(v) => { setTopic(v); push({ topic: v }); }} options={topics} className="md:col-span-3" />
             <Select label="Type" value={type} onChange={(v) => { setType(v); push({ type: v }); }} options={types} className="md:col-span-2" />
-            <Select label="Sort" value={sort} onChange={(v) => { setSort(v); push({ sort: v }); }} options={["Newest", "A–Z"]} className="md:col-span-1" />
+            <Select label="Access" value={access} onChange={(v) => { setAccess(v); push({ access: v }); }} options={accesses} className="md:col-span-1" />
+            <Select label="Sort" value={sort} onChange={(v) => { setSort(v); push({ sort: v }); }} options={["Newest", "A–Z"]} className="md:col-span-0 md:col-start-12" />
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
+            <Chip label="Free" onClick={() => { setAccess("Free"); push({ access: "Free" }); }} />
+            <Chip label="Premium" onClick={() => { setAccess("Premium"); push({ access: "Premium" }); }} />
             <Chip label="Gen Z" onClick={() => { setTopic("Gen Z"); push({ topic: "Gen Z" }); }} />
             <Chip label="Packaging & Claims" onClick={() => { setTopic("Packaging & Claims"); push({ topic: "Packaging & Claims" }); }} />
-            <Chip label="Food & Bev" onClick={() => { setTopic("Category: Food & Bev"); push({ topic: "Category: Food & Bev" }); }} />
-            <Chip label="Millennials" onClick={() => { setTopic("Millennials"); push({ topic: "Millennials" }); }} />
-            <Chip label="Sustainability Attitudes" onClick={() => { setTopic("Sustainability Attitudes"); push({ topic: "Sustainability Attitudes" }); }} />
           </div>
         </motion.form>
       </div>
@@ -124,4 +124,5 @@ function Chip({ label, onClick }: { label: string; onClick: () => void }) {
     </button>
   );
 }
+
 
