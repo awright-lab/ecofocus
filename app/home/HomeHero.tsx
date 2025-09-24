@@ -6,9 +6,10 @@ import Link from "next/link";
 import { useVideoPlaybackRate } from "@/hooks/useVideoPlaybackRate";
 
 export default function HomeHero() {
-  const BG = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";           // ← your new video
+  // Replace with your sources
+  const BG = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";        // main (leaf) video
   const BG_POSTER = "/images/new-hero-poster.jpg";
-  const OVER = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4";
+  const OVER = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"; // subtle overlay
   const OVER_POSTER = "/images/hero-6-poster.jpg";
 
   const bgRef = useRef<HTMLVideoElement>(null);
@@ -16,19 +17,19 @@ export default function HomeHero() {
   useVideoPlaybackRate(bgRef, 0.6);
   useVideoPlaybackRate(overRef, 0.6);
 
-  // Right/bottom emphasis — tweak these until the whole leaf is framed how you like
-  const posMobile = "95% 84%";   // X% Y%
-  const posDesktop = "92% 78%";
+  // Pin video to far right / lower
+  const posMobile = "100% 78%";   // X% Y%
+  const posDesktop = "100% 80%";
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* Base fill so 'contain' bars blend cleanly */}
-      <div className="absolute inset-0 bg-slate-950" />
+      {/* Base fill so 'contain' bars look intentional */}
+      <div className="absolute inset-0 z-[1] bg-slate-950" />
 
-      {/* Background video — object-contain so it never crops */}
+      {/* BACKGROUND video — full hero coverage, no crop, pinned right/bottom */}
       <video
         ref={bgRef}
-        className="absolute inset-0 h-full w-full object-contain"
+        className="absolute inset-0 z-[2] h-full w-full object-contain"
         style={{ objectPosition: posMobile }}
         autoPlay
         muted
@@ -40,10 +41,10 @@ export default function HomeHero() {
         <source src={BG} type="video/mp4" />
       </video>
 
-      {/* Overlay video — match fit + position */}
+      {/* OVERLAY video — same fit/position, spans the entire hero */}
       <video
         ref={overRef}
-        className="pointer-events-none absolute inset-0 h-full w-full object-contain mix-blend-screen opacity-35"
+        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-contain mix-blend-screen opacity-35"
         style={{ objectPosition: posMobile }}
         autoPlay
         muted
@@ -55,19 +56,12 @@ export default function HomeHero() {
         <source src={OVER} type="video/mp4" />
       </video>
 
-      {/* Switch objectPosition on md+ for finer framing */}
-      <style jsx>{`
-        @media (min-width: 768px) {
-          video { object-position: ${posDesktop}; }
-        }
-      `}</style>
+      {/* Left scrim for text readability */}
+      <div className="absolute inset-0 z-[4] bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-transparent md:from-slate-950/80 md:via-slate-950/55" />
 
-      {/* Left scrim = reliable text contrast */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-transparent md:from-slate-950/80 md:via-slate-950/55" />
-
-      {/* Content */}
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-[70vh] md:min-h-[68vh] items-center py-16 sm:py-24">
+      {/* CONTENT (top) */}
+      <div className="relative z-[5] mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
             <h1 id="home-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white">
               Decoding the Purpose-Driven{" "}
@@ -90,7 +84,15 @@ export default function HomeHero() {
           <div className="hidden lg:block flex-1" />
         </div>
       </div>
+
+      {/* Desktop object-position tweak */}
+      <style jsx>{`
+        @media (min-width: 768px) {
+          video { object-position: ${posDesktop}; }
+        }
+      `}</style>
     </section>
   );
 }
+
 
