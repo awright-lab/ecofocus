@@ -1,4 +1,4 @@
-// app/(site)/_components/HomeHero.tsx  — custom hero (no <Hero/>)
+// app/(site)/_components/HomeHero.tsx
 "use client";
 
 import { useRef } from "react";
@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useVideoPlaybackRate } from "@/hooks/useVideoPlaybackRate";
 
 export default function HomeHero() {
-  const BG = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";
+  const BG = "https://YOUR-CDN/new-hero.mp4";           // ← your new video
   const BG_POSTER = "/images/new-hero-poster.jpg";
   const OVER = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4";
   const OVER_POSTER = "/images/hero-6-poster.jpg";
@@ -16,45 +16,58 @@ export default function HomeHero() {
   useVideoPlaybackRate(bgRef, 0.6);
   useVideoPlaybackRate(overRef, 0.6);
 
-  // Right + low bias
-  const posMobile = "95% 82%";
-  const posDesktop = "92% 74%";
+  // Right/bottom emphasis — tweak these until the whole leaf is framed how you like
+  const posMobile = "95% 84%";   // X% Y%
+  const posDesktop = "92% 78%";
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* a dark base so any 'contain' letterboxing blends cleanly */}
+      {/* Base fill so 'contain' bars blend cleanly */}
       <div className="absolute inset-0 bg-slate-950" />
 
-      {/* Background video */}
+      {/* Background video — object-contain so it never crops */}
       <video
         ref={bgRef}
-        // ⬇️ 'object-contain' on mobile (show entire leaf), 'object-cover' on md+
-        className="absolute inset-0 h-full w-full object-contain md:object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
         style={{ objectPosition: posMobile }}
-        autoPlay muted loop playsInline preload="auto" poster={BG_POSTER}
-        // swap objectPosition for desktop using a data-attr hook
-        data-desktop-pos={posDesktop}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster={BG_POSTER}
       >
         <source src={BG} type="video/mp4" />
       </video>
 
-      {/* Overlay video (match fit + position) */}
+      {/* Overlay video — match fit + position */}
       <video
         ref={overRef}
-        className="pointer-events-none absolute inset-0 h-full w-full object-contain md:object-cover mix-blend-screen opacity-35"
+        className="pointer-events-none absolute inset-0 h-full w-full object-contain mix-blend-screen opacity-35"
         style={{ objectPosition: posMobile }}
-        autoPlay muted loop playsInline preload="auto" poster={OVER_POSTER}
-        data-desktop-pos={posDesktop}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster={OVER_POSTER}
       >
         <source src={OVER} type="video/mp4" />
       </video>
 
-      {/* Left scrim for text readability */}
+      {/* Switch objectPosition on md+ for finer framing */}
+      <style jsx>{`
+        @media (min-width: 768px) {
+          video { object-position: ${posDesktop}; }
+        }
+      `}</style>
+
+      {/* Left scrim = reliable text contrast */}
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-transparent md:from-slate-950/80 md:via-slate-950/55" />
 
       {/* Content */}
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
+        <div className="flex min-h-[70vh] md:min-h-[68vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
             <h1 id="home-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white">
               Decoding the Purpose-Driven{" "}
@@ -77,62 +90,7 @@ export default function HomeHero() {
           <div className="hidden lg:block flex-1" />
         </div>
       </div>
-
-      {/* tiny CSS helper to switch objectPosition at md+ */}
-      <style jsx>{`
-        @media (min-width: 768px) {
-          video[data-desktop-pos] {
-            object-position: attr(data-desktop-pos);
-          }
-        }
-      `}</style>
     </section>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
