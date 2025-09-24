@@ -6,10 +6,9 @@ import Link from "next/link";
 import { useVideoPlaybackRate } from "@/hooks/useVideoPlaybackRate";
 
 export default function HomeHero() {
-  // Replace with your sources
-  const BG = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";        // main (leaf) video
+  const BG = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";              // leaf video
   const BG_POSTER = "/images/new-hero-poster.jpg";
-  const OVER = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"; // subtle overlay
+  const OVER = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"; // overlay texture
   const OVER_POSTER = "/images/hero-6-poster.jpg";
 
   const bgRef = useRef<HTMLVideoElement>(null);
@@ -17,41 +16,33 @@ export default function HomeHero() {
   useVideoPlaybackRate(bgRef, 0.6);
   useVideoPlaybackRate(overRef, 0.6);
 
-  // Pin video to far right / lower
-  const posMobile = "100% 78%";   // X% Y%
+  // BG should stay pinned far right/bottom
+  const posMobile = "100% 78%";
   const posDesktop = "100% 80%";
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* Base fill so 'contain' bars look intentional */}
+      {/* dark base so 'contain' bars blend */}
       <div className="absolute inset-0 z-[1] bg-slate-950" />
 
-      {/* BACKGROUND video — full hero coverage, no crop, pinned right/bottom */}
+      {/* BACKGROUND video (full leaf visible, pinned right/bottom) */}
       <video
         ref={bgRef}
+        data-kind="bg"
         className="absolute inset-0 z-[2] h-full w-full object-contain"
         style={{ objectPosition: posMobile }}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster={BG_POSTER}
+        autoPlay muted loop playsInline preload="auto" poster={BG_POSTER}
       >
         <source src={BG} type="video/mp4" />
       </video>
 
-      {/* OVERLAY video — same fit/position, spans the entire hero */}
+      {/* OVERLAY video (must cover entire hero) */}
       <video
         ref={overRef}
-        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-contain mix-blend-screen opacity-35"
-        style={{ objectPosition: posMobile }}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster={OVER_POSTER}
+        data-kind="overlay"
+        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover mix-blend-screen opacity-35"
+        style={{ objectPosition: "50% 50%" }} // CENTER so it spans left-to-right
+        autoPlay muted loop playsInline preload="auto" poster={OVER_POSTER}
       >
         <source src={OVER} type="video/mp4" />
       </video>
@@ -59,7 +50,7 @@ export default function HomeHero() {
       {/* Left scrim for text readability */}
       <div className="absolute inset-0 z-[4] bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-transparent md:from-slate-950/80 md:via-slate-950/55" />
 
-      {/* CONTENT (top) */}
+      {/* CONTENT */}
       <div className="relative z-[5] mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
@@ -85,14 +76,15 @@ export default function HomeHero() {
         </div>
       </div>
 
-      {/* Desktop object-position tweak */}
+      {/* Only move the BG on desktop; leave overlay centered to cover */}
       <style jsx>{`
         @media (min-width: 768px) {
-          video { object-position: ${posDesktop}; }
+          video[data-kind="bg"] { object-position: ${posDesktop}; }
         }
       `}</style>
     </section>
   );
 }
+
 
 
