@@ -1,4 +1,4 @@
-// app/(site)/_components/HomeHero.tsx  (custom hero)
+// app/(site)/_components/HomeHero.tsx  — custom hero (no <Hero/>)
 "use client";
 
 import { useRef } from "react";
@@ -6,58 +6,55 @@ import Link from "next/link";
 import { useVideoPlaybackRate } from "@/hooks/useVideoPlaybackRate";
 
 export default function HomeHero() {
-  const BG_VIDEO_SRC = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";
-  const BG_POSTER_SRC = "/images/new-hero-poster.jpg";
-  const OVERLAY_VIDEO_SRC = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4";
-  const OVERLAY_POSTER_SRC = "/images/hero-6-poster.jpg";
+  const BG = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";
+  const BG_POSTER = "/images/new-hero-poster.jpg";
+  const OVER = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4";
+  const OVER_POSTER = "/images/hero-6-poster.jpg";
 
   const bgRef = useRef<HTMLVideoElement>(null);
-  const overlayRef = useRef<HTMLVideoElement>(null);
+  const overRef = useRef<HTMLVideoElement>(null);
   useVideoPlaybackRate(bgRef, 0.6);
-  useVideoPlaybackRate(overlayRef, 0.6);
+  useVideoPlaybackRate(overRef, 0.6);
 
-  // push the subject to the right/bottom; then scale down slightly
-  const pos = "94% 88%";       // X% Y%   → higher Y = lower in frame
-  const scale = 0.8;           // 0.9 = 90% size (tweak 0.85–0.95)
+  // Right + low bias
+  const posMobile = "95% 82%";
+  const posDesktop = "92% 74%";
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* BG video */}
+      {/* a dark base so any 'contain' letterboxing blends cleanly */}
+      <div className="absolute inset-0 bg-slate-950" />
+
+      {/* Background video */}
       <video
         ref={bgRef}
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{
-          objectPosition: pos,
-          transformOrigin: pos,
-          transform: `scale(${scale})`,
-          willChange: "transform",
-        }}
-        autoPlay muted loop playsInline preload="auto" poster={BG_POSTER_SRC}
+        // ⬇️ 'object-contain' on mobile (show entire leaf), 'object-cover' on md+
+        className="absolute inset-0 h-full w-full object-contain md:object-cover"
+        style={{ objectPosition: posMobile }}
+        autoPlay muted loop playsInline preload="auto" poster={BG_POSTER}
+        // swap objectPosition for desktop using a data-attr hook
+        data-desktop-pos={posDesktop}
       >
-        <source src={BG_VIDEO_SRC} type="video/mp4" />
+        <source src={BG} type="video/mp4" />
       </video>
 
-      {/* Overlay video */}
+      {/* Overlay video (match fit + position) */}
       <video
-        ref={overlayRef}
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover mix-blend-screen opacity-35"
-        style={{
-          objectPosition: pos,
-          transformOrigin: pos,
-          transform: `scale(${scale})`,
-          willChange: "transform",
-        }}
-        autoPlay muted loop playsInline preload="auto" poster={OVERLAY_POSTER_SRC}
+        ref={overRef}
+        className="pointer-events-none absolute inset-0 h-full w-full object-contain md:object-cover mix-blend-screen opacity-35"
+        style={{ objectPosition: posMobile }}
+        autoPlay muted loop playsInline preload="auto" poster={OVER_POSTER}
+        data-desktop-pos={posDesktop}
       >
-        <source src={OVERLAY_VIDEO_SRC} type="video/mp4" />
+        <source src={OVER} type="video/mp4" />
       </video>
 
       {/* Left scrim for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/55 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-transparent md:from-slate-950/80 md:via-slate-950/55" />
 
       {/* Content */}
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-[62vh] items-center py-16 sm:py-24">
+        <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
             <h1 id="home-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white">
               Decoding the Purpose-Driven{" "}
@@ -80,6 +77,15 @@ export default function HomeHero() {
           <div className="hidden lg:block flex-1" />
         </div>
       </div>
+
+      {/* tiny CSS helper to switch objectPosition at md+ */}
+      <style jsx>{`
+        @media (min-width: 768px) {
+          video[data-desktop-pos] {
+            object-position: attr(data-desktop-pos);
+          }
+        }
+      `}</style>
     </section>
   );
 }
