@@ -17,8 +17,8 @@ export default function HomeHero() {
   useVideoPlaybackRate(overlayRef, 0.6);
 
   // push the subject to the right/bottom; then scale down slightly
-  const pos = "94% 78%";       // X% Y%   → higher Y = lower in frame
-  const scale = 0.9;           // 0.9 = 90% size (tweak 0.85–0.95)
+  const pos = "94% 88%";       // X% Y%   → higher Y = lower in frame
+  const scale = 0.8;           // 0.9 = 90% size (tweak 0.85–0.95)
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
