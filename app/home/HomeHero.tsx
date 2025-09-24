@@ -23,7 +23,7 @@ export default function HomeHero() {
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
       {/* dark base so 'contain' bars blend */}
-      <div className="absolute inset-0 z-[1] bg-black" />
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,#000_0%,#000_66%,#03070f_100%)]" />
 
       {/* BACKGROUND video (full leaf visible, pinned right/bottom) */}
       <video
