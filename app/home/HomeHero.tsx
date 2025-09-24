@@ -23,7 +23,7 @@ export default function HomeHero() {
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
       {/* dark base so 'contain' bars blend */}
-      <div className="absolute inset-0 z-[1] bg-slate-950" />
+      <div className="absolute inset-0 z-[1] bg-black" />
 
       {/* BACKGROUND video (full leaf visible, pinned right/bottom) */}
       <video
@@ -40,7 +40,7 @@ export default function HomeHero() {
       <video
         ref={overRef}
         data-kind="overlay"
-        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover mix-blend-screen opacity-35"
+        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover mix-blend-screen opacity-25"
         style={{ objectPosition: "50% 50%" }} // CENTER so it spans left-to-right
         autoPlay muted loop playsInline preload="auto" poster={OVER_POSTER}
       >
