@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useVideoPlaybackRate } from "@/hooks/useVideoPlaybackRate";
 
 export default function HomeHero() {
-  const BG = "https://YOUR-CDN/new-hero.mp4";           // ← your new video
+  const BG = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";           // ← your new video
   const BG_POSTER = "/images/new-hero-poster.jpg";
   const OVER = "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4";
   const OVER_POSTER = "/images/hero-6-poster.jpg";
