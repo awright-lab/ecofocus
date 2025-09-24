@@ -55,7 +55,7 @@ export default function Hero({
               muted
               playsInline
               preload="metadata"
-              className="h-full w-full object-cover brightness-[0.40] motion-reduce:hidden"
+              className="h-full w-full object-cover brightness-[0.80] motion-reduce:hidden"
             >
               <source src={videoSrc} type="video/mp4" />
             </video>

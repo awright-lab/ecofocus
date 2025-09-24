@@ -18,14 +18,14 @@ export default function HomeHero() {
 
   // Control playback rate on the overlay video
   const overlayRef = useRef<HTMLVideoElement>(null);
-  useVideoPlaybackRate(overlayRef, 0.6); // 0.6 = 40% slower (tweak to taste)
+  useVideoPlaybackRate(overlayRef, 0.8); // 0.6 = 40% slower (tweak to taste)
 
   return (
     <section className="relative">
       {/* Base Hero: uses the NEW background video */}
       <Hero
         variant="home"
-        size="normal"
+        size="tall"
         headline={
           <>
             Decoding the Purpose-Driven{" "}
@@ -39,7 +39,7 @@ export default function HomeHero() {
         ctaSecondary={{ label: "Request Details", href: "/contact" }}
         videoSrc={BG_VIDEO_SRC}
         posterSrc={BG_POSTER_SRC}
-        overlay="light"
+        overlay="none"
         // If your <Hero> exposes a ref to its <video>, you can also slow it:
         // videoRef={bgRef}  ← then apply useVideoPlaybackRate(bgRef, 0.6)
         // If not, leave as-is and we’ll slow only the overlay below.
