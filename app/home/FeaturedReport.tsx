@@ -79,8 +79,7 @@ export default function FeaturedReport() {
             </motion.div>
 
             <p className="mb-6 max-w-xl text-sm text-gray-700 sm:text-base md:mb-8">
-              Our latest report dives deep into consumer behavior and sustainability trends shaping the market
-              in 2024 and beyond. Gain the knowledge you need to stay ahead of the curve.
+            Our flagship report distills complex data into clear takeaways. Track consumer attitudes, behaviors, and expectations — and understand the forces driving tomorrow’s marketplace.
             </p>
 
             <Link

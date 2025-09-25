@@ -88,10 +88,10 @@ export default function CoreServices({ services }: Props) {
           id="core-services-heading"
           className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
         >
-          Solutions That Power Agencies Across Every Industry
+          Solutions That Drive Action
         </h3>
         <p className="mt-2 text-sm sm:text-base text-gray-600">
-        From dashboards to custom studies, EcoFocus equips agencies with the sustainability insights they need to guide clients in food, fashion, energy, retail, and beyond.
+        From dashboards to custom studies, EcoFocus helps brands and agencies translate sustainability attitudes into strategies that work. Whatever your challenge, our solutions deliver clarity and confidence.
         </p>
 
         {/* Mobile carousel */}

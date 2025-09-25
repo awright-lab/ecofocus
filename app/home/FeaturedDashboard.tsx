@@ -86,8 +86,7 @@ export default function FeaturedDashboard() {
             </div>
 
             <p className="mt-4 mb-4 text-sm text-gray-700 sm:text-base">
-              Instantly access over <strong>90,000 sustainability data points</strong>. Segment by demographics,
-              compare trends, and build custom insights in real time — all in one place.
+            Instant access to 90,000+ data points across 13 years of sustainability trends. The EcoFocus Dashboard gives you interactive tools to see shifts in real time and build strategies that stay ahead.
             </p>
 
             {/* Mobile: collapsible bullets with 'Read more' */}
