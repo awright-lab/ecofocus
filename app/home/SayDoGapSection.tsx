@@ -3,46 +3,39 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import * as React from 'react';
 
-type Props = {
-  // Kept for API compatibility; not used to avoid “adding” anything beyond the message
-  ctaHref?: string;
-  ctaLabel?: string;
-};
-
-export default function SayDoGapSection(_props: Props) {
+export default function SayDoGapSection() {
   const reduceMotion = useReducedMotion();
 
   return (
     <section className="relative isolate">
-      {/* Subtle background gradient only (design element ok per Jerry) */}
+      {/* subtle background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="h-full w-full bg-gradient-to-b from-amber-50/60 via-emerald-50/40 to-white" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        {/* Title */}
-        <motion.h2
-          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
-          initial={reduceMotion ? false : { opacity: 0, y: -12 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.45 }}
-        >
-          From Intent to Action: Closing the{' '}
-          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-            Say–Do Gap
-          </span>
-        </motion.h2>
+        {/* Shared measure wrapper: BOTH title and copy use the same width */}
+        <div className="mx-auto w-full max-w-[64ch] text-center">
+          <motion.h2
+            className="font-bold leading-tight text-gray-900 text-balance text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
+            initial={reduceMotion ? false : { opacity: 0, y: -12 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.45 }}
+          >
+            From Intent to Action: Closing the{' '}
+            <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+              Say–Do Gap
+            </span>
+          </motion.h2>
 
-        {/* Single, unbroken message block (no sub-sections, no lists, no CTA) */}
-        <motion.div
-          className="mx-auto mt-6 sm:mt-8 max-w-3xl"
-          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{ duration: 0.45, delay: 0.05 }}
-        >
-          <p className="text-base sm:text-[17px] leading-7 text-gray-800">
+          <motion.p
+            className="mt-6 sm:mt-8 text-base sm:text-[17px] leading-7 text-gray-800 text-pretty"
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.45, delay: 0.05 }}
+          >
             Let’s be honest: this Say–Do Gap is one of the most frustrating challenges in consumer marketing.
             It’s tempting to dismiss it as hypocrisy—or dismiss sustainability as a sales driver altogether.
             The key to addressing it is first understanding what consumers are looking for—their sustainability
@@ -51,12 +44,14 @@ export default function SayDoGapSection(_props: Props) {
             sustainability personas for your target audience to help you build strategies—backed by data—to gain
             market share and reduce churn. <span className="font-semibold text-gray-900">Don’t speculate about your
             eco-minded customer. Understand them. Influence them. Win them.</span>
-          </p>
-        </motion.div>
+          </motion.p>
+        </div>
       </div>
     </section>
   );
 }
+
+
 
 
 
