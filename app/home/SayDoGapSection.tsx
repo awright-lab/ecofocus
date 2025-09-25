@@ -8,48 +8,48 @@ export default function SayDoGapSection() {
 
   return (
     <section className="relative isolate">
-      {/* subtle background */}
+      {/* (Optional) subtle background; remove if you want pure white */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="h-full w-full bg-gradient-to-b from-amber-50/60 via-emerald-50/40 to-white" />
       </div>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        {/* Shared measure wrapper: BOTH title and copy use the same width */}
-        <div className="mx-auto w-full max-w-[64ch] text-center">
-          <motion.h2
-            className="font-bold leading-tight text-gray-900 text-balance text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
-            initial={reduceMotion ? false : { opacity: 0, y: -12 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.45 }}
-          >
-            From Intent to Action: Closing the{' '}
-            <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-              Say–Do Gap
-            </span>
-          </motion.h2>
+        {/* Title: left aligned */}
+        <motion.h2
+          className="font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
+          initial={reduceMotion ? false : { opacity: 0, y: -12 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.45 }}
+        >
+          From Intent to Action: Closing the{' '}
+          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+            Say–Do Gap
+          </span>
+        </motion.h2>
 
-          <motion.p
-            className="mt-6 sm:mt-8 text-base sm:text-[17px] leading-7 text-gray-800 text-pretty"
-            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.45, delay: 0.05 }}
-          >
-            Let’s be honest: this Say–Do Gap is one of the most frustrating challenges in consumer marketing.
-            It’s tempting to dismiss it as hypocrisy—or dismiss sustainability as a sales driver altogether.
-            The key to addressing it is first understanding what consumers are looking for—their sustainability
-            attitudes and intended behaviors—and having a clear picture of how sustainability influences their
-            aspirations and desires. At EcoFocus, we have the data (or can get the data) you need to identify
-            sustainability personas for your target audience to help you build strategies—backed by data—to gain
-            market share and reduce churn. <span className="font-semibold text-gray-900">Don’t speculate about your
-            eco-minded customer. Understand them. Influence them. Win them.</span>
-          </motion.p>
-        </div>
+        {/* Copy: full container width, no max width clamp */}
+        <motion.p
+          className="mt-6 sm:mt-8 text-base sm:text-[17px] leading-7 text-gray-800 max-w-none"
+          initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.45, delay: 0.05 }}
+        >
+          Let’s be honest: this Say–Do Gap is one of the most frustrating challenges in consumer marketing.
+          It’s tempting to dismiss it as hypocrisy—or dismiss sustainability as a sales driver altogether.
+          The key to addressing it is first understanding what consumers are looking for—their sustainability
+          attitudes and intended behaviors—and having a clear picture of how sustainability influences their
+          aspirations and desires. At EcoFocus, we have the data (or can get the data) you need to identify
+          sustainability personas for your target audience to help you build strategies—backed by data—to gain
+          market share and reduce churn. <span className="font-semibold text-gray-900">Don’t speculate about your
+          eco-minded customer. Understand them. Influence them. Win them.</span>
+        </motion.p>
       </div>
     </section>
   );
 }
+
 
 
 
