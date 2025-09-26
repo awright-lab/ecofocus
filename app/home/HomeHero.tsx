@@ -143,11 +143,9 @@ export default function HomeHero() {
 
 /* ---------- Sparkle Overlay (Canvas) ---------- */
 /**
- * Changes made for your request:
- * - Slightly higher base density (DENSITY_BASE).
- * - Particles continuously respawn (no "stop appearing").
- * - Fade out as they approach center, then recycle.
- * - Mildly stronger attraction to the center for a smooth flow.
+ * Origin reverted: particles now spawn near the original focus region
+ * (not from the corners). They drift toward center, fade out when close,
+ * and continuously respawn to keep the flow alive.
  */
 function SparkleOverlay({
   className = "",
@@ -221,41 +219,30 @@ function SparkleOverlay({
     const particles: P[] = [];
 
     /* ---- Knobs ---- */
-    const DENSITY_BASE = 140; // was 110; "a few more" sparkles
-    const DENSITY_CAP = 220;
+    const DENSITY_BASE = 150; // "a few more" sparkles than before
+    const DENSITY_CAP = 240;
     const BASE_ALPHA = 0.22;
     const RADIUS_MULT = 8.5;
     const HUE_MIN = 165,
       HUE_MAX = 205;
 
-    // Attraction strength toward center (slightly stronger than before)
-    const ATTRACT_X = 0.00085;
-    const ATTRACT_Y = 0.00070;
+    // Attraction strength toward center (gentle)
+    const ATTRACT_X = 0.0007;
+    const ATTRACT_Y = 0.00055;
 
     // Distance from center where fadeout begins (fraction of diagonal)
-    let fadeRadius = 120; // will be updated in resize()
+    let fadeRadius = 120; // set in resize()
 
     const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
 
-    // Spawn near edges so they drift inward
+    // Spawn near the focus region (original behavior), not from corners
     function makeParticle(): P {
-      const fromEdge = Math.random();
-      let sx = 0,
-        sy = 0;
+      const fx = focusX * width;
+      const fy = focusY * height;
 
-      if (fromEdge < 0.25) {
-        sx = rnd(0, width);
-        sy = -12;
-      } else if (fromEdge < 0.5) {
-        sx = rnd(0, width);
-        sy = height + 12;
-      } else if (fromEdge < 0.75) {
-        sx = -12;
-        sy = rnd(0, height);
-      } else {
-        sx = width + 12;
-        sy = rnd(0, height);
-      }
+      // Spawn within a box around focus (about ±22% of hero size)
+      const sx = rnd(fx - width * 0.22, fx + width * 0.22);
+      const sy = rnd(fy - height * 0.22, fy + height * 0.22);
 
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
       return {
@@ -312,11 +299,11 @@ function SparkleOverlay({
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Move with small inherent velocity
+        // Movement
         p.x += p.vx * p.speed;
         p.y += p.vy * p.speed;
 
-        // Gentle attraction to the focus point
+        // Gentle attraction to focus
         p.x += (fx - p.x) * ATTRACT_X;
         p.y += (fy - p.y) * ATTRACT_Y;
 
@@ -324,32 +311,26 @@ function SparkleOverlay({
         p.phase += dt * 1.15;
         const tw = 0.55 + 0.45 * Math.sin(p.phase);
 
-        // Distance-based fade as they approach center
+        // Distance-based fade near center
         const dx = fx - p.x;
         const dy = fy - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const near = Math.max(0, Math.min(1, dist / fadeRadius)); // 1 far, 0 at center
 
-        // Alpha & life decay: fade faster when near center
+        // Alpha & life decay (faster when near center)
         const a =
           (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.5) *
           p.life *
           tw *
           near;
 
-        p.life -= dt * (0.08 + (1 - near) * 0.85); // faster decay near center
+        p.life -= dt * (0.08 + (1 - near) * 0.85);
 
-        // Recycle when fully faded or extremely close to center
+        // Recycle when faded or extremely close to center
         if (p.life <= 0 || near < 0.06) {
           recycle(i);
           continue;
         }
-
-        // Soft wrap so nothing gets stuck off-screen (safety)
-        if (p.x < -24) p.x = width + 24;
-        else if (p.x > width + 24) p.x = -24;
-        if (p.y < -24) p.y = height + 24;
-        else if (p.y > height + 24) p.y = -24;
 
         const rad = p.r * (p.layer === 0 ? RADIUS_MULT : RADIUS_MULT * 1.6);
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
@@ -400,6 +381,7 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
 
 
 
