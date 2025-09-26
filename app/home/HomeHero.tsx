@@ -23,7 +23,7 @@ export default function HomeHero() {
           width: "min(52vw, 900px)",
           aspectRatio: "16 / 10",
           transform: "translate(4%, 6%)",
-          backgroundImage: 'url("/images/leaf-circuit-hero.jpg")',
+          backgroundImage: 'url("/images/hero-bg.png")',
           backgroundSize: "contain",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
