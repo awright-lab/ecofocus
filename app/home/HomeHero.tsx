@@ -1,119 +1,73 @@
 // app/(site)/_components/HomeHero.tsx
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
-import { useVideoPlaybackRate } from "@/hooks/useVideoPlaybackRate";
 
 export default function HomeHero() {
-  // Videos you already use
   const BG =
-    "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4"; // leaf video
-  const BG_POSTER = "/images/new-hero-poster.jpg";
-  const OVER =
-    "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"; // overlay texture
-  const OVER_POSTER = "/images/hero-6-poster.jpg";
-
-  const bgRef = useRef<HTMLVideoElement>(null);
-  const overRef = useRef<HTMLVideoElement>(null);
-  useVideoPlaybackRate(bgRef, 0.6);
-  useVideoPlaybackRate(overRef, 0.6);
-
-  // Background position: show more image on the right/bottom
-  const posMobile = "100% 78%";
-  const posDesktop = "100% 82%";
+    "https://images.unsplash.com/photo-1550827783-07a572d03390?auto=format&fit=crop&w=1920&q=80";
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* 0) Base dark wash to hide letterbox from object-contain */}
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,#021515_0%,#021a19_60%,#03070f_100%)]" />
+      {/* 0) Still background image (cover, bias right) */}
+      <div
+        className="absolute inset-0 -z-10 bg-center bg-no-repeat bg-cover"
+        style={{ backgroundImage: `url(${BG})`, backgroundPosition: "80% 40%" }}
+      />
 
-      {/* 1) Background video (pinned to right/bottom) */}
-      <video
-        ref={bgRef}
-        data-kind="bg"
-        className="absolute inset-0 z-[2] h-full w-full object-contain"
-        style={{ objectPosition: posMobile }}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster={BG_POSTER}
-      >
-        <source src={BG} type="video/mp4" />
-      </video>
+      {/* 1) Dark base wash so white text always reads */}
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#021515_0%,#021a19_55%,#071015_100%)]" />
 
-      {/* 2) Subtle texture overlay (keeps highlights lively) */}
-      <video
-        ref={overRef}
-        data-kind="overlay"
-        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover mix-blend-screen opacity-20"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster={OVER_POSTER}
-      >
-        <source src={OVER} type="video/mp4" />
-      </video>
+      {/* 2) Animated gradient “swoosh” (soft, masked blob) */}
+      <div
+        className="pointer-events-none absolute -z-0 left-[-20%] top-[-30%] h-[120vmin] w-[120vmin] opacity-[0.85]"
+        style={{
+          background:
+            "conic-gradient(from 210deg at 40% 40%, rgba(163,230,53,0.85), rgba(16,185,129,0.9), rgba(56,189,248,0.75))",
+          WebkitMaskImage:
+            "radial-gradient(70% 60% at 45% 45%, #000 60%, rgba(0,0,0,0) 72%)",
+          maskImage:
+            "radial-gradient(70% 60% at 45% 45%, #000 60%, rgba(0,0,0,0) 72%)",
+          filter: "blur(1px)",
+          animation: "hero-drift 24s ease-in-out infinite",
+        }}
+      />
 
-      {/* 3) Curved gradient overlay system (reference style) */}
-      <div className="absolute inset-0 z-[4] pointer-events-none">
-        {/* A) Unique curved left panel (polygon clipPath) */}
-        <div
-          aria-hidden="true"
-          className="absolute left-0 top-0 h-full w-[68%] bg-gradient-to-br from-emerald-400/95 via-emerald-500/90 to-sky-500/85"
-          style={{
-            // polygon gives the “swooped wedge” like the reference
-            clipPath:
-              "polygon(0% 0%, 72% 0%, 48% 50%, 62% 100%, 0% 100%)",
-          }}
-        />
+      {/* 3) Gentle teal wash left->center for legibility (non-seamed) */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(110deg, rgba(3,94,78,0.75) 8%, rgba(8,145,128,0.45) 40%, rgba(3,7,15,0) 78%)",
+        }}
+      />
 
-        {/* B) Soft elliptical glow for depth under the panel edge */}
-        <div
-          aria-hidden="true"
-          className="absolute left-0 top-0 h-full w-[44%] bg-gradient-to-br from-emerald-300/35 to-sky-400/20"
-          style={{
-            clipPath: "ellipse(80% 100% at 0% 50%)",
-            filter: "blur(0.5px)",
-          }}
-        />
+      {/* 4) Subtle moving sheen (very low opacity, slow) */}
+      <div
+        className="pointer-events-none absolute inset-0 mix-blend-screen opacity-20"
+        style={{
+          background:
+            "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.18) 50%, transparent 65%)",
+          backgroundSize: "200% 100%",
+          animation: "hero-sheen 18s linear infinite",
+        }}
+      />
 
-        {/* C) Gentle teal wash feather (improves text legibility; no seams) */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(110deg, rgba(3,94,78,0.55) 8%, rgba(8,145,128,0.35) 38%, rgba(3,7,15,0) 72%)",
-          }}
-        />
+      {/* 5) Ultra-light grain for depth (SVG data URI) */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
+          backgroundSize: "256px 256px",
+        }}
+      />
 
-        {/* D) Very subtle dot texture on left half only */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1.2px)",
-            backgroundSize: "22px 22px",
-            opacity: 0.25,
-            WebkitMaskImage:
-              "linear-gradient(90deg, #000 0%, #000 58%, rgba(0,0,0,0) 100%)",
-            maskImage:
-              "linear-gradient(90deg, #000 0%, #000 58%, rgba(0,0,0,0) 100%)",
-          }}
-        />
+      {/* 6) Long soft bottom vignette (no harsh band) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(to_top,rgba(5,9,11,0.8)_0%,rgba(5,9,11,0.45)_40%,rgba(5,9,11,0)_100%)]" />
 
-        {/* E) Long, soft bottom vignette (no harsh band) */}
-        <div className="absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(to_top,rgba(5,9,11,0.8)_0%,rgba(5,9,11,0.5)_35%,rgba(5,9,11,0.12)_75%,rgba(5,9,11,0)_100%)]" />
-      </div>
-
-      {/* 4) Content */}
-      <div className="relative z-[5] mx-auto max-w-7xl px-4 sm:px-6">
+      {/* CONTENT */}
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
             <h1
@@ -147,15 +101,25 @@ export default function HomeHero() {
         </div>
       </div>
 
-      {/* Only move the BG on desktop; leave overlay centered to cover */}
+      {/* Animations + reduced motion guard */}
       <style jsx>{`
-        @media (min-width: 768px) {
-          video[data-kind="bg"] { object-position: ${posDesktop}; }
+        @keyframes hero-drift {
+          0% { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+          50% { transform: translate3d(2%, -1%, 0) rotate(6deg) scale(1.06); }
+          100% { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
+        }
+        @keyframes hero-sheen {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          div[style*="hero-drift"], div[style*="hero-sheen"] { animation: none !important; }
         }
       `}</style>
     </section>
   );
 }
+
 
 
 
