@@ -1,70 +1,41 @@
-// app/(site)/_components/HomeHero.tsx
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 
 export default function HomeHero() {
   const BG =
-    "https://images.unsplash.com/photo-1550827783-07a572d03390?auto=format&fit=crop&w=1920&q=80";
+    "/images/hero-bg.png"; // <-- put your image here (the one you attached)
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* 0) Still background image (cover, bias right) */}
+      {/* Still background image */}
       <div
         className="absolute inset-0 -z-10 bg-center bg-no-repeat bg-cover"
-        style={{ backgroundImage: `url(${BG})`, backgroundPosition: "80% 40%" }}
-      />
-
-      {/* 1) Dark base wash so white text always reads */}
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#021515_0%,#021a19_55%,#071015_100%)]" />
-
-      {/* 2) Animated gradient “swoosh” (soft, masked blob) */}
-      <div
-        className="pointer-events-none absolute -z-0 left-[-20%] top-[-30%] h-[120vmin] w-[120vmin] opacity-[0.85]"
         style={{
-          background:
-            "conic-gradient(from 210deg at 40% 40%, rgba(163,230,53,0.85), rgba(16,185,129,0.9), rgba(56,189,248,0.75))",
-          WebkitMaskImage:
-            "radial-gradient(70% 60% at 45% 45%, #000 60%, rgba(0,0,0,0) 72%)",
-          maskImage:
-            "radial-gradient(70% 60% at 45% 45%, #000 60%, rgba(0,0,0,0) 72%)",
-          filter: "blur(1px)",
-          animation: "hero-drift 24s ease-in-out infinite",
+          backgroundImage: `url(${BG})`,
+          // bias the focus to the right where the leaf is
+          backgroundPosition: "75% 45%",
         }}
       />
 
-      {/* 3) Gentle teal wash left->center for legibility (non-seamed) */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(110deg, rgba(3,94,78,0.75) 8%, rgba(8,145,128,0.45) 40%, rgba(3,7,15,0) 78%)",
-        }}
-      />
+      {/* Soft bottom vignette to blend into the next section (no harsh band) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(to_top,rgba(5,9,11,0.85),rgba(5,9,11,0)_90%)]" />
 
-      {/* 4) Subtle moving sheen (very low opacity, slow) */}
+      {/* Animated sheen (very subtle, slow) */}
       <div
-        className="pointer-events-none absolute inset-0 mix-blend-screen opacity-20"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 mix-blend-screen opacity-15 will-change-transform"
         style={{
           background:
             "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.18) 50%, transparent 65%)",
-          backgroundSize: "200% 100%",
-          animation: "hero-sheen 18s linear infinite",
+          backgroundSize: "220% 100%",
+          animation: "heroSheen 22s linear infinite",
         }}
       />
 
-      {/* 5) Ultra-light grain for depth (SVG data URI) */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncA type='table' tableValues='0 0.6'/></feComponentTransfer></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")",
-          backgroundSize: "256px 256px",
-        }}
-      />
-
-      {/* 6) Long soft bottom vignette (no harsh band) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(to_top,rgba(5,9,11,0.8)_0%,rgba(5,9,11,0.45)_40%,rgba(5,9,11,0)_100%)]" />
+      {/* Sparkle overlay (canvas) */}
+      <SparkleOverlay className="absolute inset-0 pointer-events-none mix-blend-screen opacity-80" />
 
       {/* CONTENT */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
@@ -101,24 +72,148 @@ export default function HomeHero() {
         </div>
       </div>
 
-      {/* Animations + reduced motion guard */}
+      {/* Animations + reduced-motion guard */}
       <style jsx>{`
-        @keyframes hero-drift {
-          0% { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
-          50% { transform: translate3d(2%, -1%, 0) rotate(6deg) scale(1.06); }
-          100% { transform: translate3d(0,0,0) rotate(0deg) scale(1); }
-        }
-        @keyframes hero-sheen {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
+        @keyframes heroSheen {
+          0% { transform: translate3d(0,0,0); background-position: 220% 0; }
+          100% { transform: translate3d(0,0,0); background-position: -220% 0; }
         }
         @media (prefers-reduced-motion: reduce) {
-          div[style*="hero-drift"], div[style*="hero-sheen"] { animation: none !important; }
+          :global(canvas[data-sparkles]), div[style*="heroSheen"] { animation: none !important; }
         }
       `}</style>
     </section>
   );
 }
+
+/* ---------- Sparkle Overlay (Canvas) ---------- */
+function SparkleOverlay({ className = "" }: { className?: string }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current!;
+    const ctx = canvas.getContext("2d", { alpha: true })!;
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let width = 0, height = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let raf = 0;
+    let t0 = performance.now();
+
+    type P = {
+      x: number; y: number;
+      vx: number; vy: number;
+      r: number; // radius
+      hue: number; // 170–200 teal/cyan band
+      phase: number; // for twinkle
+      life: number; // 0..1 cycles
+      speed: number;
+    };
+
+    const particles: P[] = [];
+    const MAX_BASE = 70; // base count on 1440x800; scales with area
+    const colorBand = [170, 210]; // cyan/teal degrees
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      width = Math.floor(rect.width);
+      height = Math.floor(rect.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // scale particle count with area, cap for perf
+      const areaK = (width * height) / (1440 * 800);
+      const target = Math.min(Math.round(MAX_BASE * areaK), 120);
+      while (particles.length < target) particles.push(makeParticle());
+      while (particles.length > target) particles.pop();
+    }
+
+    function rnd(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function makeParticle(): P {
+      // favor right/center where the leaf is (x start around 45–90%)
+      const startX = rnd(width * 0.45, width * 0.92);
+      const startY = rnd(height * 0.12, height * 0.88);
+      return {
+        x: startX,
+        y: startY,
+        vx: rnd(-0.08, 0.08),
+        vy: rnd(-0.04, 0.04),
+        r: rnd(0.7, 1.8),
+        hue: rnd(colorBand[0], colorBand[1]),
+        phase: rnd(0, Math.PI * 2),
+        life: rnd(0.4, 1),
+        speed: rnd(0.5, 1.2),
+      };
+    }
+
+    function draw(now: number) {
+      const dt = Math.min((now - t0) / 1000, 0.033); // clamp for tab switches
+      t0 = now;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // additive-like blend
+      ctx.globalCompositeOperation = "lighter";
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        // gentle drift
+        p.x += p.vx * p.speed;
+        p.y += p.vy * p.speed;
+
+        // slight pull towards image focus (bias towards right/middle)
+        p.x += (width * 0.62 - p.x) * 0.0005;
+        p.y += (height * 0.48 - p.y) * 0.0003;
+
+        // twinkle
+        p.phase += dt * rnd(0.9, 1.3);
+        const twinkle = 0.55 + 0.45 * Math.sin(p.phase);
+        const alpha = 0.12 * p.life * twinkle;
+
+        // wrap edges softly
+        if (p.x < -10) p.x = width + 10;
+        if (p.x > width + 10) p.x = -10;
+        if (p.y < -10) p.y = height + 10;
+        if (p.y > height + 10) p.y = -10;
+
+        // draw
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
+        const c1 = `hsla(${p.hue}, 90%, 65%, ${alpha})`;
+        const c2 = `hsla(${p.hue + 10}, 90%, 55%, 0)`;
+        grad.addColorStop(0, c1);
+        grad.addColorStop(1, c2);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // reset blend for next frame
+      ctx.globalCompositeOperation = "source-over";
+
+      raf = requestAnimationFrame(draw);
+    }
+
+    resize();
+    window.addEventListener("resize", resize);
+
+    if (!mql.matches) {
+      raf = requestAnimationFrame(draw);
+    }
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} data-sparkles className={className} />;
+}
+
 
 
 
