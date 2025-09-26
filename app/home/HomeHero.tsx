@@ -142,6 +142,13 @@ export default function HomeHero() {
 }
 
 /* ---------- Sparkle Overlay (Canvas) ---------- */
+/**
+ * Changes made for your request:
+ * - Slightly higher base density (DENSITY_BASE).
+ * - Particles continuously respawn (no "stop appearing").
+ * - Fade out as they approach center, then recycle.
+ * - Mildly stronger attraction to the center for a smooth flow.
+ */
 function SparkleOverlay({
   className = "",
   containerRef,
@@ -207,49 +214,60 @@ function SparkleOverlay({
       r: number;
       hue: number;
       phase: number;
-      life: number;
+      life: number; // 1..0
       speed: number;
       layer: Layer;
     };
     const particles: P[] = [];
 
-    const MAX_BASE = 110;
+    /* ---- Knobs ---- */
+    const DENSITY_BASE = 140; // was 110; "a few more" sparkles
+    const DENSITY_CAP = 220;
     const BASE_ALPHA = 0.22;
     const RADIUS_MULT = 8.5;
     const HUE_MIN = 165,
       HUE_MAX = 205;
 
+    // Attraction strength toward center (slightly stronger than before)
+    const ATTRACT_X = 0.00085;
+    const ATTRACT_Y = 0.00070;
+
+    // Distance from center where fadeout begins (fraction of diagonal)
+    let fadeRadius = 120; // will be updated in resize()
+
     const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
 
-    function updateFocus(): void {
-      if (!focusSelector) return;
-      const el = host.querySelector(focusSelector) as HTMLElement | null;
-      if (!el) return;
-      const a = host.getBoundingClientRect();
-      const b = el.getBoundingClientRect();
-      const cx = (b.left + b.right) / 2 - a.left;
-      const cy = (b.top + b.bottom) / 2 - a.top;
-      if (width > 0) focusX = Math.min(Math.max(cx / width, 0), 1);
-      if (height > 0) focusY = Math.min(Math.max(cy / height, 0), 1);
-    }
-
+    // Spawn near edges so they drift inward
     function makeParticle(): P {
-      const near = Math.random() < 0.75;
-      const fx = focusX * width,
-        fy = focusY * height;
-      const sx = near ? rnd(fx - width * 0.25, fx + width * 0.25) : rnd(0, width);
-      const sy = near ? rnd(fy - height * 0.25, fy + height * 0.25) : rnd(0, height);
+      const fromEdge = Math.random();
+      let sx = 0,
+        sy = 0;
+
+      if (fromEdge < 0.25) {
+        sx = rnd(0, width);
+        sy = -12;
+      } else if (fromEdge < 0.5) {
+        sx = rnd(0, width);
+        sy = height + 12;
+      } else if (fromEdge < 0.75) {
+        sx = -12;
+        sy = rnd(0, height);
+      } else {
+        sx = width + 12;
+        sy = rnd(0, height);
+      }
+
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
       return {
         x: sx,
         y: sy,
-        vx: rnd(-0.08, 0.1),
-        vy: rnd(-0.05, 0.06),
+        vx: rnd(-0.06, 0.08),
+        vy: rnd(-0.04, 0.06),
         r: rnd(0.8, layer === 0 ? 1.8 : 2.4),
         hue: rnd(HUE_MIN, HUE_MAX),
         phase: rnd(0, Math.PI * 2),
-        life: rnd(0.6, 1),
-        speed: rnd(0.6, layer === 0 ? 1.25 : 0.9),
+        life: 1, // start full life
+        speed: rnd(0.65, layer === 0 ? 1.25 : 0.95),
         layer,
       };
     }
@@ -267,12 +285,18 @@ function SparkleOverlay({
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+      // fade radius ~ 12% of diagonal
+      fadeRadius = Math.hypot(width, height) * 0.12;
+
+      // baseline density scaled by area
       const areaK = (width * height) / (1440 * 800);
-      const target = Math.min(Math.round(MAX_BASE * areaK), 180);
+      const target = Math.min(Math.round(DENSITY_BASE * areaK), DENSITY_CAP);
       while (particles.length < target) particles.push(makeParticle());
       while (particles.length > target) particles.pop();
+    }
 
-      updateFocus();
+    function recycle(i: number): void {
+      particles[i] = makeParticle();
     }
 
     function draw(now: number): void {
@@ -282,24 +306,50 @@ function SparkleOverlay({
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = "lighter";
 
-      const fx = focusX * width,
-        fy = focusY * height;
+      const fx = focusX * width;
+      const fy = focusY * height;
 
-      for (const p of particles) {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        // Move with small inherent velocity
         p.x += p.vx * p.speed;
         p.y += p.vy * p.speed;
 
-        p.x += (fx - p.x) * 0.00055;
-        p.y += (fy - p.y) * 0.00045;
+        // Gentle attraction to the focus point
+        p.x += (fx - p.x) * ATTRACT_X;
+        p.y += (fy - p.y) * ATTRACT_Y;
 
+        // Twinkle
         p.phase += dt * 1.15;
         const tw = 0.55 + 0.45 * Math.sin(p.phase);
-        const a = (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.5) * p.life * tw;
 
-        if (p.x < -16) p.x = width + 16;
-        else if (p.x > width + 16) p.x = -16;
-        if (p.y < -16) p.y = height + 16;
-        else if (p.y > height + 16) p.y = -16;
+        // Distance-based fade as they approach center
+        const dx = fx - p.x;
+        const dy = fy - p.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const near = Math.max(0, Math.min(1, dist / fadeRadius)); // 1 far, 0 at center
+
+        // Alpha & life decay: fade faster when near center
+        const a =
+          (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.5) *
+          p.life *
+          tw *
+          near;
+
+        p.life -= dt * (0.08 + (1 - near) * 0.85); // faster decay near center
+
+        // Recycle when fully faded or extremely close to center
+        if (p.life <= 0 || near < 0.06) {
+          recycle(i);
+          continue;
+        }
+
+        // Soft wrap so nothing gets stuck off-screen (safety)
+        if (p.x < -24) p.x = width + 24;
+        else if (p.x > width + 24) p.x = -24;
+        if (p.y < -24) p.y = height + 24;
+        else if (p.y > height + 24) p.y = -24;
 
         const rad = p.r * (p.layer === 0 ? RADIUS_MULT : RADIUS_MULT * 1.6);
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
@@ -313,6 +363,18 @@ function SparkleOverlay({
 
       ctx.globalCompositeOperation = "source-over";
       rafId = requestAnimationFrame(draw);
+    }
+
+    function updateFocus(): void {
+      if (!focusSelector) return;
+      const el = host.querySelector(focusSelector) as HTMLElement | null;
+      if (!el) return;
+      const a = host.getBoundingClientRect();
+      const b = el.getBoundingClientRect();
+      const cx = (b.left + b.right) / 2 - a.left;
+      const cy = (b.top + b.bottom) / 2 - a.top;
+      if (width > 0) focusX = Math.min(Math.max(cx / width, 0), 1);
+      if (height > 0) focusY = Math.min(Math.max(cy / height, 0), 1);
     }
 
     let ro: ResizeObserver | null = null;
@@ -338,6 +400,7 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
 
 
 
