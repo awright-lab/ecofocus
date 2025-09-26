@@ -2,51 +2,40 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import * as React from "react";
 import { useEffect, useRef } from "react";
 
 export default function HomeHero() {
-  const IMG_SRC = "/images/hero-bg.png";
-  const BLUR = "/images/leaf-circuit-hero-blur.jpg";
   const heroRef = useRef<HTMLElement | null>(null);
 
   return (
     <section ref={heroRef} className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* Background tuned to the leaf image: deep navy + cyan/orange glows from the right */}
+      {/* Background tuned to match the leaf image tones */}
       <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%),radial-gradient(120%_90%_at_86%_38%,rgba(22,166,194,0.22)_0%,rgba(0,0,0,0)_65%),radial-gradient(80%_70%_at_92%_64%,rgba(255,153,51,0.12)_0%,rgba(0,0,0,0)_60%)]" />
-
-      {/* Optional gentle floor fade to ground the hero */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_top,rgba(7,11,15,0.9),rgba(7,11,15,0)_85%)]" />
 
-      {/* LEAF BLOCK (masked so the edges blend into the background) */}
+      {/* Leaf as CSS background with feathered mask for seamless blend */}
       <div
         data-leaf
-        className="pointer-events-none select-none absolute -z-10 bottom-0 right-0 translate-x-[4%] translate-y-[6%] md:translate-x-[4%] md:translate-y-[6%]"
+        aria-hidden="true"
+        className="absolute -z-10 bottom-0 right-0 pointer-events-none select-none"
         style={{
-          // Fade the image edges outward so it "melts" into the bg (works in all modern browsers)
-          maskImage: "radial-gradient(130% 120% at 95% 50%, #000 58%, rgba(0,0,0,0) 85%)",
-          WebkitMaskImage: "radial-gradient(130% 120% at 95% 50%, #000 58%, rgba(0,0,0,0) 85%)",
+          width: "min(52vw, 900px)",
+          aspectRatio: "16 / 10",
+          transform: "translate(4%, 6%)",
+          backgroundImage: 'url("/images/leaf-circuit-hero.jpg")',
+          backgroundSize: "contain",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          filter: "saturate(1.06) brightness(1.02)",
+          maskImage: "radial-gradient(130% 120% at 95% 50%, #000 62%, rgba(0,0,0,0) 86%)",
+          WebkitMaskImage: "radial-gradient(130% 120% at 95% 50%, #000 62%, rgba(0,0,0,0) 86%)",
         }}
       >
         <div
-          className="relative w-[52vw] max-w-[900px] sm:w-[58vw] md:w-[52vw] aspect-[16/10]"
-          style={{ filter: "saturate(1.06) brightness(1.02)" }}
-        >
-          <Image
-            src={IMG_SRC}
-            alt=""
-            fill
-            priority
-            placeholder="blur"
-            blurDataURL={BLUR}
-            sizes="(max-width: 640px) 58vw, (max-width: 1024px) 52vw, 52vw"
-            style={{ objectFit: "contain" }}
-          />
-          {/* Subtle right-to-left dark veil to unify tones with the bg (very light) */}
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: "linear-gradient(to left, rgba(7,11,15,0.0) 20%, rgba(7,11,15,0.15) 85%)" }} />
-        </div>
+          className="absolute inset-0"
+          style={{ background: "linear-gradient(to left, rgba(7,11,15,0.00) 25%, rgba(7,11,15,0.14) 85%)" }}
+        />
       </div>
 
       {/* Sheen sweep */}
@@ -61,21 +50,17 @@ export default function HomeHero() {
         }}
       />
 
-      {/* Sparkles spanning full hero; will visually bias toward the masked image due to focus */}
       <SparkleOverlay
         containerRef={heroRef}
         focusSelector="[data-leaf]"
         className="absolute inset-0 pointer-events-none mix-blend-screen"
       />
 
-      {/* CONTENT */}
+      {/* CONTENT (unchanged) */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
-            <h1
-              id="home-hero-title"
-              className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white"
-            >
+            <h1 id="home-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white">
               Decoding the Purpose-Driven{" "}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 Generation
@@ -85,16 +70,10 @@ export default function HomeHero() {
               Reliable Sustainability Data to Support Your Next Big Marketing Decision
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/benefits"
-                className="rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 font-semibold text-white transition"
-              >
+              <Link href="/benefits" className="rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 font-semibold text-white transition">
                 Explore Benefits
               </Link>
-              <Link
-                href="/contact"
-                className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition"
-              >
+              <Link href="/contact" className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition">
                 Request Details
               </Link>
             </div>
@@ -104,10 +83,7 @@ export default function HomeHero() {
       </div>
 
       <style jsx>{`
-        @keyframes heroSheen {
-          0% { background-position: 220% 0; }
-          100% { background-position: -220% 0; }
-        }
+        @keyframes heroSheen { 0% { background-position: 220% 0; } 100% { background-position: -220% 0; } }
         @media (prefers-reduced-motion: reduce) {
           :global(canvas[data-sparkles]) { animation: none !important; }
           [data-sheen] { animation: none !important; }
@@ -153,24 +129,36 @@ function SparkleOverlay({
         ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
         : false;
 
-    let width = 1, height = 1;
+    let width = 1,
+      height = 1;
     let dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
-    let rafId = 0, rafFocusId = 0;
+    let rafId = 0,
+      rafFocusId = 0;
     let t0 = typeof performance !== "undefined" ? performance.now() : 0;
 
-    let focusX = 0.7, focusY = 0.7;
+    let focusX = 0.7,
+      focusY = 0.7;
 
     type Layer = 0 | 1;
     type P = {
-      x: number; y: number; vx: number; vy: number;
-      r: number; hue: number; phase: number; life: number; speed: number; layer: Layer;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      r: number;
+      hue: number;
+      phase: number;
+      life: number;
+      speed: number;
+      layer: Layer;
     };
     const particles: P[] = [];
 
     const MAX_BASE = 110;
     const BASE_ALPHA = 0.22;
     const RADIUS_MULT = 8.5;
-    const HUE_MIN = 165, HUE_MAX = 205;
+    const HUE_MIN = 165,
+      HUE_MAX = 205;
 
     const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
 
@@ -188,18 +176,21 @@ function SparkleOverlay({
 
     function makeParticle(): P {
       const near = Math.random() < 0.75;
-      const fx = focusX * width, fy = focusY * height;
+      const fx = focusX * width,
+        fy = focusY * height;
       const sx = near ? rnd(fx - width * 0.25, fx + width * 0.25) : rnd(0, width);
       const sy = near ? rnd(fy - height * 0.25, fy + height * 0.25) : rnd(0, height);
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
       return {
-        x: sx, y: sy,
-        vx: rnd(-0.08, 0.10), vy: rnd(-0.05, 0.06),
+        x: sx,
+        y: sy,
+        vx: rnd(-0.08, 0.1),
+        vy: rnd(-0.05, 0.06),
         r: rnd(0.8, layer === 0 ? 1.8 : 2.4),
         hue: rnd(HUE_MIN, HUE_MAX),
         phase: rnd(0, Math.PI * 2),
         life: rnd(0.6, 1),
-        speed: rnd(0.60, layer === 0 ? 1.25 : 0.9),
+        speed: rnd(0.6, layer === 0 ? 1.25 : 0.9),
         layer,
       };
     }
@@ -229,7 +220,8 @@ function SparkleOverlay({
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = "lighter";
 
-      const fx = focusX * width, fy = focusY * height;
+      const fx = focusX * width,
+        fy = focusY * height;
 
       for (const p of particles) {
         p.x += p.vx * p.speed;
@@ -242,8 +234,10 @@ function SparkleOverlay({
         const tw = 0.55 + 0.45 * Math.sin(p.phase);
         const a = (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.5) * p.life * tw;
 
-        if (p.x < -16) p.x = width + 16; else if (p.x > width + 16) p.x = -16;
-        if (p.y < -16) p.y = height + 16; else if (p.y > height + 16) p.y = -16;
+        if (p.x < -16) p.x = width + 16;
+        else if (p.x > width + 16) p.x = -16;
+        if (p.y < -16) p.y = height + 16;
+        else if (p.y > height + 16) p.y = -16;
 
         const rad = p.r * (p.layer === 0 ? RADIUS_MULT : RADIUS_MULT * 1.6);
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
@@ -267,6 +261,7 @@ function SparkleOverlay({
       window.addEventListener("resize", resize);
     }
 
+    // ---- FIXED: assign to existing variables; do not redeclare
     resize();
     rafFocusId = requestAnimationFrame(updateFocus);
     if (!prefersReducedMotion) rafId = requestAnimationFrame(draw);
@@ -281,6 +276,7 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
 
 
 
