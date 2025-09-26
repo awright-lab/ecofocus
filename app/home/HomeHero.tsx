@@ -1,4 +1,3 @@
-// app/(site)/_components/HomeHero.tsx
 "use client";
 
 import { useRef } from "react";
@@ -16,124 +15,111 @@ export default function HomeHero() {
   useVideoPlaybackRate(bgRef, 0.6);
   useVideoPlaybackRate(overRef, 0.6);
 
-  // keep the leaf/video anchored to the right/bottom like your current build
   const posMobile = "100% 78%";
   const posDesktop = "100% 82%";
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* 0) Dark base to hide letterboxing from object-contain */}
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,#021515_0%,#001a18_60%,#03070f_100%)]" />
+      {/* Base wash to hide letterboxing from object-contain */}
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,#021515_0%,#021a19_60%,#03070f_100%)]" />
 
-      {/* 1) Background video (pinned) */}
+      {/* BACKGROUND video (pinned right/bottom) */}
       <video
         ref={bgRef}
         data-kind="bg"
         className="absolute inset-0 z-[2] h-full w-full object-contain"
         style={{ objectPosition: posMobile }}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster={BG_POSTER}
+        autoPlay muted loop playsInline preload="auto" poster={BG_POSTER}
       >
         <source src={BG} type="video/mp4" />
       </video>
 
-      {/* 2) Subtle texture overlay */}
+      {/* Subtle texture overlay */}
       <video
         ref={overRef}
         data-kind="overlay"
-        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover mix-blend-screen opacity-25"
-        style={{ objectPosition: "50% 50%" }}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster={OVER_POSTER}
+        className="pointer-events-none absolute inset-0 z-[3] h-full w-full object-cover mix-blend-screen opacity-20"
+        autoPlay muted loop playsInline preload="auto" poster={OVER_POSTER}
       >
         <source src={OVER} type="video/mp4" />
       </video>
 
-      {/* 3) Mockup-style overlay system */}
+      {/* ===== Overlay system (no seams, soft edges) ===== */}
       <div className="absolute inset-0 z-[4] pointer-events-none">
-        {/* A) Big lime/emerald swoosh (top-left crescent) */}
+        {/* A) Big lime/emerald arc (soft crescent) */}
         <div
           aria-hidden="true"
-          className="absolute -left-40 -top-48 h-[64rem] w-[64rem] md:-left-44 md:-top-56 md:h-[72rem] md:w-[72rem] lg:-left-56 lg:-top-64 lg:h-[82rem] lg:w-[82rem]"
+          className="absolute -left-40 -top-48 h-[68rem] w-[68rem] md:-left-48 md:-top-56 md:h-[76rem] md:w-[76rem] lg:-left-56 lg:-top-64 lg:h-[84rem] lg:w-[84rem]"
           style={{
-            // bright green head + darker tail, matching the mock’s lime-to-emerald sweep
             background:
-              "conic-gradient(from 210deg at 40% 40%, rgba(163,230,53,0.85), rgba(16,185,129,0.95), rgba(5,150,105,0.9) 65%, rgba(2,44,34,0.0) 85%)",
-            // crescent mask to get the curved bite shape
+              "radial-gradient(70% 70% at 35% 35%, rgba(163,230,53,0.85) 0%, rgba(16,185,129,0.9) 45%, rgba(4,120,87,0.75) 62%, rgba(2,44,34,0) 75%)",
             WebkitMaskImage:
-              "radial-gradient(120% 85% at 38% 38%, #000 60%, rgba(0,0,0,0) 72%)",
+              "radial-gradient(120% 90% at 38% 40%, #000 58%, rgba(0,0,0,0) 73%)",
             maskImage:
-              "radial-gradient(120% 85% at 38% 38%, #000 60%, rgba(0,0,0,0) 72%)",
-            filter: "blur(0.8px)",
+              "radial-gradient(120% 90% at 38% 40%, #000 58%, rgba(0,0,0,0) 73%)",
+            filter: "blur(0.6px)"
           }}
         />
 
-        {/* B) Deeper emerald swoosh underneath to add body (offset/rotated) */}
+        {/* B) Deeper emerald arc underneath for body (offset a bit) */}
         <div
           aria-hidden="true"
-          className="absolute -left-24 -top-28 h-[46rem] w-[46rem] md:-left-20 md:-top-32 md:h-[52rem] md:w-[52rem] rotate-[8deg]"
+          className="absolute -left-10 -top-6 h-[46rem] w-[46rem] md:-left-8 md:-top-10 md:h-[52rem] md:w-[52rem] rotate-[7deg]"
           style={{
             background:
-              "conic-gradient(from 220deg at 42% 42%, rgba(6,95,70,0.95), rgba(4,47,46,0.9), rgba(6,95,70,0.8) 70%, rgba(2,44,34,0.0) 86%)",
+              "radial-gradient(65% 65% at 30% 30%, rgba(6,95,70,0.95) 0%, rgba(4,47,46,0.9) 58%, rgba(2,44,34,0) 80%)",
             WebkitMaskImage:
-              "radial-gradient(110% 80% at 42% 40%, #000 58%, rgba(0,0,0,0) 72%)",
+              "radial-gradient(115% 85% at 40% 38%, #000 58%, rgba(0,0,0,0) 75%)",
             maskImage:
-              "radial-gradient(110% 80% at 42% 40%, #000 58%, rgba(0,0,0,0) 72%)",
-            filter: "blur(0.6px)",
-            opacity: 0.9,
+              "radial-gradient(115% 85% at 40% 38%, #000 58%, rgba(0,0,0,0) 75%)",
+            filter: "blur(0.5px)",
+            opacity: 0.92
           }}
         />
 
-        {/* C) Teal wash across mid-left to improve text contrast */}
+        {/* C) Gentle teal wash (left → middle). Broad feather so no seam. */}
         <div
           aria-hidden="true"
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(110deg, rgba(3,94,78,0.85) 10%, rgba(8,145,128,0.55) 38%, rgba(3,7,15,0) 70%)",
+              "linear-gradient(115deg, rgba(3,94,78,0.88) 6%, rgba(8,145,128,0.55) 42%, rgba(3,7,15,0) 78%)"
           }}
         />
 
-        {/* D) Cyan/teal glow on the right (keeps image vibrant) */}
+        {/* D) Cyan/teal glow over right image (screen blend, feathered) */}
         <div
           aria-hidden="true"
-          className="absolute right-[-6%] top-[4%] h-[44rem] w-[52rem] md:right-[-4%] md:h-[50rem] md:w-[60rem] lg:right-[-2%] lg:h-[56rem] lg:w-[68rem]"
+          className="absolute right-[-4%] top-[2%] h-[52rem] w-[64rem] md:right-[-2%] md:h-[56rem] md:w-[70rem]"
           style={{
             background:
-              "radial-gradient(50% 50% at 50% 50%, rgba(56,189,248,0.28) 0%, rgba(16,185,129,0.18) 45%, rgba(3,7,15,0) 72%)",
-            mixBlendMode: "screen",
+              "radial-gradient(50% 50% at 50% 50%, rgba(56,189,248,0.26) 0%, rgba(16,185,129,0.16) 48%, rgba(3,7,15,0) 76%)",
+            mixBlendMode: "screen"
           }}
         />
 
-        {/* E) Very soft dots on left 60% only (like the mock) */}
+        {/* E) Soft dots on left ~60% only */}
         <div
           aria-hidden="true"
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1.2px)",
+              "radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1.2px)",
             backgroundSize: "22px 22px",
-            opacity: 0.35,
+            opacity: 0.28,
             WebkitMaskImage:
               "linear-gradient(90deg, #000 0%, #000 58%, rgba(0,0,0,0) 100%)",
             maskImage:
-              "linear-gradient(90deg, #000 0%, #000 58%, rgba(0,0,0,0) 100%)",
+              "linear-gradient(90deg, #000 0%, #000 58%, rgba(0,0,0,0) 100%)"
           }}
         />
 
-        {/* F) Bottom vignette to blend into next section */}
-        <div className="absolute inset-x-0 bottom-0 h-52 bg-gradient-to-t from-[#0a0f12] via-[#0a0f12]/90 to-transparent" />
+        {/* F) Long, soft bottom vignette (no hard band) */}
+        <div className="absolute inset-x-0 bottom-0 h-64 bg-[linear-gradient(to_top,rgba(5,9,11,0.9)_0%,rgba(5,9,11,0.75)_22%,rgba(5,9,11,0.45)_48%,rgba(5,9,11,0.12)_78%,rgba(5,9,11,0)_100%)]" />
       </div>
+      {/* ===== end overlay system ===== */}
 
-      {/* 4) Content */}
+      {/* CONTENT */}
       <div className="relative z-[5] mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
@@ -168,6 +154,7 @@ export default function HomeHero() {
     </section>
   );
 }
+
 
 
 
