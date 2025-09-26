@@ -7,10 +7,10 @@ import { useVideoPlaybackRate } from "@/hooks/useVideoPlaybackRate";
 
 export default function HomeHero() {
   const BG =
-    "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4"; // leaf video
+    "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/74a06e80-80e1-47e4-963c-db953564b8d3_0.mp4";
   const BG_POSTER = "/images/new-hero-poster.jpg";
   const OVER =
-    "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"; // overlay texture
+    "https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4";
   const OVER_POSTER = "/images/hero-6-poster.jpg";
 
   const bgRef = useRef<HTMLVideoElement>(null);
@@ -43,23 +43,14 @@ export default function HomeHero() {
         <source src={BG} type="video/mp4" />
       </video>
 
-      {/* 2a. Decorative gradient Swoosh (top-left) */}
+      {/* 2a. Decorative gradient Swoosh (top-left) — single-line className to avoid styled-jsx parse issues */}
       <div
         aria-hidden="true"
-        className="
-          absolute z-[3]
-          -left-32 -top-40 h-[38rem] w-[38rem]
-          md:-left-24 md:-top-48 md:h-[45rem] md:w-[45rem]
-          lg:-left-32 lg:-top-52 lg:h-[52rem] lg:w-[52rem]
-          pointer-events-none
-        "
+        className="-left-32 -top-40 h-[38rem] w-[38rem] md:-left-24 md:-top-48 md:h-[45rem] md:w-[45rem] lg:-left-32 lg:-top-52 lg:h-[52rem] lg:w-[52rem] absolute z-[3] pointer-events-none"
         style={{
           background:
-            // layered gradients blended together
-            "conic-gradient(from 200deg at 40% 40%, rgba(16,185,129,0.85), rgba(56,189,248,0.75), rgba(16,185,129,0.9))," +
-            "radial-gradient(55% 55% at 45% 45%, rgba(16,185,129,0.9), rgba(16,185,129,0.0))",
+            "conic-gradient(from 200deg at 40% 40%, rgba(16,185,129,0.85), rgba(56,189,248,0.75), rgba(16,185,129,0.9)), radial-gradient(55% 55% at 45% 45%, rgba(16,185,129,0.9), rgba(16,185,129,0))",
           mixBlendMode: "normal",
-          // large rounded mask to emulate the mockup curve
           WebkitMaskImage:
             "radial-gradient(120% 120% at 35% 35%, #000 60%, rgba(0,0,0,0) 72%)",
           maskImage:
@@ -69,7 +60,7 @@ export default function HomeHero() {
         }}
       />
 
-      {/* 2b. Soft right-side glow to marry with skyline edge */}
+      {/* 2b. Soft right-side glow */}
       <div
         aria-hidden="true"
         className="absolute right-[-15%] top-10 z-[3] h-[28rem] w-[35rem] md:right-[-10%] md:top-6 md:h-[34rem] md:w-[42rem] lg:right-[-6%] lg:top-4 lg:h-[40rem] lg:w-[50rem] pointer-events-none"
@@ -105,10 +96,7 @@ export default function HomeHero() {
       <div className="relative z-[6] mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
-            <h1
-              id="home-hero-title"
-              className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white"
-            >
+            <h1 id="home-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white">
               Decoding the Purpose-Driven{" "}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 Generation
@@ -118,16 +106,10 @@ export default function HomeHero() {
               Reliable Sustainability Data to Support Your Next Big Marketing Decision
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/benefits"
-                className="rounded-xl bg-emerald-500/90 px-5 py-3 font-semibold text-slate-950 hover:bg-emerald-400 transition"
-              >
+              <Link href="/benefits" className="rounded-xl bg-emerald-500/90 px-5 py-3 font-semibold text-slate-950 hover:bg-emerald-400 transition">
                 Explore Benefits
               </Link>
-              <Link
-                href="/contact"
-                className="rounded-xl border border-white/25 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition"
-              >
+              <Link href="/contact" className="rounded-xl border border-white/25 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition">
                 Request Details
               </Link>
             </div>
@@ -139,14 +121,13 @@ export default function HomeHero() {
       {/* Only move the BG on desktop; leave overlay centered to cover */}
       <style jsx>{`
         @media (min-width: 768px) {
-          video[data-kind="bg"] {
-            object-position: ${posDesktop};
-          }
+          video[data-kind="bg"] { object-position: ${posDesktop}; }
         }
       `}</style>
     </section>
   );
 }
+
 
 
 
