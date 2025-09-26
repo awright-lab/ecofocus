@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 
 export default function HomeHero() {
-  const IMG_SRC = "/images/leaf-circuit-hero.jpg";
+  const IMG_SRC = "/images/hero-bg.png";
   const BLUR = "/images/leaf-circuit-hero-blur.jpg";
 
   return (
