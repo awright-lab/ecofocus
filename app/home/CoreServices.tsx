@@ -110,7 +110,7 @@ export default function CoreServices({ services }: Props) {
               group relative h-full overflow-hidden
               rounded-2xl
               bg-gradient-to-br from-white to-gray-50
-              ring-1 ring-black/5
+              ring-1 ring-black/0
               shadow-[0_14px_48px_-18px_rgba(2,12,27,.22)]
               transition
               hover:-translate-y-0.5
