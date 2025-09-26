@@ -7,21 +7,27 @@ import * as React from "react";
 import { useEffect, useRef } from "react";
 
 export default function HomeHero() {
-  const IMG_SRC = "/images/hero-bg.png";
+  const IMG_SRC = "/images/leaf-circuit-hero.jpg";
   const BLUR = "/images/leaf-circuit-hero-blur.jpg";
   const heroRef = useRef<HTMLElement | null>(null);
 
   return (
     <section ref={heroRef} className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* Hero background (single-line; no newlines inside Tailwind arbitrary value) */}
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#05070A_0%,#070C11_55%,#0A0F14_100%),radial-gradient(120%_80%_at_92%_8%,rgba(60,120,200,0.22)_0%,rgba(0,0,0,0)_60%),radial-gradient(85%_75%_at_6%_96%,rgba(130,60,180,0.18)_0%,rgba(0,0,0,0)_62%)]" />
-      {/* Gentle bottom fade (optional) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-[linear-gradient(to_top,rgba(5,8,11,0.9),rgba(5,8,11,0)_85%)]" />
+      {/* Background tuned to the leaf image: deep navy + cyan/orange glows from the right */}
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%),radial-gradient(120%_90%_at_86%_38%,rgba(22,166,194,0.22)_0%,rgba(0,0,0,0)_65%),radial-gradient(80%_70%_at_92%_64%,rgba(255,153,51,0.12)_0%,rgba(0,0,0,0)_60%)]" />
 
-      {/* Optimized leaf image — bottom-right, smaller for headline space */}
+      {/* Optional gentle floor fade to ground the hero */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_top,rgba(7,11,15,0.9),rgba(7,11,15,0)_85%)]" />
+
+      {/* LEAF BLOCK (masked so the edges blend into the background) */}
       <div
         data-leaf
-        className="pointer-events-none select-none absolute -z-10 bottom-0 right-0 translate-x-[6%] translate-y-[6%] sm:translate-x-[4%] sm:translate-y-[4%] md:translate-x-[6%] md:translate-y-[6%]"
+        className="pointer-events-none select-none absolute -z-10 bottom-0 right-0 translate-x-[4%] translate-y-[6%] md:translate-x-[4%] md:translate-y-[6%]"
+        style={{
+          // Fade the image edges outward so it "melts" into the bg (works in all modern browsers)
+          maskImage: "radial-gradient(130% 120% at 95% 50%, #000 58%, rgba(0,0,0,0) 85%)",
+          WebkitMaskImage: "radial-gradient(130% 120% at 95% 50%, #000 58%, rgba(0,0,0,0) 85%)",
+        }}
       >
         <div
           className="relative w-[52vw] max-w-[900px] sm:w-[58vw] md:w-[52vw] aspect-[16/10]"
@@ -37,10 +43,13 @@ export default function HomeHero() {
             sizes="(max-width: 640px) 58vw, (max-width: 1024px) 52vw, 52vw"
             style={{ objectFit: "contain" }}
           />
+          {/* Subtle right-to-left dark veil to unify tones with the bg (very light) */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: "linear-gradient(to left, rgba(7,11,15,0.0) 20%, rgba(7,11,15,0.15) 85%)" }} />
         </div>
       </div>
 
-      {/* Sheen */}
+      {/* Sheen sweep */}
       <div
         data-sheen
         aria-hidden="true"
@@ -52,7 +61,7 @@ export default function HomeHero() {
         }}
       />
 
-      {/* Sparkles covering full hero, biased toward the image */}
+      {/* Sparkles spanning full hero; will visually bias toward the masked image due to focus */}
       <SparkleOverlay
         containerRef={heroRef}
         focusSelector="[data-leaf]"
@@ -96,20 +105,12 @@ export default function HomeHero() {
 
       <style jsx>{`
         @keyframes heroSheen {
-          0% {
-            background-position: 220% 0;
-          }
-          100% {
-            background-position: -220% 0;
-          }
+          0% { background-position: 220% 0; }
+          100% { background-position: -220% 0; }
         }
         @media (prefers-reduced-motion: reduce) {
-          :global(canvas[data-sparkles]) {
-            animation: none !important;
-          }
-          [data-sheen] {
-            animation: none !important;
-          }
+          :global(canvas[data-sparkles]) { animation: none !important; }
+          [data-sheen] { animation: none !important; }
         }
       `}</style>
     </section>
@@ -129,16 +130,14 @@ function SparkleOverlay({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    // Type guard that permanently narrows within this effect.
     function assertPresent<T>(v: T | null | undefined, name: string): asserts v is T {
       if (v == null) throw new Error(`${name} not available`);
     }
 
     const hostMaybe = containerRef.current;
     const canvasMaybe = canvasRef.current;
-    if (!hostMaybe || !canvasMaybe) return; // nothing to draw yet
+    if (!hostMaybe || !canvasMaybe) return;
 
-    // Narrow to non-null and bind to locals used by all closures.
     assertPresent<HTMLElement>(hostMaybe, "host");
     assertPresent<HTMLCanvasElement>(canvasMaybe, "canvas");
     const host = hostMaybe;
@@ -146,48 +145,32 @@ function SparkleOverlay({
 
     const ctxMaybe = canvas.getContext("2d", { alpha: true });
     if (!ctxMaybe) return;
-    const ctx = ctxMaybe; // non-null
+    const ctx = ctxMaybe;
 
-    // Environment feature checks
     const hasResizeObserver = typeof ResizeObserver !== "undefined";
     const prefersReducedMotion =
       typeof window !== "undefined" && typeof window.matchMedia === "function"
         ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
         : false;
 
-    // Local state
-    let width = 1;
-    let height = 1;
+    let width = 1, height = 1;
     let dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
-    let rafId = 0;
-    let rafFocusId = 0;
+    let rafId = 0, rafFocusId = 0;
     let t0 = typeof performance !== "undefined" ? performance.now() : 0;
 
-    // Focus (normalized, defaults near lower-right)
-    let focusX = 0.7;
-    let focusY = 0.7;
+    let focusX = 0.7, focusY = 0.7;
 
     type Layer = 0 | 1;
     type P = {
-      x: number;
-      y: number;
-      vx: number;
-      vy: number;
-      r: number;
-      hue: number;
-      phase: number;
-      life: number;
-      speed: number;
-      layer: Layer;
+      x: number; y: number; vx: number; vy: number;
+      r: number; hue: number; phase: number; life: number; speed: number; layer: Layer;
     };
     const particles: P[] = [];
 
-    // Tunables
     const MAX_BASE = 110;
     const BASE_ALPHA = 0.22;
     const RADIUS_MULT = 8.5;
-    const HUE_MIN = 165;
-    const HUE_MAX = 205;
+    const HUE_MIN = 165, HUE_MAX = 205;
 
     const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
 
@@ -195,34 +178,28 @@ function SparkleOverlay({
       if (!focusSelector) return;
       const el = host.querySelector(focusSelector) as HTMLElement | null;
       if (!el) return;
-
       const a = host.getBoundingClientRect();
       const b = el.getBoundingClientRect();
       const cx = (b.left + b.right) / 2 - a.left;
       const cy = (b.top + b.bottom) / 2 - a.top;
-
       if (width > 0) focusX = Math.min(Math.max(cx / width, 0), 1);
       if (height > 0) focusY = Math.min(Math.max(cy / height, 0), 1);
     }
 
     function makeParticle(): P {
-      const near = Math.random() < 0.75; // 75% near image, 25% anywhere
-      const fx = focusX * width;
-      const fy = focusY * height;
+      const near = Math.random() < 0.75;
+      const fx = focusX * width, fy = focusY * height;
       const sx = near ? rnd(fx - width * 0.25, fx + width * 0.25) : rnd(0, width);
       const sy = near ? rnd(fy - height * 0.25, fy + height * 0.25) : rnd(0, height);
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
-
       return {
-        x: sx,
-        y: sy,
-        vx: rnd(-0.08, 0.1),
-        vy: rnd(-0.05, 0.06),
+        x: sx, y: sy,
+        vx: rnd(-0.08, 0.10), vy: rnd(-0.05, 0.06),
         r: rnd(0.8, layer === 0 ? 1.8 : 2.4),
         hue: rnd(HUE_MIN, HUE_MAX),
         phase: rnd(0, Math.PI * 2),
         life: rnd(0.6, 1),
-        speed: rnd(0.6, layer === 0 ? 1.25 : 0.9),
+        speed: rnd(0.60, layer === 0 ? 1.25 : 0.9),
         layer,
       };
     }
@@ -239,7 +216,6 @@ function SparkleOverlay({
 
       const areaK = (width * height) / (1440 * 800);
       const target = Math.min(Math.round(MAX_BASE * areaK), 180);
-
       while (particles.length < target) particles.push(makeParticle());
       while (particles.length > target) particles.pop();
 
@@ -253,14 +229,12 @@ function SparkleOverlay({
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = "lighter";
 
-      const fx = focusX * width;
-      const fy = focusY * height;
+      const fx = focusX * width, fy = focusY * height;
 
       for (const p of particles) {
         p.x += p.vx * p.speed;
         p.y += p.vy * p.speed;
 
-        // gentle attraction to keep tied to image
         p.x += (fx - p.x) * 0.00055;
         p.y += (fy - p.y) * 0.00045;
 
@@ -268,11 +242,8 @@ function SparkleOverlay({
         const tw = 0.55 + 0.45 * Math.sin(p.phase);
         const a = (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.5) * p.life * tw;
 
-        // wrap
-        if (p.x < -16) p.x = width + 16;
-        else if (p.x > width + 16) p.x = -16;
-        if (p.y < -16) p.y = height + 16;
-        else if (p.y > height + 16) p.y = -16;
+        if (p.x < -16) p.x = width + 16; else if (p.x > width + 16) p.x = -16;
+        if (p.y < -16) p.y = height + 16; else if (p.y > height + 16) p.y = -16;
 
         const rad = p.r * (p.layer === 0 ? RADIUS_MULT : RADIUS_MULT * 1.6);
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
@@ -288,7 +259,6 @@ function SparkleOverlay({
       rafId = requestAnimationFrame(draw);
     }
 
-    // Observe host for size changes
     let ro: ResizeObserver | null = null;
     if (hasResizeObserver) {
       ro = new ResizeObserver(() => resize());
@@ -297,12 +267,10 @@ function SparkleOverlay({
       window.addEventListener("resize", resize);
     }
 
-    // Initial layout & kick-off
     resize();
     rafFocusId = requestAnimationFrame(updateFocus);
     if (!prefersReducedMotion) rafId = requestAnimationFrame(draw);
 
-    // Cleanup
     return () => {
       if (ro) ro.disconnect();
       else window.removeEventListener("resize", resize);
