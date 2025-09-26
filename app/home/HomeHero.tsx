@@ -1,4 +1,4 @@
-// app/(site)/_components/HomeHero.tsx
+// app/home/HomeHero.tsx
 "use client";
 
 import Link from "next/link";
@@ -13,13 +13,10 @@ export default function HomeHero() {
 
   return (
     <section ref={heroRef} className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* Base wash */}
-      <div
-  className="absolute inset-0 -z-20
-             bg-[linear-gradient(180deg,#05070A_0%,#070C11_55%,#0A0F14_100%),
-                 radial-gradient(120%_80%_at_92%_8%,rgba(60,120,200,0.22)_0%,rgba(0,0,0,0)_60%),
-                 radial-gradient(85%_75%_at_6%_96%,rgba(130,60,180,0.18)_0%,rgba(0,0,0,0)_62%)]"
-/>
+      {/* Hero background (single-line; no newlines inside Tailwind arbitrary value) */}
+      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#05070A_0%,#070C11_55%,#0A0F14_100%),radial-gradient(120%_80%_at_92%_8%,rgba(60,120,200,0.22)_0%,rgba(0,0,0,0)_60%),radial-gradient(85%_75%_at_6%_96%,rgba(130,60,180,0.18)_0%,rgba(0,0,0,0)_62%)]" />
+      {/* Gentle bottom fade (optional) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-[linear-gradient(to_top,rgba(5,8,11,0.9),rgba(5,8,11,0)_85%)]" />
 
       {/* Optimized leaf image — bottom-right, smaller for headline space */}
       <div
@@ -42,9 +39,6 @@ export default function HomeHero() {
           />
         </div>
       </div>
-
-      {/* Bottom vignette */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-[linear-gradient(to_top,rgba(4,7,9,0.92),rgba(4,7,9,0)_85%)]" />
 
       {/* Sheen */}
       <div
@@ -319,6 +313,7 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
 
 
 
