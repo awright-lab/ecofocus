@@ -67,7 +67,7 @@ export default function FeaturedDashboard() {
 
             <h2
               id="dashboard-highlight"
-              className="mb-3 font-bold leading-tight text-gray-900 text-[clamp(1.5rem,4.5vw,2.25rem)] md:mb-4"
+              className="mb-3 font-bold leading-tight text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]]"
             >
               Explore the EcoFocus Interactive Dashboard
             </h2>
