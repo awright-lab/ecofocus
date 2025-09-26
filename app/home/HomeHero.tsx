@@ -14,9 +14,12 @@ export default function HomeHero() {
   return (
     <section ref={heroRef} className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
       {/* Base wash */}
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#05070A_0%,#070C11_55%,#0A0F14_100%),
+      <div
+  className="absolute inset-0 -z-20
+             bg-[linear-gradient(180deg,#05070A_0%,#070C11_55%,#0A0F14_100%),
                  radial-gradient(120%_80%_at_92%_8%,rgba(60,120,200,0.22)_0%,rgba(0,0,0,0)_60%),
-                 radial-gradient(85%_75%_at_6%_96%,rgba(130,60,180,0.18)_0%,rgba(0,0,0,0)_62%)]" />
+                 radial-gradient(85%_75%_at_6%_96%,rgba(130,60,180,0.18)_0%,rgba(0,0,0,0)_62%)]"
+/>
 
       {/* Optimized leaf image — bottom-right, smaller for headline space */}
       <div
