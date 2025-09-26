@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import * as React from "react";
 import { useEffect, useRef } from "react";
 
@@ -9,34 +10,58 @@ export default function HomeHero() {
   const heroRef = useRef<HTMLElement | null>(null);
 
   return (
-    <section ref={heroRef} className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
-      {/* Background tuned to match the leaf image tones */}
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%),radial-gradient(120%_90%_at_86%_38%,rgba(22,166,194,0.22)_0%,rgba(0,0,0,0)_65%),radial-gradient(80%_70%_at_92%_64%,rgba(255,153,51,0.12)_0%,rgba(0,0,0,0)_60%)]" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_top,rgba(7,11,15,0.9),rgba(7,11,15,0)_85%)]" />
+    <section
+      ref={heroRef}
+      className="relative w-full overflow-hidden"
+      aria-labelledby="home-hero-title"
+    >
+      {/* Base support gradient */}
+      <div className="absolute inset-0 -z-30 bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%)]" />
 
-      {/* Leaf as CSS background with feathered mask for seamless blend */}
-      <div
-        data-leaf
-        aria-hidden="true"
-        className="absolute -z-10 bottom-0 right-0 pointer-events-none select-none"
-        style={{
-          width: "min(52vw, 900px)",
-          aspectRatio: "16 / 10",
-          transform: "translate(4%, 6%)",
-          backgroundImage: 'url("/images/hero-bg.png")',
-          backgroundSize: "contain",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
-          filter: "saturate(1.06) brightness(1.02)",
-          maskImage: "radial-gradient(130% 120% at 95% 50%, #000 62%, rgba(0,0,0,0) 86%)",
-          WebkitMaskImage: "radial-gradient(130% 120% at 95% 50%, #000 62%, rgba(0,0,0,0) 86%)",
-        }}
-      >
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(to left, rgba(7,11,15,0.00) 25%, rgba(7,11,15,0.14) 85%)" }}
+      {/* BG 1: main backdrop image */}
+      <div className="absolute inset-0 -z-20">
+        <Image
+          src="/images/hero-bg1.png"
+          alt=""
+          aria-hidden
+          priority
+          fill
+          className="object-cover"
         />
       </div>
+
+      {/* BG 2: overlay art with feathered mask + blend */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 pointer-events-none select-none"
+        style={{
+          WebkitMaskImage:
+            "radial-gradient(130% 120% at 85% 50%, #000 62%, rgba(0,0,0,0) 86%)",
+          maskImage:
+            "radial-gradient(130% 120% at 85% 50%, #000 62%, rgba(0,0,0,0) 86%)",
+          mixBlendMode: "overlay", // try 'soft-light' or 'screen'
+          filter: "saturate(1.04) brightness(1.02)",
+        }}
+      >
+        <Image
+          src="/images/hero-bg2.png"
+          alt=""
+          aria-hidden
+          fill
+          priority
+          className="object-cover"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to left, rgba(7,11,15,0.00) 25%, rgba(7,11,15,0.14) 85%)",
+          }}
+        />
+      </div>
+
+      {/* Bottom fade for legibility */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_top,rgba(7,11,15,0.9),rgba(7,11,15,0)_85%)]" />
 
       {/* Sheen sweep */}
       <div
@@ -44,36 +69,48 @@ export default function HomeHero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 mix-blend-screen opacity-25 will-change-transform"
         style={{
-          background: "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.28) 50%, transparent 65%)",
+          background:
+            "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.28) 50%, transparent 65%)",
           backgroundSize: "220% 100%",
           animation: "heroSheen 18s linear infinite",
         }}
       />
 
+      {/* Sparkles */}
       <SparkleOverlay
         containerRef={heroRef}
-        focusSelector="[data-leaf]"
+        focusSelector="[data-focus]"
         className="absolute inset-0 pointer-events-none mix-blend-screen"
       />
 
-      {/* CONTENT (unchanged) */}
+      {/* CONTENT */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
-          <div className="max-w-3xl">
-            <h1 id="home-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white">
+          <div className="max-w-3xl" data-focus>
+            <h1
+              id="home-hero-title"
+              className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white"
+            >
               Decoding the Purpose-Driven{" "}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 Generation
               </span>
             </h1>
             <p className="mt-5 max-w-2xl text-lg sm:text-xl text-white/90">
-              Reliable Sustainability Data to Support Your Next Big Marketing Decision
+              Reliable Sustainability Data to Support Your Next Big Marketing
+              Decision
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/benefits" className="rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 font-semibold text-white transition">
+              <Link
+                href="/benefits"
+                className="rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 font-semibold text-white transition"
+              >
                 Explore Benefits
               </Link>
-              <Link href="/contact" className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition">
+              <Link
+                href="/contact"
+                className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition"
+              >
                 Request Details
               </Link>
             </div>
@@ -83,10 +120,21 @@ export default function HomeHero() {
       </div>
 
       <style jsx>{`
-        @keyframes heroSheen { 0% { background-position: 220% 0; } 100% { background-position: -220% 0; } }
+        @keyframes heroSheen {
+          0% {
+            background-position: 220% 0;
+          }
+          100% {
+            background-position: -220% 0;
+          }
+        }
         @media (prefers-reduced-motion: reduce) {
-          :global(canvas[data-sparkles]) { animation: none !important; }
-          [data-sheen] { animation: none !important; }
+          :global(canvas[data-sparkles]) {
+            animation: none !important;
+          }
+          [data-sheen] {
+            animation: none !important;
+          }
         }
       `}</style>
     </section>
@@ -106,8 +154,16 @@ function SparkleOverlay({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    function assertPresent<T>(v: T | null | undefined, name: string): asserts v is T {
+    function assertPresent<T>(
+      v: T | null | undefined,
+      name: string
+    ): asserts v is T {
       if (v == null) throw new Error(`${name} not available`);
+    }
+    function assert2D(
+      c: CanvasRenderingContext2D | null
+    ): asserts c is CanvasRenderingContext2D {
+      if (!c) throw new Error("2D context unavailable");
     }
 
     const hostMaybe = containerRef.current;
@@ -119,19 +175,22 @@ function SparkleOverlay({
     const host = hostMaybe;
     const canvas = canvasMaybe;
 
-    const ctxMaybe = canvas.getContext("2d", { alpha: true });
-    if (!ctxMaybe) return;
+    const ctxMaybe = canvas.getContext("2d", { alpha: true }) as
+      | CanvasRenderingContext2D
+      | null;
+    assert2D(ctxMaybe);
     const ctx = ctxMaybe;
 
     const hasResizeObserver = typeof ResizeObserver !== "undefined";
     const prefersReducedMotion =
-      typeof window !== "undefined" && typeof window.matchMedia === "function"
-        ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        : false;
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     let width = 1,
       height = 1;
-    let dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
+    let dpr =
+      typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
     let rafId = 0,
       rafFocusId = 0;
     let t0 = typeof performance !== "undefined" ? performance.now() : 0;
@@ -199,7 +258,10 @@ function SparkleOverlay({
       const rect = host.getBoundingClientRect();
       width = Math.max(1, Math.floor(rect.width));
       height = Math.max(1, Math.floor(rect.height));
-      dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 2);
+      dpr =
+        typeof window !== "undefined"
+          ? Math.min(window.devicePixelRatio || 1, 2)
+          : 1;
 
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
@@ -261,7 +323,7 @@ function SparkleOverlay({
       window.addEventListener("resize", resize);
     }
 
-    // ---- FIXED: assign to existing variables; do not redeclare
+    // start
     resize();
     rafFocusId = requestAnimationFrame(updateFocus);
     if (!prefersReducedMotion) rafId = requestAnimationFrame(draw);
@@ -276,6 +338,8 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
+
 
 
 
