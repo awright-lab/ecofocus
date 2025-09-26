@@ -14,7 +14,7 @@ export default function HomeHero() {
   return (
     <section ref={heroRef} className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
       {/* Base wash */}
-      <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_bottom,#061012_0%,#081417_55%,#0a1114_100%)]" />
+      <div className="absolute inset-0 -z-20 bg-black" />
 
       {/* Optimized leaf image — bottom-right, smaller for headline space */}
       <div
