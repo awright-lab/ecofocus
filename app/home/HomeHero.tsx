@@ -70,9 +70,9 @@ export default function HomeHero() {
         className="pointer-events-none absolute inset-0 mix-blend-screen opacity-25 will-change-transform"
         style={{
           background:
-            "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.28) 50%, transparent 65%)",
+            "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.28) 50%, transparent 85%)",
           backgroundSize: "220% 100%",
-          animation: "heroSheen 18s linear infinite",
+          animation: "heroSheen 22s linear infinite",
         }}
       />
 

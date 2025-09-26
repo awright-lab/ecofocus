@@ -101,92 +101,120 @@ export default function CoreServices({ services }: Props) {
         <div className="hidden md:grid grid-cols-4 gap-6 md:gap-8 mt-8">
           {items.map((s, i) => (
             <motion.article
-              key={s.title}
-              initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.45, delay: i * 0.06 }}
+            key={s.title}
+            initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.45, delay: i * 0.06 }}
+            className="
+              group relative h-full overflow-hidden
+              rounded-2xl
+              bg-gradient-to-br from-white to-gray-50
+              ring-1 ring-black/5
+              shadow-[0_14px_48px_-18px_rgba(2,12,27,.22)]
+              transition
+              hover:-translate-y-0.5
+              hover:shadow-[0_22px_72px_-22px_rgba(2,12,27,.32)]
+              grid grid-rows-[auto_176px_auto_1fr_auto]
+            "
+          >
+            {/* subtle emerald glow + soft top highlight */}
+            <span
+              aria-hidden
               className="
-                group relative h-full overflow-hidden rounded-xl border border-gray-200 bg-white
-                shadow-sm transition hover:border-emerald-300 hover:shadow-md
-                grid grid-rows-[auto_176px_auto_1fr_auto]
+                pointer-events-none absolute inset-0 rounded-2xl
+                bg-[radial-gradient(26rem_18rem_at_90%_-10%,rgba(16,185,129,.16),transparent_60%),linear-gradient(to_bottom,rgba(255,255,255,.65),transparent 28%)]
               "
-            >
-              {/* 1) Title + Kicker (reserve for up to 2 lines each) */}
-              <div className="p-5 pb-4">
-                <h3
+            />
+            {/* thin inner ring like the mock */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-white/70"
+            />
+          
+            {/* 1) Title + Kicker */}
+            <div className="relative p-5 pb-4">
+              <h3
+                className="
+                  text-xl md:text-2xl font-bold tracking-tight text-gray-900 leading-snug
+                  line-clamp-2 min-h-[3.2rem] md:min-h-[4.0rem]
+                "
+              >
+                {s.title}
+              </h3>
+              <div
+                className="
+                  mt-1 flex items-start gap-2 text-sm text-emerald-700/90 leading-snug
+                  line-clamp-2 min-h-[2.4rem]
+                "
+              >
+                {s.icon ? <i aria-hidden className={`${s.icon} mt-[2px] text-base shrink-0`} /> : null}
+                <span>{s.kicker ?? '\u00A0'}</span>
+              </div>
+            </div>
+          
+            {/* 2) Image with soft inset + ring */}
+            <div className="relative mx-5 h-[176px] overflow-hidden rounded-xl ring-1 ring-black/5">
+              {s.image ? (
+                <Image
+                  src={s.image}
+                  alt={s.title}
+                  fill
+                  sizes="(min-width:1280px)20vw,(min-width:1024px)24vw,(min-width:768px)33vw"
+                  className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                  priority={i < 2}
+                />
+              ) : (
+                <div className="h-full w-full bg-emerald-50" />
+              )}
+              {/* top gloss */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,.45),transparent_38%)]"
+              />
+            </div>
+          
+            {/* 3) Description */}
+            <div className="relative px-5 pt-4">
+              <p className="text-[15px] text-gray-800 leading-relaxed line-clamp-3 min-h-[3.6rem]">
+                {s.description}
+              </p>
+            </div>
+          
+            {/* 4) Bullets */}
+            <div className="relative px-5 pt-3 pb-1">
+              {s.bullets && s.bullets.length > 0 ? (
+                <ul className="grid gap-1.5 min-h-[4.5rem]">
+                  {s.bullets.slice(0, 3).map((b) => (
+                    <li key={b} className="flex gap-2 text-sm text-gray-700">
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#ef9601]" />
+                      <span className="line-clamp-1">{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <div className="min-h-[4.5rem]" />
+              )}
+            </div>
+          
+            {/* 5) CTA */}
+            <div className="relative p-5 pt-3">
+              {s.href && (
+                <Link
+                  href={s.href}
                   className="
-                    text-xl md:text-2xl font-bold tracking-tight text-gray-900 leading-snug
-                    line-clamp-2
-                    min-h-[3.2rem] md:min-h-[4.0rem]
+                    inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold
+                    text-white bg-emerald-600 hover:bg-emerald-700 transition
+                    shadow-[inset_0_-2px_0_0_rgba(0,0,0,.06)]
                   "
+                  aria-label={`Learn more about ${s.title}`}
                 >
-                  {s.title}
-                </h3>
-                <div
-                  className="
-                    mt-1 flex items-start gap-2 text-sm text-emerald-700 leading-snug
-                    line-clamp-2
-                    min-h-[2.4rem]
-                  "
-                >
-                  {s.icon ? <i aria-hidden className={`${s.icon} mt-[2px] text-base shrink-0`} /> : null}
-                  <span>{s.kicker ?? '\u00A0'}</span>
-                </div>
-              </div>
-
-              {/* 2) Image (fixed height) */}
-              <div className="relative h-[176px] w-full overflow-hidden">
-                {s.image ? (
-                  <Image
-                    src={s.image}
-                    alt={s.title}
-                    fill
-                    sizes="(min-width:1280px)20vw,(min-width:1024px)24vw,(min-width:768px)33vw"
-                    className="object-cover transition duration-500 group-hover:scale-[1.04]"
-                    priority={i < 2}
-                  />
-                ) : (
-                  <div className="h-full w-full bg-emerald-50" />
-                )}
-              </div>
-
-              {/* 3) Description (reserve ~3 lines) */}
-              <div className="px-5 pt-4">
-                <p className="text-[15px] text-gray-800 leading-relaxed line-clamp-3 min-h-[3.6rem]">
-                  {s.description}
-                </p>
-              </div>
-
-              {/* 4) Bullets (consistent min-height so CTA baseline aligns) */}
-              <div className="px-5 pt-3 pb-1">
-                {s.bullets && s.bullets.length > 0 ? (
-                  <ul className="grid gap-1.5 min-h-[4.5rem]">
-                    {s.bullets.slice(0, 3).map((b) => (
-                      <li key={b} className="flex gap-2 text-sm text-gray-700">
-                        <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#ef9601]" />
-                        <span className="line-clamp-1">{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="min-h-[4.5rem]" />
-                )}
-              </div>
-
-              {/* 5) CTA (extra top space so it never touches bullets) */}
-              <div className="p-5 pt-3">
-                {s.href && (
-                  <Link
-                    href={s.href}
-                    className="inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
-                    aria-label={`Learn more about ${s.title}`}
-                  >
-                    Learn more
-                  </Link>
-                )}
-              </div>
-            </motion.article>
+                  Learn more
+                </Link>
+              )}
+            </div>
+          </motion.article>
+          
           ))}
         </div>
       </div>
