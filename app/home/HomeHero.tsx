@@ -6,35 +6,17 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 
 export default function HomeHero() {
-  // Update these paths to your assets
   const IMG_SRC = "/images/leaf-circuit-hero.jpg";
-  const BLUR = "/images/leaf-circuit-hero-blur.jpg"; // tiny blur-up (e.g., 24x16)
+  const BLUR = "/images/leaf-circuit-hero-blur.jpg";
 
   return (
     <section className="relative w-full overflow-hidden" aria-labelledby="home-hero-title">
       {/* 0) Dark base */}
       <div className="absolute inset-0 -z-20 bg-[linear-gradient(to_bottom,#061012_0%,#081417_55%,#0a1114_100%)]" />
 
-      {/* 1) Optimized leaf image — bottom-right, responsive width */}
-      <div
-        className="
-          pointer-events-none select-none
-          absolute -z-10 bottom-0 right-0
-          translate-x-[6%] translate-y-[6%]
-          sm:translate-x-[4%] sm:translate-y-[4%]
-          md:translate-x-[6%] md:translate-y-[6%]
-        "
-      >
-        <div
-          className="
-            relative                 /* required for next/image fill */
-            w-[58vw] max-w-[980px]   /* responsive size of the leaf */
-            sm:w-[64vw]
-            md:w-[58vw]
-            aspect-[16/10]           /* reserve height to avoid CLS */
-          "
-          style={{ filter: "saturate(1.06) brightness(1.02)" }}
-        >
+      {/* 1) Optimized leaf image — bottom-right, responsive width (no multiline classes) */}
+      <div className="pointer-events-none select-none absolute -z-10 bottom-0 right-0 translate-x-[6%] translate-y-[6%] sm:translate-x-[4%] sm:translate-y-[4%] md:translate-x-[6%] md:translate-y-[6%]">
+        <div className="relative w-[58vw] max-w-[980px] sm:w-[64vw] md:w-[58vw] aspect-[16/10]" style={{ filter: "saturate(1.06) brightness(1.02)" }}>
           <Image
             src={IMG_SRC}
             alt=""
@@ -55,12 +37,7 @@ export default function HomeHero() {
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 mix-blend-screen opacity-25 will-change-transform"
-        style={{
-          background:
-            "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.28) 50%, transparent 65%)",
-          backgroundSize: "220% 100%",
-          animation: "heroSheen 18s linear infinite",
-        }}
+        style={{ background: "linear-gradient(100deg, transparent 35%, rgba(56,189,248,0.28) 50%, transparent 65%)", backgroundSize: "220% 100%", animation: "heroSheen 18s linear infinite" }}
       />
 
       {/* 4) Sparkle overlay (brightened) */}
@@ -70,31 +47,14 @@ export default function HomeHero() {
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl">
-            <h1
-              id="home-hero-title"
-              className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white"
-            >
+            <h1 id="home-hero-title" className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white">
               Decoding the Purpose-Driven{" "}
-              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                Generation
-              </span>
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Generation</span>
             </h1>
-            <p className="mt-5 max-w-2xl text-lg sm:text-xl text-white/90">
-              Reliable Sustainability Data to Support Your Next Big Marketing Decision
-            </p>
+            <p className="mt-5 max-w-2xl text-lg sm:text-xl text-white/90">Reliable Sustainability Data to Support Your Next Big Marketing Decision</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/benefits"
-                className="rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 font-semibold text-white transition"
-              >
-                Explore Benefits
-              </Link>
-              <Link
-                href="/contact"
-                className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition"
-              >
-                Request Details
-              </Link>
+              <Link href="/benefits" className="rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 font-semibold text-white transition">Explore Benefits</Link>
+              <Link href="/contact" className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition">Request Details</Link>
             </div>
           </div>
           <div className="hidden lg:block flex-1" />
@@ -109,7 +69,15 @@ export default function HomeHero() {
         }
         @media (prefers-reduced-motion: reduce) {
           :global(canvas[data-sparkles]) { animation: none !important; }
-          div[style*="background-position: 220% 0"] { animation: none !important; }
+          /* Stop sheen animation */
+          :global(section[aria-labelledby="home-hero-title"] > div[aria-hidden="true"].mix-blend-screen) { animation: none !important; }
+        }
+        /* Responsive nudge for the image wrapper (pure CSS; no multiline class strings) */
+        @media (max-width: 1024px) {
+          section[aria-labelledby="home-hero-title"] > div.absolute.-z-10.bottom-0.right-0 { transform: translate(4%, 4%); }
+        }
+        @media (max-width: 640px) {
+          section[aria-labelledby="home-hero-title"] > div.absolute.-z-10.bottom-0.right-0 { transform: translate(3%, 3%); }
         }
       `}</style>
     </section>
@@ -129,12 +97,11 @@ function SparkleOverlay({ className = "" }: { className?: string }) {
     let t0 = performance.now();
 
     type P = { x:number; y:number; vx:number; vy:number; r:number; hue:number; phase:number; life:number; speed:number; };
-
     const particles: P[] = [];
-    const MAX_BASE = 90;                         // density baseline
-    const colorBand: [number, number] = [165, 205]; // teal/cyan hues
-    const BASE_ALPHA = 0.20;                     // brightness
-    const RADIUS_MULT = 7.5;                     // glow size
+    const MAX_BASE = 90;
+    const colorBand: [number, number] = [165, 205];
+    const BASE_ALPHA = 0.20;
+    const RADIUS_MULT = 7.5;
 
     function resize() {
       const rect = canvas.getBoundingClientRect();
@@ -155,7 +122,7 @@ function SparkleOverlay({ className = "" }: { className?: string }) {
 
     function makeParticle(): P {
       return {
-        x: rnd(width * 0.42, width * 0.95), // favor right/mid
+        x: rnd(width * 0.42, width * 0.95),
         y: rnd(height * 0.15, height * 0.92),
         vx: rnd(-0.08, 0.10),
         vy: rnd(-0.05, 0.06),
@@ -175,26 +142,22 @@ function SparkleOverlay({ className = "" }: { className?: string }) {
       ctx.globalCompositeOperation = "lighter";
 
       for (const p of particles) {
-        // drift
         p.x += p.vx * p.speed;
         p.y += p.vy * p.speed;
 
-        // gentle attraction toward lower-right (where the leaf sits)
+        // gentle pull toward lower-right focal area
         p.x += (width * 0.72 - p.x) * 0.0006;
         p.y += (height * 0.70 - p.y) * 0.0005;
 
-        // twinkle
         p.phase += dt * 1.15;
         const twinkle = 0.55 + 0.45 * Math.sin(p.phase);
         const alpha = BASE_ALPHA * p.life * twinkle;
 
-        // wrap
         if (p.x < -12) p.x = width + 12;
         if (p.x > width + 12) p.x = -12;
         if (p.y < -12) p.y = height + 12;
         if (p.y > height + 12) p.y = -12;
 
-        // draw
         const rad = p.r * RADIUS_MULT;
         const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
         grad.addColorStop(0, `hsla(${p.hue}, 95%, 65%, ${alpha})`);
