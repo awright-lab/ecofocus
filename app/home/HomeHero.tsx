@@ -76,9 +76,25 @@ export default function HomeHero() {
         }}
       />
 
+      {/* Invisible anchors: SOURCE = leaf, TARGET = headline block */}
+      {/* Place/size this box where the leaf is so sparkles originate from it */}
+      <div
+        data-source
+        aria-hidden
+        className="absolute pointer-events-none -z-[1]"
+        style={{
+          right: "13%",   // tweak these 4 values to sit over the glowing leaf
+          bottom: "16%",
+          width: "22%",
+          height: "24%",
+        }}
+      />
+      {/* The target is the headline wrapper below via data-focus */}
+
       {/* Sparkles */}
       <SparkleOverlay
         containerRef={heroRef}
+        sourceSelector="[data-source]"
         focusSelector="[data-focus]"
         className="absolute inset-0 pointer-events-none mix-blend-screen"
       />
@@ -143,18 +159,20 @@ export default function HomeHero() {
 
 /* ---------- Sparkle Overlay (Canvas) ---------- */
 /**
- * Origin reverted: particles now spawn near the original focus region
- * (not from the corners). They drift toward center, fade out when close,
- * and continuously respawn to keep the flow alive.
+ * Sparkles now spawn near the LEAF (sourceSelector) and travel toward the HEADLINE (focusSelector).
+ * They brighten, then fade as they reach the target, and continuously respawn at the source.
+ * No corner spawning; no horizontal wrapping.
  */
 function SparkleOverlay({
   className = "",
   containerRef,
+  sourceSelector,
   focusSelector,
 }: {
   className?: string;
   containerRef: React.RefObject<HTMLElement | null>;
-  focusSelector?: string;
+  sourceSelector?: string; // origin (leaf)
+  focusSelector?: string;  // target (headline)
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -197,11 +215,14 @@ function SparkleOverlay({
     let dpr =
       typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
     let rafId = 0,
-      rafFocusId = 0;
+      rafAnchorId = 0;
     let t0 = typeof performance !== "undefined" ? performance.now() : 0;
 
-    let focusX = 0.7,
-      focusY = 0.7;
+    // Anchors: where to start and where to head
+    let sourceX = 0.83,
+      sourceY = 0.66;
+    let focusX = 0.32,
+      focusY = 0.30;
 
     type Layer = 0 | 1;
     type P = {
@@ -219,42 +240,76 @@ function SparkleOverlay({
     const particles: P[] = [];
 
     /* ---- Knobs ---- */
-    const DENSITY_BASE = 150; // "a few more" sparkles than before
-    const DENSITY_CAP = 240;
-    const BASE_ALPHA = 0.22;
-    const RADIUS_MULT = 8.5;
-    const HUE_MIN = 165,
-      HUE_MAX = 205;
-
-    // Attraction strength toward center (gentle)
-    const ATTRACT_X = 0.0007;
-    const ATTRACT_Y = 0.00055;
-
-    // Distance from center where fadeout begins (fraction of diagonal)
+    const DENSITY_BASE = 160; // a bit more
+    const DENSITY_CAP = 260;
+    const BASE_ALPHA = 0.36;  // brighter sparkles
+    const RADIUS_MULT = 10.5; // slightly larger
+    const HUE_MIN = 165, HUE_MAX = 195; // emerald/teal bias
+    const ATTRACT_X = 0.0009; // pull toward target
+    const ATTRACT_Y = 0.00075;
     let fadeRadius = 120; // set in resize()
+    let spawnSigmaX = 80, // set in resize()
+      spawnSigmaY = 70;
 
     const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
+    const gauss = (mu: number, sigma: number) => {
+      // Box–Muller transform
+      const u = 1 - Math.random();
+      const v = 1 - Math.random();
+      const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+      return mu + z * sigma;
+    };
 
-    // Spawn near the focus region (original behavior), not from corners
+    function updateAnchors(): void {
+      if (sourceSelector) {
+        const el = host.querySelector(sourceSelector) as HTMLElement | null;
+        if (el) {
+          const a = host.getBoundingClientRect();
+          const b = el.getBoundingClientRect();
+          const cx = (b.left + b.right) / 2 - a.left;
+          const cy = (b.top + b.bottom) / 2 - a.top;
+          if (width > 0) sourceX = Math.min(Math.max(cx / width, 0), 1);
+          if (height > 0) sourceY = Math.min(Math.max(cy / height, 0), 1);
+        }
+      }
+      if (focusSelector) {
+        const el = host.querySelector(focusSelector) as HTMLElement | null;
+        if (el) {
+          const a = host.getBoundingClientRect();
+          const b = el.getBoundingClientRect();
+          const cx = (b.left + b.right) / 2 - a.left;
+          const cy = (b.top + b.bottom) / 2 - a.top;
+          if (width > 0) focusX = Math.min(Math.max(cx / width, 0), 1);
+          if (height > 0) focusY = Math.min(Math.max(cy / height, 0), 1);
+        }
+      }
+    }
+
+    // Spawn around the source with a Gaussian scatter, initial push toward target
     function makeParticle(): P {
-      const fx = focusX * width;
-      const fy = focusY * height;
+      const sx = gauss(sourceX * width, spawnSigmaX);
+      const sy = gauss(sourceY * height, spawnSigmaY);
 
-      // Spawn within a box around focus (about ±22% of hero size)
-      const sx = rnd(fx - width * 0.22, fx + width * 0.22);
-      const sy = rnd(fy - height * 0.22, fy + height * 0.22);
+      const dx = focusX * width - sx;
+      const dy = focusY * height - sy;
+      const len = Math.max(1, Math.hypot(dx, dy));
+      const dirX = dx / len;
+      const dirY = dy / len;
 
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
+      const baseSpeed = rnd(0.7, layer === 0 ? 1.35 : 1.0); // slight depth
+      const jitter = 0.22;
+
       return {
         x: sx,
         y: sy,
-        vx: rnd(-0.06, 0.08),
-        vy: rnd(-0.04, 0.06),
-        r: rnd(0.8, layer === 0 ? 1.8 : 2.4),
+        vx: dirX * baseSpeed + rnd(-jitter, jitter),
+        vy: dirY * baseSpeed + rnd(-jitter, jitter),
+        r: rnd(0.9, layer === 0 ? 2.0 : 2.6),
         hue: rnd(HUE_MIN, HUE_MAX),
         phase: rnd(0, Math.PI * 2),
-        life: 1, // start full life
-        speed: rnd(0.65, layer === 0 ? 1.25 : 0.95),
+        life: 1,
+        speed: 1,
         layer,
       };
     }
@@ -272,14 +327,20 @@ function SparkleOverlay({
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // fade radius ~ 12% of diagonal
+      // how tight the spawn cluster is over the leaf
+      spawnSigmaX = Math.max(40, width * 0.07);
+      spawnSigmaY = Math.max(35, height * 0.06);
+
+      // fade radius near headline
       fadeRadius = Math.hypot(width, height) * 0.12;
 
-      // baseline density scaled by area
+      // density by area
       const areaK = (width * height) / (1440 * 800);
       const target = Math.min(Math.round(DENSITY_BASE * areaK), DENSITY_CAP);
       while (particles.length < target) particles.push(makeParticle());
       while (particles.length > target) particles.pop();
+
+      updateAnchors();
     }
 
     function recycle(i: number): void {
@@ -299,43 +360,44 @@ function SparkleOverlay({
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Movement
+        // Move
         p.x += p.vx * p.speed;
         p.y += p.vy * p.speed;
 
-        // Gentle attraction to focus
+        // Attract gently toward target (keeps flow coherent)
         p.x += (fx - p.x) * ATTRACT_X;
         p.y += (fy - p.y) * ATTRACT_Y;
 
         // Twinkle
-        p.phase += dt * 1.15;
-        const tw = 0.55 + 0.45 * Math.sin(p.phase);
+        p.phase += dt * 1.2;
+        const tw = 0.5 + 0.5 * Math.sin(p.phase);
 
-        // Distance-based fade near center
+        // Fade as they approach target
         const dx = fx - p.x;
         const dy = fy - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const near = Math.max(0, Math.min(1, dist / fadeRadius)); // 1 far, 0 at center
 
-        // Alpha & life decay (faster when near center)
+        // Brightness/alpha
         const a =
-          (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.5) *
+          (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.6) *
           p.life *
           tw *
-          near;
+          Math.max(0.15, near);
 
-        p.life -= dt * (0.08 + (1 - near) * 0.85);
+        // Life decay (faster when near target)
+        p.life -= dt * (0.06 + (1 - near) * 0.9);
 
-        // Recycle when faded or extremely close to center
-        if (p.life <= 0 || near < 0.06) {
+        // Recycle when faded or very close to target or offscreen
+        if (p.life <= 0 || near < 0.06 || p.x < -40 || p.x > width + 40 || p.y < -40 || p.y > height + 40) {
           recycle(i);
           continue;
         }
 
         const rad = p.r * (p.layer === 0 ? RADIUS_MULT : RADIUS_MULT * 1.6);
         const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
-        g.addColorStop(0, `hsla(${p.hue},95%,65%,${a})`);
-        g.addColorStop(1, `hsla(${p.hue + 8},95%,55%,0)`);
+        g.addColorStop(0, `hsla(${p.hue},98%,72%,${a})`);   // brighter core
+        g.addColorStop(1, `hsla(${p.hue + 8},98%,55%,0)`);
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(p.x, p.y, rad, 0, Math.PI * 2);
@@ -346,21 +408,11 @@ function SparkleOverlay({
       rafId = requestAnimationFrame(draw);
     }
 
-    function updateFocus(): void {
-      if (!focusSelector) return;
-      const el = host.querySelector(focusSelector) as HTMLElement | null;
-      if (!el) return;
-      const a = host.getBoundingClientRect();
-      const b = el.getBoundingClientRect();
-      const cx = (b.left + b.right) / 2 - a.left;
-      const cy = (b.top + b.bottom) / 2 - a.top;
-      if (width > 0) focusX = Math.min(Math.max(cx / width, 0), 1);
-      if (height > 0) focusY = Math.min(Math.max(cy / height, 0), 1);
-    }
-
     let ro: ResizeObserver | null = null;
     if (hasResizeObserver) {
-      ro = new ResizeObserver(() => resize());
+      ro = new ResizeObserver(() => {
+        resize();
+      });
       ro.observe(host);
     } else {
       window.addEventListener("resize", resize);
@@ -368,19 +420,21 @@ function SparkleOverlay({
 
     // start
     resize();
-    rafFocusId = requestAnimationFrame(updateFocus);
-    if (!prefersReducedMotion) rafId = requestAnimationFrame(draw);
+    rafAnchorId = requestAnimationFrame(updateAnchors);
+    if (!prefersReducedMotion) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     return () => {
       if (ro) ro.disconnect();
       else window.removeEventListener("resize", resize);
       if (rafId) cancelAnimationFrame(rafId);
-      if (rafFocusId) cancelAnimationFrame(rafFocusId);
+      if (rafAnchorId) cancelAnimationFrame(rafAnchorId);
     };
-  }, [containerRef, focusSelector]);
+  }, [containerRef, sourceSelector, focusSelector]);
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
 
 
 
