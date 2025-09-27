@@ -4,31 +4,43 @@
 import * as React from 'react';
 import Image from 'next/image';
 
-/** Data Waves — multi-color (slate blue, emerald, marigold) */
+/** Data Waves — multi-color + centered + width/offset control */
 function DataWaves({
   colors = ['#213F97', '#10B981', '#EF9601'], // slate blue, emerald, marigold
   bars = 15,
-  baseWidth = 660,
+  maxWidth = 520,    // << make it narrower (was 660)
+  gutter = 15,       // left padding inside the waves area
+  spacing = 24,      // distance between bars
+  offsetX = 0,       // small global nudge (e.g., 12 to push right)
 }: {
   colors?: string[];
   bars?: number;
-  baseWidth?: number;
+  maxWidth?: number;
+  gutter?: number;
+  spacing?: number;
+  offsetX?: number;
 }) {
-  const topBars = Array.from({ length: bars });
-  const botBars = Array.from({ length: bars });
-
-  // Helper to get color cycling through the palette
   const colorAt = (i: number) => colors[i % colors.length];
 
   return (
-    <div className="waves-wrap" aria-hidden>
+    <div
+      className="waves-wrap mx-auto" // center under the title
+      aria-hidden
+      style={{
+        maxWidth: `${maxWidth}px`,
+        transform: `translateX(${offsetX}px)`,
+        // expose CSS vars for the lines
+        ['--gutter' as any]: `${gutter}px`,
+        ['--spacing' as any]: `${spacing}px`,
+      }}
+    >
       <div className="row top">
-        {topBars.map((_, i) => (
+        {Array.from({ length: bars }).map((_, i) => (
           <div
             key={`t-${i}`}
             className="bar"
             style={{
-              left: `calc(15px + ${(i + 1) * 25}px)`,
+              left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
               animationDelay: `${(i + 1) / 5}s`,
               backgroundColor: colorAt(i),
             }}
@@ -36,19 +48,18 @@ function DataWaves({
         ))}
       </div>
 
-      {/* Middle rule – use a neutral slate blue for continuity */}
       <div className="middle" />
 
       <div className="row bottom">
-        {botBars.map((_, i) => (
+        {Array.from({ length: bars }).map((_, i) => (
           <div
             key={`b-${i}`}
             className="bar"
             style={{
-              left: `calc(15px + ${(i + 1) * 25}px)`,
+              left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
               animationDelay: `${(i + 1) / 5}s`,
               backgroundColor: colorAt(i),
-              opacity: 0.9, // slight difference from top for depth
+              opacity: 0.9,
             }}
           />
         ))}
@@ -56,7 +67,7 @@ function DataWaves({
 
       <style jsx>{`
         .waves-wrap {
-          width: min(100%, ${baseWidth}px);
+          width: 100%;
           position: relative;
         }
         .row {
@@ -64,11 +75,10 @@ function DataWaves({
           height: 80px;
           width: 100%;
         }
-        .row.bottom {
-          transform: rotate(180deg) translateX(235px);
-        }
+        /* Mirror the bottom row without pushing it sideways */
+        .row.bottom { transform: rotate(180deg); }
+
         .middle {
-          position: relative;
           height: 4px;
           width: 100%;
           background-color: #213f97; /* slate blue line */
@@ -84,12 +94,12 @@ function DataWaves({
           will-change: transform, height, opacity;
         }
         @keyframes grow-shrink {
-          0%   { margin-left: 0;   height: 0px;  opacity: 1; }
-          50%  {                    height: 50px; opacity: 1; }
-          100% { margin-left: 25px; height: 0px;  opacity: 1; }
+          0%   { margin-left: 0; height: 0px; opacity: 1; }
+          50%  {                 height: 50px; opacity: 1; }
+          100% { margin-left: var(--spacing); height: 0px; opacity: 1; }
         }
 
-        /* Respect prefers-reduced-motion */
+        /* prefers-reduced-motion */
         @media (prefers-reduced-motion: reduce) {
           .bar { animation: none; height: 28px; }
         }
@@ -119,7 +129,7 @@ export default function IntroSection() {
             } as React.CSSProperties
           }
         >
-          {/* Left: eyebrow + title + waves (vertically centered) */}
+          {/* Left: eyebrow + title + waves (centered) */}
           <div className="md:col-span-5 flex flex-col justify-center md:min-h-[var(--stack-h)]">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] tracking-wide self-start">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
@@ -133,12 +143,15 @@ export default function IntroSection() {
               Trusted Insights for Purpose-Driven Growth
             </h2>
 
-            {/* Multi-color data waves directly under title */}
+            {/* Centered, narrower, multi-color waves */}
             <div className="mt-4 md:mt-5">
               <DataWaves
-                colors={['#213F97', '#10B981', '#EF9601']} // slate blue, emerald, marigold
+                colors={['#213F97', '#10B981', '#EF9601']}
                 bars={15}
-                baseWidth={660}
+                maxWidth={520}   // << narrow it
+                gutter={12}
+                spacing={22}
+                offsetX={8}      // << small nudge to the right; tweak 0–16 to taste
               />
             </div>
           </div>
@@ -175,6 +188,7 @@ export default function IntroSection() {
     </section>
   );
 }
+
 
 
 
