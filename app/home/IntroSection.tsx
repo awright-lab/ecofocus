@@ -1,207 +1,207 @@
-// app/components/IntroSection.tsx
+// app/components/SayDoGapSection.tsx
 'use client';
 
 import * as React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
-/* ================ Ultra-smooth Data Waves =================
-   - CSS transforms only (scaleY & translateX) -> no layout thrash
-   - Single duration for all bars (deterministic)
-   - Staggered delays only
-   ========================================================= */
-function DataWaves({
+/* ====== 3-lane “Intent → Action” bridge (deterministic, GPU-only) ====== */
+function GapBridge({
   colors = ['#213F97', '#10B981', '#EF9601'], // slate blue, emerald, marigold
-  bars = 14,
-  maxWidth = 480,
-  gutter = 10,
-  spacing = 22,
-  barWidth = 9,
-  barHeight = 56,
-  duration = 3.0,            // one duration for all bars
-  delayStep = 0.16,          // stagger
-  offsetX = 4,
-  reflectionOpacity = 0.42,
-  reflectionBlurPx = 2,
+  lanes = 3,
+  maxWidth = 580,
+  laneGap = 12,
+  capsuleW = 22,
+  capsuleH = 10,
+  stream = 9,          // capsules per lane
+  spacing = 26,        // horizontal spacing between capsules
+  duration = 3.4,      // global duration for everyone
+  delayStep = 0.22,    // stagger between capsules in a lane
 }: {
   colors?: string[];
-  bars?: number;
+  lanes?: number;
   maxWidth?: number;
-  gutter?: number;
+  laneGap?: number;
+  capsuleW?: number;
+  capsuleH?: number;
+  stream?: number;
   spacing?: number;
-  barWidth?: number;
-  barHeight?: number;
   duration?: number;
   delayStep?: number;
-  offsetX?: number;
-  reflectionOpacity?: number;
-  reflectionBlurPx?: number;
 }) {
   const colorAt = (i: number) => colors[i % colors.length];
 
   return (
     <div
-      className="waves mx-auto"
-      aria-hidden
+      className="mx-auto w-full"
       style={{
         maxWidth,
-        transform: `translateX(${offsetX}px)`,
-        ['--gutter' as any]: `${gutter}px`,
+        // expose CSS custom properties
+        ['--laneGap' as any]: `${laneGap}px`,
+        ['--capsuleW' as any]: `${capsuleW}px`,
+        ['--capsuleH' as any]: `${capsuleH}px`,
         ['--spacing' as any]: `${spacing}px`,
-        ['--barW' as any]: `${barWidth}px`,
-        ['--barH' as any]: `${barHeight}px`,
         ['--dur' as any]: `${duration}s`,
         ['--delayStep' as any]: `${delayStep}s`,
-        ['--reflOpacity' as any]: reflectionOpacity,
-        ['--reflBlur' as any]: `${reflectionBlurPx}px`,
       }}
+      aria-hidden
     >
-      <div className="row top">
-        {Array.from({ length: bars }).map((_, i) => (
-          <div
-            key={`t-${i}`}
-            className="bar"
-            style={{
-              left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
-              // deterministic delay; same duration for everyone
-              animationDelay: `calc(${i + 1} * var(--delayStep))`,
-              background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.18) 100%)`,
-              boxShadow: `0 6px 18px -8px ${colorAt(i)}33`,
-            }}
-          />
-        ))}
+      {/* Labels + axis */}
+      <div className="relative mb-3 text-[12px] text-slate-600">
+        <div className="absolute -top-2 left-0 flex items-center gap-2">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-300" />
+          Intent
+        </div>
+        <div className="absolute -top-2 right-0 flex items-center gap-2">
+          Action
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-slate-300" />
+        </div>
+        <div className="h-2 w-full rounded-full bg-slate-300/25">
+          <div className="h-2 w-full rounded-full bg-[#213F97]/80" />
+        </div>
       </div>
 
-      <div className="axis" />
-
-      <div className="row bottom">
-        {Array.from({ length: bars }).map((_, i) => (
+      {/* Lanes */}
+      <div className="relative">
+        {Array.from({ length: lanes }).map((_, laneIdx) => (
           <div
-            key={`b-${i}`}
-            className="bar"
-            style={{
-              left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
-              animationDelay: `calc(${i + 1} * var(--delayStep))`,
-              background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.18) 100%)`,
-              boxShadow: `0 6px 18px -8px ${colorAt(i)}33`,
-            }}
-          />
+            key={laneIdx}
+            className="relative overflow-hidden"
+            style={{ height: `calc(var(--capsuleH) + 8px)`, marginTop: laneIdx === 0 ? 0 : 'var(--laneGap)' }}
+          >
+            {/* edge fades for polish */}
+            <span className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-white to-transparent" />
+            <span className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white to-transparent" />
+
+            {/* capsule stream */}
+            {Array.from({ length: stream }).map((__, i) => (
+              <span
+                key={i}
+                className="absolute inline-block rounded-full will-change-transform"
+                style={{
+                  left: `calc(${i} * var(--spacing) * -1)`, // start off-screen left
+                  top: 4,
+                  width: 'var(--capsuleW)',
+                  height: 'var(--capsuleH)',
+                  background: `linear-gradient(180deg, ${colorAt(i + laneIdx)} 0%, ${colorAt(i + laneIdx)} 70%, rgba(255,255,255,0.18) 100%)`,
+                  boxShadow: `0 6px 18px -10px ${colorAt(i + laneIdx)}33`,
+                  borderRadius: 999,
+                  animation: `glide var(--dur) cubic-bezier(0.33,0,0.23,1) infinite`,
+                  animationDelay: `calc((${i}) * var(--delayStep))`,
+                }}
+              />
+            ))}
+          </div>
         ))}
       </div>
 
       <style jsx>{`
-        .waves { width: 100%; position: relative; }
-        .row   { position: relative; height: calc(var(--barH) + 24px); width: 100%; }
-        .row.bottom { transform: rotate(180deg); opacity: var(--reflOpacity); filter: blur(var(--reflBlur)); }
-        .axis  { height: 2px; width: 100%; background: #213f97; opacity: 0.85; }
-
-        .bar {
-          position: absolute;
-          bottom: 20px;
-          width: var(--barW);
-          height: var(--barH);
-          border-radius: 999px;
-          transform-origin: bottom;        /* scale from base */
-          /* start slightly lowered so the loop has no “snap” */
-          transform: translateX(0) translateY(2px) scaleY(0);
-          animation-name: waveMotion;
-          animation-duration: var(--dur);
-          animation-timing-function: cubic-bezier(0.33, 0.0, 0.23, 1); /* sleek */
-          animation-iteration-count: infinite;
-          will-change: transform;
-          backface-visibility: hidden;
+        @keyframes glide {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(calc(100% + var(--capsuleW) + 12px)); }
         }
-
-        /* Smooth, GPU-only motion: translateX + scaleY */
-        @keyframes waveMotion {
-          0%   { transform: translateX(0)                  translateY(2px) scaleY(0.02); }
-          45%  { transform: translateX(0)                  translateY(0)    scaleY(1.0); }
-          100% { transform: translateX(var(--spacing))     translateY(2px) scaleY(0.02); }
-        }
-
         @media (prefers-reduced-motion: reduce) {
-          .bar { animation: none; transform: translateX(0) translateY(1px) scaleY(0.5); }
-        }
-
-        @media (max-width: 480px) {
-          .row { height: calc(var(--barH) + 16px); }
+          span[style*="animation"] { animation: none !important; opacity: 0.85; }
         }
       `}</style>
     </div>
   );
 }
 
-/* ===================== Intro Section ===================== */
-export default function IntroSection() {
+/* =========================== Section =========================== */
+export default function SayDoGapSection() {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <section aria-labelledby="intro-heading" className="relative bg-white overflow-hidden">
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16">
-        <div
-          className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-stretch"
-          style={{ ['--stack-h' as any]: '26rem' } as React.CSSProperties}
+    <section className="relative bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
+        {/* Headline */}
+        <motion.h2
+          className="font-bold leading-tight text-slate-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
+          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.45 }}
         >
-          {/* Left: eyebrow + title + waves */}
-          <div className="md:col-span-5 flex flex-col justify-center md:min-h-[var(--stack-h)]">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] tracking-wide self-start">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
-              <span className="text-emerald-700 font-medium">About EcoFocus</span>
-            </div>
+          From Intent to Action: Closing the{' '}
+          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+            Say–Do Gap
+          </span>
+        </motion.h2>
 
-            <h2
-              id="intro-heading"
-              className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]"
-            >
-              Trusted Insights for Purpose-Driven <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Growth</span>
-            </h2>
+        {/* Bridge animation right under title */}
+        <div className="mt-4 md:mt-5">
+          <GapBridge
+            colors={['#213F97', '#10B981', '#EF9601']}
+            lanes={3}
+            maxWidth={580}
+            laneGap={12}
+            capsuleW={22}
+            capsuleH={10}
+            stream={9}
+            spacing={26}
+            duration={3.4}
+            delayStep={0.22}
+          />
+        </div>
 
-            {/* Sleek, deterministic multi-color waves */}
-            <div className="mt-4 md:mt-5">
-              <DataWaves
-                colors={['#213F97', '#10B981', '#EF9601']}
-                bars={14}
-                maxWidth={460}
-                gutter={10}
-                spacing={22}
-                barWidth={9}
-                barHeight={56}
-                duration={3.0}     // slower; change to 3.2–3.6 for even calmer
-                delayStep={0.16}
-                offsetX={4}
-                reflectionOpacity={0.42}
-                reflectionBlurPx={2}
-              />
-            </div>
-          </div>
-
-          {/* Right: layered cards (image + intro text) */}
-          <div className="md:col-span-7 relative md:min-h-[var(--stack-h)]">
-          <div className="relative rounded-3xl bg-[#ef9601]/85 p-2 ring-1 ring-[#ef9601]]/95 shadow-2xl">
-            <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
+        {/* Layout: image left with overlaid copy card (different from Intro) */}
+        <div className="mt-8 md:mt-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-stretch">
+          {/* Left: image */}
+          <div className="md:col-span-6 relative">
+            <div className="relative h-72 md:h-[22rem] w-full overflow-hidden rounded-2xl shadow-lg">
               <Image
-                src="/images/intro-bg.png" // replace with your asset
-                alt="EcoFocus sustainability research"
+                src="/images/say-do-gap.jpg"   // <-- replace with your asset
+                alt="Consumers bridging intent and action"
                 fill
                 className="object-cover"
                 priority
               />
             </div>
-            </div>
-            <div className="absolute bottom-0 left-0 md:-left-12 translate-y-1/3 md:translate-y-1/4 w-[90%] md:w-[70%]">
-              <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
-                <p className="text-base md:text-lg text-slate-700 leading-relaxed">
-                  For over 13 years, EcoFocus has tracked how sustainability shapes consumer
-                  decisions. We help brands and agencies turn credible consumer data into
-                  strategies that resonate, perform, and prove ROI.
+
+            {/* Overlaid copy card (top-right corner of image) */}
+            <div className="absolute right-3 top-3 md:-right-8 md:-top-6 w-[88%] md:w-[60%]">
+              <div className="rounded-2xl bg-white/95 backdrop-blur-[2px] shadow-xl ring-1 ring-slate-200 p-5 md:p-6">
+                <p className="text-[15px] md:text-base leading-relaxed text-slate-700">
+                  The Say–Do Gap isn’t hypocrisy—it’s friction. We map where
+                  intent stalls and which proof points (benefits, cues, claims)
+                  actually unlock action for your audience.
                 </p>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="mt-10 md:mt-12 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+          {/* Right: main body copy (for readability, not inside a card) */}
+          <motion.div
+            className="md:col-span-6"
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: 0.45, delay: 0.05 }}
+          >
+            <p className="text-base sm:text-[17px] leading-7 text-slate-800">
+              Let’s be honest: this Say–Do Gap is one of the most frustrating
+              challenges in consumer marketing. It’s tempting to dismiss it as hypocrisy—or
+              dismiss sustainability as a sales driver altogether. The key to addressing it is
+              first understanding what consumers are looking for—their sustainability attitudes
+              and intended behaviors—and having a clear picture of how sustainability influences
+              their aspirations and desires.
+            </p>
+            <p className="mt-4 text-base sm:text-[17px] leading-7 text-slate-800">
+              At EcoFocus, we have the data (or can get the data) you need to identify
+              sustainability personas for your target audience to help you build strategies—backed
+              by data—to gain market share and reduce churn.{' '}
+              <span className="font-semibold text-slate-900">
+                Don’t speculate about your eco-minded customer. Understand them. Influence them. Win them.
+              </span>
+            </p>
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
+
 
 
 
