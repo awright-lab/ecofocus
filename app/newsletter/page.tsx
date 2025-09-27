@@ -17,69 +17,67 @@ export default function NewsletterPage() {
       <Header />
 
       <main id="main" className="min-h-screen">
-        {/* MAGAZINE HERO — full-bleed image to the right */}
+{/* MAGAZINE HERO — full-bleed plate on the right (not a background) */}
 <section className="relative overflow-hidden text-white bg-[linear-gradient(180deg,#0F1A22_0%,#11222C_55%,#142A35_100%)]">
   {/* soft brand glows */}
   <div aria-hidden className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
   <div aria-hidden className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-300/30 blur-3xl" />
 
-  {/* FULL-BLEED IMAGE (desktop) */}
-  <div className="absolute inset-y-0 right-0 hidden md:block">
+  {/* RIGHT PLATE (full-bleed to edge, with ring + shadow + edge line) */}
+  <figure className="absolute inset-y-6 right-0 hidden md:block">
     <div className="relative h-full w-[58vw] lg:w-[60vw] xl:w-[62vw]">
-      <Image
-        src="/images/newsletter-bg.png"  // <- your asset
-        alt="Macro tech-leaf texture representing sustainable innovation"
-        fill
-        priority
-        className="object-cover object-[65%_50%] select-none"
-      />
-      {/* left gradient to help text legibility */}
+      <div className="absolute inset-0 overflow-hidden rounded-l-3xl ring-1 ring-white/15 shadow-[0_30px_60px_rgba(0,0,0,.45)] bg-black/10">
+        <Image
+          src="/images/newsletter-bg.png"  // <- your asset
+          alt="Macro tech-leaf texture representing sustainable innovation"
+          fill
+          priority
+          className="object-cover object-[65%_50%] select-none"
+        />
+        {/* left fade for copy legibility */}
+        <div
+          aria-hidden
+          className="absolute inset-y-0 left-0 w-56 bg-gradient-to-r from-[#0F1A22]/80 via-[#0F1A22]/35 to-transparent"
+        />
+      </div>
+      {/* slim accent line on the plate’s left edge */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-0 w-48 lg:w-56 bg-gradient-to-r from-[#0F1A22]/85 via-[#0F1A22]/40 to-transparent"
+        className="absolute -left-px top-0 h-full w-[2px] bg-gradient-to-b from-emerald-400 via-teal-300 to-sky-400 opacity-60"
       />
-      {/* caption (optional) */}
-      <figcaption className="pointer-events-none absolute bottom-4 left-6 text-xs text-white/70">
-        Visual: sustainable design & consumer tech
-      </figcaption>
     </div>
-  </div>
+  </figure>
 
-  {/* CONTENT (left column) */}
-  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-14 sm:py-18 lg:py-22">
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center w-full">
-      <div className="md:col-span-5 lg:col-span-5 w-full max-w-xl">
-        <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
-          EcoFocus Insights Newsletter
+  {/* CONTENT — left column; keep left-aligned, reserve space for plate */}
+  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-14 sm:py-18 lg:py-22 md:pr-[60vw]">
+    <div className="w-full max-w-xl">
+      <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
+        EcoFocus Insights Newsletter
+      </span>
+
+      <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
+        Sustainability Insights You{" "}
+        <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-sky-300 bg-clip-text text-transparent">
+          Can Ship
         </span>
+      </h1>
 
-        <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
-          Sustainability Insights You{" "}
-          <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-sky-300 bg-clip-text text-transparent">
-            Can Ship
-          </span>
-        </h1>
+      <p className="mt-4 text-white/85 text-lg">
+        Twice-monthly, fast reads for marketers and brand leaders. Get
+        data-backed consumer trends, proof points, and creative springboards
+        drawn from EcoFocus research—so your next brief starts with evidence,
+        not guesses.
+      </p>
 
-        <p className="mt-4 text-white/85 text-lg">
-          Twice-monthly, fast reads for marketers and brand leaders. Get
-          data-backed consumer trends, proof points, and creative
-          springboards drawn from EcoFocus research—so your next brief
-          starts with evidence, not guesses.
-        </p>
-
-        <div className="mt-8">
-          <SubscribeStrip />
-        </div>
+      <div className="mt-8">
+        <SubscribeStrip />
       </div>
-
-      {/* spacer column so copy doesn't underlap the full-bleed image */}
-      <div className="hidden md:block md:col-span-7 lg:col-span-7" />
     </div>
   </div>
 
-  {/* MOBILE IMAGE (stacks below) */}
-  <figure className="md:hidden -mx-4 sm:-mx-6">
-    <div className="relative aspect-[4/3]">
+  {/* MOBILE PLATE (stacks below, still a card so it doesn’t feel like the bg) */}
+  <figure className="md:hidden -mx-4 sm:-mx-6 mt-8">
+    <div className="relative aspect-[4/3] rounded-2xl ring-1 ring-white/20 overflow-hidden shadow-2xl">
       <Image
         src="/images/newsletter/magazine-hero.jpg"
         alt="Macro tech-leaf texture representing sustainable innovation"
@@ -93,6 +91,7 @@ export default function NewsletterPage() {
   {/* brand accent line */}
   <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
 </section>
+
 
         {/* VALUE ROW (lightweight; keeps focus on signup) */}
         <section className="bg-white">
