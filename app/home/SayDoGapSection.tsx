@@ -31,7 +31,7 @@ export default function SayDoGapSection() {
           <div className="md:col-span-6 relative">
             <div className="relative h-72 md:h-[22rem] w-full overflow-hidden rounded-2xl shadow-lg">
               <Image
-                src="/images/say-do-gap.jpg"   // <-- replace with your asset
+                src="/images/say-do-gap.png"   // <-- replace with your asset
                 alt="Consumers bridging intent and action"
                 fill
                 className="object-cover"
