@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
 
 /* ================ Ultra-smooth Data Waves =================
    - CSS transforms only (scaleY & translateX) -> no layout thrash
@@ -132,6 +133,7 @@ function DataWaves({
 
 /* ===================== Intro Section ===================== */
 export default function IntroSection() {
+    const reduceMotion = useReducedMotion();
   return (
     <section aria-labelledby="intro-heading" className="relative bg-white overflow-hidden">
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16">
@@ -141,10 +143,17 @@ export default function IntroSection() {
         >
           {/* Left: eyebrow + title + waves */}
           <div className="md:col-span-5 flex flex-col justify-center md:min-h-[var(--stack-h)]">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] tracking-wide self-start">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
-              <span className="text-emerald-700 font-medium">About EcoFocus</span>
-            </div>
+            {/* Section badge */}
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.6 }}
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide"
+        >
+          <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+          <span className="text-black/60">About EcoFocus</span>
+        </motion.div>
 
             <h2
               id="intro-heading"
@@ -187,7 +196,7 @@ export default function IntroSection() {
             </div>
             <div className="absolute bottom-0 left-0 md:-left-12 translate-y-1/3 md:translate-y-1/4 w-[90%] md:w-[70%]">
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
-                <p className="text-base md:text-lg text-slate-700 leading-relaxed">
+                <p className="mt-3 text-sm sm:text-base text-slate-700 leading-relaxed">
                 EcoFocus® Research delivers research-backed consumer insights that can help companies turn purpose into a competitive edge.
                 Our syndicated and custom studies explore how attitudes, behaviors, and sentiment around sustainability influence purchase decisions. 
                 With a special focus on the Purpose-Driven Generation, EcoFocus data can help companies build loyalty, reduce churn, and increase market share through purpose-aligned strategy and messaging.

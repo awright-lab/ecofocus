@@ -57,7 +57,7 @@ export default function QuickStats() {
   const [stats, setStats] = React.useState<Stat[]>([
     { label: 'Years of Trend Data', value: '13+', icon: 'ri-bar-chart-2-line', theme: 'emerald' },
     { label: 'Data Points Collected', value: '90,000+', icon: 'ri-database-2-line', theme: 'slate' },
-    { label: 'Margin of Error', value: '± 1.55%', icon: 'ri-percent-line', theme: 'marigold' },
+    { label: 'U.S. Respondents (Gen Pop)', value: '4,000+', icon: 'ri-percent-line', theme: 'marigold' },
   ]);
 
   // Auto-reshuffle gently every 7s (disabled if user prefers reduced motion)
