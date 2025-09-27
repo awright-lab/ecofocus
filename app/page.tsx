@@ -3,7 +3,7 @@ import Footer from '../components/Footer';
 import StickyButtons from '../components/StickyButtons';
 
 import Hero from './home/HomeHero';
-import FeaturedDashboard from './home/FeaturedDashboard';
+//import FeaturedDashboard from './home/FeaturedDashboard';
 import CoreServices from './home/CoreServices';
 //import WhyChoose from './home/WhyChoose';
 import TrustedBy from './home/TrustedBy';
@@ -13,6 +13,7 @@ import EcoNuggetInsights from './home/EcoNuggetInsights';
 import QuickStats from './home/QuickStats';
 import FeaturedReport from './home/FeaturedReport';
 import SayDoGapSection from './home/SayDoGapSection';
+import InteractiveDashboardShowcase from './home/InteractiveDashboardShowcase';
 //import DominoValueChain from './home/DominoValueChain';
 //import SnakeValueChain from './home/SnakeValueChain';
 //import ResearchToAction from './home/ResearchToAction';
@@ -26,7 +27,7 @@ export default function HomePage() {
       <CoreServices />
       <QuickStats />
       <SayDoGapSection />
-      <FeaturedDashboard />
+      <InteractiveDashboardShowcase />
       <EcoNuggetInsights />
       <FeaturedReport />
       <TrustedBy />
