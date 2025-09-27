@@ -4,239 +4,113 @@
 import * as React from 'react';
 import Image from 'next/image';
 
-/* =========================================================
- * SparkleMarquee — visible on white: solid core + soft halo
- * =======================================================*/
-function SparkleMarquee({
-  className = '',
-  density = 160,   // particle count baseline
-  speed = 0.95,    // horizontal px/frame @ ~60fps
-  size = 1.0,      // size multiplier
-  freq = 1.1,      // wave cycles across width
-  ampMin = 12,
-  ampMax = 28,
+/** Data Waves — multi-color (slate blue, emerald, marigold) */
+function DataWaves({
+  colors = ['#213F97', '#10B981', '#EF9601'], // slate blue, emerald, marigold
+  bars = 15,
+  baseWidth = 660,
 }: {
-  className?: string;
-  density?: number;
-  speed?: number;
-  size?: number;
-  freq?: number;
-  ampMin?: number;
-  ampMax?: number;
+  colors?: string[];
+  bars?: number;
+  baseWidth?: number;
 }) {
-  const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
-  const hostRef = React.useRef<HTMLDivElement | null>(null);
+  const topBars = Array.from({ length: bars });
+  const botBars = Array.from({ length: bars });
 
-  React.useEffect(() => {
-    if (!canvasRef.current || !hostRef.current) return;
-
-    const canvas: HTMLCanvasElement = canvasRef.current;
-    const host: HTMLDivElement = hostRef.current;
-
-    const ctxMaybe = canvas.getContext('2d', { alpha: true }) as CanvasRenderingContext2D | null;
-    if (!ctxMaybe) return;
-    const ctx: CanvasRenderingContext2D = ctxMaybe;
-
-    const prefersReduced =
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    let width = 1, height = 1, dpr = 1;
-    let raf = 0;
-    let tLast = typeof performance !== 'undefined' ? performance.now() : 0;
-    let tAccum = 0;
-
-    const TAU = Math.PI * 2;
-
-    // HSL palette tuned to read on white (slightly deeper lightness)
-    const COLORS = [
-      { h: 35,  s: 96, l: 52 }, // marigold
-      { h: 174, s: 70, l: 40 }, // teal
-      { h: 152, s: 72, l: 34 }, // emerald
-    ];
-
-    type P = {
-      x: number;
-      baseY: number;
-      amp: number;
-      phase: number;
-      vx: number;
-      r: number;
-      hue: number; sat: number; light: number;
-      tw: number; twSpeed: number;
-      life: number;
-    };
-
-    const particles: P[] = [];
-    const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
-
-    const countForArea = () => {
-      const areaK = (width * height) / (1440 * 800);
-      return Math.round(Math.max(60, Math.min(density * areaK, 280)));
-    };
-
-    function makeParticle(fromLeft = true): P {
-      const c = COLORS[(Math.random() * COLORS.length) | 0];
-      const margin = Math.max(20, width * 0.02);
-      const startX = fromLeft ? rnd(-margin * 1.6, -margin * 0.6)
-                              : rnd(width + margin * 0.6, width + margin * 1.6);
-      const baseY = rnd(height * 0.12, height * 0.88);
-      const amplitude = rnd(ampMin, ampMax);
-      const phase = rnd(0, TAU);
-      const k = rnd(0.9, 1.15);
-      const vx = speed * k;
-      const r = size * rnd(0.9, 1.8);
-      const twSpeed = rnd(0.8, 1.2);
-      return {
-        x: startX,
-        baseY,
-        amp: amplitude,
-        phase,
-        vx,
-        r,
-        hue: c.h, sat: c.s, light: c.l,
-        tw: rnd(0, TAU),
-        twSpeed,
-        life: 1,
-      };
-    }
-
-    function ensureParticles() {
-      const target = countForArea();
-      while (particles.length < target) particles.push(makeParticle(true));
-      while (particles.length > target) particles.pop();
-    }
-
-    function resize() {
-      const rect = host.getBoundingClientRect();
-      width  = Math.max(1, Math.floor(rect.width));
-      height = Math.max(1, Math.floor(rect.height));
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-      canvas.width = Math.floor(width * dpr);
-      canvas.height = Math.floor(height * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      ensureParticles();
-    }
-
-    function draw(now: number) {
-      const dt = Math.min((now - tLast) / 1000, 0.033);
-      tLast = now;
-      tAccum += dt;
-
-      // IMPORTANT: normal compositing so color shows on white
-      ctx.clearRect(0, 0, width, height);
-      ctx.globalCompositeOperation = 'source-over';
-
-      const margin = Math.max(20, width * 0.02);
-      const waveFreq = freq;
-      const waveTime = tAccum * 0.6;
-      const fadeY = height * 0.10;
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
-        p.x += p.vx * (dt * 60);
-        p.tw += dt * p.twSpeed;
-
-        // wave y
-        const y =
-          p.baseY +
-          p.amp * Math.sin(TAU * waveFreq * (p.x / Math.max(1, width)) + p.phase + waveTime);
-
-        // wrap
-        if (p.x > width + margin) {
-          particles[i] = makeParticle(true);
-          continue;
-        }
-
-        // soft vertical fade
-        const edge = y < fadeY ? Math.max(0, y / fadeY)
-          : y > height - fadeY ? Math.max(0, (height - y) / fadeY)
-          : 1;
-
-        // Twinkle
-        const twinkle = 0.6 + 0.4 * Math.sin(p.tw);
-
-        // 1) Soft halo (radial gradient)
-        const haloAlpha = 0.28 * twinkle * edge * p.life; // visible on white
-        const haloR = p.r * 16;
-        const g = ctx.createRadialGradient(p.x, y, 0, p.x, y, haloR);
-        g.addColorStop(0, `hsla(${p.hue}, ${p.sat}%, ${p.light + 10}%, ${haloAlpha})`);
-        g.addColorStop(1, `hsla(${p.hue}, ${p.sat}%, ${p.light}%, 0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x, y, haloR, 0, TAU);
-        ctx.fill();
-
-        // 2) Solid core dot (ensures visibility on white)
-        const coreAlpha = 0.85 * edge * p.life;
-        const coreR = Math.max(1.5, p.r * 2.0);
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = `hsla(${p.hue}, ${p.sat}%, ${p.light + 12}%, ${0.35 * twinkle * edge})`;
-        ctx.fillStyle = `hsla(${p.hue}, ${p.sat}%, ${p.light + 6}%, ${coreAlpha})`;
-        ctx.beginPath();
-        ctx.arc(p.x, y, coreR, 0, TAU);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // life cycle
-        p.life -= dt * 0.03;
-        if (p.life <= 0.05) {
-          particles[i] = makeParticle(true);
-        }
-      }
-
-      raf = requestAnimationFrame(draw);
-    }
-
-    // observe + start
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
-    if (ro) ro.observe(host);
-    else window.addEventListener('resize', resize);
-
-    resize();
-    // kick once more in case layout settles next frame
-    setTimeout(resize, 0);
-
-    if (!prefersReduced) {
-      tLast = performance.now();
-      raf = requestAnimationFrame(draw);
-    } else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
-
-    return () => {
-      if (ro) ro.disconnect();
-      else window.removeEventListener('resize', resize);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [density, speed, size, freq, ampMin, ampMax]);
+  // Helper to get color cycling through the palette
+  const colorAt = (i: number) => colors[i % colors.length];
 
   return (
-    <div ref={hostRef} className="absolute inset-0 pointer-events-none">
-      <canvas
-        ref={canvasRef}
-        className={`absolute inset-0 ${className}`}
-        /* NOTE: no blend mode — we draw visible color ourselves */
-        aria-hidden
-      />
+    <div className="waves-wrap" aria-hidden>
+      <div className="row top">
+        {topBars.map((_, i) => (
+          <div
+            key={`t-${i}`}
+            className="bar"
+            style={{
+              left: `calc(15px + ${(i + 1) * 25}px)`,
+              animationDelay: `${(i + 1) / 5}s`,
+              backgroundColor: colorAt(i),
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Middle rule – use a neutral slate blue for continuity */}
+      <div className="middle" />
+
+      <div className="row bottom">
+        {botBars.map((_, i) => (
+          <div
+            key={`b-${i}`}
+            className="bar"
+            style={{
+              left: `calc(15px + ${(i + 1) * 25}px)`,
+              animationDelay: `${(i + 1) / 5}s`,
+              backgroundColor: colorAt(i),
+              opacity: 0.9, // slight difference from top for depth
+            }}
+          />
+        ))}
+      </div>
+
+      <style jsx>{`
+        .waves-wrap {
+          width: min(100%, ${baseWidth}px);
+          position: relative;
+        }
+        .row {
+          position: relative;
+          height: 80px;
+          width: 100%;
+        }
+        .row.bottom {
+          transform: rotate(180deg) translateX(235px);
+        }
+        .middle {
+          position: relative;
+          height: 4px;
+          width: 100%;
+          background-color: #213f97; /* slate blue line */
+          opacity: 0.9;
+        }
+        .bar {
+          position: absolute;
+          bottom: 20px;
+          width: 10px;
+          height: 0px;
+          border-radius: 6px;
+          animation: grow-shrink 1.4s infinite ease-in-out;
+          will-change: transform, height, opacity;
+        }
+        @keyframes grow-shrink {
+          0%   { margin-left: 0;   height: 0px;  opacity: 1; }
+          50%  {                    height: 50px; opacity: 1; }
+          100% { margin-left: 25px; height: 0px;  opacity: 1; }
+        }
+
+        /* Respect prefers-reduced-motion */
+        @media (prefers-reduced-motion: reduce) {
+          .bar { animation: none; height: 28px; }
+        }
+
+        /* Small screens */
+        @media (max-width: 480px) {
+          .row { height: 64px; }
+          .bar { bottom: 16px; width: 8px; }
+        }
+      `}</style>
     </div>
   );
 }
 
 /* =========================================================
- * Intro Section — layered image + foreground card + wave sparkles
+ * Intro Section — layered image + foreground card + multi-color waves
  * =======================================================*/
 export default function IntroSection() {
   return (
     <section aria-labelledby="intro-heading" className="relative bg-white overflow-hidden">
-      {/* Sparkles above content so they’re not obscured by white panels */}
-      <SparkleMarquee className="z-20 opacity-70" density={170} speed={0.95} size={1.0} freq={1.1} ampMin={12} ampMax={28} />
-
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16 z-10">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16">
         <div
           className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-stretch"
           style={
@@ -245,7 +119,7 @@ export default function IntroSection() {
             } as React.CSSProperties
           }
         >
-          {/* Left: eyebrow + title (vertically centered to image stack) */}
+          {/* Left: eyebrow + title + waves (vertically centered) */}
           <div className="md:col-span-5 flex flex-col justify-center md:min-h-[var(--stack-h)]">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] tracking-wide self-start">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
@@ -258,6 +132,15 @@ export default function IntroSection() {
             >
               Trusted Insights for Purpose-Driven Growth
             </h2>
+
+            {/* Multi-color data waves directly under title */}
+            <div className="mt-4 md:mt-5">
+              <DataWaves
+                colors={['#213F97', '#10B981', '#EF9601']} // slate blue, emerald, marigold
+                bars={15}
+                baseWidth={660}
+              />
+            </div>
           </div>
 
           {/* Right: layered cards (back image + foreground intro text) */}
@@ -265,7 +148,7 @@ export default function IntroSection() {
             {/* Back card: image */}
             <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
               <Image
-                src="/images/intro-bg.png" // replace with your asset
+                src="/images/intro-bg.jpg" // replace with your asset
                 alt="EcoFocus sustainability research"
                 fill
                 className="object-cover"
@@ -292,6 +175,7 @@ export default function IntroSection() {
     </section>
   );
 }
+
 
 
 
