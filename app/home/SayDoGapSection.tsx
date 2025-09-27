@@ -70,7 +70,7 @@ export default function SayDoGapSection() {
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 0.45, delay: 0.05 }}
           >
-            <p className="text-base sm:text-[17px] leading-7 text-slate-800">
+            <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
               Let’s be honest: this Say–Do Gap is one of the most frustrating
               challenges in consumer marketing. It’s tempting to dismiss it as hypocrisy—or
               dismiss sustainability as a sales driver altogether. The key to addressing it is
@@ -78,7 +78,7 @@ export default function SayDoGapSection() {
               and intended behaviors—and having a clear picture of how sustainability influences
               their aspirations and desires.
             </p>
-            <p className="mt-4 text-base sm:text-[17px] leading-7 text-slate-800">
+            <p className="mt-4 text-sm sm:text-base text-slate-700 leading-relaxed">
               At EcoFocus, we have the data (or can get the data) you need to identify
               sustainability personas for your target audience to help you build strategies—backed
               by data—to gain market share and reduce churn.{' '}
