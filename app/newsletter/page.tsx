@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SubscribeStrip from "@/components/blog/SubscribeStrip";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Newsletter — EcoFocus Insights",
@@ -16,51 +17,77 @@ export default function NewsletterPage() {
       <Header />
 
       <main id="main" className="min-h-screen">
-        {/* HERO (centered column, left-aligned text) */}
-        <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0B1319_0%,#0E1821_55%,#101E28_100%)] text-white">
+        {/* MAGAZINE HERO: left copy/form, right giant image */}
+        <section className="relative overflow-hidden text-white bg-[linear-gradient(180deg,#0F1A22_0%,#11222C_55%,#142A35_100%)]">
           {/* soft brand glows */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-400/30 blur-3xl"
+            className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-400/30 blur-3xl"
+            className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-300/30 blur-3xl"
           />
 
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[72vh] md:min-h-[78vh] flex items-center py-16 sm:py-20 lg:py-24">
-            {/* Single column controls both heading + form width */}
-            <div className="w-full max-w-xl mx-auto">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
-                EcoFocus Insights Newsletter
-              </span>
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-14 sm:py-18 lg:py-22">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-center">
+              {/* LEFT: copy + form (kept tight so it feels 'square') */}
+              <div className="md:col-span-5 lg:col-span-5">
+                <div className="w-full max-w-xl">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
+                    EcoFocus Insights Newsletter
+                  </span>
 
-              <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
-                Sustainability Insights You{" "}
-                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-sky-300 bg-clip-text text-transparent">
-                  Can Ship
-                </span>
-              </h1>
+                  <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
+                    Sustainability Insights You{" "}
+                    <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-sky-300 bg-clip-text text-transparent">
+                      Can Ship
+                    </span>
+                  </h1>
 
-              <p className="mt-4 text-white/85 text-lg">
-                Twice-monthly, fast reads for marketers and brand leaders. Get
-                data-backed consumer trends, proof points, and creative
-                springboards drawn from EcoFocus research—so your next brief
-                starts with evidence, not guesses.
-              </p>
+                  <p className="mt-4 text-white/85 text-lg">
+                    Twice-monthly, fast reads for marketers and brand leaders.
+                    Get data-backed consumer trends, proof points, and creative
+                    springboards drawn from EcoFocus research—so your next brief
+                    starts with evidence, not guesses.
+                  </p>
 
-              {/* ONE form — same column width */}
-              <div className="mt-8">
-                <SubscribeStrip />
+                  {/* ONE form — HubSpot component */}
+                  <div className="mt-8">
+                    <SubscribeStrip />
+                  </div>
+                </div>
               </div>
+
+              {/* RIGHT: giant image (magazine feel, full-bleed to the edge) */}
+              <figure className="md:col-span-7 lg:col-span-7 relative -mx-4 sm:-mx-6 md:mx-0 md:rounded-l-3xl overflow-hidden">
+                {/* Height scales like a big feature image */}
+                <div className="relative aspect-[4/3] md:aspect-auto md:h-[72vh] lg:h-[78vh] xl:h-[82vh]">
+                  <Image
+                    src="/images/newsletter-bg.png" // <-- swap with your hero image
+                    alt="Macro tech-leaf texture representing sustainable innovation"
+                    fill
+                    priority
+                    className="object-cover object-[65%_50%]"
+                  />
+                  {/* Left fade to help copy legibility on smaller screens */}
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 md:inset-y-0 md:left-0 md:right-1/2 from-black/40 to-transparent bg-gradient-to-r pointer-events-none"
+                  />
+                </div>
+                <figcaption className="absolute bottom-3 left-4 text-xs text-white/70">
+                  Visual: sustainable design & consumer tech
+                </figcaption>
+              </figure>
             </div>
           </div>
 
-          {/* accent line */}
+          {/* brand accent line */}
           <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
         </section>
 
-        {/* VALUE ROW */}
+        {/* VALUE ROW (lightweight; keeps focus on signup) */}
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -114,6 +141,7 @@ function ValueCard({ title, body }: { title: string; body: string }) {
     </div>
   );
 }
+
 
 
 
