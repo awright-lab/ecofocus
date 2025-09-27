@@ -17,39 +17,34 @@ export default function NewsletterPage() {
       <Header />
 
       <main id="main" className="min-h-screen">
-{/* MAGAZINE HERO — full-bleed plate on the right (not a background) */}
+{/* MAGAZINE HERO — full-bleed plate on the right, left column stays roomy */}
 <section className="relative overflow-hidden text-white bg-[linear-gradient(180deg,#0F1A22_0%,#11222C_55%,#142A35_100%)]">
   {/* soft brand glows */}
   <div aria-hidden className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
   <div aria-hidden className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-300/30 blur-3xl" />
 
-  {/* RIGHT PLATE (full-bleed to edge, with ring + shadow + edge line) */}
+  {/* RIGHT PLATE (full-bleed to viewport edge, with ring + shadow) */}
   <figure className="absolute inset-y-6 right-0 hidden md:block">
     <div className="relative h-full w-[58vw] lg:w-[60vw] xl:w-[62vw]">
       <div className="absolute inset-0 overflow-hidden rounded-l-3xl ring-1 ring-white/15 shadow-[0_30px_60px_rgba(0,0,0,.45)] bg-black/10">
         <Image
-          src="/images/newsletter-bg.png"  // <- your asset
+          src="/images/newsletter/magazine-hero.jpg"   // <-- your asset
           alt="Macro tech-leaf texture representing sustainable innovation"
           fill
           priority
           className="object-cover object-[65%_50%] select-none"
         />
-        {/* left fade for copy legibility */}
+        {/* Subtle left fade to keep copy readable */}
         <div
           aria-hidden
           className="absolute inset-y-0 left-0 w-56 bg-gradient-to-r from-[#0F1A22]/80 via-[#0F1A22]/35 to-transparent"
         />
       </div>
-      {/* slim accent line on the plate’s left edge */}
-      <div
-        aria-hidden
-        className="absolute -left-px top-0 h-full w-[2px] bg-gradient-to-b from-emerald-400 via-teal-300 to-sky-400 opacity-60"
-      />
     </div>
   </figure>
 
-  {/* CONTENT — left column; keep left-aligned, reserve space for plate */}
-  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-14 sm:py-18 lg:py-22 md:pr-[60vw]">
+  {/* CONTENT — reserve space for plate with margin-right (NOT padding) */}
+  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-14 sm:py-18 lg:py-22 md:mr-[60vw]">
     <div className="w-full max-w-xl">
       <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
         EcoFocus Insights Newsletter
@@ -75,7 +70,7 @@ export default function NewsletterPage() {
     </div>
   </div>
 
-  {/* MOBILE PLATE (stacks below, still a card so it doesn’t feel like the bg) */}
+  {/* MOBILE PLATE (stacks below; still a card, not background) */}
   <figure className="md:hidden -mx-4 sm:-mx-6 mt-8">
     <div className="relative aspect-[4/3] rounded-2xl ring-1 ring-white/20 overflow-hidden shadow-2xl">
       <Image
@@ -91,6 +86,7 @@ export default function NewsletterPage() {
   {/* brand accent line */}
   <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
 </section>
+
 
 
         {/* VALUE ROW (lightweight; keeps focus on signup) */}
