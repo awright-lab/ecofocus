@@ -4,17 +4,23 @@
 import * as React from 'react';
 import Image from 'next/image';
 
-/* ===================== Sleek Data Waves ===================== */
+/* ================ Ultra-smooth Data Waves =================
+   - CSS transforms only (scaleY & translateX) -> no layout thrash
+   - Single duration for all bars (deterministic)
+   - Staggered delays only
+   ========================================================= */
 function DataWaves({
   colors = ['#213F97', '#10B981', '#EF9601'], // slate blue, emerald, marigold
-  bars = 14,          // total bars per row
-  maxWidth = 480,     // narrower, centered presentation
-  gutter = 10,        // inner left padding
-  spacing = 22,       // distance between bars
-  height = 56,        // max bar height
-  baseDuration = 2.6, // slower overall rhythm (seconds)
-  offsetX = 4,        // tiny nudge to the right
-  reflectionOpacity = 0.45,
+  bars = 14,
+  maxWidth = 480,
+  gutter = 10,
+  spacing = 22,
+  barWidth = 9,
+  barHeight = 56,
+  duration = 3.0,            // one duration for all bars
+  delayStep = 0.16,          // stagger
+  offsetX = 4,
+  reflectionOpacity = 0.42,
   reflectionBlurPx = 2,
 }: {
   colors?: string[];
@@ -22,17 +28,15 @@ function DataWaves({
   maxWidth?: number;
   gutter?: number;
   spacing?: number;
-  height?: number;
-  baseDuration?: number;
+  barWidth?: number;
+  barHeight?: number;
+  duration?: number;
+  delayStep?: number;
   offsetX?: number;
   reflectionOpacity?: number;
   reflectionBlurPx?: number;
 }) {
   const colorAt = (i: number) => colors[i % colors.length];
-
-  // A slightly randomized duration per bar keeps things organic (but subtle).
-  const dur = (i: number) => (baseDuration + (i % 3) * 0.18).toFixed(2); // 2.6 → 3.0s
-  const delay = (i: number) => ((i + 1) * 0.16).toFixed(2);              // stagger
 
   return (
     <div
@@ -43,7 +47,10 @@ function DataWaves({
         transform: `translateX(${offsetX}px)`,
         ['--gutter' as any]: `${gutter}px`,
         ['--spacing' as any]: `${spacing}px`,
-        ['--barH' as any]: `${height}px`,
+        ['--barW' as any]: `${barWidth}px`,
+        ['--barH' as any]: `${barHeight}px`,
+        ['--dur' as any]: `${duration}s`,
+        ['--delayStep' as any]: `${delayStep}s`,
         ['--reflOpacity' as any]: reflectionOpacity,
         ['--reflBlur' as any]: `${reflectionBlurPx}px`,
       }}
@@ -55,10 +62,9 @@ function DataWaves({
             className="bar"
             style={{
               left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
-              animationDelay: `${delay(i)}s`,
-              animationDuration: `${dur(i)}s`,
-              // polished bar: subtle vertical highlight via gradient
-              background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.22) 100%)`,
+              // deterministic delay; same duration for everyone
+              animationDelay: `calc(${i + 1} * var(--delayStep))`,
+              background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.18) 100%)`,
               boxShadow: `0 6px 18px -8px ${colorAt(i)}33`,
             }}
           />
@@ -74,61 +80,50 @@ function DataWaves({
             className="bar"
             style={{
               left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
-              animationDelay: `${delay(i)}s`,
-              animationDuration: `${dur(i)}s`,
-              background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.22) 100%)`,
+              animationDelay: `calc(${i + 1} * var(--delayStep))`,
+              background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.18) 100%)`,
               boxShadow: `0 6px 18px -8px ${colorAt(i)}33`,
-              opacity: 0.9,
             }}
           />
         ))}
       </div>
 
       <style jsx>{`
-        .waves {
-          width: 100%;
-          position: relative;
-        }
-        .row {
-          position: relative;
-          height: calc(var(--barH) + 24px);
-          width: 100%;
-        }
-        .row.bottom {
-          transform: rotate(180deg);
-          opacity: var(--reflOpacity);
-          filter: blur(var(--reflBlur));
-        }
-        .axis {
-          height: 2px;
-          width: 100%;
-          background: #213f97;
-          opacity: 0.85;
-        }
+        .waves { width: 100%; position: relative; }
+        .row   { position: relative; height: calc(var(--barH) + 24px); width: 100%; }
+        .row.bottom { transform: rotate(180deg); opacity: var(--reflOpacity); filter: blur(var(--reflBlur)); }
+        .axis  { height: 2px; width: 100%; background: #213f97; opacity: 0.85; }
+
         .bar {
           position: absolute;
           bottom: 20px;
-          width: 9px;
-          height: 0px;
+          width: var(--barW);
+          height: var(--barH);
           border-radius: 999px;
-          animation-name: growShrink;
-          animation-timing-function: cubic-bezier(0.33, 0.0, 0.23, 1); /* sleek ease */
+          transform-origin: bottom;        /* scale from base */
+          /* start slightly lowered so the loop has no “snap” */
+          transform: translateX(0) translateY(2px) scaleY(0);
+          animation-name: waveMotion;
+          animation-duration: var(--dur);
+          animation-timing-function: cubic-bezier(0.33, 0.0, 0.23, 1); /* sleek */
           animation-iteration-count: infinite;
-          will-change: transform, height;
+          will-change: transform;
+          backface-visibility: hidden;
         }
-        @keyframes growShrink {
-          0%   { margin-left: 0; height: 0px; transform: translateY(2px); }
-          45%  { height: var(--barH); transform: translateY(0); }
-          100% { margin-left: var(--spacing); height: 0px; transform: translateY(2px); }
+
+        /* Smooth, GPU-only motion: translateX + scaleY */
+        @keyframes waveMotion {
+          0%   { transform: translateX(0)                  translateY(2px) scaleY(0.02); }
+          45%  { transform: translateX(0)                  translateY(0)    scaleY(1.0); }
+          100% { transform: translateX(var(--spacing))     translateY(2px) scaleY(0.02); }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .bar { animation: none; height: calc(var(--barH) * 0.5); }
+          .bar { animation: none; transform: translateX(0) translateY(1px) scaleY(0.5); }
         }
 
         @media (max-width: 480px) {
           .row { height: calc(var(--barH) + 16px); }
-          .bar { width: 8px; bottom: 16px; }
         }
       `}</style>
     </div>
@@ -142,9 +137,7 @@ export default function IntroSection() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16">
         <div
           className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-stretch"
-          style={
-            { ['--stack-h' as any]: '26rem' } as React.CSSProperties
-          }
+          style={{ ['--stack-h' as any]: '26rem' } as React.CSSProperties}
         >
           {/* Left: eyebrow + title + waves */}
           <div className="md:col-span-5 flex flex-col justify-center md:min-h-[var(--stack-h)]">
@@ -160,18 +153,20 @@ export default function IntroSection() {
               Trusted Insights for Purpose-Driven Growth
             </h2>
 
-            {/* Sleek multi-color data waves under the title */}
+            {/* Sleek, deterministic multi-color waves */}
             <div className="mt-4 md:mt-5">
               <DataWaves
                 colors={['#213F97', '#10B981', '#EF9601']}
                 bars={14}
-                maxWidth={480}
+                maxWidth={460}
                 gutter={10}
                 spacing={22}
-                height={56}
-                baseDuration={2.6}  // slower; raise to 2.8–3.2 for even calmer
+                barWidth={9}
+                barHeight={56}
+                duration={3.0}     // slower; change to 3.2–3.6 for even calmer
+                delayStep={0.16}
                 offsetX={4}
-                reflectionOpacity={0.45}
+                reflectionOpacity={0.42}
                 reflectionBlurPx={2}
               />
             </div>
@@ -181,7 +176,7 @@ export default function IntroSection() {
           <div className="md:col-span-7 relative md:min-h-[var(--stack-h)]">
             <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
               <Image
-                src="/images/intro-bg.jpg" // replace with your asset
+                src="/images/intro-bg.png" // replace with your asset
                 alt="EcoFocus sustainability research"
                 fill
                 className="object-cover"
@@ -201,12 +196,12 @@ export default function IntroSection() {
           </div>
         </div>
 
-        {/* Optional divider for polish */}
         <div className="mt-10 md:mt-12 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
       </div>
     </section>
   );
 }
+
 
 
 
