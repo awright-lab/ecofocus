@@ -27,7 +27,7 @@ export default function NewsletterPage() {
   <div className="absolute inset-y-0 right-0 hidden md:block">
     <div className="relative h-full w-[58vw] lg:w-[60vw] xl:w-[62vw]">
       <Image
-        src="/images/newsletter/magazine-hero.jpg"  // <- your asset
+        src="/images/newsletter-bg.png"  // <- your asset
         alt="Macro tech-leaf texture representing sustainable innovation"
         fill
         priority
