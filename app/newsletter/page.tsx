@@ -17,32 +17,35 @@ export default function NewsletterPage() {
       <Header />
 
       <main id="main" className="min-h-screen">
-{/* MAGAZINE HERO — content centered-ish, still left-aligned; plate can crop on the right */}
+{/* MAGAZINE HERO — narrower plate, still full-bleed/cropped */}
 <section className="relative overflow-hidden text-white bg-[linear-gradient(180deg,#0F1A22_0%,#11222C_55%,#142A35_100%)]">
   {/* soft brand glows */}
   <div aria-hidden className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
   <div aria-hidden className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-300/30 blur-3xl" />
 
-  {/* RIGHT PLATE (full-bleed to viewport edge) */}
+  {/* RIGHT PLATE (now ~50–54vw wide) */}
   <figure className="absolute inset-y-6 right-0 hidden md:block">
-    <div className="relative h-full w-[58vw] lg:w-[60vw] xl:w-[62vw]">
+    <div className="relative h-full w-[50vw] lg:w-[52vw] xl:w-[54vw]">
       <div className="absolute inset-0 overflow-hidden rounded-l-3xl ring-1 ring-white/15 shadow-[0_30px_60px_rgba(0,0,0,.45)] bg-black/10">
         <Image
           src="/images/newsletter-bg.png"   // your asset
           alt="Macro tech-leaf texture representing sustainable innovation"
           fill
           priority
-          className="object-cover object-[65%_50%] select-none"
+          className="object-cover object-[60%_50%] select-none"
         />
-        {/* subtle left fade for legibility */}
-        <div aria-hidden className="absolute inset-y-0 left-0 w-56 bg-gradient-to-r from-[#0F1A22]/80 via-[#0F1A22]/35 to-transparent" />
+        {/* slightly narrower fade so more image shows */}
+        <div
+          aria-hidden
+          className="absolute inset-y-0 left-0 w-44 lg:w-48 bg-gradient-to-r from-[#0F1A22]/80 via-[#0F1A22]/35 to-transparent"
+        />
       </div>
     </div>
   </figure>
 
-  {/* CONTENT — reserve space for the plate, then push block toward the middle */}
-  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-14 sm:py-18 lg:py-22 md:mr-[58vw] lg:mr-[60vw] xl:mr-[62vw]">
-    <div className="w-full max-w-xl md:ml-auto md:translate-x-[2vw] lg:translate-x-[3vw]">
+  {/* CONTENT — match margins to the new plate width */}
+  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-14 sm:py-18 lg:py-22 md:mr-[50vw] lg:mr-[52vw] xl:mr-[54vw]">
+    <div className="w-full max-w-xl md:ml-auto md:translate-x-[1vw] lg:translate-x-[1.5vw]">
       <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
         EcoFocus Insights Newsletter
       </span>
@@ -67,7 +70,7 @@ export default function NewsletterPage() {
     </div>
   </div>
 
-  {/* MOBILE PLATE (stacks below; remains a card, not background) */}
+  {/* MOBILE PLATE */}
   <figure className="md:hidden -mx-4 sm:-mx-6 mt-8">
     <div className="relative aspect-[4/3] rounded-2xl ring-1 ring-white/20 overflow-hidden shadow-2xl">
       <Image
@@ -82,6 +85,7 @@ export default function NewsletterPage() {
 
   <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
 </section>
+
 
 
 
