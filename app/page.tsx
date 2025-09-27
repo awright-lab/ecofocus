@@ -12,7 +12,7 @@ import CallToAction from './home/CallToAction';
 //import Newsletter from './home/Newsletter';
 import EcoNuggetInsights from './home/EcoNuggetInsights';
 import QuickStats from './home/QuickStats';
-import FeaturedReport from './home/FeaturedReport';
+//import FeaturedReport from './home/FeaturedReport';
 import SayDoGapSection from './home/SayDoGapSection';
 import InteractiveDashboardShowcase from './home/InteractiveDashboardShowcase';
 //import DominoValueChain from './home/DominoValueChain';
@@ -31,7 +31,6 @@ export default function HomePage() {
       <CoreServices />
       <SayDoGapSection />
       <EcoNuggetInsights />
-      <FeaturedReport />
       <TrustedBy />
       <CallToAction />
       <Footer />

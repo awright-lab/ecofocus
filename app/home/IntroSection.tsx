@@ -150,7 +150,7 @@ export default function IntroSection() {
               id="intro-heading"
               className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]"
             >
-              Trusted Insights for Purpose-Driven Growth
+              Trusted Insights for Purpose-Driven <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Growth</span>
             </h2>
 
             {/* Sleek, deterministic multi-color waves */}
@@ -174,6 +174,7 @@ export default function IntroSection() {
 
           {/* Right: layered cards (image + intro text) */}
           <div className="md:col-span-7 relative md:min-h-[var(--stack-h)]">
+          <div className="relative rounded-3xl bg-[#ef9601]/85 p-2 ring-1 ring-[#ef9601]]/95 shadow-2xl">
             <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
               <Image
                 src="/images/intro-bg.png" // replace with your asset
@@ -183,7 +184,7 @@ export default function IntroSection() {
                 priority
               />
             </div>
-
+            </div>
             <div className="absolute bottom-0 left-0 md:-left-12 translate-y-1/3 md:translate-y-1/4 w-[90%] md:w-[70%]">
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
                 <p className="text-base md:text-lg text-slate-700 leading-relaxed">
