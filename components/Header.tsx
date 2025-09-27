@@ -20,10 +20,12 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Close mobile menu on route change
   useEffect(() => {
     if (isMenuOpen) setIsMenuOpen(false);
-  }, [pathname]);
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Lock body scroll when menu is open
   useEffect(() => {
     if (!isMenuOpen) return;
     const prev = document.body.style.overflow;
@@ -44,11 +46,12 @@ export default function Header() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
+  const isHome = pathname === '/';
+
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Solutions', href: '/solutions' },
-    // label expands on xl+
     { name: 'Reports', href: '/reports', extra: ' & Store' },
     { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '/contact' },
@@ -56,12 +59,18 @@ export default function Header() {
 
   return (
     <>
-      <a href="#main" className="sr-only focus:not-sr-only fixed left-2 top-2 z-[100] rounded bg-emerald-600 px-3 py-2 text-white">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only fixed left-2 top-2 z-[100] rounded bg-emerald-600 px-3 py-2 text-white"
+      >
         Skip to content
       </a>
 
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-md' : 'bg-white'}`}
+        data-home={isHome ? 'true' : 'false'}
+        className={`fixed inset-x-0 top-0 z-50 transition-all ${
+          isScrolled ? 'bg-white/90 backdrop-blur-md shadow-md' : 'bg-white'
+        }`}
         aria-label="Primary"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
@@ -69,16 +78,16 @@ export default function Header() {
           <Link href="/" aria-label="EcoFocus Home" className="flex items-center">
             <Image
               src="/images/ef-logo.png"
-              alt=""
+              alt="EcoFocus"
               width={160}
               height={50}
               sizes="(min-width:1280px) 180px, (min-width:1024px) 160px, (min-width:640px) 150px, 140px"
-              className="h-auto w-[140px] sm:w-[150px] lg:w-[160px] xl:w-[180px] object-contain"
+              className="site-logo h-auto w-[140px] sm:w-[150px] lg:w-[160px] xl:w-[180px] object-contain transition-opacity"
               priority
             />
           </Link>
 
-          {/* Desktop nav (now lg+, not md) */}
+          {/* Desktop nav (lg+) */}
           <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Primary">
             {navLinks.map((link) => {
               const active = isActive(link.href);
@@ -92,7 +101,6 @@ export default function Header() {
                     } text-[15px]`}
                   >
                     {link.name}
-                    {/* show " & Store" only on xl+ */}
                     {link.extra && <span className="hidden xl:inline">{link.extra}</span>}
                     <span
                       className={`absolute left-0 -bottom-1 h-[2px] bg-emerald-500 transition-all ${
@@ -105,7 +113,7 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Desktop CTA: compact on lg, full on xl */}
+          {/* Desktop CTA */}
           <div className="hidden lg:flex items-center">
             {/* lg: compact */}
             <Link
@@ -129,7 +137,7 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Mobile menu button (shows < lg) */}
+          {/* Mobile menu button */}
           <button
             ref={menuBtnRef}
             type="button"
@@ -169,7 +177,6 @@ export default function Header() {
                         active ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-600'
                       }`}
                     >
-                      {/* In the drawer, show full label always */}
                       {link.name}
                       {link.extra}
                     </Link>
@@ -187,9 +194,19 @@ export default function Header() {
             </motion.nav>
           )}
         </AnimatePresence>
+
+        {/* Homepage-only dimming of navbar logo when hero logo is visible */}
+        <style jsx global>{`
+          html[data-hero-logo-visible="true"] header[data-home="true"] .site-logo {
+            opacity: 0.18;
+            filter: saturate(0.6) brightness(0.92);
+            transition: opacity 220ms ease, filter 220ms ease;
+          }
+        `}</style>
       </header>
     </>
   );
 }
+
 
 

@@ -8,6 +8,26 @@ import { useEffect, useRef } from "react";
 
 export default function HomeHero() {
   const heroRef = useRef<HTMLElement | null>(null);
+  const heroLogoRef = useRef<HTMLDivElement | null>(null);
+
+  // Fade navbar logo while hero logo is visible
+  useEffect(() => {
+    const el = heroLogoRef.current;
+    if (!el) return;
+
+    const root = document.documentElement;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries[0]?.isIntersecting ?? false;
+        if (visible) root.setAttribute("data-hero-logo-visible", "true");
+        else root.removeAttribute("data-hero-logo-visible");
+      },
+      { threshold: 0.5 }
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <section
@@ -15,10 +35,10 @@ export default function HomeHero() {
       className="relative w-full overflow-hidden min-h-[78vh] md:min-h-[84vh] lg:min-h-[88vh]"
       aria-labelledby="home-hero-title"
     >
-      {/* Base support gradient */}
+      {/* Base gradient */}
       <div className="absolute inset-0 -z-30 bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%)]" />
 
-      {/* BG 1: main backdrop VIDEO */}
+      {/* Background video */}
       <div className="absolute inset-0 -z-20">
         <video
           aria-hidden
@@ -28,16 +48,16 @@ export default function HomeHero() {
           autoPlay
           loop
           preload="metadata"
-          className="h-full w-full object-cover object-[85%_50%]" // bias right to keep the leaf visible
+          className="h-full w-full object-cover object-[85%_50%]"
         >
           <source
-            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509271126_lsaga.mp4"
+            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509261902.mp4"
             type="video/mp4"
           />
         </video>
       </div>
 
-      {/* BG 2: overlay art with feathered mask + blend */}
+      {/* Overlay art */}
       <div
         aria-hidden
         className="absolute inset-0 -z-10 pointer-events-none select-none"
@@ -67,7 +87,7 @@ export default function HomeHero() {
         />
       </div>
 
-      {/* Bottom fade for legibility */}
+      {/* Bottom fade */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(to_top,rgba(7,11,15,0.9),rgba(7,11,15,0)_85%)]" />
 
       {/* Sheen sweep */}
@@ -83,7 +103,7 @@ export default function HomeHero() {
         }}
       />
 
-      {/* Invisible anchors: SOURCE = leaf, TARGET = headline block */}
+      {/* Invisible anchors for sparkles */}
       <div
         data-source
         aria-hidden
@@ -108,6 +128,18 @@ export default function HomeHero() {
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[78vh] md:min-h-[84vh] lg:min-h-[88vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl" data-focus>
+            {/* FULL HERO LOGO */}
+            <div ref={heroLogoRef} className="mb-4 sm:mb-6" data-hero-logo>
+              <Image
+                src="/images/ef-logo-2.png" // full wordmark
+                alt="EcoFocus"
+                width={220}
+                height={52}
+                priority
+                className="w-[200px] sm:w-[220px] lg:w-[260px] h-auto drop-shadow-[0_6px_26px_rgba(0,0,0,.35)] select-none"
+              />
+            </div>
+
             <h1
               id="home-hero-title"
               className="text-5xl sm:text-6xl md:text-7xl font-semibold leading-[1.08] text-white"
@@ -117,10 +149,12 @@ export default function HomeHero() {
                 Generation
               </span>
             </h1>
+
             <p className="mt-5 max-w-2xl text-lg sm:text-xl text-white/90">
               Reliable Sustainability Data to Support Your Next Big Marketing
               Decision
             </p>
+
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/benefits"
@@ -149,6 +183,15 @@ export default function HomeHero() {
             background-position: -220% 0;
           }
         }
+
+        /* Dim the navbar logo while hero logo is in view.
+           Ensure your header logo element has class "site-logo". */
+        :global(html[data-hero-logo-visible="true"] .site-logo) {
+          opacity: 0.18;
+          filter: saturate(0.6) brightness(0.92);
+          transition: opacity 220ms ease, filter 220ms ease;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           :global(canvas[data-sparkles]) {
             animation: none !important;
@@ -223,7 +266,7 @@ function SparkleOverlay({
       rafAnchorId = 0;
     let t0 = typeof performance !== "undefined" ? performance.now() : 0;
 
-    // Anchors
+    // Anchors (normalized)
     let sourceX = 0.83,
       sourceY = 0.66; // leaf
     let focusX = 0.32,
@@ -244,15 +287,13 @@ function SparkleOverlay({
     };
     const particles: P[] = [];
 
-    /* ======== TUNING ======== */
+    // Tuning constants
     const DENSITY_BASE = 120;
     const DENSITY_CAP = 200;
     const BASE_ALPHA = 0.36;
     const RADIUS_MULT = 10.5;
-
     const HUE_MIN = 165,
       HUE_MAX = 195;
-
     const ATTRACT_X = 0.0005;
     const ATTRACT_Y = 0.0004;
 
@@ -272,8 +313,8 @@ function SparkleOverlay({
       if (sourceSelector) {
         const el = host.querySelector(sourceSelector) as HTMLElement | null;
         if (el) {
-          const a = host.getBoundingClientRect(),
-            b = el.getBoundingClientRect();
+          const a = host.getBoundingClientRect();
+          const b = el.getBoundingClientRect();
           const cx = (b.left + b.right) / 2 - a.left;
           const cy = (b.top + b.bottom) / 2 - a.top;
           if (width > 0) sourceX = Math.min(Math.max(cx / width, 0), 1);
@@ -283,8 +324,8 @@ function SparkleOverlay({
       if (focusSelector) {
         const el = host.querySelector(focusSelector) as HTMLElement | null;
         if (el) {
-          const a = host.getBoundingClientRect(),
-            b = el.getBoundingClientRect();
+          const a = host.getBoundingClientRect();
+          const b = el.getBoundingClientRect();
           const cx = (b.left + b.right) / 2 - a.left;
           const cy = (b.top + b.bottom) / 2 - a.top;
           if (width > 0) focusX = Math.min(Math.max(cx / width, 0), 1);
@@ -293,7 +334,6 @@ function SparkleOverlay({
       }
     }
 
-    // Spawn around the leaf with a wider Gaussian
     function makeParticle(): P {
       const sx = gauss(sourceX * width, spawnSigmaX);
       const sy = gauss(sourceY * height, spawnSigmaY);
@@ -301,8 +341,8 @@ function SparkleOverlay({
       const dx = focusX * width - sx;
       const dy = focusY * height - sy;
       const len = Math.max(1, Math.hypot(dx, dy));
-      const dirX = dx / len,
-        dirY = dy / len;
+      const dirX = dx / len;
+      const dirY = dy / len;
 
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
 
@@ -338,7 +378,6 @@ function SparkleOverlay({
 
       spawnSigmaX = Math.max(60, width * 0.11);
       spawnSigmaY = Math.max(50, height * 0.09);
-
       fadeRadius = Math.hypot(width, height) * 0.18;
 
       const areaK = (width * height) / (1440 * 800);
@@ -360,8 +399,8 @@ function SparkleOverlay({
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = "lighter";
 
-      const fx = focusX * width,
-        fy = focusY * height;
+      const fx = focusX * width;
+      const fy = focusY * height;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -369,19 +408,16 @@ function SparkleOverlay({
         p.x += p.vx * p.speed;
         p.y += p.vy * p.speed;
 
-        // Gentle attraction
         p.x += (fx - p.x) * ATTRACT_X;
         p.y += (fy - p.y) * ATTRACT_Y;
 
-        // Twinkle
         p.phase += dt * 1.0;
         const tw = 0.5 + 0.5 * Math.sin(p.phase);
 
-        // Fade toward headline
-        const dx = fx - p.x,
-          dy = fy - p.y;
+        const dx = fx - p.x;
+        const dy = fy - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const near = Math.max(0, Math.min(1, dist / fadeRadius)); // 1 far, 0 at center
+        const near = Math.max(0, Math.min(1, dist / fadeRadius)); // 1 far, 0 near
 
         const a =
           (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.6) *
@@ -389,7 +425,6 @@ function SparkleOverlay({
           tw *
           Math.max(0.15, near);
 
-        // Life decay
         p.life -= dt * (0.02 + (1 - near) * 0.35);
 
         if (
@@ -442,6 +477,7 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
 
 
 
