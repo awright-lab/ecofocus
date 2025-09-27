@@ -1,8 +1,7 @@
 // app/newsletter/page.tsx
-// import Image from "next/image";
 import type { Metadata } from "next";
-import Header from "@/components/Header";   // ⬅️ adjust path if different
-import Footer from "@/components/Footer";   // ⬅️ adjust path if different
+import Header from "@/components/Header";   // adjust path if needed
+import Footer from "@/components/Footer";   // adjust path if needed
 import SubscribeStrip from "@/components/blog/SubscribeStrip";
 
 export const metadata: Metadata = {
@@ -17,27 +16,27 @@ export default function NewsletterPage() {
       <Header />
 
       <main id="main" className="min-h-screen">
-        {/* HERO */}
-        <section className="relative overflow-hidden bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%)] text-white">
-          {/* soft brand glows */}
+        {/* HERO (brighter + centered, left-aligned text) */}
+        <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0B1319_0%,#0E1821_55%,#101E28_100%)] text-white">
+          {/* soft brand glows (slightly brighter) */}
           <div
             aria-hidden
-            className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-500/25 blur-3xl"
+            className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-400/30 blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-500/25 blur-3xl"
+            className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-400/30 blur-3xl"
           />
 
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20 lg:py-24">
-            <div className="max-w-3xl">
-              {/* small preheading pill to anchor brand */}
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
-                EcoFocus Insights Newsletter
-              </span>
-
+          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[72vh] md:min-h-[78vh] flex items-center py-16 sm:py-20 lg:py-24">
+            {/* block is centered in viewport but stays left-aligned */}
+            <div className="max-w-3xl mx-auto">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                <span className="text-emerald-300">EcoFocus Insights Newsletter</span>
+          </span>
               <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
-                Sustainability insight you can ship.
+                Sustainability Insights You Can <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">Ship</span>
               </h1>
 
               <p className="mt-4 max-w-2xl text-white/85 text-lg">
@@ -47,7 +46,7 @@ export default function NewsletterPage() {
                 starts with evidence, not guesses.
               </p>
 
-              {/* ONE form — reuses your wired HubSpot strip */}
+              {/* ONE form — wired via your SubscribeStrip (HubSpot) */}
               <div className="mt-8 max-w-xl">
                 <SubscribeStrip />
               </div>
@@ -112,6 +111,7 @@ function ValueCard({ title, body }: { title: string; body: string }) {
     </div>
   );
 }
+
 
 
 
