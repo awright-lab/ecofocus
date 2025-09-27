@@ -18,16 +18,25 @@ export default function HomeHero() {
       {/* Base support gradient */}
       <div className="absolute inset-0 -z-30 bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%)]" />
 
-      {/* BG 1: main backdrop image */}
+      {/* BG 1: main backdrop VIDEO (replaces hero-bg1.png) */}
       <div className="absolute inset-0 -z-20">
-        <Image
-          src="/images/hero-bg1.png"
-          alt=""
+        <video
           aria-hidden
-          priority
-          fill
-          className="object-cover"
-        />
+          role="presentation"
+          playsInline
+          muted
+          autoPlay
+          loop
+          preload="metadata"
+          className="h-full w-full object-cover"
+          // Optional: supply a poster if you have one for first paint
+          // poster="/images/hero-video-poster.jpg"
+        >
+          <source
+            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509261902.mp4"
+            type="video/mp4"
+          />
+        </video>
       </div>
 
       {/* BG 2: overlay art with feathered mask + blend */}
@@ -77,19 +86,17 @@ export default function HomeHero() {
       />
 
       {/* Invisible anchors: SOURCE = leaf, TARGET = headline block */}
-      {/* Place/size this box where the leaf is so sparkles originate from it */}
       <div
         data-source
         aria-hidden
         className="absolute pointer-events-none -z-[1]"
         style={{
-          right: "13%",   // tweak these 4 values to sit over the glowing leaf
+          right: "13%", // tweak to sit over the glowing leaf in the video
           bottom: "16%",
           width: "22%",
           height: "24%",
         }}
       />
-      {/* The target is the headline wrapper below via data-focus */}
 
       {/* Sparkles */}
       <SparkleOverlay
@@ -151,11 +158,16 @@ export default function HomeHero() {
           [data-sheen] {
             animation: none !important;
           }
+          /* Pause the background video for reduced motion users */
+          :global(section[aria-labelledby="home-hero-title"] video) {
+            animation: none !important;
+          }
         }
       `}</style>
     </section>
   );
 }
+
 /* ---------- Sparkle Overlay (Canvas) ---------- */
 function SparkleOverlay({
   className = "",
@@ -166,15 +178,20 @@ function SparkleOverlay({
   className?: string;
   containerRef: React.RefObject<HTMLElement | null>;
   sourceSelector?: string; // origin (leaf)
-  focusSelector?: string;  // target (headline)
+  focusSelector?: string; // target (headline)
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    function assertPresent<T>(v: T | null | undefined, name: string): asserts v is T {
+    function assertPresent<T>(
+      v: T | null | undefined,
+      name: string
+    ): asserts v is T {
       if (v == null) throw new Error(`${name} not available`);
     }
-    function assert2D(c: CanvasRenderingContext2D | null): asserts c is CanvasRenderingContext2D {
+    function assert2D(
+      c: CanvasRenderingContext2D | null
+    ): asserts c is CanvasRenderingContext2D {
       if (!c) throw new Error("2D context unavailable");
     }
 
@@ -187,7 +204,9 @@ function SparkleOverlay({
     const host = hostMaybe;
     const canvas = canvasMaybe;
 
-    const ctxMaybe = canvas.getContext("2d", { alpha: true }) as CanvasRenderingContext2D | null;
+    const ctxMaybe = canvas.getContext("2d", { alpha: true }) as
+      | CanvasRenderingContext2D
+      | null;
     assert2D(ctxMaybe);
     const ctx = ctxMaybe;
 
@@ -197,36 +216,53 @@ function SparkleOverlay({
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    let width = 1, height = 1;
-    let dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-    let rafId = 0, rafAnchorId = 0;
+    let width = 1,
+      height = 1;
+    let dpr =
+      typeof window !== "undefined"
+        ? Math.min(window.devicePixelRatio || 1, 2)
+        : 1;
+    let rafId = 0,
+      rafAnchorId = 0;
     let t0 = typeof performance !== "undefined" ? performance.now() : 0;
 
     // Anchors
-    let sourceX = 0.83, sourceY = 0.66; // leaf
-    let focusX = 0.32,  focusY = 0.30;  // headline
+    let sourceX = 0.83,
+      sourceY = 0.66; // leaf
+    let focusX = 0.32,
+      focusY = 0.3; // headline
 
     type Layer = 0 | 1;
     type P = {
-      x: number; y: number; vx: number; vy: number; r: number;
-      hue: number; phase: number; life: number; speed: number; layer: Layer;
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      r: number;
+      hue: number;
+      phase: number;
+      life: number;
+      speed: number;
+      layer: Layer;
     };
     const particles: P[] = [];
 
     /* ======== TUNING (slower, less clustered) ======== */
-    const DENSITY_BASE = 120;          // fewer overall
-    const DENSITY_CAP  = 200;
-    const BASE_ALPHA   = 0.36;         // keep bright
-    const RADIUS_MULT  = 10.5;
+    const DENSITY_BASE = 120;
+    const DENSITY_CAP = 200;
+    const BASE_ALPHA = 0.36;
+    const RADIUS_MULT = 10.5;
 
-    const HUE_MIN = 165, HUE_MAX = 195; // emerald/teal bias
+    const HUE_MIN = 165,
+      HUE_MAX = 195; // emerald/teal bias
 
     // Slower pull and base movement
     const ATTRACT_X = 0.0005;
     const ATTRACT_Y = 0.0004;
 
     // Wider spawn cloud over the leaf (less clustering)
-    let spawnSigmaX = 100, spawnSigmaY = 90;
+    let spawnSigmaX = 100,
+      spawnSigmaY = 90;
 
     // Fade begins a bit farther from headline (so they live longer while moving slower)
     let fadeRadius = 150;
@@ -244,20 +280,22 @@ function SparkleOverlay({
       if (sourceSelector) {
         const el = host.querySelector(sourceSelector) as HTMLElement | null;
         if (el) {
-          const a = host.getBoundingClientRect(), b = el.getBoundingClientRect();
+          const a = host.getBoundingClientRect(),
+            b = el.getBoundingClientRect();
           const cx = (b.left + b.right) / 2 - a.left;
           const cy = (b.top + b.bottom) / 2 - a.top;
-          if (width > 0)  sourceX = Math.min(Math.max(cx / width, 0), 1);
+          if (width > 0) sourceX = Math.min(Math.max(cx / width, 0), 1);
           if (height > 0) sourceY = Math.min(Math.max(cy / height, 0), 1);
         }
       }
       if (focusSelector) {
         const el = host.querySelector(focusSelector) as HTMLElement | null;
         if (el) {
-          const a = host.getBoundingClientRect(), b = el.getBoundingClientRect();
+          const a = host.getBoundingClientRect(),
+            b = el.getBoundingClientRect();
           const cx = (b.left + b.right) / 2 - a.left;
           const cy = (b.top + b.bottom) / 2 - a.top;
-          if (width > 0)  focusX = Math.min(Math.max(cx / width, 0), 1);
+          if (width > 0) focusX = Math.min(Math.max(cx / width, 0), 1);
           if (height > 0) focusY = Math.min(Math.max(cy / height, 0), 1);
         }
       }
@@ -265,22 +303,24 @@ function SparkleOverlay({
 
     // Spawn around the leaf with a wider Gaussian (less cluster), gentle initial push to headline
     function makeParticle(): P {
-      const sx = gauss(sourceX * width,  spawnSigmaX);
+      const sx = gauss(sourceX * width, spawnSigmaX);
       const sy = gauss(sourceY * height, spawnSigmaY);
 
       const dx = focusX * width - sx;
       const dy = focusY * height - sy;
       const len = Math.max(1, Math.hypot(dx, dy));
-      const dirX = dx / len, dirY = dy / len;
+      const dirX = dx / len,
+        dirY = dy / len;
 
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
 
       // Much slower base speed + lower jitter
       const baseSpeed = rnd(0.35, layer === 0 ? 0.75 : 0.6);
-      const jitter    = 0.10;
+      const jitter = 0.1;
 
       return {
-        x: sx, y: sy,
+        x: sx,
+        y: sy,
         vx: dirX * baseSpeed + rnd(-jitter, jitter),
         vy: dirY * baseSpeed + rnd(-jitter, jitter),
         r: rnd(0.9, layer === 0 ? 2.0 : 2.6),
@@ -296,14 +336,17 @@ function SparkleOverlay({
       const rect = host.getBoundingClientRect();
       width = Math.max(1, Math.floor(rect.width));
       height = Math.max(1, Math.floor(rect.height));
-      dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+      dpr =
+        typeof window !== "undefined"
+          ? Math.min(window.devicePixelRatio || 1, 2)
+          : 1;
 
       canvas.width = Math.floor(width * dpr);
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       // Wider spawn cloud over the leaf
-      spawnSigmaX = Math.max(60, width  * 0.11);
+      spawnSigmaX = Math.max(60, width * 0.11);
       spawnSigmaY = Math.max(50, height * 0.09);
 
       // Fade radius a bit larger for slower motion
@@ -328,7 +371,8 @@ function SparkleOverlay({
       ctx.clearRect(0, 0, width, height);
       ctx.globalCompositeOperation = "lighter";
 
-      const fx = focusX * width, fy = focusY * height;
+      const fx = focusX * width,
+        fy = focusY * height;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -346,18 +390,28 @@ function SparkleOverlay({
         const tw = 0.5 + 0.5 * Math.sin(p.phase);
 
         // Fade toward headline
-        const dx = fx - p.x, dy = fy - p.y;
+        const dx = fx - p.x,
+          dy = fy - p.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const near = Math.max(0, Math.min(1, dist / fadeRadius)); // 1 far, 0 at center
 
         const a =
           (p.layer === 0 ? BASE_ALPHA : BASE_ALPHA * 0.6) *
-          p.life * tw * Math.max(0.15, near);
+          p.life *
+          tw *
+          Math.max(0.15, near);
 
         // Slower life decay overall (so they don't vanish too quickly)
         p.life -= dt * (0.02 + (1 - near) * 0.35);
 
-        if (p.life <= 0 || near < 0.06 || p.x < -60 || p.x > width + 60 || p.y < -60 || p.y > height + 60) {
+        if (
+          p.life <= 0 ||
+          near < 0.06 ||
+          p.x < -60 ||
+          p.x > width + 60 ||
+          p.y < -60 ||
+          p.y > height + 60
+        ) {
           recycle(i);
           continue;
         }

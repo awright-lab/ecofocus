@@ -11,7 +11,7 @@ import SolutionsComparison from "./SolutionsComparison";
 //import SolutionsFeaturedOfferings from "./SolutionsFeaturedOfferings";
 import SolutionsHighlights from "./SolutionsHighlights";
 import FinalCTA from "./FinalCTA";
-import DashboardIntro from "./DashboardIntro";
+//import DashboardIntro from "./DashboardIntro";
 
 export default function SolutionsPage() {
   useReducedMotion();
@@ -28,7 +28,7 @@ export default function SolutionsPage() {
         {/* Heavier weight: delivery layer */}
         <InteractiveDashboardShowcase />
 
-        <DashboardIntro />
+        <InteractiveDashboardShowcase />
 
         {/* Compare the pillars (dashboard handled in rows, not a column) */}
         <SolutionsComparison />
