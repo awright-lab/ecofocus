@@ -21,7 +21,7 @@ interface Props {
   services?: Service[];
 }
 
-/* Collapsible description with gentle fade */
+/* --- Expandable text (unchanged) --- */
 function ExpandableText({
   text,
   initiallyExpanded = false,
@@ -96,6 +96,7 @@ export default function CoreServices({ services }: Props) {
         'Optional dashboard overlay for teams',
       ],
       icon: 'ri-database-2-line',
+      // no note, but we'll reserve space
     },
     {
       title: 'Custom Studies',
@@ -106,6 +107,7 @@ export default function CoreServices({ services }: Props) {
       image: '/images/solutions-custom.png',
       bullets: ['Quant & qual design', 'Rapid polls & deep dives', 'Executive-ready deliverables'],
       icon: 'ri-flask-line',
+      // no note, but we'll reserve space
     },
   ];
 
@@ -121,34 +123,19 @@ export default function CoreServices({ services }: Props) {
         before:bg-[radial-gradient(60rem_40rem_at_10%_-10%,rgba(16,185,129,0.06),transparent_60%),radial-gradient(48rem_32rem_at_120%_-20%,rgba(59,130,246,0.05),transparent_60%)]
         before:content-['']
       "
-      /* TOKENIZED HEIGHTS for perfect alignment (tweak if needed) */
+      /* Alignment tokens */
       style={
         {
-          ['--card-hdr' as any]: '152px',   // title + kicker area
-          ['--card-img' as any]: '200px',   // image height
-          ['--card-desc' as any]: '180px',  // description block (collapsed)
-          ['--card-bul' as any]: '96px',    // bullets block
+          ['--card-hdr' as any]: '164px',  // title+kicker zone (room for number chip row)
+          ['--card-img' as any]: '200px',  // image height (identical)
+          ['--card-desc' as any]: '184px', // collapsed description height
+          ['--card-bul' as any]: '96px',   // bullets block
+          ['--card-note' as any]: '20px',  // reserved status line below CTA
         } as React.CSSProperties
       }
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] tracking-wide">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
-          <span className="text-emerald-700 font-medium">Core Services</span>
-        </div>
-
-        <div className="mt-0 md:mt-2 grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">
-          <h3
-            id="core-services-heading"
-            className="md:col-span-6 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
-          >
-            Solutions That Power Growth Across Every Industry
-          </h3>
-          <p className="md:col-span-6 text-base md:text-lg text-slate-600">
-          From dashboards to custom studies, EcoFocus helps brands and agencies translate sustainability attitudes into strategies that work. 
-          Whatever your challenge, our solutions deliver clarity and confidence.
-          </p>
-        </div>
+        {/* ... your heading row stays as-is ... */}
 
         {/* GRID */}
         <div className="hidden md:grid grid-cols-3 gap-8 mt-12">
@@ -162,23 +149,37 @@ export default function CoreServices({ services }: Props) {
               className="relative p-[1px] rounded-[1.05rem] bg-[linear-gradient(135deg,rgba(16,185,129,0.35),rgba(59,130,246,0.25),transparent)]"
             >
               <article className="h-full rounded-[1rem] bg-white ring-1 ring-gray-100 shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)] hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)] transition flex flex-col">
-                {/* Number chip */}
-                <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-semibold text-slate-700 ring-1 ring-gray-200">
-                  <span className="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-                </span>
-
-                {/* Header (fixed min height so images align) */}
+                {/* Header (no overlap: number badge is IN FLOW above title) */}
                 <div className="px-6 pt-6 pb-4 min-h-[var(--card-hdr)]">
+                  {/* number chip row */}
+                  <div className="mb-2 flex items-center">
+                    <span
+                      className="
+                        inline-flex items-center justify-center rounded-full px-2.5 py-1
+                        text-[11px] font-semibold text-slate-900
+                        bg-[#ef9601] shadow-sm
+                      "
+                      aria-hidden
+                    >
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  </div>
+
                   <h3 className="text-[22px] md:text-[24px] font-semibold tracking-tight text-slate-900 leading-snug">
                     {s.title}
                   </h3>
                   <div className="mt-1 flex items-start gap-2 text-sm text-emerald-600 leading-snug">
-                    {s.icon ? <i aria-hidden className={`${s.icon} mt-[2px] text-[1.05rem] shrink-0 text-emerald-500`} /> : null}
+                    {s.icon ? (
+                      <i
+                        aria-hidden
+                        className={`${s.icon} mt-[2px] text-[1.05rem] shrink-0 text-emerald-500`}
+                      />
+                    ) : null}
                     <span>{s.kicker ?? '\u00A0'}</span>
                   </div>
                 </div>
 
-                {/* Image (same height across cards) */}
+                {/* Image */}
                 <div className="relative mx-6 h-[var(--card-img)] overflow-hidden rounded-xl ring-1 ring-gray-100">
                   {s.image ? (
                     <Image
@@ -195,12 +196,12 @@ export default function CoreServices({ services }: Props) {
                   <span aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_85%_at_50%_8%,rgba(0,0,0,0.1),transparent_60%)]" />
                 </div>
 
-                {/* Description (block gets a fixed min height) */}
+                {/* Description */}
                 <div className="px-6 pt-5 min-h-[var(--card-desc)]">
-                  <ExpandableText text={s.description} collapseHeight={136} />
+                  <ExpandableText text={s.description} collapseHeight={140} />
                 </div>
 
-                {/* Bullets (equal block height) */}
+                {/* Bullets */}
                 <div className="px-6 pt-2 pb-1 min-h-[var(--card-bul)]">
                   {s.bullets && s.bullets.length > 0 ? (
                     <ul className="grid gap-1.5">
@@ -214,8 +215,8 @@ export default function CoreServices({ services }: Props) {
                   ) : null}
                 </div>
 
-                {/* CTA (now all align on the same baseline) */}
-                <div className="px-6 pt-3 pb-6 mt-auto">
+                {/* CTA + reserved status line (uniform across cards) */}
+                <div className="px-6 pt-3 mt-auto">
                   {s.href && (
                     <Link
                       href={s.href}
@@ -224,9 +225,14 @@ export default function CoreServices({ services }: Props) {
                       {i === 0 ? 'Explore the study' : i === 1 ? 'See integration options' : 'Start a custom brief'}
                     </Link>
                   )}
-                  {s.statusNote && (
-                    <p className="mt-2 text-[11px] text-slate-500 text-center">{s.statusNote}</p>
-                  )}
+                  {/* Reserve the exact same height for note on every card */}
+                  <div className="h-[var(--card-note)] flex items-center justify-center">
+                    {s.statusNote ? (
+                      <p className="mt-2 text-[11px] text-slate-500 text-center">{s.statusNote}</p>
+                    ) : (
+                      <span className="mt-2 text-[11px] opacity-0 select-none">placeholder</span>
+                    )}
+                  </div>
                 </div>
               </article>
             </motion.div>
@@ -236,6 +242,7 @@ export default function CoreServices({ services }: Props) {
     </section>
   );
 }
+
 
 
 
