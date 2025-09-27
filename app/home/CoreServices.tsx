@@ -121,7 +121,7 @@ export default function CoreServices({ services }: Props) {
         relative
         bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]
         before:pointer-events-none before:absolute before:inset-0
-        before:bg-[radial-gradient(60rem_40rem_at_10%_-10%,rgba(16,185,129,0.06),transparent_60%),radial-gradient(48rem_32rem_at_120%_-20%,rgba(59,130,246,0.05),transparent_60%)]
+        before:bg-[radial-gradient(60rem_40rem_at_10%_20%,rgba(16,185,129,0.06),transparent_60%),radial-gradient(48rem_32rem_at_120%_-20%,rgba(59,130,246,0.05),transparent_60%)]
         before:content-['']
       "
       /* Alignment tokens for perfect row/CTA baselines */
