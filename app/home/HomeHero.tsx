@@ -12,13 +12,13 @@ export default function HomeHero() {
   return (
     <section
       ref={heroRef}
-      className="relative w-full overflow-hidden"
+      className="relative w-full overflow-hidden min-h-[78vh] md:min-h-[84vh] lg:min-h-[88vh]"
       aria-labelledby="home-hero-title"
     >
       {/* Base support gradient */}
       <div className="absolute inset-0 -z-30 bg-[linear-gradient(180deg,#070B0F_0%,#0A1015_55%,#0B1116_100%)]" />
 
-      {/* BG 1: main backdrop VIDEO (replaces hero-bg1.png) */}
+      {/* BG 1: main backdrop VIDEO */}
       <div className="absolute inset-0 -z-20">
         <video
           aria-hidden
@@ -28,9 +28,7 @@ export default function HomeHero() {
           autoPlay
           loop
           preload="metadata"
-          className="h-full w-full object-cover"
-          // Optional: supply a poster if you have one for first paint
-          // poster="/images/hero-video-poster.jpg"
+          className="h-full w-full object-cover object-[85%_50%]" // bias right to keep the leaf visible
         >
           <source
             src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509261902.mp4"
@@ -48,7 +46,7 @@ export default function HomeHero() {
             "radial-gradient(130% 120% at 85% 50%, #000 62%, rgba(0,0,0,0) 86%)",
           maskImage:
             "radial-gradient(130% 120% at 85% 50%, #000 62%, rgba(0,0,0,0) 86%)",
-          mixBlendMode: "overlay", // try 'soft-light' or 'screen'
+          mixBlendMode: "overlay",
           filter: "saturate(1.04) brightness(1.02)",
         }}
       >
@@ -91,7 +89,7 @@ export default function HomeHero() {
         aria-hidden
         className="absolute pointer-events-none -z-[1]"
         style={{
-          right: "13%", // tweak to sit over the glowing leaf in the video
+          right: "13%",
           bottom: "16%",
           width: "22%",
           height: "24%",
@@ -108,11 +106,11 @@ export default function HomeHero() {
 
       {/* CONTENT */}
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-[68vh] md:min-h-[62vh] items-center py-16 sm:py-24">
+        <div className="flex min-h-[78vh] md:min-h-[84vh] lg:min-h-[88vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl" data-focus>
             <h1
               id="home-hero-title"
-              className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight text-white"
+              className="text-5xl sm:text-6xl md:text-7xl font-semibold leading-[1.08] text-white"
             >
               Decoding the Purpose-Driven{" "}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
@@ -158,7 +156,6 @@ export default function HomeHero() {
           [data-sheen] {
             animation: none !important;
           }
-          /* Pause the background video for reduced motion users */
           :global(section[aria-labelledby="home-hero-title"] video) {
             animation: none !important;
           }
@@ -247,29 +244,24 @@ function SparkleOverlay({
     };
     const particles: P[] = [];
 
-    /* ======== TUNING (slower, less clustered) ======== */
+    /* ======== TUNING ======== */
     const DENSITY_BASE = 120;
     const DENSITY_CAP = 200;
     const BASE_ALPHA = 0.36;
     const RADIUS_MULT = 10.5;
 
     const HUE_MIN = 165,
-      HUE_MAX = 195; // emerald/teal bias
+      HUE_MAX = 195;
 
-    // Slower pull and base movement
     const ATTRACT_X = 0.0005;
     const ATTRACT_Y = 0.0004;
 
-    // Wider spawn cloud over the leaf (less clustering)
     let spawnSigmaX = 100,
       spawnSigmaY = 90;
-
-    // Fade begins a bit farther from headline (so they live longer while moving slower)
     let fadeRadius = 150;
 
     const rnd = (a: number, b: number) => Math.random() * (b - a) + a;
     const gauss = (mu: number, sigma: number) => {
-      // Box–Muller
       const u = 1 - Math.random();
       const v = 1 - Math.random();
       const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
@@ -301,7 +293,7 @@ function SparkleOverlay({
       }
     }
 
-    // Spawn around the leaf with a wider Gaussian (less cluster), gentle initial push to headline
+    // Spawn around the leaf with a wider Gaussian
     function makeParticle(): P {
       const sx = gauss(sourceX * width, spawnSigmaX);
       const sy = gauss(sourceY * height, spawnSigmaY);
@@ -314,7 +306,6 @@ function SparkleOverlay({
 
       const layer: Layer = Math.random() < 0.65 ? 0 : 1;
 
-      // Much slower base speed + lower jitter
       const baseSpeed = rnd(0.35, layer === 0 ? 0.75 : 0.6);
       const jitter = 0.1;
 
@@ -345,11 +336,9 @@ function SparkleOverlay({
       canvas.height = Math.floor(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      // Wider spawn cloud over the leaf
       spawnSigmaX = Math.max(60, width * 0.11);
       spawnSigmaY = Math.max(50, height * 0.09);
 
-      // Fade radius a bit larger for slower motion
       fadeRadius = Math.hypot(width, height) * 0.18;
 
       const areaK = (width * height) / (1440 * 800);
@@ -377,16 +366,15 @@ function SparkleOverlay({
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Slower movement
         p.x += p.vx * p.speed;
         p.y += p.vy * p.speed;
 
-        // Gentle attraction (slowed)
+        // Gentle attraction
         p.x += (fx - p.x) * ATTRACT_X;
         p.y += (fy - p.y) * ATTRACT_Y;
 
         // Twinkle
-        p.phase += dt * 1.0; // slightly slower twinkle
+        p.phase += dt * 1.0;
         const tw = 0.5 + 0.5 * Math.sin(p.phase);
 
         // Fade toward headline
@@ -401,7 +389,7 @@ function SparkleOverlay({
           tw *
           Math.max(0.15, near);
 
-        // Slower life decay overall (so they don't vanish too quickly)
+        // Life decay
         p.life -= dt * (0.02 + (1 - near) * 0.35);
 
         if (
@@ -454,6 +442,9 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
+
+
 
 
 
