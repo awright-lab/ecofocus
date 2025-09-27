@@ -137,10 +137,16 @@ export default function CoreServices({ services }: Props) {
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
         {/* Section badge */}
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] tracking-wide">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
-          <span className="text-emerald-700 font-medium">Core Services</span>
-        </div>
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.6 }}
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide"
+        >
+          <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+          <span className="text-black/60">Core Services</span>
+        </motion.div>
 
         {/* Headline 1/2 width row */}
         <div className="mt-0 md:mt-2 grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">

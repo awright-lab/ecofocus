@@ -45,7 +45,6 @@ export default function Header() {
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
-
   const isHome = pathname === '/';
 
   const navLinks = [
@@ -68,6 +67,7 @@ export default function Header() {
 
       <header
         data-home={isHome ? 'true' : 'false'}
+        data-scrolled={isScrolled ? 'true' : 'false'}
         className={`fixed inset-x-0 top-0 z-50 transition-all ${
           isScrolled ? 'bg-white/90 backdrop-blur-md shadow-md' : 'bg-white'
         }`}
@@ -195,18 +195,32 @@ export default function Header() {
           )}
         </AnimatePresence>
 
-        {/* Homepage-only dimming of navbar logo when hero logo is visible */}
+        {/* Homepage-only navbar logo behavior */}
         <style jsx global>{`
-          html[data-hero-logo-visible="true"] header[data-home="true"] .site-logo {
+          /* 1) At page start (top of homepage), with hero logo visible: almost transparent */
+          html[data-hero-logo-visible="true"]
+            header[data-home="true"][data-scrolled="false"]
+            .site-logo {
+            opacity: 0.06;
+            filter: saturate(0.6) brightness(0.92);
+            transition: opacity 220ms ease, filter 220ms ease;
+          }
+
+          /* 2) After you scroll a bit but the hero is still visible: dimmed */
+          html[data-hero-logo-visible="true"]
+            header[data-home="true"][data-scrolled="true"]
+            .site-logo {
             opacity: 0.18;
             filter: saturate(0.6) brightness(0.92);
             transition: opacity 220ms ease, filter 220ms ease;
           }
+          /* When the hero is no longer visible (or not the homepage), the logo returns to normal automatically. */
         `}</style>
       </header>
     </>
   );
 }
+
 
 
 

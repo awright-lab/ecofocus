@@ -51,7 +51,7 @@ export default function HomeHero() {
           className="h-full w-full object-cover object-[85%_50%]"
         >
           <source
-            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509261902.mp4"
+            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509271126_lsaga.mp4"
             type="video/mp4"
           />
         </video>
@@ -128,15 +128,21 @@ export default function HomeHero() {
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[78vh] md:min-h-[84vh] lg:min-h-[88vh] items-center py-16 sm:py-24">
           <div className="max-w-3xl" data-focus>
-            {/* FULL HERO LOGO */}
-            <div ref={heroLogoRef} className="mb-4 sm:mb-6" data-hero-logo>
+            {/* FULL HERO LOGO — scaled up to match headline presence */}
+            <div ref={heroLogoRef} className="mb-3 sm:mb-5" data-hero-logo>
               <Image
-                src="/images/ef-logo-2.png" // full wordmark
+                src="/images/ef-logo-2.png"
                 alt="EcoFocus"
-                width={220}
-                height={52}
+                width={520}
+                height={120}
                 priority
-                className="w-[200px] sm:w-[220px] lg:w-[260px] h-auto drop-shadow-[0_6px_26px_rgba(0,0,0,.35)] select-none"
+                sizes="(min-width:1280px) 520px, (min-width:1024px) 460px, (min-width:640px) 380px, 300px"
+                className="
+                  w-[300px] sm:w-[380px] md:w-[460px] lg:w-[520px]
+                  h-auto max-w-full
+                  drop-shadow-[0_8px_32px_rgba(0,0,0,.35)]
+                  select-none
+                "
               />
             </div>
 
@@ -185,10 +191,8 @@ export default function HomeHero() {
         }
 
         /* Dim the navbar logo while hero logo is in view.
-           Ensure your header logo element has class "site-logo". */
+           (Header scopes this to homepage only.) */
         :global(html[data-hero-logo-visible="true"] .site-logo) {
-          opacity: 0.18;
-          filter: saturate(0.6) brightness(0.92);
           transition: opacity 220ms ease, filter 220ms ease;
         }
 
@@ -477,6 +481,7 @@ function SparkleOverlay({
 
   return <canvas ref={canvasRef} data-sparkles className={className} />;
 }
+
 
 
 

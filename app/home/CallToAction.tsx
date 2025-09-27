@@ -13,7 +13,7 @@ export default function CallToAction() {
     >
       {/* spacing */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-        {/* subtle floating accents (toned for mobile; no pointer events) */}
+        {/* subtle floating accents */}
         <div
           className="pointer-events-none absolute -top-20 -left-24 h-56 w-56 rounded-full bg-emerald-100 blur-3xl opacity-30"
           aria-hidden="true"
@@ -42,10 +42,12 @@ export default function CallToAction() {
               id="cta-heading"
               className="mb-4 md:mb-6 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
             >
-              Turn insights into campaigns that resonate.
+              Turn purpose-driven insight into campaigns that perform.
             </h2>
             <p className="mx-auto md:mx-0 max-w-xl text-sm text-gray-600 sm:text-base">
-              Book a consultation with our experts today and start turning data into actionable impact.
+              Book a strategy session and we’ll translate EcoFocus findings into
+              audience targets, proof-point messaging, and testable creative
+              ideas—so your next brief starts with evidence, not guesses.
             </p>
           </motion.div>
 
@@ -62,9 +64,9 @@ export default function CallToAction() {
               className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
                          before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
                          before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-              aria-label="Request a Consultation"
+              aria-label="Book an Insight Session"
             >
-              <span className="relative z-10">Book an Agency Insight Session</span>
+              <span className="relative z-10">Book an Insight Session</span>
             </Link>
 
             <Link
@@ -82,6 +84,7 @@ export default function CallToAction() {
     </section>
   );
 }
+
 
 
 

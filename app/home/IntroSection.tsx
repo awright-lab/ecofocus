@@ -188,9 +188,9 @@ export default function IntroSection() {
             <div className="absolute bottom-0 left-0 md:-left-12 translate-y-1/3 md:translate-y-1/4 w-[90%] md:w-[70%]">
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
                 <p className="text-base md:text-lg text-slate-700 leading-relaxed">
-                  For over 13 years, EcoFocus has tracked how sustainability shapes consumer
-                  decisions. We help brands and agencies turn credible consumer data into
-                  strategies that resonate, perform, and prove ROI.
+                EcoFocus® Research delivers research-backed consumer insights that can help companies turn purpose into a competitive edge.
+                Our syndicated and custom studies explore how attitudes, behaviors, and sentiment around sustainability influence purchase decisions. 
+                With a special focus on the Purpose-Driven Generation, EcoFocus data can help companies build loyalty, reduce churn, and increase market share through purpose-aligned strategy and messaging.
                 </p>
               </div>
             </div>
