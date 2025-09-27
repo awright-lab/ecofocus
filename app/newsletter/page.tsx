@@ -1,7 +1,7 @@
 // app/newsletter/page.tsx
 import type { Metadata } from "next";
-import Header from "@/components/Header";   // adjust path if needed
-import Footer from "@/components/Footer";   // adjust path if needed
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import SubscribeStrip from "@/components/blog/SubscribeStrip";
 
 export const metadata: Metadata = {
@@ -16,9 +16,9 @@ export default function NewsletterPage() {
       <Header />
 
       <main id="main" className="min-h-screen">
-        {/* HERO (brighter + centered, left-aligned text) */}
+        {/* HERO (centered column, left-aligned text) */}
         <section className="relative overflow-hidden bg-[linear-gradient(180deg,#0B1319_0%,#0E1821_55%,#101E28_100%)] text-white">
-          {/* soft brand glows (slightly brighter) */}
+          {/* soft brand glows */}
           <div
             aria-hidden
             className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-400/30 blur-3xl"
@@ -29,35 +29,38 @@ export default function NewsletterPage() {
           />
 
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[72vh] md:min-h-[78vh] flex items-center py-16 sm:py-20 lg:py-24">
-            {/* block is centered in viewport but stays left-aligned */}
-            <div className="max-w-3xl mx-auto">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-                <span className="text-emerald-300">EcoFocus Insights Newsletter</span>
-          </span>
+            {/* Single column controls both heading + form width */}
+            <div className="w-full max-w-xl mx-auto">
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
+                EcoFocus Insights Newsletter
+              </span>
+
               <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
-                Sustainability Insights You Can <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#4CAF50] to-[#2C7FB8]">Ship</span>
+                Sustainability Insights You{" "}
+                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-sky-300 bg-clip-text text-transparent">
+                  Can Ship
+                </span>
               </h1>
 
-              <p className="mt-4 max-w-2xl text-white/85 text-lg">
+              <p className="mt-4 text-white/85 text-lg">
                 Twice-monthly, fast reads for marketers and brand leaders. Get
                 data-backed consumer trends, proof points, and creative
                 springboards drawn from EcoFocus research—so your next brief
                 starts with evidence, not guesses.
               </p>
 
-              {/* ONE form — wired via your SubscribeStrip (HubSpot) */}
-              <div className="mt-8 max-w-xl">
+              {/* ONE form — same column width */}
+              <div className="mt-8">
                 <SubscribeStrip />
               </div>
             </div>
           </div>
 
-          {/* sheen line */}
+          {/* accent line */}
           <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
         </section>
 
-        {/* VALUE ROW (light, brand-aligned) */}
+        {/* VALUE ROW */}
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
