@@ -5,17 +5,16 @@ import * as React from 'react';
 import Image from 'next/image';
 
 /* =========================================================
- * SparkleMarquee — left→right wave (brand colors)
- * Hardened to ensure visible rendering
+ * SparkleMarquee — visible on white: solid core + soft halo
  * =======================================================*/
 function SparkleMarquee({
   className = '',
-  density = 150,   // base particle count near 1440x800
-  speed = 0.9,     // horizontal px/frame @ ~60fps (~54 px/s)
+  density = 160,   // particle count baseline
+  speed = 0.95,    // horizontal px/frame @ ~60fps
   size = 1.0,      // size multiplier
-  freq = 1.15,     // wave cycles across width
-  ampMin = 12,     // min amplitude (px)
-  ampMax = 28,     // max amplitude (px)
+  freq = 1.1,      // wave cycles across width
+  ampMin = 12,
+  ampMax = 28,
 }: {
   className?: string;
   density?: number;
@@ -29,14 +28,11 @@ function SparkleMarquee({
   const hostRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
-    // 1) Early guard
     if (!canvasRef.current || !hostRef.current) return;
 
-    // 2) Non-null locals for TS
     const canvas: HTMLCanvasElement = canvasRef.current;
     const host: HTMLDivElement = hostRef.current;
 
-    // ctx narrowing (TS-safe)
     const ctxMaybe = canvas.getContext('2d', { alpha: true }) as CanvasRenderingContext2D | null;
     if (!ctxMaybe) return;
     const ctx: CanvasRenderingContext2D = ctxMaybe;
@@ -50,15 +46,14 @@ function SparkleMarquee({
     let raf = 0;
     let tLast = typeof performance !== 'undefined' ? performance.now() : 0;
     let tAccum = 0;
-    let started = false;
 
     const TAU = Math.PI * 2;
 
-    // Brand palette (marigold, teal, emerald)
+    // HSL palette tuned to read on white (slightly deeper lightness)
     const COLORS = [
-      { h: 35,  s: 96, l: 58 }, // marigold ≈ #EF9601
-      { h: 174, s: 72, l: 55 }, // teal
-      { h: 152, s: 72, l: 45 }, // emerald
+      { h: 35,  s: 96, l: 52 }, // marigold
+      { h: 174, s: 70, l: 40 }, // teal
+      { h: 152, s: 72, l: 34 }, // emerald
     ];
 
     type P = {
@@ -78,7 +73,7 @@ function SparkleMarquee({
 
     const countForArea = () => {
       const areaK = (width * height) / (1440 * 800);
-      return Math.round(Math.max(60, Math.min(density * areaK, 280))); // ensure a healthy minimum
+      return Math.round(Math.max(60, Math.min(density * areaK, 280)));
     };
 
     function makeParticle(fromLeft = true): P {
@@ -86,13 +81,13 @@ function SparkleMarquee({
       const margin = Math.max(20, width * 0.02);
       const startX = fromLeft ? rnd(-margin * 1.6, -margin * 0.6)
                               : rnd(width + margin * 0.6, width + margin * 1.6);
-      const baseY = rnd(height * 0.12, height * 0.88); // avoid extreme edges
+      const baseY = rnd(height * 0.12, height * 0.88);
       const amplitude = rnd(ampMin, ampMax);
       const phase = rnd(0, TAU);
-      const k = rnd(0.9, 1.2);
-      const vx = speed * k; // px/frame feel
-      const r = size * rnd(0.9, 1.8); // slightly larger for visibility
-      const twSpeed = rnd(0.8, 1.25);
+      const k = rnd(0.9, 1.15);
+      const vx = speed * k;
+      const r = size * rnd(0.9, 1.8);
+      const twSpeed = rnd(0.8, 1.2);
       return {
         x: startX,
         baseY,
@@ -114,13 +109,9 @@ function SparkleMarquee({
     }
 
     function resize() {
-      // In rare cases, layout might not be ready yet—guard width/height
       const rect = host.getBoundingClientRect();
-      const w = Math.max(1, Math.floor(rect.width));
-      const h = Math.max(1, Math.floor(rect.height));
-
-      width = w;
-      height = h;
+      width  = Math.max(1, Math.floor(rect.width));
+      height = Math.max(1, Math.floor(rect.height));
       dpr = Math.min(window.devicePixelRatio || 1, 2);
 
       canvas.width = Math.floor(width * dpr);
@@ -135,8 +126,9 @@ function SparkleMarquee({
       tLast = now;
       tAccum += dt;
 
+      // IMPORTANT: normal compositing so color shows on white
       ctx.clearRect(0, 0, width, height);
-      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalCompositeOperation = 'source-over';
 
       const margin = Math.max(20, width * 0.02);
       const waveFreq = freq;
@@ -146,7 +138,6 @@ function SparkleMarquee({
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // horizontal advance normalized to ~60fps feel
         p.x += p.vx * (dt * 60);
         p.tw += dt * p.twSpeed;
 
@@ -155,7 +146,7 @@ function SparkleMarquee({
           p.baseY +
           p.amp * Math.sin(TAU * waveFreq * (p.x / Math.max(1, width)) + p.phase + waveTime);
 
-        // wrap right -> left
+        // wrap
         if (p.x > width + margin) {
           particles[i] = makeParticle(true);
           continue;
@@ -166,53 +157,53 @@ function SparkleMarquee({
           : y > height - fadeY ? Math.max(0, (height - y) / fadeY)
           : 1;
 
-        // twinkle & glow (brighter for visibility on white)
+        // Twinkle
         const twinkle = 0.6 + 0.4 * Math.sin(p.tw);
-        const alpha = 0.5 * twinkle * edge * p.life;
-        const rad = p.r * 14; // larger glow
 
-        const g = ctx.createRadialGradient(p.x, y, 0, p.x, y, rad);
-        g.addColorStop(0, `hsla(${p.hue}, ${p.sat}%, ${p.light + 10}%, ${alpha})`);
+        // 1) Soft halo (radial gradient)
+        const haloAlpha = 0.28 * twinkle * edge * p.life; // visible on white
+        const haloR = p.r * 16;
+        const g = ctx.createRadialGradient(p.x, y, 0, p.x, y, haloR);
+        g.addColorStop(0, `hsla(${p.hue}, ${p.sat}%, ${p.light + 10}%, ${haloAlpha})`);
         g.addColorStop(1, `hsla(${p.hue}, ${p.sat}%, ${p.light}%, 0)`);
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(p.x, y, rad, 0, TAU);
+        ctx.arc(p.x, y, haloR, 0, TAU);
         ctx.fill();
 
-        // slow life cycling
+        // 2) Solid core dot (ensures visibility on white)
+        const coreAlpha = 0.85 * edge * p.life;
+        const coreR = Math.max(1.5, p.r * 2.0);
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `hsla(${p.hue}, ${p.sat}%, ${p.light + 12}%, ${0.35 * twinkle * edge})`;
+        ctx.fillStyle = `hsla(${p.hue}, ${p.sat}%, ${p.light + 6}%, ${coreAlpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, y, coreR, 0, TAU);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // life cycle
         p.life -= dt * 0.03;
         if (p.life <= 0.05) {
           particles[i] = makeParticle(true);
         }
       }
 
-      ctx.globalCompositeOperation = 'source-over';
       raf = requestAnimationFrame(draw);
     }
 
-    // Observe size; also force a resize soon after mount to guarantee non-zero dimensions
+    // observe + start
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
     if (ro) ro.observe(host);
     else window.addEventListener('resize', resize);
 
-    // Initial sizing + a delayed second pass (some layouts settle after first frame)
     resize();
-    setTimeout(() => {
-      resize();
-      if (!started && !prefersReduced) {
-        started = true;
-        tLast = performance.now();
-        raf = requestAnimationFrame(draw);
-      }
-    }, 0);
+    // kick once more in case layout settles next frame
+    setTimeout(resize, 0);
 
     if (!prefersReduced) {
-      // Start loop if not already started by the delayed pass
-      if (!started) {
-        started = true;
-        tLast = performance.now();
-        raf = requestAnimationFrame(draw);
-      }
+      tLast = performance.now();
+      raf = requestAnimationFrame(draw);
     } else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -229,9 +220,8 @@ function SparkleMarquee({
       <canvas
         ref={canvasRef}
         className={`absolute inset-0 ${className}`}
-        style={{ mixBlendMode: 'screen' }}
+        /* NOTE: no blend mode — we draw visible color ourselves */
         aria-hidden
-        data-sparkles
       />
     </div>
   );
@@ -243,6 +233,9 @@ function SparkleMarquee({
 export default function IntroSection() {
   return (
     <section aria-labelledby="intro-heading" className="relative bg-white overflow-hidden">
+      {/* Sparkles above content so they’re not obscured by white panels */}
+      <SparkleMarquee className="z-20 opacity-70" density={170} speed={0.95} size={1.0} freq={1.1} ampMin={12} ampMax={28} />
+
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16 z-10">
         <div
           className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-stretch"
@@ -272,7 +265,7 @@ export default function IntroSection() {
             {/* Back card: image */}
             <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
               <Image
-                src="/images/intro-bg.jpg" // replace with your asset
+                src="/images/intro-bg.png" // replace with your asset
                 alt="EcoFocus sustainability research"
                 fill
                 className="object-cover"
@@ -296,12 +289,10 @@ export default function IntroSection() {
         {/* Optional divider for polish */}
         <div className="mt-10 md:mt-12 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
       </div>
-
-      {/* Put sparkles ABOVE content so they aren't hidden by white blocks */}
-      <SparkleMarquee className="opacity-60 z-20" density={160} speed={0.95} size={1.0} freq={1.1} ampMin={12} ampMax={28} />
     </section>
   );
 }
+
 
 
 
