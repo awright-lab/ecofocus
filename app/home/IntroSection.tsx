@@ -145,16 +145,17 @@ export default function IntroSection() {
           <div className="md:col-span-5 flex flex-col justify-center md:min-h-[var(--stack-h)]">
             {/* Section badge */}
         <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.6 }}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide"
-        >
-          <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
-          <span className="text-black/60">About EcoFocus</span>
-        </motion.div>
-
+            initial={reduceMotion ? false : { opacity: 0, y: -8 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="md:col-span-5"
+          >
+            <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide mb-4">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                <span className="text-black/60">About EcoFocus</span>
+          </span>
+          </motion.div>
             <h2
               id="intro-heading"
               className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]"
