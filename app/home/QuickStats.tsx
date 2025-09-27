@@ -1,3 +1,4 @@
+// app/components/QuickStats.tsx
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
@@ -12,44 +13,79 @@ export default function QuickStats() {
   ];
 
   return (
-    <section className="bg-emerald-600">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-8 md:py-12">
-        {/* Mobile: one short row (3 cols, no cards). Desktop: your original card look. */}
-        <dl className="grid grid-cols-3 gap-3 sm:gap-6 md:gap-8 text-center">
+    <section
+      aria-labelledby="quick-stats-heading"
+      className="relative bg-white"
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 md:py-16">
+        {/* (Visually hidden) heading for a11y */}
+        <h2 id="quick-stats-heading" className="sr-only">
+          Quick Stats
+        </h2>
+
+        <div
+          className="
+            grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 md:gap-8
+          "
+        >
           {stats.map((stat, i) => (
             <motion.div
               key={stat.label}
               initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
               whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.4, delay: i * 0.06 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.45, delay: i * 0.06 }}
+              /* Gradient hairline frame for premium look */
               className="
-                flex flex-col items-center justify-center
-                py-3 sm:py-4
-                md:rounded-2xl md:bg-white/5 md:px-4 md:py-5 md:ring-1 md:ring-white/10
+                relative p-[1px] rounded-2xl
+                bg-[linear-gradient(135deg,rgba(16,185,129,.35),rgba(59,130,246,.28),transparent)]
               "
             >
-              {/* Screen-reader label; visual label below */}
-              <dt className="sr-only">{stat.label}</dt>
+              <div
+                className="
+                  h-full rounded-2xl bg-white
+                  ring-1 ring-slate-200
+                  shadow-[0_10px_28px_-12px_rgba(2,12,27,0.18)]
+                  px-5 py-6 sm:px-6 sm:py-7
+                  flex items-center sm:block gap-4 sm:gap-0
+                "
+              >
+                {/* Icon */}
+                <div className="shrink-0 sm:mb-3">
+                  <span
+                    className="
+                      inline-flex items-center justify-center
+                      h-12 w-12 rounded-xl
+                      bg-emerald-50 ring-1 ring-emerald-100
+                    "
+                    aria-hidden="true"
+                  >
+                    <i className={`${stat.icon} text-2xl text-emerald-600`} />
+                  </span>
+                </div>
 
-              {/* Icon (decorative) */}
-              <i
-                aria-hidden="true"
-                className={`${stat.icon} text-2xl sm:text-3xl md:text-4xl text-[#ffd863] mb-1 sm:mb-2`}
-              />
-
-              {/* Value (kept bold, scales up on larger screens) */}
-              <dd className="font-bold text-white text-lg sm:text-xl md:text-2xl">
-                {stat.value}
-              </dd>
-
-              {/* Visual label (compact on mobile, same style on desktop) */}
-              <p className="mt-0.5 sm:mt-1 text-[11px] sm:text-sm md:text-base leading-snug text-white/85">
-                {stat.label}
-              </p>
+                {/* Stat content */}
+                <div className="min-w-0">
+                  <div
+                    className="
+                      text-3xl sm:text-4xl font-semibold tracking-tight
+                      text-slate-900
+                    "
+                    aria-label={stat.label}
+                  >
+                    {stat.value}
+                  </div>
+                  <div className="mt-1 text-sm sm:text-base text-slate-600">
+                    {stat.label}
+                  </div>
+                </div>
+              </div>
             </motion.div>
           ))}
-        </dl>
+        </div>
+
+        {/* optional subtle divider under the section for polish */}
+        <div className="mt-10 sm:mt-12 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
       </div>
     </section>
   );
