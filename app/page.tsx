@@ -3,6 +3,7 @@ import Footer from '../components/Footer';
 import StickyButtons from '../components/StickyButtons';
 
 import Hero from './home/HomeHero';
+import IntroSection from './home/IntroSection';
 //import FeaturedDashboard from './home/FeaturedDashboard';
 import CoreServices from './home/CoreServices';
 //import WhyChoose from './home/WhyChoose';
@@ -24,10 +25,11 @@ export default function HomePage() {
     <main>
       <Header />
       <Hero />
-      <CoreServices />
-      <QuickStats />
-      <SayDoGapSection />
+      <IntroSection />
       <InteractiveDashboardShowcase />
+      <QuickStats />
+      <CoreServices />
+      <SayDoGapSection />
       <EcoNuggetInsights />
       <FeaturedReport />
       <TrustedBy />

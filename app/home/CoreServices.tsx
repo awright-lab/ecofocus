@@ -148,7 +148,7 @@ export default function CoreServices({ services }: Props) {
             id="core-services-heading"
             className="md:col-span-6 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
           >
-            Solutions That Power Growth Across Every Industry
+            Solutions That Power Growth Across Every <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Industry</span>
           </h3>
           <p className="md:col-span-6 text-base md:text-lg text-slate-600">
             From dashboards to custom studies, EcoFocus helps brands and agencies translate sustainability attitudes into
