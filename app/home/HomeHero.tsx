@@ -31,7 +31,7 @@ export default function HomeHero() {
           className="h-full w-full object-cover object-[85%_50%]" // bias right to keep the leaf visible
         >
           <source
-            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509261902.mp4"
+            src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/The_leaf_is_202509271126_lsaga.mp4"
             type="video/mp4"
           />
         </video>
