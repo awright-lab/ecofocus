@@ -6,7 +6,11 @@ import Image from 'next/image';
 
 export default function IntroSection() {
   return (
-    <section aria-labelledby="intro-heading" className="relative bg-white">
+    <section aria-labelledby="intro-heading" className="relative
+        bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]
+        before:pointer-events-none before:absolute before:inset-0
+        before:bg-[radial-gradient(60rem_40rem_at_10%_-10%,rgba(16,185,129,0.06),transparent_60%),radial-gradient(48rem_32rem_at_120%_-20%,rgba(59,130,246,0.05),transparent_60%)]
+        before:content-['']">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 md:py-16">
         <div
           className="
@@ -38,13 +42,14 @@ export default function IntroSection() {
               id="intro-heading"
               className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]"
             >
-              Trusted Insights for Purpose-Driven Growth
+              Trusted Insights for Purpose-Driven <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Growth</span>
             </h2>
           </div>
 
           {/* Right: layered cards (back image + foreground intro card) */}
           <div className="md:col-span-7 relative md:min-h-[var(--stack-h)]">
             {/* Back card: image */}
+            <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
             <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
               <Image
                 src="/images/intro-bg.png" // <-- replace with your chosen image
@@ -54,7 +59,7 @@ export default function IntroSection() {
                 priority
               />
             </div>
-
+            </div>
             {/* Foreground card: intro text (overlapping the image) */}
             <div className="absolute bottom-0 left-0 md:-left-12 translate-y-1/3 md:translate-y-1/4 w-[90%] md:w-[70%]">
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
