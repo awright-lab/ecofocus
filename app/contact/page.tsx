@@ -30,13 +30,14 @@ export default function ContactPage() {
 
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[46vh] md:min-h-[52vh] flex items-center py-14 sm:py-20 lg:py-24">
             <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
-                Get in Touch
-              </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                <span className="text-emerald-300">Get In Touch</span>
+          </span>
 
               <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
                 Let’s Build{" "}
-                <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-sky-300 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                   What Matters
                 </span>
               </h1>

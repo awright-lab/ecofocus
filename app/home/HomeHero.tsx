@@ -131,7 +131,7 @@ export default function HomeHero() {
             {/* FULL HERO LOGO — scaled up to match headline presence */}
             <div ref={heroLogoRef} className="mb-3 sm:mb-5" data-hero-logo>
               <Image
-                src="/images/ef-logo-2.png"
+                src="/images/ef-logo-3.png"
                 alt="EcoFocus"
                 width={520}
                 height={120}
