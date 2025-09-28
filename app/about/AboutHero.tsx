@@ -28,12 +28,6 @@ export default function AboutHero() {
         posterSrc="/images/hero-6-poster.jpg"
         overlay="dense" // heavier tint than Home
       />
-
-      {/* subtle marigold accent bar (brand pop) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-0 bottom-0 h-1 w-36 rounded-r-full bg-[#FFC247]"
-      />
     </div>
   );
 }
