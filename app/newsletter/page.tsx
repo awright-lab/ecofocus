@@ -44,7 +44,7 @@ export default function NewsletterPage() {
   </figure>
 
   {/* CONTENT — match margins to the new plate width */}
-  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-16 sm:py-18 lg:py-22 md:mr-[50vw] lg:mr-[52vw] xl:mr-[54vw]">
+  <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[70vh] md:min-h-[78vh] flex items-center py-18 sm:py-18 lg:py-22 md:mr-[50vw] lg:mr-[52vw] xl:mr-[54vw]">
     <div className="w-full max-w-xl md:ml-auto md:translate-x-[1vw] lg:translate-x-[1.5vw]">
       <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide uppercase ring-1 ring-white/15 text-emerald-200">
         EcoFocus Insights Newsletter
