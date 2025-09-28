@@ -52,7 +52,7 @@ export default function NewsletterPage() {
 
       <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
         Sustainability Insights You{" "}
-        <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-sky-300 bg-clip-text text-transparent">
+        <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
           Can Ship
         </span>
       </h1>
