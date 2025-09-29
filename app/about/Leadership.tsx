@@ -144,7 +144,7 @@ export default function Leadership() {
                 </div>
 
                 {/* Content row — fixed minimum height so all cards match */}
-                <div className="px-5 pt-5 pb-2 min-h-[120px]">
+                <div className="px-5 pt-5 pb-2 min-h-[150px]">
                   <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
                   <p className="mt-1 text-sm text-gray-600">{p.title}</p>
                   <p className="mt-3 text-sm text-gray-700" style={clamp3}>
