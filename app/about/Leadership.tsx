@@ -10,7 +10,7 @@ type Person = {
   img: string;
   blurb: string;
   details?: string;
-  focal?: string; // e.g. '50% 40%' (x% y%)
+  focal?: string; // e.g. '50% 40%'
 };
 
 export default function Leadership() {
@@ -84,7 +84,7 @@ export default function Leadership() {
 
   const defaultFocal = '50% 35%';
 
-  // Hard clamp for 3 lines (works without Tailwind line-clamp plugin)
+  // Hard clamp for 3 lines (works even if Tailwind line-clamp plugin isn’t present)
   const clamp3: React.CSSProperties = {
     display: '-webkit-box',
     WebkitLineClamp: 3,
@@ -126,9 +126,9 @@ export default function Leadership() {
           {people.map((p, i) => {
             const isFlipped = !!flipped[i];
 
-            // FRONT FACE (shared layout: 3 rows -> image / content / footer)
+            // FRONT FACE (3-row grid: image / content / footer)
             const Front = (
-              <div className="absolute inset-0 grid grid-rows-[68%_1fr_auto] [backface-visibility:hidden]">
+              <div className="absolute inset-0 grid grid-rows-[64%_auto_auto] [backface-visibility:hidden]">
                 {/* Image row */}
                 <div className="relative">
                   <Image
@@ -140,11 +140,11 @@ export default function Leadership() {
                     style={{ objectPosition: p.focal ?? defaultFocal }}
                     priority={i < 3}
                   />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/25 to-transparent" />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
 
-                {/* Content row */}
-                <div className="px-5 pt-5">
+                {/* Content row — fixed minimum height so all cards match */}
+                <div className="px-5 pt-5 pb-2 min-h-[120px]">
                   <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
                   <p className="mt-1 text-sm text-gray-600">{p.title}</p>
                   <p className="mt-3 text-sm text-gray-700" style={clamp3}>
@@ -152,7 +152,7 @@ export default function Leadership() {
                   </p>
                 </div>
 
-                {/* CTA footer row (own section) */}
+                {/* Footer row (CTA) */}
                 <div className="px-5 pb-4 pt-3 border-t border-gray-200">
                   <button
                     onClick={() => toggle(i)}
@@ -165,7 +165,7 @@ export default function Leadership() {
               </div>
             );
 
-            // REDUCED-MOTION: show front + expandable details (no 3D)
+            // REDUCED-MOTION PATH (no 3D)
             if (reduceMotion) {
               return (
                 <motion.article
@@ -177,7 +177,6 @@ export default function Leadership() {
                   className="relative overflow-hidden rounded-2xl bg-white ring-1 ring-white/15 shadow-[0_14px_44px_-18px_rgba(2,12,27,.45)]"
                 >
                   <div className="relative aspect-[4/5]">{Front}</div>
-
                   {isFlipped && (
                     <div className="mx-5 mb-5 rounded-lg bg-gray-50 p-4 text-sm text-gray-700 ring-1 ring-gray-200">
                       {p.details ?? p.blurb}
@@ -205,7 +204,6 @@ export default function Leadership() {
                         animate={{ rotateY: isFlipped ? 180 : 0 }}
                         transition={{ duration: 0.6, ease: [0.33, 0, 0.23, 1] }}
                       >
-                        {/* FRONT (grid layout) */}
                         {Front}
 
                         {/* BACK */}
@@ -257,6 +255,7 @@ export default function Leadership() {
     </section>
   );
 }
+
 
 
 
