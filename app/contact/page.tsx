@@ -1,13 +1,13 @@
-// app/contact/page.tsx
-import type { Metadata } from "next";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import ContactForm from "@/components/contact/ContactForm";
+import type { Metadata } from 'next';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import ContactForm from '@/components/contact/ContactForm';
+import ContactHero from './ContactHero';
 
 export const metadata: Metadata = {
-  title: "Contact — EcoFocus",
+  title: 'Contact — EcoFocus',
   description:
-    "Talk with EcoFocus. Share your goals and timelines—we’ll respond within one business day.",
+    'Talk with EcoFocus. Share your goals and timelines—we’ll respond within one business day.',
 };
 
 export default function ContactPage() {
@@ -16,42 +16,8 @@ export default function ContactPage() {
       <Header />
 
       <main id="main" className="min-h-screen">
-        {/* HERO */}
-        <section className="relative overflow-hidden text-white bg-[linear-gradient(180deg,#0B1319_0%,#0E1821_55%,#101E28_100%)]">
-          {/* soft brand glows */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-20 -left-24 h-72 w-72 rounded-full bg-emerald-400/25 blur-3xl"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-24 -right-28 h-80 w-80 rounded-full bg-sky-400/25 blur-3xl"
-          />
-
-          <div className="relative mx-auto max-w-7xl px-4 sm:px-6 min-h-[46vh] md:min-h-[52vh] flex items-center py-14 sm:py-20 lg:py-24">
-            <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-                <span className="text-emerald-300">Get In Touch</span>
-          </span>
-
-              <h1 className="mt-4 text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight">
-                Let’s Build{" "}
-                <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                  What Matters
-                </span>
-              </h1>
-
-              <p className="mt-4 text-white/90 text-lg max-w-2xl">
-                Tell us about your goals, audience, and timing. We’ll reply
-                within one business day with next steps—or a short list of
-                resources if we’re not the best fit.
-              </p>
-            </div>
-          </div>
-
-          <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
-        </section>
+        {/* HERO (matches AboutHero style) */}
+        <ContactHero />
 
         {/* BODY */}
         <section className="bg-white">
@@ -60,9 +26,7 @@ export default function ContactPage() {
               {/* FORM CARD */}
               <div className="lg:col-span-7">
                 <div className="rounded-2xl bg-white ring-1 ring-black/5 shadow-sm p-6 sm:p-8">
-                  <h2 className="text-2xl font-semibold text-gray-900">
-                    Send a Message
-                  </h2>
+                  <h2 className="text-2xl font-semibold text-gray-900">Send a Message</h2>
                   <p className="mt-1 text-sm text-gray-600">
                     Share a few details and we’ll follow up shortly.
                   </p>
@@ -72,7 +36,7 @@ export default function ContactPage() {
                   </div>
 
                   <p className="mt-3 text-xs text-gray-500">
-                    We’ll only use your info to respond to your inquiry. See our{" "}
+                    We’ll only use your info to respond to your inquiry. See our{' '}
                     <a href="/privacy" className="underline">
                       Privacy Policy
                     </a>
@@ -84,20 +48,12 @@ export default function ContactPage() {
               {/* DETAILS / ASSURANCES */}
               <div className="lg:col-span-5">
                 <div className="rounded-2xl bg-gray-50 ring-1 ring-black/5 p-6 sm:p-7">
-                  <h3 className="text-base font-semibold text-gray-900">
-                    How We Work With You
-                  </h3>
+                  <h3 className="text-base font-semibold text-gray-900">How We Work With You</h3>
 
                   <ul className="mt-3 space-y-3 text-sm text-gray-700">
-                    <Li icon={<CheckIcon />}>
-                      A human reply within one business day.
-                    </Li>
-                    <Li icon={<CheckIcon />}>
-                      No sales spam—real guidance and next steps.
-                    </Li>
-                    <Li icon={<CheckIcon />}>
-                      Optional NDA before sharing sensitive details.
-                    </Li>
+                    <Li icon={<CheckIcon />}>A human reply within one business day.</Li>
+                    <Li icon={<CheckIcon />}>No sales spam—real guidance and next steps.</Li>
+                    <Li icon={<CheckIcon />}>Optional NDA before sharing sensitive details.</Li>
                   </ul>
 
                   <div className="mt-6 grid grid-cols-1 gap-3">
@@ -105,36 +61,18 @@ export default function ContactPage() {
                     <InfoRow
                       label="Email"
                       value={
-                        <a href="mailto:team@ecofocus.example" className="underline">
-                          team@ecofocus.example
-                        </a>
-                      }
-                    />
-                    <InfoRow
-                      label="Press"
-                      value={
-                        <a href="mailto:press@ecofocus.example" className="underline">
-                          press@ecofocus.example
-                        </a>
-                      }
-                    />
-                    <InfoRow
-                      label="Support"
-                      value={
-                        <a href="mailto:support@ecofocus.example" className="underline">
-                          support@ecofocus.example
+                        <a href="mailto:mcroft@ecofocusworldwide.com" className="underline">
+                          mcroft@ecofocusworldwide.com
                         </a>
                       }
                     />
                   </div>
 
                   <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <ActionButton href="mailto:team@ecofocus.example" icon={<MailIcon />}>
+                    <ActionButton href="mailto:mcroft@ecofocusworldwide.com" icon={<MailIcon />}>
                       Email Us
                     </ActionButton>
-                    <ActionButton href="/reports" icon={<ReportIcon />}>
-                      Reports & Store
-                    </ActionButton>
+                    {/* <ActionButton href="/reports" icon={<ReportIcon />}>Reports & Store</ActionButton> */}
                   </div>
                 </div>
               </div>
@@ -158,8 +96,7 @@ export default function ContactPage() {
                 q="How do you handle privacy?"
                 a={
                   <>
-                    We follow strict handling practices and can execute a mutual
-                    NDA on request. See our{" "}
+                    We follow strict handling practices and can execute a mutual NDA on request. See our{' '}
                     <a href="/privacy" className="underline">
                       Privacy Policy
                     </a>
@@ -177,7 +114,7 @@ export default function ContactPage() {
   );
 }
 
-/* ---------- Small UI bits ---------- */
+/* ---------- Small UI bits (unchanged) ---------- */
 function Li({ children, icon }: { children: React.ReactNode; icon: React.ReactNode }) {
   return (
     <li className="flex gap-3">
@@ -192,9 +129,7 @@ function Li({ children, icon }: { children: React.ReactNode; icon: React.ReactNo
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between rounded-lg bg-white p-3 ring-1 ring-black/5">
-      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-        {label}
-      </span>
+      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</span>
       <span className="text-sm text-gray-800">{value}</span>
     </div>
   );
@@ -234,14 +169,6 @@ function MailIcon() {
   );
 }
 
-function ReportIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-      <path d="M6 3h9l3 3v15a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1zm9 1.414V7h2.586L15 4.414zM8 10h8v2H8v-2zm0 4h8v2H8v-2z" />
-    </svg>
-  );
-}
-
 function ActionButton({
   href,
   icon,
@@ -271,5 +198,6 @@ function ActionButton({
     </a>
   );
 }
+
 
 
