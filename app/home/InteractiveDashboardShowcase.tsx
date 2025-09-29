@@ -58,12 +58,12 @@ export default function InteractiveDashboardShowcase() {
               >
                 <span className="relative z-10">Learn More</span>
               </Link>
-              <Link
+              {/* <Link
                 href="/contact"
                 className="inline-flex items-center justify-center rounded-full border border-white/40 bg-transparent px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               >
                 Request a demo
-              </Link>
+              </Link> */}
             </div>
           </motion.div>
 

@@ -74,7 +74,7 @@ export default function CoreServices({ services }: Props) {
       kicker: 'Annual study. Executive-ready insights. Delivered via dashboard.',
       description:
         'Our flagship, census-balanced study runs once per year—current fielding is complete. Teams license seat access to explore findings in the EcoFocus Interactive Dashboard with fast crosstabs, charts, and exports.',
-      href: '/solutions/syndicated',
+      href: '/contact',
       image: '/images/solutions-syndicated.png',
       bullets: [
         '4,000+ U.S. respondents (Gen Pop)',
@@ -89,7 +89,7 @@ export default function CoreServices({ services }: Props) {
       kicker: 'Infuse your current data with EcoFocus insights.',
       description:
         'By infusing our sustainability data into your existing research, we uncover actionable insights that guide product development and marketing strategy. Our data enriches your understanding of eco-conscious consumers—empowering you to connect with your target market in a meaningful way. With 13 years of syndicated research, a 4,000-respondent sample, and a ~1.55% margin of error, we integrate cleanly into your stack and strengthen your models.',
-      href: '/solutions/enhance-your-data',
+      href: '/contact',
       image: '/images/solutions-infusion.png',
       bullets: [
         'Secure data exchange (files or data share)',
@@ -104,7 +104,7 @@ export default function CoreServices({ services }: Props) {
       kicker: 'Answer your exact questions.',
       description:
         'When your clients face unique questions, our team designs fast, credible, and campaign-ready studies. We blend quant and qual to deliver clarity with executive-ready storytelling.',
-      href: '/solutions/custom',
+      href: '/contact',
       image: '/images/solutions-custom.png',
       bullets: ['Quant & qual design', 'Rapid polls & deep dives', 'Executive-ready deliverables'],
       icon: 'ri-flask-line',

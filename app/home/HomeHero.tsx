@@ -162,7 +162,7 @@ export default function HomeHero() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
+              {/*<Link
                 href="/benefits"
                 className="rounded-xl bg-emerald-500 hover:bg-emerald-600 px-5 py-3 font-semibold text-white transition"
               >
@@ -173,7 +173,7 @@ export default function HomeHero() {
                 className="rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-white hover:bg-white/15 transition"
               >
                 Request Details
-              </Link>
+              </Link> */}
             </div>
           </div>
           <div className="hidden lg:block flex-1" />

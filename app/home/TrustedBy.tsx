@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
+//import Link from 'next/link';
 
 export default function TrustedBy() {
   const reduceMotion = useReducedMotion();
@@ -96,7 +96,7 @@ export default function TrustedBy() {
 
         {/* CTA */}
         <div className="mt-10 sm:mt-12 text-center">
-          <Link
+          {/* <Link
             href="/partners"
             className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
                        before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
@@ -104,7 +104,7 @@ export default function TrustedBy() {
             aria-label="Become a Partner"
           >
             <span className="relative z-10">Become a Partner →</span>
-          </Link>
+          </Link> */}
         </div>
       </div>
 
