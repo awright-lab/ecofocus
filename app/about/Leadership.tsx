@@ -10,6 +10,7 @@ type Person = {
   img: string;
   blurb: string;
   details?: string;
+  focal?: string; // optional per-image focal, e.g. '50% 15%'
 };
 
 export default function Leadership() {
@@ -23,7 +24,8 @@ export default function Leadership() {
       blurb:
         'Guides EcoFocus’ vision and agency partnerships, ensuring insights translate into meaningful campaigns and client growth.',
       details:
-        'With a career spanning brand strategy and agency leadership, Jerry brings a pragmatic lens to sustainability—turning research into roadmaps and aligning teams around measurable outcomes.',
+        "Jerry Croft offers more than 20 years of media executive experience. His tenure at Metropolis honed his digital transformation skills, particularly towards sustainability. Jerry's leadership in organizing eco-centric events highlights his commitment to a sustainable future. His acumen in research-driven strategy led to EcoFocus's acquisition, aiming to enhance sustainability practices with consumer insights. Jerry also merges his professional expertise with personal passions, developing a religious content streaming platform with his wife, Jennifer.",
+      focal: '50% 15%',
     },
     {
       name: 'Michael Croft',
@@ -32,7 +34,8 @@ export default function Leadership() {
       blurb:
         'Connects agencies with EcoFocus data, helping them win pitches and deliver strategies rooted in sustainability insights.',
       details:
-        'Partners with account and strategy leads to pinpoint where EcoFocus data can move the needle—audience sizing, proof-points, and message frameworks that convert.',
+        "Michael Croft's psychology background and sales experience make him invaluable for EcoFocus' consumer sustainability research. His work at SANDOW Design Group in New York, where he collaborated with firms passionate about sustainability, gives him deep insights into eco-friendly practices in architecture and design industries. Michael's understanding of consumer behavior enriches EcoFocus' efforts in exploring sustainable choices.",
+      focal: '50% 18%',
     },
     {
       name: 'Elinor Gaida',
@@ -41,7 +44,8 @@ export default function Leadership() {
       blurb:
         'Leads study design and strategic frameworks, bridging rigorous data with actionable direction for brand teams and agencies.',
       details:
-        'Architects our mixed-method designs and decision frameworks; specializes in closing the say–do gap with clear, testable guidance.',
+        "Elinor Gaida brings 20 years of expertise in guiding companies through critical business and sustainability questions. Specializing in both qualitative and quantitative methodologies, she has provided actionable insights across various sectors including retail, telecommunications, and technology. Elinor's passion for the outdoors fuels her commitment to sustainability, driving her to explore eco-friendly consumer choices and brand solutions. At EcoFocus Research, she's dedicated to understanding consumer attitudes and aiding brands in their journey towards sustainability leadership.",
+      focal: '50% 20%',
     },
     {
       name: 'Allison Duncan',
@@ -50,7 +54,8 @@ export default function Leadership() {
       blurb:
         'Transforms data into narratives agencies can use directly in briefs, decks, and campaigns.',
       details:
-        'Turns complex data into concise stories—prioritizing what to do next, not just what the chart says.',
+        "Allison Duncan's diverse background in media and marketing research, from Beta Research to Erdos & Morgan and Ipsos, provides her with a unique perspective on B-to-B research initiatives. Her experience on both client and vendor sides, coupled with comprehensive project management skills, makes her an asset in various sectors like CPG and Pharma. Outside of work, Allison enjoys baseball, cooking, reading, and quality time with her loved ones.",
+      focal: '50% 20%',
     },
     {
       name: 'Arif Wright',
@@ -59,7 +64,8 @@ export default function Leadership() {
       blurb:
         'Shapes EcoFocus dashboards and design outputs, making insights accessible, visual, and client-ready.',
       details:
-        'Leads dashboards, data viz, and design system—clarity at a glance and depth on demand.',
+        "Arif Wright is a dynamic professional with a unique blend of technology and creative graphic design skills. A Web Development and Computer Engineering graduate, he has excelled in roles such as a Data Market Analyst at AMI Corp, where he showcased his analytical and strategic talents. Passionate about sustainable agriculture, particularly hydroponic farming, Arif's environmental advocacy complements his professional pursuits. An avid hiker, his adventurous spirit mirrors his dynamic approach to technology and creativity. Arif is recognized as a versatile, committed professional in his field.",
+      focal: '50% 25%',
     },
     {
       name: 'Alex Murrey',
@@ -68,7 +74,8 @@ export default function Leadership() {
       blurb:
         'Leads technology and AI integration, ensuring agencies can leverage cutting-edge tools for faster, smarter research.',
       details:
-        'Builds data/AI pipelines that speed up learning cycles while keeping quality, transparency, and governance front-and-center.',
+        "Alex Murrey is a seasoned technology leader with over seven years of experience in product management, strategic leadership, and research & development. Having worked with companies like Twilio, Launch Consulting, and TangoTeams, Alex has a proven track record in driving product strategy, fostering cross-functional collaborations, and leading high-stakes projects in dynamic environments. With expertise in areas such as AI leadership, cloud transformation, and user experience, Alex has successfully led teams to innovate and deliver customer-centric solutions.",
+      focal: '50% 25%',
     },
   ];
 
@@ -109,7 +116,7 @@ export default function Leadership() {
           {people.map((p, i) => {
             const isFlipped = !!flipped[i];
 
-            /* Reduced-motion: no 3D, just inline details */
+            // Reduced-motion: no 3D—expand/collapse panel
             if (reduceMotion) {
               return (
                 <motion.article
@@ -126,7 +133,8 @@ export default function Leadership() {
                       alt={p.name}
                       fill
                       sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"
-                      className="object-cover"
+                      className="object-cover object-top"
+                      style={p.focal ? { objectPosition: p.focal } : undefined}
                       priority={i < 3}
                     />
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent" />
@@ -135,6 +143,7 @@ export default function Leadership() {
                     <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
                     <p className="mt-1 text-sm text-gray-600">{p.title}</p>
                     <p className="mt-3 text-sm text-gray-700">{p.blurb}</p>
+
                     <button
                       onClick={() => toggle(i)}
                       className="mt-4 inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
@@ -143,6 +152,7 @@ export default function Leadership() {
                     >
                       {isFlipped ? 'Hide details' : 'Read more'}
                     </button>
+
                     {isFlipped && (
                       <div
                         id={`details-${i}`}
@@ -156,7 +166,7 @@ export default function Leadership() {
               );
             }
 
-            /* Default: 3D flip with fixed height */
+            // Default: 3D flip with fixed height & taller, top-weighted image
             return (
               <motion.article
                 key={p.name}
@@ -167,33 +177,34 @@ export default function Leadership() {
                 className="group"
               >
                 <div className="relative [perspective:1200px]">
-                  {/* The outer box enforces a constant height */}
-                  <div className="relative w-full overflow-hidden rounded-2xl shadow-[0_14px_44px_-18px_rgba(2,12,27,.45)] ring-1 ring-white/15 bg-white">
-                    {/* Fixed height via aspect ratio */}
+                  <div className="relative w-full overflow-hidden rounded-2xl bg-white ring-1 ring-white/15 shadow-[0_14px_44px_-18px_rgba(2,12,27,.45)]">
                     <div className="aspect-[4/5]">
                       <motion.div
                         className="relative h-full w-full [transform-style:preserve-3d]"
                         animate={{ rotateY: isFlipped ? 180 : 0 }}
                         transition={{ duration: 0.6, ease: [0.33, 0, 0.23, 1] }}
                       >
-                        {/* FRONT FACE */}
+                        {/* FRONT */}
                         <div className="absolute inset-0 [backface-visibility:hidden]">
                           <div className="relative h-full w-full">
-                            <div className="relative h-1/2 w-full">
+                            <div className="relative h-[62%] w-full">
                               <Image
                                 src={p.img}
                                 alt={p.name}
                                 fill
                                 sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"
-                                className="object-cover"
+                                className="object-cover object-top"
+                                style={p.focal ? { objectPosition: p.focal } : undefined}
                                 priority={i < 3}
                               />
                               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/25 to-transparent" />
                             </div>
-                            <div className="h-1/2 p-5">
+
+                            <div className="h-[38%] p-5">
                               <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
                               <p className="mt-1 text-sm text-gray-600">{p.title}</p>
                               <p className="mt-3 text-sm text-gray-700 line-clamp-3">{p.blurb}</p>
+
                               <button
                                 onClick={() => toggle(i)}
                                 className="mt-4 inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
@@ -205,7 +216,7 @@ export default function Leadership() {
                           </div>
                         </div>
 
-                        {/* BACK FACE */}
+                        {/* BACK */}
                         <div className="absolute inset-0 [transform:rotateY(180deg)] [backface-visibility:hidden]">
                           <div className="flex h-full w-full flex-col rounded-2xl bg-white">
                             <div className="p-5">
@@ -216,7 +227,8 @@ export default function Leadership() {
                                     alt=""
                                     width={48}
                                     height={48}
-                                    className="h-12 w-12 object-cover"
+                                    className="h-12 w-12 object-cover object-top"
+                                    style={p.focal ? { objectPosition: p.focal } : undefined}
                                   />
                                 </div>
                                 <div>
@@ -225,9 +237,11 @@ export default function Leadership() {
                                 </div>
                               </div>
                             </div>
+
                             <div className="mx-5 mb-4 flex-1 overflow-auto rounded-lg bg-gray-50 p-4 text-sm text-gray-700 ring-1 ring-gray-200">
                               {p.details ?? p.blurb}
                             </div>
+
                             <div className="px-5 pb-5">
                               <button
                                 onClick={() => toggle(i)}
@@ -251,6 +265,8 @@ export default function Leadership() {
     </section>
   );
 }
+
+
 
 
 
