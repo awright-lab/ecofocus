@@ -47,11 +47,12 @@ export default function Header() {
     href === '/' ? pathname === '/' : pathname.startsWith(href);
   const isHome = pathname === '/';
 
+  // TEMP NAV (Solutions + Reports removed)
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    { name: 'Solutions', href: '/solutions' },
-    { name: 'Reports', href: '/reports', extra: ' & Store' },
+    // { name: 'Solutions', href: '/solutions' }, // removed temporarily
+    // { name: 'Reports', href: '/reports', extra: ' & Store' }, // removed temporarily
     { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -101,7 +102,9 @@ export default function Header() {
                     } text-[15px]`}
                   >
                     {link.name}
-                    {link.extra && <span className="hidden xl:inline">{link.extra}</span>}
+                    {'extra' in link && (link as any).extra && (
+                      <span className="hidden xl:inline">{(link as any).extra}</span>
+                    )}
                     <span
                       className={`absolute left-0 -bottom-1 h-[2px] bg-emerald-500 transition-all ${
                         active ? 'w-full' : 'w-0 group-hover:w-full'
@@ -113,27 +116,27 @@ export default function Header() {
             })}
           </nav>
 
-          {/* Desktop CTA */}
+          {/* Desktop CTA: Change Buy Report -> Contact Us */}
           <div className="hidden lg:flex items-center">
             {/* lg: compact */}
             <Link
-              href="/reports"
+              href="/contact"
               className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition-all duration-300
                          before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
                          before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 xl:hidden"
-              aria-label="Buy report"
+              aria-label="Contact us"
             >
-              <span className="relative z-10">Buy</span>
+              <span className="relative z-10">Contact</span>
             </Link>
             {/* xl: full label */}
             <Link
-              href="/reports"
+              href="/contact"
               className="relative ml-3 hidden xl:inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
                          before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
                          before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-              aria-label="Buy report"
+              aria-label="Contact us"
             >
-              <span className="relative z-10">Buy Report</span>
+              <span className="relative z-10">Contact Us</span>
             </Link>
           </div>
 
@@ -178,18 +181,11 @@ export default function Header() {
                       }`}
                     >
                       {link.name}
-                      {link.extra}
+                      {'extra' in link && (link as any).extra}
                     </Link>
                   );
                 })}
-                <Link
-                  href="/reports"
-                  className="relative mt-2 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                             before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                             before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                >
-                  <span className="relative z-10">Buy Report</span>
-                </Link>
+                {/* Mobile CTAs removed: Buy Report & Subscribe (none left here) */}
               </div>
             </motion.nav>
           )}
@@ -197,7 +193,6 @@ export default function Header() {
 
         {/* Homepage-only navbar logo behavior */}
         <style jsx global>{`
-          /* 1) At page start (top of homepage), with hero logo visible: almost transparent */
           html[data-hero-logo-visible="true"]
             header[data-home="true"][data-scrolled="false"]
             .site-logo {
@@ -205,8 +200,6 @@ export default function Header() {
             filter: saturate(0.6) brightness(0.92);
             transition: opacity 220ms ease, filter 220ms ease;
           }
-
-          /* 2) After you scroll a bit but the hero is still visible: dimmed */
           html[data-hero-logo-visible="true"]
             header[data-home="true"][data-scrolled="true"]
             .site-logo {
@@ -214,7 +207,6 @@ export default function Header() {
             filter: saturate(0.6) brightness(0.92);
             transition: opacity 220ms ease, filter 220ms ease;
           }
-          /* When the hero is no longer visible (or not the homepage), the logo returns to normal automatically. */
         `}</style>
       </header>
     </>

@@ -40,7 +40,7 @@ export default function Footer() {
       {/* Gradient Top Border */}
       <div className="absolute left-0 top-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-12 sm:px-6 md:grid-cols-4 md:gap-12 md:py-16 relative z-10">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 md:gap-12 md:py-16 relative z-10">
         {/* Brand / About */}
         <motion.section
           aria-label="About EcoFocus"
@@ -77,7 +77,7 @@ export default function Footer() {
           </div>
         </motion.section>
 
-        {/* Quick Links */}
+        {/* Quick Links (Solutions + Reports removed) */}
         <motion.nav
           aria-label="Quick links"
           initial={reduceMotion ? false : { opacity: 0, y: 20 }}
@@ -88,9 +88,8 @@ export default function Footer() {
           <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
           <ul className="space-y-3 text-sm">
             {[
+              { label: 'Home', href: '/' },
               { label: 'About', href: '/about' },
-              { label: 'Solutions', href: '/solutions' },
-              { label: 'Reports & Store', href: '/reports' },
               { label: 'Blog', href: '/blog' },
               { label: 'Contact', href: '/contact' },
             ].map((link) => (
@@ -106,41 +105,13 @@ export default function Footer() {
           </ul>
         </motion.nav>
 
-        {/* Services */}
-        <motion.nav
-          aria-label="Services"
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <h3 className="mb-4 text-lg font-semibold">Services</h3>
-          <ul className="space-y-3 text-sm">
-            {[
-              { label: 'Syndicated Research', href: '/solutions#syndicated' },
-              { label: 'Custom Research', href: '/solutions#custom' },
-              { label: 'Specialized Reports', href: '/reports' },
-              { label: 'Consulting Services', href: '/solutions#consulting' },
-            ].map((s) => (
-              <li key={s.label}>
-                <Link
-                  href={s.href}
-                  className="text-gray-400 transition hover:text-emerald-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
-                >
-                  {s.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </motion.nav>
-
         {/* Newsletter */}
         <motion.section
           aria-label="Newsletter signup"
           initial={reduceMotion ? false : { opacity: 0, y: 20 }}
           whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
           <h3 className="mb-4 text-lg font-semibold">Stay Updated</h3>
           <p className="mb-4 text-sm text-gray-400">
@@ -210,5 +181,6 @@ export default function Footer() {
     </footer>
   );
 }
+
 
 
