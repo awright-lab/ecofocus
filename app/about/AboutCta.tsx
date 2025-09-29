@@ -72,7 +72,7 @@ export default function AboutCta() {
               <span className="relative z-10">Book an Insight Session</span>
             </Link>
 
-            <Link
+            {/* <Link
               href="/reports"
               className="relative inline-flex items-center justify-center rounded-full bg-[#FFC107] px-5 py-2.5 text-sm font-semibold text-black overflow-hidden transition-all duration-300
                          before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
@@ -80,7 +80,7 @@ export default function AboutCta() {
               aria-label="Browse Reports"
             >
               <span className="relative z-10">Browse Reports</span>
-            </Link>
+            </Link> */}
           </motion.div>
         </motion.div>
       </div>
