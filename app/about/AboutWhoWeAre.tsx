@@ -179,7 +179,7 @@ export default function AboutWhoWeAre() {
             <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
               <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
                 <Image
-                  src="/images/intro-bg.png" /* TODO: replace with on-brand asset */
+                  src="/images/about-bg.png" /* TODO: replace with on-brand asset */
                   alt="EcoFocus sustainability research"
                   fill
                   className="object-cover"
