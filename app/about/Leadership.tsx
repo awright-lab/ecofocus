@@ -10,7 +10,7 @@ type Person = {
   img: string;
   blurb: string;
   details?: string;
-  focal?: string; // e.g., '50% 35%' (X% Y%)
+  focal?: string; // '50% 40%' etc.
 };
 
 export default function Leadership() {
@@ -35,7 +35,7 @@ export default function Leadership() {
         'Connects agencies with EcoFocus data, helping them win pitches and deliver strategies rooted in sustainability insights.',
       details:
         "Michael Croft's psychology background and sales experience make him invaluable for EcoFocus' consumer sustainability research. His work at SANDOW Design Group in New York, where he collaborated with firms passionate about sustainability, gives him deep insights into eco-friendly practices in architecture and design industries. Michael's understanding of consumer behavior enriches EcoFocus' efforts in exploring sustainable choices.",
-      focal: '50% 42%', // push view down so chin isn’t cropped
+      focal: '50% 42%',
     },
     {
       name: 'Elinor Gaida',
@@ -55,7 +55,7 @@ export default function Leadership() {
         'Transforms data into narratives agencies can use directly in briefs, decks, and campaigns.',
       details:
         "Allison Duncan's diverse background in media and marketing research, from Beta Research to Erdos & Morgan and Ipsos, provides her with a unique perspective on B-to-B research initiatives. Her experience on both client and vendor sides, coupled with comprehensive project management skills, makes her an asset in various sectors like CPG and Pharma. Outside of work, Allison enjoys baseball, cooking, reading, and quality time with her loved ones.",
-      focal: '50% 45%', // lowest to protect chin
+      focal: '50% 45%',
     },
     {
       name: 'Arif Wright',
@@ -81,8 +81,15 @@ export default function Leadership() {
 
   const [flipped, setFlipped] = React.useState<Record<number, boolean>>({});
   const toggle = (i: number) => setFlipped((s) => ({ ...s, [i]: !s[i] }));
+  const defaultFocal = '50% 35%';
 
-  const defaultFocal = '50% 35%'; // balanced, avoids bottom crop
+  // Small helper: reusable clamped text style (works even if Tailwind line-clamp isn't enabled)
+  const clamp3: React.CSSProperties = {
+    display: '-webkit-box',
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+  };
 
   return (
     <section className="relative section-slab-deep" aria-labelledby="leadership">
@@ -118,7 +125,30 @@ export default function Leadership() {
           {people.map((p, i) => {
             const isFlipped = !!flipped[i];
 
-            /* Reduced motion: no 3D, same front layout/baseline */
+            // Shared "front content" (name/title/blurb + footer button)
+            const FrontContent = (
+              <div className="h-[32%] p-5 flex flex-col">
+                <div className="min-h-0">
+                  <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
+                  <p className="mt-1 text-sm text-gray-600">{p.title}</p>
+                  <p className="mt-3 text-sm text-gray-700" style={clamp3}>
+                    {p.blurb}
+                  </p>
+                </div>
+                {/* Dedicated footer bar with top border; button never overlaps text */}
+                <div className="mt-auto pt-3 border-t border-gray-200">
+                  <button
+                    onClick={() => toggle(i)}
+                    className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                    aria-label={`Read more about ${p.name}`}
+                  >
+                    Read more
+                  </button>
+                </div>
+              </div>
+            );
+
+            /* Reduced motion: no 3D flip */
             if (reduceMotion) {
               return (
                 <motion.article
@@ -142,29 +172,9 @@ export default function Leadership() {
                       />
                       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/25 to-transparent" />
                     </div>
-
-                    <div className="h-[32%] p-5 flex flex-col">
-                      <div className="min-h-0">
-                        <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
-                        <p className="mt-1 text-sm text-gray-600">{p.title}</p>
-                        <p className="mt-3 text-sm text-gray-700 line-clamp-3">{p.blurb}</p>
-                      </div>
-                      <button
-                        onClick={() => toggle(i)}
-                        className="self-start mt-auto inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                        aria-expanded={isFlipped}
-                        aria-controls={`details-${i}`}
-                      >
-                        {isFlipped ? 'Hide details' : 'Read more'}
-                      </button>
-                      <div className="pb-1" />
-                    </div>
-
+                    {FrontContent}
                     {isFlipped && (
-                      <div
-                        id={`details-${i}`}
-                        className="mx-5 mb-5 rounded-lg bg-gray-50 p-3 text-sm text-gray-700 ring-1 ring-gray-200"
-                      >
+                      <div className="mx-5 mb-5 rounded-lg bg-gray-50 p-3 text-sm text-gray-700 ring-1 ring-gray-200">
                         {p.details ?? p.blurb}
                       </div>
                     )}
@@ -173,7 +183,7 @@ export default function Leadership() {
               );
             }
 
-            /* Default: 3D flip with improved image framing + button baseline */
+            // 3D flip version
             return (
               <motion.article
                 key={p.name}
@@ -206,22 +216,7 @@ export default function Leadership() {
                               />
                               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/25 to-transparent" />
                             </div>
-
-                            <div className="h-[32%] p-5 flex flex-col">
-                              <div className="min-h-0">
-                                <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
-                                <p className="mt-1 text-sm text-gray-600">{p.title}</p>
-                                <p className="mt-3 text-sm text-gray-700 line-clamp-3">{p.blurb}</p>
-                              </div>
-                              <button
-                                onClick={() => toggle(i)}
-                                className="self-start mt-auto inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                                aria-label={`Read more about ${p.name}`}
-                              >
-                                Read more
-                              </button>
-                              <div className="pb-1" />
-                            </div>
+                            {FrontContent}
                           </div>
                         </div>
 
@@ -274,6 +269,7 @@ export default function Leadership() {
     </section>
   );
 }
+
 
 
 
