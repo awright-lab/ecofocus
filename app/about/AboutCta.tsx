@@ -1,31 +1,91 @@
-import Link from "next/link";
+'use client';
+
+import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function AboutCta() {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <section className="relative section-slab-emerald text-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
-        <div className="flex flex-col gap-6 rounded-2xl bg-white/5 ring-1 ring-white/10 p-8 backdrop-blur">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFC247]/20 px-3 py-1 text-xs font-semibold text-[#FFC247] ring-1 ring-[#FFC247]/30">
-            Ready to act
-          </div>
-          <h3 className="text-2xl font-semibold">Bring sustainability insights into your next decision</h3>
-          <div className="flex flex-wrap gap-3">
+    <section
+      aria-labelledby="about-cta-heading"
+      className="relative overflow-hidden bg-white"
+    >
+      {/* spacing */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        {/* subtle floating accents */}
+        <div
+          className="pointer-events-none absolute -top-20 -left-24 h-56 w-56 rounded-full bg-emerald-100 blur-3xl opacity-30"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -bottom-24 -right-28 h-60 w-60 rounded-full bg-blue-100 blur-3xl opacity-30"
+          aria-hidden="true"
+        />
+
+        <motion.div
+          className="relative grid grid-cols-1 items-center gap-6 md:grid-cols-12 md:gap-10"
+          initial={reduceMotion ? false : { opacity: 0, y: 30 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.8 }}
+        >
+          {/* Left: Heading + Subheading */}
+          <motion.div
+            className="text-center md:text-left md:col-span-7"
+            initial={reduceMotion ? false : { opacity: 0, x: -20 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+            transition={{ duration: 0.7 }}
+            viewport={{ once: true, amount: 0.6 }}
+          >
+            <h2
+              id="about-cta-heading"
+              className="mb-4 md:mb-6 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
+            >
+              Turn Sustainability Signals Into{" "}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Strategy
+              </span>
+            </h2>
+            <p className="mx-auto md:mx-0 max-w-xl text-sm text-gray-600 sm:text-base">
+              Book a strategy session and we’ll translate EcoFocus findings into audience
+              targets, proof-point messaging, and testable ideas—so your next brief starts
+              with evidence, not guesses.
+            </p>
+          </motion.div>
+
+          {/* Right: CTA Buttons */}
+          <motion.div
+            className="md:col-span-5 flex flex-col items-center gap-3 sm:flex-row md:justify-end sm:gap-4 mt-6 md:mt-0"
+            initial={reduceMotion ? false : { opacity: 0, x: 20 }}
+            whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            viewport={{ once: true, amount: 0.6 }}
+          >
             <Link
               href="/contact"
-              className="inline-flex items-center rounded-xl bg-[#FFC247] px-5 py-3 text-sm font-semibold text-emerald-950 shadow hover:translate-y-px transition"
+              className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                         before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
+                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+              aria-label="Book an Insight Session"
             >
-              Start a conversation
+              <span className="relative z-10">Book an Insight Session</span>
             </Link>
+
             <Link
               href="/reports"
-              className="inline-flex items-center rounded-xl border border-white/20 bg-white/0 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition"
+              className="relative inline-flex items-center justify-center rounded-full bg-[#FFC107] px-5 py-2.5 text-sm font-semibold text-black overflow-hidden transition-all duration-300
+                         before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
+                         before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+              aria-label="Browse Reports"
             >
-              Browse our latest reports
+              <span className="relative z-10">Browse Reports</span>
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
 }
+
 

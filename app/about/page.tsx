@@ -8,6 +8,7 @@ import AboutApproach from "./AboutApproach";
 import AboutImpact from "./AboutImpact";
 import AboutCta from "./AboutCta";
 import Script from "next/script";
+import Leadership from "./Leadership";
 
 export const dynamic = "force-dynamic";
 
@@ -72,6 +73,7 @@ export default function AboutPage() {
 
       <AboutHero />
       <AboutWhoWeAre />
+      <Leadership />
       <AboutApproach />
       <AboutImpact />
       <AboutCta />
