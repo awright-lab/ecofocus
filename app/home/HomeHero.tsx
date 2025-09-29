@@ -208,6 +208,7 @@ export default function HomeHero() {
           }
         }
       `}</style>
+      <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
     </section>
   );
 }
