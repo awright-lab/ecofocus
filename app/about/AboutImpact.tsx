@@ -1,4 +1,4 @@
-import Link from "next/link";
+//import Link from "next/link";
 
 export default function AboutImpact() {
   return (
@@ -29,7 +29,7 @@ export default function AboutImpact() {
               Insights draw on ongoing, nationally representative surveys of U.S. adults
               (balanced to U.S. Census demographics) plus deep category analysis.
             </p>
-            <p className="mt-3 text-sm text-white/70">
+            {/* <p className="mt-3 text-sm text-white/70">
               Want details?{" "}
               <Link
                 href="/methods"
@@ -38,7 +38,7 @@ export default function AboutImpact() {
                 View our methods
               </Link>
               .
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

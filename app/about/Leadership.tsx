@@ -81,10 +81,9 @@ export default function Leadership() {
 
   const [flipped, setFlipped] = React.useState<Record<number, boolean>>({});
   const toggle = (i: number) => setFlipped((s) => ({ ...s, [i]: !s[i] }));
-
   const defaultFocal = '50% 35%';
 
-  // Hard clamp for 3 lines (works even if Tailwind line-clamp plugin isn’t present)
+  // 3-line clamp without plugin
   const clamp3: React.CSSProperties = {
     display: '-webkit-box',
     WebkitLineClamp: 3,
@@ -126,11 +125,11 @@ export default function Leadership() {
           {people.map((p, i) => {
             const isFlipped = !!flipped[i];
 
-            // FRONT FACE (3-row grid: image / content / footer)
+            /** FRONT FACE (flex column; never overflows) */
             const Front = (
-              <div className="absolute inset-0 grid grid-rows-[64%_auto_auto] [backface-visibility:hidden]">
-                {/* Image row */}
-                <div className="relative">
+              <div className="absolute inset-0 flex h-full w-full flex-col [backface-visibility:hidden]">
+                {/* Image (grows/shrinks with card height but keeps a sane minimum) */}
+                <div className="relative flex-1 min-h-[190px]">
                   <Image
                     src={p.img}
                     alt={p.name}
@@ -143,8 +142,8 @@ export default function Leadership() {
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
 
-                {/* Content row — fixed minimum height so all cards match */}
-                <div className="px-5 pt-5 pb-2 min-h-[150px]">
+                {/* Content (fixed minimum so all cards match) */}
+                <div className="flex-none px-5 pt-5 pb-2 min-h-[150px]">
                   <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
                   <p className="mt-1 text-sm text-gray-600">{p.title}</p>
                   <p className="mt-3 text-sm text-gray-700" style={clamp3}>
@@ -152,8 +151,8 @@ export default function Leadership() {
                   </p>
                 </div>
 
-                {/* Footer row (CTA) */}
-                <div className="px-5 pb-4 pt-3 border-t border-gray-200">
+                {/* Footer / CTA (dedicated row) */}
+                <div className="flex-none px-5 pb-4 pt-3 border-t border-gray-200">
                   <button
                     onClick={() => toggle(i)}
                     className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
@@ -165,7 +164,7 @@ export default function Leadership() {
               </div>
             );
 
-            // REDUCED-MOTION PATH (no 3D)
+            // Reduced-motion: show front + expandable details (no 3D)
             if (reduceMotion) {
               return (
                 <motion.article
@@ -186,7 +185,7 @@ export default function Leadership() {
               );
             }
 
-            // 3D FLIP VERSION
+            // 3D flip
             return (
               <motion.article
                 key={p.name}
@@ -255,6 +254,7 @@ export default function Leadership() {
     </section>
   );
 }
+
 
 
 
