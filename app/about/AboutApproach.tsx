@@ -69,7 +69,7 @@ export default function AboutApproach() {
       title: 'Move From Intent to Action',
       body:
         'Translate insights into product, messaging, and portfolio choices that close the say–do gap.',
-      icon: 'ri-bullseye-line',
+      icon: 'ri-focus-2-line',
       theme: 'marigold',
     },
   ];
