@@ -4,7 +4,7 @@ import Script from "next/script";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-//import StickyButtons from "../components/StickyButtons";
+// import StickyButtons from "../components/StickyButtons";
 
 import Hero from "./home/HomeHero";
 import IntroSection from "./home/IntroSection";
@@ -21,7 +21,8 @@ const SITE_URL = "https://ecofocusresearch.netlify.app";
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
   title: {
-    absolute: "EcoFocus Research | Sustainability Insights for Purpose-Driven Brands" },
+    absolute: "EcoFocus Research | Sustainability Insights for Purpose-Driven Brands",
+  },
   description:
     "EcoFocus Research delivers nationally representative sustainability insights to help brands decode the purpose-driven generation and close the say-do gap.",
   alternates: { canonical: "/" },
@@ -30,12 +31,12 @@ export const metadata: Metadata = {
     title: "EcoFocus Research | Sustainability Insights for Purpose-Driven Brands",
     description:
       "Reliable sustainability research for brands and agencies: decode the purpose-driven generation and turn insights into strategy.",
-    url: SITE_URL,                                          // ✅ absolute
+    url: SITE_URL,
     type: "website",
     siteName: "EcoFocus Research",
     images: [
       {
-        url: `${SITE_URL}/images/og/og-default.png`,           // ✅ absolute
+        url: `${SITE_URL}/images/og/og-default.png`,
         width: 1200,
         height: 630,
         alt: "EcoFocus Research — Homepage",
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     title: "EcoFocus Research | Sustainability Insights for Purpose-Driven Brands",
     description:
       "Reliable sustainability research for brands and agencies: decode the purpose-driven generation and turn insights into strategy.",
-    images: [`${SITE_URL}/images/og/og-default.png`],          // ✅ absolute
+    images: [`${SITE_URL}/images/og/og-default.png`],
   },
 };
 
@@ -64,14 +65,12 @@ export default function HomePage() {
     isPartOf: { "@type": "WebSite", name: "EcoFocus Research", url: SITE_URL },
     breadcrumb: {
       "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-      ],
+      itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE_URL }],
     },
   };
 
   return (
-    <main>
+    <>
       {/* JSON-LD */}
       <Script
         id="home-jsonld"
@@ -80,20 +79,28 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
 
+      {/* Move the header OUTSIDE <main> so fixed positioning is reliable */}
       <Header />
-      <Hero />
-      <IntroSection />
-      <InteractiveDashboardShowcase />
-      <QuickStats />
-      <CoreServices />
-      <SayDoGapSection />
-      <EcoNuggetInsights />
-      <TrustedBy />
-      <CallToAction />
+
+      {/* Pad the page content to clear the fixed header (matches Header: h-14 md:h-20) */}
+      <main id="main" className="pt-14 md:pt-20">
+        <Hero />
+        <IntroSection />
+        <InteractiveDashboardShowcase />
+        <QuickStats />
+        <CoreServices />
+        <SayDoGapSection />
+        <EcoNuggetInsights />
+        <TrustedBy />
+        <CallToAction />
+      </main>
+
       <Footer />
-    </main>
+      {/* <StickyButtons /> */}
+    </>
   );
 }
+
 
 
 
