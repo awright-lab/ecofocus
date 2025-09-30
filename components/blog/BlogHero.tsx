@@ -17,8 +17,8 @@ export default function BlogHero() {
         </>
       }
       subhead="Bite-size reads from our syndicated research and workflows—built to convert learnings into action."
-      ctaPrimary={{ label: "Explore Reports", href: "/reports" }}
-      ctaSecondary={{ label: "View Dashboard Demo", href: "/contact?type=demo" }}
+      //ctaPrimary={{ label: "Explore Reports", href: "/reports" }}
+      //ctaSecondary={{ label: "View Dashboard Demo", href: "/contact?type=demo" }}
       // same abstract lines video used sitewide for cohesion + caching
       videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
       posterSrc="/images/hero-6-poster.jpg"
