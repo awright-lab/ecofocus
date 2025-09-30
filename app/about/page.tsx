@@ -12,6 +12,9 @@ import Leadership from "./Leadership";
 
 export const dynamic = "force-dynamic";
 
+const SITE_URL = "https://ecofocusresearch.netlify.app";
+
+/* ---------------- SEO ---------------- */
 export const metadata: Metadata = {
   title: "About",
   description:
@@ -21,9 +24,12 @@ export const metadata: Metadata = {
     title: "About · EcoFocus Research",
     description:
       "We help brands turn sustainability signals into strategy—closing the say–do gap with data-driven guidance.",
+    url: `${SITE_URL}/about`,                          // ✅ absolute URL
+    type: "website",
+    siteName: "EcoFocus Research",
     images: [
       {
-        url: "/images/og/og-about.png", // add a specific OG image for about
+        url: `${SITE_URL}/images/og/og-about.png`,     // ✅ absolute URL
         width: 1200,
         height: 630,
         alt: "EcoFocus Research — About",
@@ -31,32 +37,33 @@ export const metadata: Metadata = {
     ],
   },
   twitter: {
+    card: "summary_large_image",
     title: "About · EcoFocus Research",
     description:
       "Turning sustainability insights into action for brands serving the purpose-driven generation.",
-    images: ["/og/og-about.png"],
+    images: [`${SITE_URL}/images/og/og-about.png`],     // ✅ absolute URL
   },
 };
 
 export default function AboutPage() {
-  // JSON-LD for AboutPage + Breadcrumbs — helps both SEO and AI crawlers
+  // JSON-LD for AboutPage + Breadcrumbs
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "AboutPage",
     name: "About EcoFocus Research",
     description:
       "EcoFocus Research helps brands decode the purpose-driven generation with reliable sustainability insights.",
-    url: "https://www.ecofocusresearch.com/about",
+    url: `${SITE_URL}/about`,
     isPartOf: {
       "@type": "WebSite",
       name: "EcoFocus Research",
-      url: "https://www.ecofocusresearch.com",
+      url: SITE_URL,
     },
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: "https://www.ecofocusresearch.com/" },
-        { "@type": "ListItem", position: 2, name: "About", item: "https://www.ecofocusresearch.com/about" },
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "About", item: `${SITE_URL}/about` },
       ],
     },
   };
@@ -68,6 +75,7 @@ export default function AboutPage() {
       <Script
         id="about-jsonld"
         type="application/ld+json"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
@@ -82,5 +90,6 @@ export default function AboutPage() {
     </>
   );
 }
+
 
 

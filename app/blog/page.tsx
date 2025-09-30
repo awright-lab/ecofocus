@@ -1,66 +1,71 @@
 // app/blog/page.tsx
-import type { Metadata } from 'next';
-import Script from 'next/script';
-import Link from 'next/link';
+import type { Metadata } from "next";
+import Script from "next/script";
+import Link from "next/link";
 
-import { getPosts, getTopics } from '@/lib/payload';
-import BlogCard from '@/components/blog/BlogCard';
-import BlogFilterBar from '@/components/blog/BlogFilterBar';
-import SubscribeStrip from '@/components/blog/SubscribeStrip';
-import BlogHero from '@/components/blog/BlogHero';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import ArticleFeedMobile from '@/components/blog/ArticleFeedMobile';
+import { getPosts, getTopics } from "@/lib/payload";
+import BlogCard from "@/components/blog/BlogCard";
+import BlogFilterBar from "@/components/blog/BlogFilterBar";
+import SubscribeStrip from "@/components/blog/SubscribeStrip";
+import BlogHero from "@/components/blog/BlogHero";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ArticleFeedMobile from "@/components/blog/ArticleFeedMobile";
 
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
+
+const SITE_URL = "https://ecofocusresearch.netlify.app";
 
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
   title: {
-    default: 'EcoNuggets – Insights Blog',
-    template: '%s | EcoFocus Research',
+    default: "EcoNuggets – Insights Blog",
+    template: "%s | EcoFocus Research",
   },
   description:
-    'Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.',
-  alternates: { canonical: '/blog' },
+    "Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.",
+  alternates: { canonical: "/blog" },
   keywords: [
-    'EcoFocus',
-    'EcoNuggets',
-    'sustainability insights',
-    'consumer behavior',
-    'ESG trends',
-    'purpose-driven consumers',
-    'research blog',
-    'marketing strategy',
+    "EcoFocus",
+    "EcoNuggets",
+    "sustainability insights",
+    "consumer behavior",
+    "ESG trends",
+    "purpose-driven consumers",
+    "research blog",
+    "marketing strategy",
   ],
   robots: { index: true, follow: true },
   openGraph: {
-    title: 'EcoNuggets – Insights Blog | EcoFocus Research',
+    title: "EcoNuggets – Insights Blog | EcoFocus Research",
     description:
-      'Bite-size research takeaways on sustainability and consumer decisions—ready for briefs and campaigns.',
-    url: '/blog',
-    type: 'website',
-    siteName: 'EcoFocus Research',
+      "Bite-size research takeaways on sustainability and consumer decisions—ready for briefs and campaigns.",
+    url: `${SITE_URL}/blog`,                       // ✅ absolute URL
+    type: "website",
+    siteName: "EcoFocus Research",
     images: [
       {
-        url: '/images/og/og-blog.png', // place at /public/images/og/og-blog.png (1200×630)
+        url: `${SITE_URL}/images/og/og-blog.png`,  // ✅ absolute URL
         width: 1200,
         height: 630,
-        alt: 'EcoNuggets – EcoFocus Research Blog',
+        alt: "EcoNuggets – EcoFocus Research Blog",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'EcoNuggets – Insights Blog | EcoFocus Research',
+    card: "summary_large_image",
+    title: "EcoNuggets – Insights Blog | EcoFocus Research",
     description:
-      'Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.',
-    images: ['/images/og/og-blog.png'],
+      "Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.",
+    images: [`${SITE_URL}/images/og/og-blog.png`], // ✅ absolute URL
   },
 };
 
-const pickFirst = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
+/* -------------------- Helpers -------------------- */
+const pickFirst = (v: string | string[] | undefined) =>
+  Array.isArray(v) ? v[0] : v;
 
+/* -------------------- Page -------------------- */
 export default async function BlogIndex({
   searchParams,
 }: {
@@ -70,7 +75,7 @@ export default async function BlogIndex({
 
   const q = pickFirst(sp.q);
   const topic = pickFirst(sp.topic);
-  const sort = (pickFirst(sp.sort) as 'new' | 'popular' | undefined) || 'new';
+  const sort = (pickFirst(sp.sort) as "new" | "popular" | undefined) || "new";
   const page = Number(pickFirst(sp.page) || 1);
 
   const [cats, paged] = await Promise.all([
@@ -81,26 +86,25 @@ export default async function BlogIndex({
   const { docs, totalDocs, totalPages } = paged;
 
   // ---------- JSON-LD: Blog + Breadcrumbs + SearchAction ----------
-  const orgUrl = 'https://www.ecofocusworldwide.com';
-  const pageUrl = `${orgUrl}/blog`;
+  const pageUrl = `${SITE_URL}/blog`;
   const ld = {
-    '@context': 'https://schema.org',
-    '@type': 'Blog',
-    name: 'EcoNuggets – Insights Blog',
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "EcoNuggets – Insights Blog",
     url: pageUrl,
     description:
-      'Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.',
-    isPartOf: { '@type': 'WebSite', name: 'EcoFocus Research', url: orgUrl },
+      "Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.",
+    isPartOf: { "@type": "WebSite", name: "EcoFocus Research", url: SITE_URL },
     potentialAction: {
-      '@type': 'SearchAction',
+      "@type": "SearchAction",
       target: `${pageUrl}?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
+      "query-input": "required name=search_term_string",
     },
     breadcrumb: {
-      '@type': 'BreadcrumbList',
+      "@type": "BreadcrumbList",
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: orgUrl },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: pageUrl },
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Blog", item: pageUrl },
       ],
     },
   };
@@ -130,8 +134,10 @@ export default async function BlogIndex({
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm text-gray-600">
               {totalDocs === 0
-                ? 'No results.'
-                : `Showing ${docs.length} of ${totalDocs} result${totalDocs === 1 ? '' : 's'}`}
+                ? "No results."
+                : `Showing ${docs.length} of ${totalDocs} result${
+                    totalDocs === 1 ? "" : "s"
+                  }`}
             </p>
             {(q || topic) && (
               <Link
@@ -158,24 +164,25 @@ export default async function BlogIndex({
             ))}
           </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="hidden md:flex mt-8 items-center justify-center gap-2">
               {Array.from({ length: totalPages }).map((_, i) => {
                 const n = i + 1;
                 const isActive = n === page;
                 const spOut = new URLSearchParams();
-                if (q) spOut.set('q', q);
-                if (topic) spOut.set('topic', topic);
-                if (sort) spOut.set('sort', sort);
-                spOut.set('page', String(n));
+                if (q) spOut.set("q", q);
+                if (topic) spOut.set("topic", topic);
+                if (sort) spOut.set("sort", sort);
+                spOut.set("page", String(n));
                 return (
                   <Link
                     key={n}
                     href={`/blog?${spOut.toString()}`}
                     className={
                       isActive
-                        ? 'rounded-full bg-emerald-600 text-white px-3 py-1 text-sm'
-                        : 'rounded-full bg-white ring-1 ring-gray-200 px-3 py-1 text-sm text-gray-700'
+                        ? "rounded-full bg-emerald-600 text-white px-3 py-1 text-sm"
+                        : "rounded-full bg-white ring-1 ring-gray-200 px-3 py-1 text-sm text-gray-700"
                     }
                   >
                     {n}
@@ -195,6 +202,7 @@ export default async function BlogIndex({
     </>
   );
 }
+
 
 
 

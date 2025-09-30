@@ -1,19 +1,20 @@
+// app/layout.tsx
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import { Inter } from "next/font/google";
 
-// 1) CLS-safe font loading (improves Lighthouse/CLS)
+// 1) CLS-safe font loading
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
-// 2) Canonical base (you already had this — kept as-is)
-const SITE_URL = "https://www.ecofocusworldwide.com";
+// 2) Site constants (USE THE LIVE, CRAWLABLE URL)
+const SITE_URL = "https://ecofocusresearch.netlify.app";
 const SITE_NAME = "EcoFocus Research";
 const SITE_DESC =
   "EcoFocus provides sustainability research, custom studies, and actionable insights to help businesses make informed decisions.";
 
-// 3) Viewport + theme color (helps Lighthouse)
+// 3) Viewport + theme color
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -24,7 +25,7 @@ export const viewport: Viewport = {
   ],
 };
 
-// 4) Global metadata (keeps your OG/Twitter but adds icons/manifest/canonical hygiene)
+// 4) Global metadata (absolute OG/Twitter image URLs)
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -32,18 +33,18 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESC,
-  alternates: { canonical: "/" }, // child pages override
+  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   openGraph: {
+    type: "website",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     title: SITE_NAME,
     description:
       "Actionable sustainability data and research to power your business strategies.",
-    url: "/", // homepage
-    type: "website",
-    siteName: SITE_NAME,
     images: [
       {
-        url: "/images/og/og-image.jpg",
+        url: `${SITE_URL}/images/og/og-image.jpg`, // absolute URL (1200x630)
         width: 1200,
         height: 630,
         alt: "EcoFocus Research Homepage",
@@ -55,7 +56,7 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description:
       "Actionable sustainability data and research to power your business strategies.",
-    images: ["/images/og/og-image.png"],
+    images: [`${SITE_URL}/images/og/og-image.jpg`], // match OG image
   },
   icons: {
     icon: [
@@ -69,7 +70,8 @@ export const metadata: Metadata = {
       { url: "/images/icons/apple-touch-icon-120.png", sizes: "120x120" },
     ],
     other: [
-      { rel: "mask-icon", url: "/icons/favicon.svg", color: "#156C2B" },
+      // Safari pinned tab (single color)
+      { rel: "mask-icon", url: "/images/icons/safari-pinned-tab.svg", color: "#156C2B" },
     ],
   },
   manifest: "/site.webmanifest",
@@ -77,17 +79,16 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  // 5) Organization JSON-LD (AI-SEO friendly). Non-blocking with afterInteractive.
+  // 5) Organization JSON-LD (non-blocking)
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: SITE_NAME,
     url: SITE_URL,
-    logo: `${SITE_URL}/logo_web3.png`, // update to your main logo path
+    logo: `${SITE_URL}/logo_web3.png`,
     sameAs: [
-      // add your real profiles if applicable
       "https://www.linkedin.com/company/ecofocus",
-      "https://x.com/EcoFocus", // or remove if unused
+      "https://x.com/EcoFocus",
     ],
     contactPoint: [
       {
@@ -102,16 +103,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="bg-white dark:bg-gray-900" suppressHydrationWarning>
       <head>
-        {/* 6) Organization Schema (kept your idea, just richer). */}
+        {/* JSON-LD */}
         <Script
           id="org-jsonld"
           type="application/ld+json"
           strategy="afterInteractive"
-          // Keep JSON.stringify (no trailing commas)
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
 
-        {/* 7) HubSpot tracking (kept exactly, just left a small guard) */}
+        {/* HubSpot tracking (guarded) */}
         {process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID ? (
           <Script
             id="hs-script-loader"
@@ -120,19 +120,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           />
         ) : null}
 
-        {/* 8) Optional: Preconnects that commonly help. Safe to keep or remove. */}
+        {/* Helpful preconnects */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://js.hs-scripts.com" />
         <link rel="dns-prefetch" href="https://js.hs-scripts.com" />
       </head>
-
-      {/* 9) CLS-safe font class and accessible base text color */}
       <body className={`${inter.className} text-gray-900 dark:text-white`}>
         {children}
       </body>
     </html>
   );
 }
+
 
 
 

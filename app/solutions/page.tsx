@@ -14,6 +14,10 @@ import SolutionsHighlights from "./SolutionsHighlights";
 import FinalCTA from "./FinalCTA";
 import DashboardIntro from "./DashboardIntro";
 
+export const dynamic = "force-dynamic";
+
+const SITE_URL = "https://ecofocusresearch.netlify.app";
+
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
   title: { default: "Solutions", template: "%s | EcoFocus Research" },
@@ -35,12 +39,12 @@ export const metadata: Metadata = {
     title: "Solutions — EcoFocus Research",
     description:
       "From syndicated findings to custom studies and activation, our solutions help brands turn sustainability intent into action.",
-    url: "/solutions",
+    url: `${SITE_URL}/solutions`,                           // ✅ absolute URL
     type: "website",
     siteName: "EcoFocus Research",
     images: [
       {
-        url: "/images/og/og-solutions.png", // /public/images/og/og-solutions.png (1200×630)
+        url: `${SITE_URL}/images/og/og-solutions.png`,      // ✅ absolute URL
         width: 1200,
         height: 630,
         alt: "EcoFocus Solutions",
@@ -52,17 +56,13 @@ export const metadata: Metadata = {
     title: "Solutions — EcoFocus Research",
     description:
       "Syndicated and custom research plus activation support to move purpose-driven audiences.",
-    images: ["/images/og/og-solutions.png"],
+    images: [`${SITE_URL}/images/og/og-solutions.png`],     // ✅ absolute URL
   },
   robots: { index: true, follow: true },
 };
 
 export default function SolutionsPage() {
-  // IMPORTANT: Do NOT call client hooks here (e.g., useReducedMotion).
-  // Keep this file a Server Component so `metadata` is allowed.
-
-  const orgUrl = "https://www.ecofocusworldwide.com";
-  const pageUrl = `${orgUrl}/solutions`;
+  const pageUrl = `${SITE_URL}/solutions`;
 
   // Structured data (WebPage + Services list + Breadcrumbs)
   const ld = {
@@ -72,11 +72,11 @@ export default function SolutionsPage() {
     url: pageUrl,
     description:
       "Sustainability research and activation solutions from EcoFocus, including syndicated insights, custom studies, and dashboards.",
-    isPartOf: { "@type": "WebSite", name: "EcoFocus Research", url: orgUrl },
+    isPartOf: { "@type": "WebSite", name: "EcoFocus Research", url: SITE_URL },
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Home", item: orgUrl },
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
         { "@type": "ListItem", position: 2, name: "Solutions", item: pageUrl },
       ],
     },
@@ -110,7 +110,7 @@ export default function SolutionsPage() {
 
   return (
     <>
-      {/* JSON-LD (allowed in Server Component) */}
+      {/* JSON-LD */}
       <Script
         id="solutions-jsonld"
         type="application/ld+json"
@@ -122,26 +122,28 @@ export default function SolutionsPage() {
       <main className="bg-white text-gray-900">
         <SolutionsHero />
 
-        {/* 3 pillars */}
+        {/* Overview pillars */}
         <SolutionsOverview />
 
-        {/* Heavier weight: delivery layer */}
+        {/* Dashboard showcase */}
         <InteractiveDashboardShowcase />
 
         <DashboardIntro />
 
-        {/* Compare the pillars (dashboard handled in rows, not a column) */}
+        {/* Comparison */}
         <SolutionsComparison />
 
-        {/* Outcomes band */}
+        {/* Highlights */}
         <SolutionsHighlights />
 
+        {/* Final CTA */}
         <FinalCTA />
       </main>
       <Footer />
     </>
   );
 }
+
 
 
 

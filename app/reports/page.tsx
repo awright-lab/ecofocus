@@ -11,6 +11,8 @@ import ReportsHero from "./ReportsHero";
 
 export const dynamic = "force-dynamic";
 
+const SITE_URL = "https://ecofocusresearch.netlify.app";
+
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
   title: {
@@ -33,12 +35,12 @@ export const metadata: Metadata = {
     title: "Reports & Store — EcoFocus Research",
     description:
       "Actionable sustainability insights: deep trend data, proof points, and segments for strategy, media, and creative.",
-    url: "/reports",
+    url: `${SITE_URL}/reports`,                       // ✅ absolute URL
     type: "website",
     siteName: "EcoFocus Research",
     images: [
       {
-        url: "/images/og/og-reports.png",
+        url: `${SITE_URL}/images/og/og-reports.png`,  // ✅ absolute URL
         width: 1200,
         height: 630,
         alt: "EcoFocus Reports & Store",
@@ -50,7 +52,7 @@ export const metadata: Metadata = {
     title: "Reports & Store — EcoFocus Research",
     description:
       "Actionable sustainability insights for strategy, messaging, and campaigns.",
-    images: ["/images/og/og-reports.png"],
+    images: [`${SITE_URL}/images/og/og-reports.png`], // ✅ absolute URL
   },
   robots: {
     index: true,
@@ -59,8 +61,7 @@ export const metadata: Metadata = {
 };
 
 export default function ReportsPage() {
-  const orgUrl = "https://www.ecofocusworldwide.com";
-  const pageUrl = `${orgUrl}/reports`;
+  const pageUrl = `${SITE_URL}/reports`;
 
   // JSON-LD: CollectionPage + Breadcrumbs
   const ld = {
@@ -73,23 +74,13 @@ export default function ReportsPage() {
     isPartOf: {
       "@type": "WebSite",
       name: "EcoFocus Research",
-      url: orgUrl,
+      url: SITE_URL,
     },
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: orgUrl,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Reports & Store",
-          item: pageUrl,
-        },
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+        { "@type": "ListItem", position: 2, name: "Reports & Store", item: pageUrl },
       ],
     },
   };
@@ -106,10 +97,10 @@ export default function ReportsPage() {
 
       <Header />
 
-      {/* Hero — deep blue slab + subtle grid */}
+      {/* Hero section */}
       <ReportsHero />
 
-      {/* Tabs just under the hero */}
+      {/* Tabs under hero */}
       <AccessTabs />
 
       {/* Body (client) */}
@@ -127,6 +118,7 @@ export default function ReportsPage() {
     </>
   );
 }
+
 
 
 
