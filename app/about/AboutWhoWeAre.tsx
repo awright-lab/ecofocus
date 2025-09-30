@@ -134,7 +134,7 @@ export default function AboutWhoWeAre() {
           className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-stretch"
           style={{ ['--stack-h' as any]: '26rem' } as React.CSSProperties}
         >
-          {/* Left: eyebrow + title + waves (matches homepage vibe) */}
+          {/* Left: eyebrow + title + waves */}
           <div className="md:col-span-5 flex flex-col justify-center md:min-h-[var(--stack-h)]">
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, y: -8 }}
@@ -153,7 +153,10 @@ export default function AboutWhoWeAre() {
               id="about-who-heading"
               className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]"
             >
-              Shaping tomorrow with <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">sustainable insights</span>
+              Shaping tomorrow with{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                sustainable insights
+              </span>
             </h2>
 
             <div className="mt-4 md:mt-5">
@@ -174,12 +177,12 @@ export default function AboutWhoWeAre() {
             </div>
           </div>
 
-          {/* Right: layered image + copy card */}
+          {/* Right: image + copy card */}
           <div className="md:col-span-7 relative md:min-h-[var(--stack-h)]">
             <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
               <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
                 <Image
-                  src="/images/about-bg.png" /* TODO: replace with on-brand asset */
+                  src="/images/about-bg.png"
                   alt="EcoFocus sustainability research"
                   fill
                   className="object-cover"
@@ -188,17 +191,32 @@ export default function AboutWhoWeAre() {
               </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 md:-left-12 translate-y-1/3 md:translate-y-1/4 w-[90%] md:w-[70%]">
+            {/* 📱 Mobile: normal flow (no absolute) │ 💻 md+: overlay float */}
+            <div
+              className="
+                mt-6 w-[92%] mx-auto
+                md:mt-0 md:absolute md:bottom-0 md:-left-12 md:translate-y-1/4
+                md:w-[70%]
+              "
+            >
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
                 <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                  Since 2010, EcoFocus Research has studied how U.S. consumers think about sustainability
-                  —and how beliefs turn into choices. We translate signals into strategy so your team
-                  can earn trust, close the say–do gap, and grow with purpose.
+                  Since 2010, EcoFocus Research has studied how U.S. consumers think about sustainability—and how beliefs turn into choices.
+                  We translate signals into strategy so your team can earn trust, close the say–do gap, and grow with purpose.
                 </p>
                 <ul className="mt-4 grid gap-2 text-slate-700 text-sm">
-                  <li className="flex gap-2"><span className="mt-2 h-2 w-2 rounded-full bg-amber-400" /> Evidence-based, human-centered research</li>
-                  <li className="flex gap-2"><span className="mt-2 h-2 w-2 rounded-full bg-amber-400" /> Clear frameworks to move from intent to action</li>
-                  <li className="flex gap-2"><span className="mt-2 h-2 w-2 rounded-full bg-amber-400" /> Practical recommendations aligned to your category</li>
+                  <li className="flex gap-2">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-amber-400" />
+                    Evidence-based, human-centered research
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-amber-400" />
+                    Clear frameworks to move from intent to action
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="mt-2 h-2 w-2 rounded-full bg-amber-400" />
+                    Practical recommendations aligned to your category
+                  </li>
                 </ul>
               </div>
             </div>
@@ -211,5 +229,6 @@ export default function AboutWhoWeAre() {
     </section>
   );
 }
+
 
 
