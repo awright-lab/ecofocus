@@ -5,37 +5,24 @@ import * as React from 'react';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 
-/* ================ Ultra-smooth Data Waves =================
-   - CSS transforms only (scaleY & translateX) -> no layout thrash
-   - Single duration for all bars (deterministic)
-   - Staggered delays only
-   ========================================================= */
+/* ================ Ultra-smooth Data Waves ================= */
 function DataWaves({
-  colors = ['#213F97', '#10B981', '#EF9601'], // slate blue, emerald, marigold
+  colors = ['#213F97', '#10B981', '#EF9601'],
   bars = 14,
   maxWidth = 480,
   gutter = 10,
   spacing = 22,
   barWidth = 9,
   barHeight = 56,
-  duration = 3.0,            // one duration for all bars
-  delayStep = 0.16,          // stagger
+  duration = 3.0,
+  delayStep = 0.16,
   offsetX = 4,
   reflectionOpacity = 0.42,
   reflectionBlurPx = 2,
 }: {
-  colors?: string[];
-  bars?: number;
-  maxWidth?: number;
-  gutter?: number;
-  spacing?: number;
-  barWidth?: number;
-  barHeight?: number;
-  duration?: number;
-  delayStep?: number;
-  offsetX?: number;
-  reflectionOpacity?: number;
-  reflectionBlurPx?: number;
+  colors?: string[]; bars?: number; maxWidth?: number; gutter?: number;
+  spacing?: number; barWidth?: number; barHeight?: number; duration?: number;
+  delayStep?: number; offsetX?: number; reflectionOpacity?: number; reflectionBlurPx?: number;
 }) {
   const colorAt = (i: number) => colors[i % colors.length];
 
@@ -102,10 +89,7 @@ function DataWaves({
           border-radius: 999px;
           transform-origin: bottom;
           transform: translateX(0) translateY(2px) scaleY(0);
-          animation-name: waveMotion;
-          animation-duration: var(--dur);
-          animation-timing-function: cubic-bezier(0.33, 0.0, 0.23, 1);
-          animation-iteration-count: infinite;
+          animation: waveMotion var(--dur) cubic-bezier(0.33, 0.0, 0.23, 1) infinite;
           will-change: transform;
           backface-visibility: hidden;
         }
@@ -119,7 +103,6 @@ function DataWaves({
         @media (prefers-reduced-motion: reduce) {
           .bar { animation: none; transform: translateX(0) translateY(1px) scaleY(0.5); }
         }
-
         @media (max-width: 480px) {
           .row { height: calc(var(--barH) + 16px); }
         }
@@ -164,28 +147,13 @@ export default function IntroSection() {
               </span>
             </h2>
 
-            {/* Sleek, deterministic multi-color waves */}
             <div className="mt-4 md:mt-5">
-              <DataWaves
-                colors={['#213F97', '#10B981', '#EF9601']}
-                bars={14}
-                maxWidth={460}
-                gutter={10}
-                spacing={22}
-                barWidth={9}
-                barHeight={56}
-                duration={3.0}
-                delayStep={0.16}
-                offsetX={4}
-                reflectionOpacity={0.42}
-                reflectionBlurPx={2}
-              />
+              <DataWaves />
             </div>
           </div>
 
-          {/* Right: layered cards (image + intro text) */}
-          {/* 🔧 Added pb-32 on mobile so the floating card has room and isn't clipped */}
-          <div className="md:col-span-7 relative md:min-h-[var(--stack-h)] pb-32 md:pb-0">
+          {/* Right: image + copy card */}
+          <div className="md:col-span-7 relative md:min-h-[var(--stack-h)]">
             <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
               <div className="relative h-72 md:h-[var(--stack-h)] w-full rounded-2xl overflow-hidden shadow-lg">
                 <Image
@@ -198,8 +166,12 @@ export default function IntroSection() {
               </div>
             </div>
 
-            {/* Floating copy card */}
-            <div className="absolute bottom-0 left-0 md:-left-12 translate-y-1/3 md:translate-y-1/4 w-[90%] md:w-[70%]">
+            {/* 📱 Mobile: static flow (no absolute)  │  💻 md+: overlay float */}
+            <div className="
+              mt-6 w-[92%] mx-auto
+              md:mt-0 md:absolute md:bottom-0 md:-left-12 md:translate-y-1/4
+              md:w-[70%]
+            ">
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
                 <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
                   EcoFocus® Research delivers research-backed consumer insights that can help companies turn purpose into a competitive edge.
@@ -216,6 +188,7 @@ export default function IntroSection() {
     </section>
   );
 }
+
 
 
 
