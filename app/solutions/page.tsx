@@ -1,8 +1,6 @@
-"use client";
 // app/solutions/page.tsx
 import type { Metadata } from "next";
 import Script from "next/script";
-import { useReducedMotion } from "framer-motion";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -42,7 +40,7 @@ export const metadata: Metadata = {
     siteName: "EcoFocus Research",
     images: [
       {
-        url: "/images/og/og-solutions.png", // place at /public/images/og/og-solutions.png (1200×630)
+        url: "/images/og/og-solutions.png", // /public/images/og/og-solutions.png (1200×630)
         width: 1200,
         height: 630,
         alt: "EcoFocus Solutions",
@@ -60,11 +58,13 @@ export const metadata: Metadata = {
 };
 
 export default function SolutionsPage() {
-  useReducedMotion();
+  // IMPORTANT: Do NOT call client hooks here (e.g., useReducedMotion).
+  // Keep this file a Server Component so `metadata` is allowed.
 
-  // Structured data (WebPage + Service list + Breadcrumbs)
   const orgUrl = "https://www.ecofocusworldwide.com";
   const pageUrl = `${orgUrl}/solutions`;
+
+  // Structured data (WebPage + Services list + Breadcrumbs)
   const ld = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -110,7 +110,7 @@ export default function SolutionsPage() {
 
   return (
     <>
-      {/* JSON-LD */}
+      {/* JSON-LD (allowed in Server Component) */}
       <Script
         id="solutions-jsonld"
         type="application/ld+json"
