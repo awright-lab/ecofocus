@@ -16,12 +16,12 @@ const SITE_URL = "https://ecofocusresearch.netlify.app";
 
 /* ---------------- SEO ---------------- */
 export const metadata: Metadata = {
-  title: "EcoFocus Research | About",
+  title: { absolute: "EcoFocus Research | About" },
   description:
     "Learn how EcoFocus Research helps brands decode the purpose-driven generation with nationally representative sustainability insights and practical guidance.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "EcoFocus Research | About",
+    title:  "EcoFocus Research | About",
     description:
       "We help brands turn sustainability signals into strategy—closing the say–do gap with data-driven guidance.",
     url: `${SITE_URL}/about`,                          // ✅ absolute URL

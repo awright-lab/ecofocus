@@ -20,7 +20,7 @@ const SITE_URL = "https://ecofocusresearch.netlify.app";
 
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
-  title: { default: "EcoFocus Research | Solutions", template: "%s | EcoFocus Research" },
+  title: { absolute: "EcoFocus Research | Solutions" },
   description:
     "EcoFocus Solutions: syndicated research, custom studies, and activation support that turn sustainability insights into strategy, messaging, and measurable outcomes.",
   alternates: { canonical: "/solutions" },
