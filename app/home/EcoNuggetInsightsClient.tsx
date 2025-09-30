@@ -25,7 +25,8 @@ export default function EcoNuggetInsightsClient({
 
   return (
     <section
-      className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white"
+      // NOTE: visible on mobile to avoid clipping the featured card, hidden on md+ if you prefer
+      className="relative overflow-visible md:overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white"
       aria-labelledby="econuggets-heading"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-12 md:py-16 relative z-10">
@@ -58,9 +59,10 @@ export default function EcoNuggetInsightsClient({
             whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ duration: 0.7 }}
-            className="relative overflow-hidden rounded-xl shadow-2xl"
+            className="relative rounded-xl shadow-2xl"
           >
-            <div className="relative aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9]">
+            {/* Image wrapper — a bit taller on mobile to make room for overlay text */}
+            <div className="relative overflow-hidden rounded-xl aspect-[5/4] sm:aspect-[16/9] md:aspect-[21/9]">
               <Image
                 src={featured.image}
                 alt={featured.title}
@@ -72,12 +74,17 @@ export default function EcoNuggetInsightsClient({
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-emerald-950/85 via-emerald-900/45 to-transparent" />
             </div>
 
-            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8">
+            {/* Text overlay — static on mobile so it doesn't get clipped, absolute from md+ */}
+            <div className="p-6 sm:p-8 md:absolute md:inset-0 md:flex md:flex-col md:justify-end">
               <span className="mb-2 inline-flex w-fit items-center rounded-full bg-emerald-800 px-3.5 py-1.5 text-[11px] sm:text-xs uppercase tracking-wide text-emerald-300">
                 Featured{featured.category ? ` • ${featured.category}` : ''}
               </span>
               <h3 className="mb-2 text-[clamp(1.25rem,4.5vw,2rem)] font-bold">{featured.title}</h3>
-              {featured.excerpt && <p className="mb-4 max-w-2xl text-[15px] sm:text-base">{featured.excerpt}</p>}
+              {featured.excerpt && (
+                <p className="mb-4 max-w-2xl text-[15px] sm:text-base line-clamp-3 sm:line-clamp-none">
+                  {featured.excerpt}
+                </p>
+              )}
               {featured.time && <div className="text-xs text-gray-300">{featured.time}</div>}
 
               <span
@@ -203,7 +210,8 @@ function MobilePager({
                 </div>
                 <div className="p-4">
                   <div className="text-xs opacity-85">
-                    {posts[idx].category}{posts[idx].time ? ` • ${posts[idx].time}` : ''}
+                    {posts[idx].category}
+                    {posts[idx].time ? ` • ${posts[idx].time}` : ''}
                   </div>
                   <h4 className="mt-1 text-base font-semibold leading-snug">{posts[idx].title}</h4>
                 </div>
@@ -249,3 +257,4 @@ function MobilePager({
     </div>
   );
 }
+

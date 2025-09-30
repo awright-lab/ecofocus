@@ -4,7 +4,7 @@ import Script from "next/script";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import StickyButtons from "../components/StickyButtons";
+//import StickyButtons from "../components/StickyButtons";
 
 import Hero from "./home/HomeHero";
 import IntroSection from "./home/IntroSection";
@@ -91,7 +91,6 @@ export default function HomePage() {
       <TrustedBy />
       <CallToAction />
       <Footer />
-      <StickyButtons />
     </main>
   );
 }
