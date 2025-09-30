@@ -1,46 +1,120 @@
 // app/blog/page.tsx
-import type { Metadata } from 'next'
-import Link from 'next/link'
-import { getPosts, getTopics } from '@/lib/payload'
-import BlogCard from '@/components/blog/BlogCard'
-import BlogFilterBar from '@/components/blog/BlogFilterBar'
-import SubscribeStrip from '@/components/blog/SubscribeStrip'
-import BlogHero from '@/components/blog/BlogHero'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
-import ArticleFeedMobile from '@/components/blog/ArticleFeedMobile'
+import type { Metadata } from 'next';
+import Script from 'next/script';
+import Link from 'next/link';
 
-export const dynamic = 'force-static'
+import { getPosts, getTopics } from '@/lib/payload';
+import BlogCard from '@/components/blog/BlogCard';
+import BlogFilterBar from '@/components/blog/BlogFilterBar';
+import SubscribeStrip from '@/components/blog/SubscribeStrip';
+import BlogHero from '@/components/blog/BlogHero';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import ArticleFeedMobile from '@/components/blog/ArticleFeedMobile';
 
+export const dynamic = 'force-static';
+
+/* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
-  title: 'EcoNuggets – Insights Blog | EcoFocus Research',
+  title: {
+    default: 'EcoNuggets – Insights Blog',
+    template: '%s | EcoFocus Research',
+  },
   description:
     'Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.',
-}
+  alternates: { canonical: '/blog' },
+  keywords: [
+    'EcoFocus',
+    'EcoNuggets',
+    'sustainability insights',
+    'consumer behavior',
+    'ESG trends',
+    'purpose-driven consumers',
+    'research blog',
+    'marketing strategy',
+  ],
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'EcoNuggets – Insights Blog | EcoFocus Research',
+    description:
+      'Bite-size research takeaways on sustainability and consumer decisions—ready for briefs and campaigns.',
+    url: '/blog',
+    type: 'website',
+    siteName: 'EcoFocus Research',
+    images: [
+      {
+        url: '/images/og/og-blog.png', // place at /public/images/og/og-blog.png (1200×630)
+        width: 1200,
+        height: 630,
+        alt: 'EcoNuggets – EcoFocus Research Blog',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'EcoNuggets – Insights Blog | EcoFocus Research',
+    description:
+      'Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.',
+    images: ['/images/og/og-blog.png'],
+  },
+};
 
-const pickFirst = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
+const pickFirst = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 export default async function BlogIndex({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[]>>
+  searchParams?: Promise<Record<string, string | string[]>>;
 }) {
-  const sp = (await searchParams) || {}
+  const sp = (await searchParams) || {};
 
-  const q = pickFirst(sp.q)
-  const topic = pickFirst(sp.topic)
-  const sort = (pickFirst(sp.sort) as 'new' | 'popular' | undefined) || 'new'
-  const page = Number(pickFirst(sp.page) || 1)
+  const q = pickFirst(sp.q);
+  const topic = pickFirst(sp.topic);
+  const sort = (pickFirst(sp.sort) as 'new' | 'popular' | undefined) || 'new';
+  const page = Number(pickFirst(sp.page) || 1);
 
   const [cats, paged] = await Promise.all([
     getTopics(),
     getPosts({ q, topicSlug: topic, page, limit: 12 }),
-  ])
+  ]);
 
-  const { docs, totalDocs, totalPages } = paged
+  const { docs, totalDocs, totalPages } = paged;
+
+  // ---------- JSON-LD: Blog + Breadcrumbs + SearchAction ----------
+  const orgUrl = 'https://www.ecofocusworldwide.com';
+  const pageUrl = `${orgUrl}/blog`;
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'EcoNuggets – Insights Blog',
+    url: pageUrl,
+    description:
+      'Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.',
+    isPartOf: { '@type': 'WebSite', name: 'EcoFocus Research', url: orgUrl },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${pageUrl}?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: orgUrl },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: pageUrl },
+      ],
+    },
+  };
 
   return (
     <>
+      {/* Structured data */}
+      <Script
+        id="blog-jsonld"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+      />
+
       <Header />
 
       <main className="bg-neutral-50">
@@ -69,20 +143,15 @@ export default async function BlogIndex({
             )}
           </div>
 
-          {/* Mobile: compact, infinite-friendly list */}
-              <ArticleFeedMobile
-                initial={{
-                  docs,
-                  page,
-                  totalPages,
-                  totalDocs,
-                }}
-                q={q}
+          {/* Mobile feed */}
+          <ArticleFeedMobile
+            initial={{ docs, page, totalPages, totalDocs }}
+            q={q}
             category={topic || undefined}
-                sort={sort}
-              />
+            sort={sort}
+          />
 
-          {/* Desktop / tablet: grid with pagination */}
+          {/* Desktop grid */}
           <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {docs.map((p) => (
               <BlogCard key={p.id} post={p} />
@@ -92,13 +161,13 @@ export default async function BlogIndex({
           {totalPages > 1 && (
             <div className="hidden md:flex mt-8 items-center justify-center gap-2">
               {Array.from({ length: totalPages }).map((_, i) => {
-                const n = i + 1
-                const isActive = n === page
-                const spOut = new URLSearchParams()
-                if (q) spOut.set('q', q)
-                if (topic) spOut.set('topic', topic)
-                if (sort) spOut.set('sort', sort)
-                spOut.set('page', String(n))
+                const n = i + 1;
+                const isActive = n === page;
+                const spOut = new URLSearchParams();
+                if (q) spOut.set('q', q);
+                if (topic) spOut.set('topic', topic);
+                if (sort) spOut.set('sort', sort);
+                spOut.set('page', String(n));
                 return (
                   <Link
                     key={n}
@@ -111,7 +180,7 @@ export default async function BlogIndex({
                   >
                     {n}
                   </Link>
-                )
+                );
               })}
             </div>
           )}
@@ -124,7 +193,8 @@ export default async function BlogIndex({
 
       <Footer />
     </>
-  )
+  );
 }
+
 
 

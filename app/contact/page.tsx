@@ -1,18 +1,101 @@
+// app/contact/page.tsx
 import type { Metadata } from 'next';
+import Script from 'next/script';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ContactForm from '@/components/contact/ContactForm';
 import ContactHero from './ContactHero';
 
+/* ---------------- SEO ---------------- */
 export const metadata: Metadata = {
-  title: 'Contact — EcoFocus',
+  title: {
+    default: 'Contact — EcoFocus',
+    template: '%s | EcoFocus Research',
+  },
   description:
     'Talk with EcoFocus. Share your goals and timelines—we’ll respond within one business day.',
+  alternates: { canonical: '/contact' },
+  keywords: [
+    'EcoFocus',
+    'contact',
+    'sustainability research',
+    'consumer insights',
+    'syndicated research',
+    'custom studies',
+  ],
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'Contact — EcoFocus Research',
+    description:
+      'Tell us about your goals, audience, and timing. We’ll respond within one business day.',
+    url: '/contact',
+    type: 'website',
+    siteName: 'EcoFocus Research',
+    images: [
+      {
+        url: '/images/og/og-contact.png',
+        width: 1200,
+        height: 630,
+        alt: 'Contact EcoFocus',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contact — EcoFocus Research',
+    description:
+      'Share your goals and timelines—we’ll respond within one business day.',
+    images: ['/images/og/og-contact.png'],
+  },
 };
 
 export default function ContactPage() {
+  const orgUrl = 'https://www.ecofocusworldwide.com';
+  const pageUrl = `${orgUrl}/contact`;
+
+  // JSON-LD: ContactPage + Organization.contactPoint + BreadcrumbList
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Contact EcoFocus',
+    url: pageUrl,
+    description:
+      'Talk with EcoFocus. Share your goals and timelines—we’ll respond within one business day.',
+    isPartOf: { '@type': 'WebSite', name: 'EcoFocus Research', url: orgUrl },
+    mainEntity: {
+      '@type': 'Organization',
+      name: 'EcoFocus Research',
+      url: orgUrl,
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          contactType: 'customer support',
+          email: 'mcroft@ecofocusworldwide.com',
+          availableLanguage: ['English'],
+          areaServed: 'US',
+        },
+      ],
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: orgUrl },
+        { '@type': 'ListItem', position: 2, name: 'Contact', item: pageUrl },
+      ],
+    },
+  };
+
   return (
     <>
+      {/* Structured data */}
+      <Script
+        id="contact-jsonld"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+      />
+
       <Header />
 
       <main id="main" className="min-h-screen">
@@ -198,6 +281,7 @@ function ActionButton({
     </a>
   );
 }
+
 
 
 

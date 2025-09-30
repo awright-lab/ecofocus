@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     images: [
       {
-        url: "/og/og-image.jpg",
+        url: "/images/og/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "EcoFocus Research Homepage",
@@ -55,16 +55,21 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description:
       "Actionable sustainability data and research to power your business strategies.",
-    images: ["/og/og-image.jpg"],
+    images: ["/images/og/og-image.png"],
   },
   icons: {
     icon: [
-      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/images/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/images/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
     ],
-    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+    apple: [
+      { url: "/images/icons/apple-touch-icon-180.png", sizes: "180x180" },
+      { url: "/images/icons/apple-touch-icon-167.png", sizes: "167x167" },
+      { url: "/images/icons/apple-touch-icon-152.png", sizes: "152x152" },
+      { url: "/images/icons/apple-touch-icon-120.png", sizes: "120x120" },
+    ],
     other: [
-      { rel: "mask-icon", url: "/icons/safari-pinned-tab.svg", color: "#0ea5a0" },
+      { rel: "mask-icon", url: "/icons/favicon.svg", color: "#156C2B" },
     ],
   },
   manifest: "/site.webmanifest",

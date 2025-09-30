@@ -1,7 +1,7 @@
 // app/home/HomeHero.tsx
 "use client";
 
-import Link from "next/link";
+//import Link from "next/link";
 import Image from "next/image";
 import * as React from "react";
 import { useEffect, useRef } from "react";

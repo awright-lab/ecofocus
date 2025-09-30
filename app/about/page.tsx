@@ -23,7 +23,7 @@ export const metadata: Metadata = {
       "We help brands turn sustainability signals into strategy—closing the say–do gap with data-driven guidance.",
     images: [
       {
-        url: "/og/og-about.jpg", // add a specific OG image for about
+        url: "/images/og/og-about.png", // add a specific OG image for about
         width: 1200,
         height: 630,
         alt: "EcoFocus Research — About",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: "About · EcoFocus Research",
     description:
       "Turning sustainability insights into action for brands serving the purpose-driven generation.",
-    images: ["/og/og-about.jpg"],
+    images: ["/og/og-about.png"],
   },
 };
 

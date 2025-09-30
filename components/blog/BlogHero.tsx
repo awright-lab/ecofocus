@@ -10,9 +10,9 @@ export default function BlogHero() {
       badge="EcoNuggets"
       headline={
         <>
-          Fresh sustainability insights that move{" "}
+          Fresh Sustainability Insights That Move{" "}
           <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-            decisions
+            Decisions
           </span>
         </>
       }
