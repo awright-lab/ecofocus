@@ -18,9 +18,10 @@ const SITE_DESC =
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",                 // ⬅️ important for iOS safe areas + true edge-to-edge
   colorScheme: "light dark",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#10B981" }, // emerald
+    { media: "(prefers-color-scheme: light)", color: "#10B981" },
     { media: "(prefers-color-scheme: dark)", color: "#052e29" },
   ],
 };
@@ -44,7 +45,7 @@ export const metadata: Metadata = {
       "Actionable sustainability data and research to power your business strategies.",
     images: [
       {
-        url: `${SITE_URL}/images/og/og-image.jpg`, // absolute URL (1200x630)
+        url: `${SITE_URL}/images/og/og-image.jpg`,
         width: 1200,
         height: 630,
         alt: "EcoFocus Research Homepage",
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
     title: SITE_NAME,
     description:
       "Actionable sustainability data and research to power your business strategies.",
-    images: [`${SITE_URL}/images/og/og-image.jpg`], // match OG image
+    images: [`${SITE_URL}/images/og/og-image.jpg`],
   },
   icons: {
     icon: [
@@ -70,7 +71,6 @@ export const metadata: Metadata = {
       { url: "/images/icons/apple-touch-icon-120.png", sizes: "120x120" },
     ],
     other: [
-      // Safari pinned tab (single color)
       { rel: "mask-icon", url: "/images/icons/safari-pinned-tab.svg", color: "#156C2B" },
     ],
   },
@@ -101,7 +101,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <html lang="en" className="bg-white dark:bg-gray-900" suppressHydrationWarning>
+    <html
+      lang="en"
+      className="h-full bg-white dark:bg-gray-900"        // ⬅️ ensure full-height root
+      suppressHydrationWarning
+    >
       <head>
         {/* JSON-LD */}
         <Script
@@ -125,7 +129,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://js.hs-scripts.com" />
         <link rel="dns-prefetch" href="https://js.hs-scripts.com" />
       </head>
-      <body className={`${inter.className} text-gray-900 dark:text-white`}>
+      <body
+        className={`${inter.className} text-gray-900 dark:text-white min-h-dvh max-w-[100vw] overflow-x-clip`} 
+        //            ⬑ stop horizontal overflow (prevents mobile auto-zoom and lets sections truly full-bleed)
+      >
         {children}
       </body>
     </html>
