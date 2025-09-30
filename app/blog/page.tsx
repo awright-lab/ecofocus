@@ -19,7 +19,7 @@ const SITE_URL = "https://ecofocusresearch.netlify.app";
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
   title: {
-    default: "EcoNuggets – Insights Blog",
+    default: "EcoFocus Research | EcoNuggets Insights Blog",
     template: "%s | EcoFocus Research",
   },
   description:
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   ],
   robots: { index: true, follow: true },
   openGraph: {
-    title: "EcoNuggets – Insights Blog | EcoFocus Research",
+    title: "EcoFocus Research | EcoNuggets Insights Blog",
     description:
       "Bite-size research takeaways on sustainability and consumer decisions—ready for briefs and campaigns.",
     url: `${SITE_URL}/blog`,                       // ✅ absolute URL
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "EcoNuggets – Insights Blog | EcoFocus Research",
+    title: "EcoFocus Research | EcoNuggets Insights Blog",
     description:
       "Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.",
     images: [`${SITE_URL}/images/og/og-blog.png`], // ✅ absolute URL

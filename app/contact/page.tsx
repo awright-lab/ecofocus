@@ -12,7 +12,7 @@ const SITE_URL = "https://ecofocusresearch.netlify.app";
 /* ---------------- SEO ---------------- */
 export const metadata: Metadata = {
   title: {
-    default: "Contact — EcoFocus",
+    default: "EcoFocus Research | Contact",
     template: "%s | EcoFocus Research",
   },
   description:
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "Contact — EcoFocus Research",
+    title: "EcoFocus Research | Contact",
     description:
       "Tell us about your goals, audience, and timing. We’ll respond within one business day.",
     url: `${SITE_URL}/contact`,
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Contact — EcoFocus Research",
+    title: "EcoFocus Research | Contact",
     description:
       "Share your goals and timelines—we’ll respond within one business day.",
     images: [`${SITE_URL}/images/og/og-contact.png`], // ✅ absolute

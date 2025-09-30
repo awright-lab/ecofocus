@@ -16,7 +16,7 @@ const SITE_URL = "https://ecofocusresearch.netlify.app";
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
   title: {
-    default: "Reports & Store",
+    default: "EcoFocus Research | Reports & Store",
     template: "%s | EcoFocus Research",
   },
   description:
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     "syndicated research",
   ],
   openGraph: {
-    title: "Reports & Store — EcoFocus Research",
+    title: "EcoFocus Research | Reports & Store",
     description:
       "Actionable sustainability insights: deep trend data, proof points, and segments for strategy, media, and creative.",
     url: `${SITE_URL}/reports`,                       // ✅ absolute URL
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Reports & Store — EcoFocus Research",
+    title: "EcoFocus Research | Reports & Store",
     description:
       "Actionable sustainability insights for strategy, messaging, and campaigns.",
     images: [`${SITE_URL}/images/og/og-reports.png`], // ✅ absolute URL
