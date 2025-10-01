@@ -244,7 +244,8 @@ export default function CoreServices({ services }: Props) {
                       className="inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:translate-y-[1px] transition"
                       aria-label={`Learn more about ${s.title}`}
                     >
-                      {i === 0 ? 'Explore the study' : i === 1 ? 'See integration options' : 'Start a custom brief'}
+                      {/* replace this section later with this: {i === 0 ? 'Explore the study' : i === 1 ? 'See integration options' : 'Start a custom brief'} */}
+                      {i === 0 ? 'Contact us to learn more' : i === 1 ? 'Contact us to learn more' : 'Contact us to learn more'}
                     </Link>
                   )}
                   <div className="h-[var(--card-note)] flex items-center justify-center">
