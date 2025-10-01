@@ -51,7 +51,7 @@ export default function Header() {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    { name: 'Blog', href: '/blog' },
+    { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
 

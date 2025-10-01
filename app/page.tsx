@@ -86,9 +86,9 @@ export default function HomePage() {
       <main id="main" className="pt-14 md:pt-20">
         <Hero />
         <IntroSection />
+        <CoreServices />
         <InteractiveDashboardShowcase />
         <QuickStats />
-        <CoreServices />
         <SayDoGapSection />
         <EcoNuggetInsights />
         <TrustedBy />

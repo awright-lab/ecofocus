@@ -157,7 +157,7 @@ export default function HomeHero() {
             </h1>
 
             <p className="mt-5 max-w-2xl text-lg sm:text-xl text-white/90">
-              Reliable Sustainability Data to Support Your Next Big Marketing
+              Reliable Sustainability Data to Support Your Next Big Business
               Decision
             </p>
 

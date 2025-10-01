@@ -14,17 +14,23 @@ function DataWaves({
   spacing = 22,
   barWidth = 9,
   barHeight = 56,
-  duration = 3.0,
-  delayStep = 0.16,
+  duration = 6.0,          // 👈 slower default (was 3.0)
+  delayStep = 0.24,        // 👈 slightly slower stagger (was 0.16)
   offsetX = 4,
   reflectionOpacity = 0.42,
   reflectionBlurPx = 2,
+  speedMultiplier = 1.0,   // 👈 global speed knob: >1 = slower, <1 = faster
 }: {
   colors?: string[]; bars?: number; maxWidth?: number; gutter?: number;
   spacing?: number; barWidth?: number; barHeight?: number; duration?: number;
   delayStep?: number; offsetX?: number; reflectionOpacity?: number; reflectionBlurPx?: number;
+  speedMultiplier?: number;
 }) {
   const colorAt = (i: number) => colors[i % colors.length];
+
+  // Respect prefers-reduced-motion by stretching duration even more
+  const prefersReduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const effectiveDuration = (duration * speedMultiplier) * (prefersReduced ? 1.5 : 1); // 50% slower if user prefers less motion
 
   return (
     <div
@@ -37,7 +43,7 @@ function DataWaves({
         ['--spacing' as any]: `${spacing}px`,
         ['--barW' as any]: `${barWidth}px`,
         ['--barH' as any]: `${barHeight}px`,
-        ['--dur' as any]: `${duration}s`,
+        ['--dur' as any]: `${effectiveDuration}s`,
         ['--delayStep' as any]: `${delayStep}s`,
         ['--reflOpacity' as any]: reflectionOpacity,
         ['--reflBlur' as any]: `${reflectionBlurPx}px`,
@@ -148,7 +154,8 @@ export default function IntroSection() {
             </h2>
 
             <div className="mt-4 md:mt-5">
-              <DataWaves />
+              {/* You can nudge overall speed here via speedMultiplier (e.g., 1.25 for even slower) */}
+              <DataWaves speedMultiplier={1.0} />
             </div>
           </div>
 
@@ -167,14 +174,16 @@ export default function IntroSection() {
             </div>
 
             {/* 📱 Mobile: static flow (no absolute)  │  💻 md+: overlay float */}
-            <div className="
-              mt-6 w-[92%] mx-auto
-              md:mt-0 md:absolute md:bottom-0 md:-left-12 md:translate-y-1/4
-              md:w-[70%]
-            ">
+            <div
+              className="
+                mt-6 w-[92%] mx-auto
+                md:mt-0 md:absolute md:bottom-0 md:-left-12 md:translate-y-1/4
+                md:w-[70%]
+              "
+            >
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
                 <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                  EcoFocus® Research delivers research-backed consumer insights that can help companies turn purpose into a competitive edge.
+                  EcoFocus® Research delivers consumer insights that can help companies turn purpose into a competitive edge.
                   Our syndicated and custom studies explore how attitudes, behaviors, and sentiment around sustainability influence purchase decisions.
                   With a special focus on the Purpose-Driven Generation, EcoFocus data can help companies build loyalty, reduce churn, and increase market share through purpose-aligned strategy and messaging.
                 </p>
@@ -188,6 +197,7 @@ export default function IntroSection() {
     </section>
   );
 }
+
 
 
 

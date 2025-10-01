@@ -129,7 +129,7 @@ export default function ContactPage() {
                   <div className="mt-6 grid grid-cols-1 gap-3">
                     <InfoRow
                       label="Response time"
-                      value="Mon–Fri, 9–5 (local), < 1 business day"
+                      value="Mon–Fri, 9–5 CST, < 1 business day"
                     />
                     <InfoRow
                       label="Email"

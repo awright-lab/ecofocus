@@ -201,8 +201,8 @@ export default function AboutWhoWeAre() {
             >
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
                 <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                  Since 2010, EcoFocus Research has studied how U.S. consumers think about sustainability—and how beliefs turn into choices.
-                  We translate signals into strategy so your team can earn trust, close the say–do gap, and grow with purpose.
+                Since 2010 EcoFocus® has exceled in providing expertise in the field of sustainability research, offering high-quality data, trend analysis, and strategic consulting to empower your sustainability objectives. 
+                Our goal is to provide actionable data and insights that will assist you in addressing consumer expectations about sustainability products and practices and ultimately in helping you save the planet
                 </p>
                 <ul className="mt-4 grid gap-2 text-slate-700 text-sm">
                   <li className="flex gap-2">

@@ -4,8 +4,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AboutHero from "./AboutHero";
 import AboutWhoWeAre from "./AboutWhoWeAre";
-import AboutApproach from "./AboutApproach";
-import AboutImpact from "./AboutImpact";
+//import AboutApproach from "./AboutApproach";
+//import AboutImpact from "./AboutImpact";
 import AboutCta from "./AboutCta";
 import Script from "next/script";
 import Leadership from "./Leadership";
@@ -82,8 +82,6 @@ export default function AboutPage() {
       <AboutHero />
       <AboutWhoWeAre />
       <Leadership />
-      <AboutApproach />
-      <AboutImpact />
       <AboutCta />
 
       <Footer />

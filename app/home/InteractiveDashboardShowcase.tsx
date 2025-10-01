@@ -30,16 +30,15 @@ export default function InteractiveDashboardShowcase() {
               Explore, Filter, Export. <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">All in One Place.</span>
             </h2>
             <p className="mt-3 text-white/85 text-sm sm:text-base">
-              The Interactive Dashboard is how agencies use EcoFocus: filter by audiences (Gen Z, Millennials, parents),
-              explore trendlines since 2010, and export white-label charts or CSVs for decks, POVs, and briefs.
+              The Interactive Dashboard is how clients have direct access to EcoFocus data 24/7/365: filter by audiences ( e.g., Gen Z, Millennials, parents, region, etc.),
+              explore trendlines since 2010, and export data into Excel and/or charts into Powerpoint for decks, insights memos, and briefs.
             </p>
 
             <ul className="mt-4 space-y-2.5 text-sm text-white/90">
               {[
-                "Seat-based access; optional SSO for enterprise",
-                "Filters, crosstabs, and chart/CSV exports",
+                "Seat-based access",
+                "Filters, crosstabs, and chart/Excel exports",
                 "White-label visuals for pitch and client decks",
-                "Optional modules for custom questions & joins",
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3">
                   <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden="true" />
@@ -50,7 +49,7 @@ export default function InteractiveDashboardShowcase() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/solutions/dashboard"
+                href="/contact"
                 className="relative inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
                            touch-manipulation
                            before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]

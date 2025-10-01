@@ -4,7 +4,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
 
 type Service = {
   title: string;
@@ -21,7 +20,7 @@ interface Props {
   services?: Service[];
 }
 
-/* Collapsible description with gentle fade */
+/* Collapsible description with gentle height transition (kept) */
 function ExpandableText({
   text,
   initiallyExpanded = false,
@@ -65,15 +64,13 @@ function ExpandableText({
 }
 
 export default function CoreServices({ services }: Props) {
-  const reduceMotion = useReducedMotion();
-
   // Three pillars (Syndicated + Dashboard is positioned in copy)
   const fallback: Service[] = [
     {
       title: 'Syndicated Study',
-      kicker: 'Annual study. Executive-ready insights. Delivered via dashboard.',
+      kicker: 'Annual study. Executive-ready insights.',
       description:
-        'Our flagship, census-balanced study runs once per year—current fielding is complete. Teams license seat access to explore findings in the EcoFocus Interactive Dashboard with fast crosstabs, charts, and exports.',
+        'Our flagship, census-balanced study runs once per year. Request license seat access to explore 2025 findings in the EcoFocus Interactive Dashboard with fast crosstabs, charts, and exports.',
       href: '/contact',
       image: '/images/solutions-syndicated.png',
       bullets: [
@@ -86,29 +83,27 @@ export default function CoreServices({ services }: Props) {
     },
     {
       title: 'Data Integration',
-      kicker: 'Infuse your current data with EcoFocus insights.',
+      kicker: 'Enrich your current data with EcoFocus insights.',
       description:
-        'By infusing our sustainability data into your existing research, we uncover actionable insights that guide product development and marketing strategy. Our data enriches your understanding of eco-conscious consumers—empowering you to connect with your target market in a meaningful way. With 13 years of syndicated research, a 4,000-respondent sample, and a ~1.55% margin of error, we integrate cleanly into your stack and strengthen your models.',
+        'Use our sustainability data to give context to your existing customer data.We help you uncover insights that guide product development and marketing strategy. Our data enriches your understanding of eco-conscious consumers—empowering you to connect with your target market in a meaningful way.',
       href: '/contact',
       image: '/images/solutions-infusion.png',
       bullets: [
         'Secure data exchange (files or data share)',
-        'Schema mapping & QA support',
-        'Optional dashboard overlay for teams',
+        'Contextualize your customer data with sustainability insights',
+        'Indentify growth opportunities in product and marketing strategy',
       ],
       icon: 'ri-database-2-line',
-      // note intentionally omitted — space is still reserved
     },
     {
       title: 'Custom Studies',
-      kicker: 'Answer your exact questions.',
+      kicker: 'Answer the questions that matter to you.',
       description:
-        'When your clients face unique questions, our team designs fast, credible, and campaign-ready studies. We blend quant and qual to deliver clarity with executive-ready storytelling.',
+        'When you need answers to unique questions, our team will work with you to design and implement a custom study to address your business needs. We can blend quant and qual to deliver the insights to help you connect wiith your customers.',
       href: '/contact',
       image: '/images/solutions-custom.png',
       bullets: ['Quant & qual design', 'Rapid polls & deep dives', 'Executive-ready deliverables'],
       icon: 'ri-flask-line',
-      // note intentionally omitted — space is still reserved
     },
   ];
 
@@ -136,17 +131,11 @@ export default function CoreServices({ services }: Props) {
       }
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        {/* Section badge */}
-        <motion.div
-          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.6 }}
-          className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide"
-        >
-          <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+        {/* Section badge (static) */}
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
           <span className="text-black/60">Core Services</span>
-        </motion.div>
+        </div>
 
         {/* Headline 1/2 width row */}
         <div className="mt-0 md:mt-2 grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">
@@ -154,27 +143,35 @@ export default function CoreServices({ services }: Props) {
             id="core-services-heading"
             className="md:col-span-6 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
           >
-            Solutions That Power Growth Across Every <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Industry</span>
+            Solutions That Power Growth Across Every{' '}
+            <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+              Industry
+            </span>
           </h3>
           <p className="md:col-span-6 text-base md:text-lg text-slate-600">
-            From dashboards to custom studies, EcoFocus helps brands and agencies translate sustainability attitudes into
+            From syndicated data to custom studies, EcoFocus helps brands and agencies translate sustainability attitudes into
             strategies that work. Whatever your challenge, our solutions deliver clarity and confidence.
           </p>
         </div>
 
-        {/* Desktop grid */}
+        {/* Desktop grid (static cards) */}
         <div className="hidden md:grid grid-cols-3 gap-8 mt-12">
           {items.map((s, i) => (
-            <motion.div
+            <div
               key={s.title}
-              initial={reduceMotion ? false : { opacity: 0, y: 18 }}
-              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: 0.45, delay: i * 0.08 }}
               className="relative p-[1px] rounded-[1.05rem] bg-[linear-gradient(135deg,rgba(16,185,129,0.35),rgba(59,130,246,0.25),transparent)]"
             >
-              <article className="h-full rounded-[1rem] bg-white ring-1 ring-gray-100 shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)] hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)] transition flex flex-col">
-                {/* Header (in-flow marigold number chip; no overlap) */}
+              <article
+                className="
+                  h-full rounded-[1rem] bg-white ring-1 ring-gray-100
+                  shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)]
+                  hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)]
+                  transition
+                  flex flex-col
+                "
+                // If you want to remove even the hover shadow change, delete `hover:shadow[...]` and `transition` above.
+              >
+                {/* Header */}
                 <div className="px-6 pt-6 pb-4 min-h-[var(--card-hdr)]">
                   <div className="mb-2 flex items-center">
                     <span
@@ -239,7 +236,7 @@ export default function CoreServices({ services }: Props) {
                   ) : null}
                 </div>
 
-                {/* CTA + uniform status line */}
+                {/* CTA + status line */}
                 <div className="px-6 pt-3 mt-auto">
                   {s.href && (
                     <Link
@@ -259,11 +256,11 @@ export default function CoreServices({ services }: Props) {
                   </div>
                 </div>
               </article>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* Mobile stack (keeps the same alignment rules & reserved status line) */}
+        {/* Mobile stack (static cards) */}
         <div className="md:hidden mt-8 grid gap-6">
           {items.map((s, i) => (
             <div
@@ -321,7 +318,8 @@ export default function CoreServices({ services }: Props) {
                       className="inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition active:translate-y-[1px]"
                       aria-label={`Learn more about ${s.title}`}
                     >
-                      {i === 0 ? 'Explore the study' : i === 1 ? 'See integration options' : 'Start a custom brief'}
+                      {/* replace this section later with this: {i === 0 ? 'Explore the study' : i === 1 ? 'See integration options' : 'Start a custom brief'} */}
+                      {i === 0 ? 'Contact us to learn more' : i === 1 ? 'Contact us to learn more' : 'Contact us to learn more'} 
                     </Link>
                   )}
                   <div className="h-[var(--card-note)] flex items-center justify-center">
