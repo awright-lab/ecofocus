@@ -13,11 +13,12 @@ function DataWaves({
   spacing = 22,
   barWidth = 9,
   barHeight = 56,
-  duration = 3.0,
-  delayStep = 0.16,
+  duration = 6.0,          // 👈 slower default (was 3.0)
+  delayStep = 0.24,        // 👈 slower stagger (was 0.16)
   offsetX = 4,
   reflectionOpacity = 0.42,
   reflectionBlurPx = 2,
+  speedMultiplier = 1.0,   // 👈 global speed knob (>1 slower, <1 faster)
 }: {
   colors?: string[];
   bars?: number;
@@ -31,8 +32,15 @@ function DataWaves({
   offsetX?: number;
   reflectionOpacity?: number;
   reflectionBlurPx?: number;
+  speedMultiplier?: number;
 }) {
   const colorAt = (i: number) => colors[i % colors.length];
+
+  const prefersReduced =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  const effectiveDuration = (duration * speedMultiplier) * (prefersReduced ? 1.5 : 1);
 
   return (
     <div
@@ -45,7 +53,7 @@ function DataWaves({
         ['--spacing' as any]: `${spacing}px`,
         ['--barW' as any]: `${barWidth}px`,
         ['--barH' as any]: `${barHeight}px`,
-        ['--dur' as any]: `${duration}s`,
+        ['--dur' as any]: `${effectiveDuration}s`,
         ['--delayStep' as any]: `${delayStep}s`,
         ['--reflOpacity' as any]: reflectionOpacity,
         ['--reflBlur' as any]: `${reflectionBlurPx}px`,
@@ -168,11 +176,12 @@ export default function AboutWhoWeAre() {
                 spacing={22}
                 barWidth={9}
                 barHeight={56}
-                duration={3.0}
-                delayStep={0.16}
+                duration={6.0}        // 👈 slowed
+                delayStep={0.24}      // 👈 slowed
                 offsetX={4}
                 reflectionOpacity={0.42}
                 reflectionBlurPx={2}
+                speedMultiplier={1.0} // tweak to 1.25/1.5 for even calmer
               />
             </div>
           </div>
@@ -201,23 +210,8 @@ export default function AboutWhoWeAre() {
             >
               <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
                 <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                Since 2010 EcoFocus® has exceled in providing expertise in the field of sustainability research, offering high-quality data, trend analysis, and strategic consulting to empower your sustainability objectives. 
-                Our goal is to provide actionable data and insights that will assist you in addressing consumer expectations about sustainability products and practices and ultimately in helping you save the planet
+                  Since 2010 EcoFocus® has excelled in providing expertise in sustainability research, offering high-quality data, trend analysis, and strategic consulting to support your objectives. Our goal is to provide actionable insights that help you meet consumer expectations around sustainable products and practices.
                 </p>
-                <ul className="mt-4 grid gap-2 text-slate-700 text-sm">
-                  <li className="flex gap-2">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-amber-400" />
-                    Evidence-based, human-centered research
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-amber-400" />
-                    Clear frameworks to move from intent to action
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-amber-400" />
-                    Practical recommendations aligned to your category
-                  </li>
-                </ul>
               </div>
             </div>
           </div>
@@ -229,6 +223,7 @@ export default function AboutWhoWeAre() {
     </section>
   );
 }
+
 
 
 

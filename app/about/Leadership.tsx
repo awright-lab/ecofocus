@@ -116,8 +116,8 @@ export default function Leadership() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mx-auto mb-10 max-w-2xl text-center text-sm sm:text-base text-white/85"
         >
-          A senior team dedicated to translating sustainability insights into
-          agency-ready strategies, with the rigor and clarity to stand up in the
+          A expert team dedicated to translating sustainability insights into
+          client-ready strategies, with the rigor and clarity to stand up in the
           boardroom.
         </motion.p>
 
