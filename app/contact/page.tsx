@@ -106,7 +106,7 @@ export default function ContactPage() {
                   </div>
                   <p className="mt-3 text-xs text-gray-500">
                     We’ll only use your info to respond to your inquiry. See our{" "}
-                    <a href="/privacy" className="underline">
+                    <a href="/legal#privacy" className="underline">
                       Privacy Policy
                     </a>
                     .
@@ -167,7 +167,7 @@ export default function ContactPage() {
                   <>
                     We follow strict handling practices and can execute a mutual
                     NDA on request. See our{" "}
-                    <a href="/privacy" className="underline">
+                    <a href="/legal#privacy-policy" className="underline">
                       Privacy Policy
                     </a>
                     .

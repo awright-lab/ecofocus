@@ -45,9 +45,16 @@ export default function CallToAction() {
               Turn Purpose-Driven Insight Into Campaigns That <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Perform</span>
             </h2>
             <p className="mx-auto md:mx-0 max-w-xl text-sm text-gray-600 sm:text-base">
-              Book a strategy session and we’ll translate EcoFocus findings into
-              audience targets, proof-point messaging, and testable creative
-              ideas—so your next brief starts with evidence, not guesses.
+            We are laser focused on delivering data driven information that leads to 
+            solutions. In order to do that we need to have a clear understanding of what  
+            your objectives are and define what success looks like to you.
+            We accomplish this with a no cost, no obligation Discovery Call.
+            On the discovery call we will ask questions and listen to what your needs 
+            are. Following that, we will review the various options available to you from 
+            EcoFocus and align those with what you are looking for and what will be 
+            most valuable to you that works within your budget.
+            From that we will create a scope document with deliverables, timeline and 
+            cost for your review and approval.
             </p>
           </motion.div>
 
@@ -66,7 +73,7 @@ export default function CallToAction() {
                          before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
               aria-label="Book an Insight Session"
             >
-              <span className="relative z-10">Book an Insight Session</span>
+              <span className="relative z-10">Contact us</span>
             </Link>
 
             {/* <Link

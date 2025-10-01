@@ -20,7 +20,7 @@ export default function SubscribeStrip() {
 
       <p className="mt-3 text-xs text-gray-500">
         We’ll email you EcoNuggets. See our{" "}
-        <a href="/privacy" className="underline">Privacy Policy</a>.
+        <a href="/legal#privacy-policy" className="underline">Privacy Policy</a>.
       </p>
     </section>
   );

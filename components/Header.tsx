@@ -1,3 +1,4 @@
+// app/components/Header.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -46,6 +47,10 @@ export default function Header() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
   const isHome = pathname === '/';
+
+  // 👉 Hide CTA when on /contact (or /contact/anything)
+  const isContactPage =
+    pathname === '/contact' || pathname.startsWith('/contact/');
 
   // TEMP NAV
   const navLinks = [
@@ -117,27 +122,29 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Desktop CTA */}
-            <div className="hidden lg:flex items-center">
-              <Link
-                href="/contact"
-                className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 xl:hidden"
-                aria-label="Contact us"
-              >
-                <span className="relative z-10">Contact</span>
-              </Link>
-              <Link
-                href="/contact"
-                className="relative ml-3 hidden xl:inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                aria-label="Contact us"
-              >
-                <span className="relative z-10">Contact Us</span>
-              </Link>
-            </div>
+            {/* Desktop CTA — hidden on contact page */}
+            {!isContactPage && (
+              <div className="hidden lg:flex items-center">
+                <Link
+                  href="/contact"
+                  className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                             before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                             before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 xl:hidden"
+                  aria-label="Contact us"
+                >
+                  <span className="relative z-10">Contact</span>
+                </Link>
+                <Link
+                  href="/contact"
+                  className="relative ml-3 hidden xl:inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                             before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                             before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                  aria-label="Contact us"
+                >
+                  <span className="relative z-10">Contact Us</span>
+                </Link>
+              </div>
+            )}
 
             {/* Mobile menu button */}
             <button
@@ -210,6 +217,7 @@ export default function Header() {
     </>
   );
 }
+
 
 
 

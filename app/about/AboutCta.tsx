@@ -42,10 +42,7 @@ export default function AboutCta() {
               id="about-cta-heading"
               className="mb-4 md:mb-6 font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.4rem)] md:text-[clamp(2rem,3.6vw,2.75rem)]"
             >
-              Turn Sustainability Signals Into{" "}
-              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                Strategy
-              </span>
+              Turn Purpose-Driven Insight Into Campaigns That <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Perform</span>
             </h2>
             <p className="mx-auto md:mx-0 max-w-xl text-sm text-gray-600 sm:text-base">
               Book a strategy session and we’ll translate EcoFocus findings into audience

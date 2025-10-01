@@ -70,7 +70,7 @@ export default function CoreServices({ services }: Props) {
       title: 'Syndicated Study',
       kicker: 'Annual study. Executive-ready insights.',
       description:
-        'Our flagship, census-balanced study runs once per year. Request license seat access to explore 2025 findings in the EcoFocus Interactive Dashboard with fast crosstabs, charts, and exports.',
+        'Since 2010, EcoFocus has been conducting an annual census balanced consumer sustainability study gathering proprietary attitude, behavior and sentiment data. The data is actionable and scalable to assist businesses of all types evaluate what’s hot and what’s not in the world of sustainability. Users can access this data 24/7/365 via a seat license to an Interactive Dashboard with fast crosstabs and user friendly downloadable visuals.',
       href: '/contact',
       image: '/images/solutions-syndicated.png',
       bullets: [

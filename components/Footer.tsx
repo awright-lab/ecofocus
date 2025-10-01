@@ -155,13 +155,13 @@ export default function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:px-6 md:flex-row">
           <p className="text-sm text-gray-400">© {year} EcoFocus Research. All rights reserved.</p>
           <nav aria-label="Legal" className="flex gap-6">
-            <Link href="/privacy" className="text-sm text-gray-400 transition hover:text-white">
+            <Link href="/legal#privacy-policy" className="text-sm text-gray-400 transition hover:text-white">
               Privacy Policy
             </Link>
-            <Link href="/terms" className="text-sm text-gray-400 transition hover:text-white">
+            <Link href="/legal#terms-of-service" className="text-sm text-gray-400 transition hover:text-white">
               Terms
             </Link>
-            <Link href="/cookies" className="text-sm text-gray-400 transition hover:text-white">
+            <Link href="/legal#cookies" className="text-sm text-gray-400 transition hover:text-white">
               Cookies
             </Link>
           </nav>

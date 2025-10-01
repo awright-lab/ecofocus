@@ -54,15 +54,30 @@ export default function ContactForm({ className = '' }: { className?: string }) 
       turnstileToken = input?.value || '';
     }
 
-    // Client-side validation
-    if (!email) {
+    // Client-side validation (all required except message)
+    if (!firstname.trim()) {
+      setSubmitting(false);
+      setError('Please enter your first name.');
+      return;
+    }
+    if (!lastname.trim()) {
+      setSubmitting(false);
+      setError('Please enter your last name.');
+      return;
+    }
+    if (!email.trim()) {
       setSubmitting(false);
       setError('Please enter your email.');
       return;
     }
-    if (!message) {
+    if (!company.trim()) {
       setSubmitting(false);
-      setError('Please add a short message.');
+      setError('Please enter your company.');
+      return;
+    }
+    if (!role.trim()) {
+      setSubmitting(false);
+      setError('Please enter your role/title.');
       return;
     }
     if (!consent) {
@@ -81,7 +96,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
           lastname,
           company,
           role,
-          message,
+          message, // optional
           consent,
           hutk,
           pageUri,
@@ -136,23 +151,31 @@ export default function ContactForm({ className = '' }: { className?: string }) 
       <div className="grid grid-cols-1 gap-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm text-gray-700">First Name</label>
+            <label className="block text-sm text-gray-700">
+              First Name <span className="text-red-600">*</span>
+            </label>
             <input
               type="text"
+              required
               value={firstname}
               onChange={(e) => setFirstname(e.target.value)}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               autoComplete="given-name"
+              aria-invalid={!!error && !firstname ? 'true' : 'false'}
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-700">Last Name</label>
+            <label className="block text-sm text-gray-700">
+              Last Name <span className="text-red-600">*</span>
+            </label>
             <input
               type="text"
+              required
               value={lastname}
               onChange={(e) => setLastname(e.target.value)}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               autoComplete="family-name"
+              aria-invalid={!!error && !lastname ? 'true' : 'false'}
             />
           </div>
         </div>
@@ -177,39 +200,44 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm text-gray-700">Company</label>
+            <label className="block text-sm text-gray-700">
+              Company <span className="text-red-600">*</span>
+            </label>
             <input
               type="text"
+              required
               value={company}
               onChange={(e) => setCompany(e.target.value)}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               autoComplete="organization"
+              aria-invalid={!!error && !company ? 'true' : 'false'}
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-700">Role / Title</label>
+            <label className="block text-sm text-gray-700">
+              Role / Title <span className="text-red-600">*</span>
+            </label>
             <input
               type="text"
+              required
               value={role}
               onChange={(e) => setRole(e.target.value)}
               className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               autoComplete="organization-title"
+              aria-invalid={!!error && !role ? 'true' : 'false'}
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm text-gray-700">
-            Message <span className="text-red-600">*</span>
-          </label>
+          <label className="block text-sm text-gray-700">Message</label>
           <textarea
-            required
             rows={5}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="How can we help? Goals, audience, timing…"
-            aria-invalid={!!error && !message ? 'true' : 'false'}
+            aria-invalid="false"
             maxLength={4000}
           />
         </div>
@@ -221,10 +249,12 @@ export default function ContactForm({ className = '' }: { className?: string }) 
             onChange={(e) => setConsent(e.target.checked)}
             className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
             required
+            aria-invalid={!!error && !consent ? 'true' : 'false'}
           />
           <span>
             I agree to be contacted about my inquiry. See our{' '}
             <a href="/privacy" className="underline">Privacy Policy</a>.
+            <span className="text-red-600"> *</span>
           </span>
         </label>
 
@@ -249,8 +279,12 @@ export default function ContactForm({ className = '' }: { className?: string }) 
         >
           {submitting ? 'Sending…' : 'Send message'}
         </button>
+
+        {/* Note at the bottom */}
+        <p className="mt-2 text-xs text-gray-500">Fields marked with <span className="text-red-600">*</span> are required.</p>
       </div>
     </form>
   );
 }
+
 

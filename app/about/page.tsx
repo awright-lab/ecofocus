@@ -6,9 +6,10 @@ import AboutHero from "./AboutHero";
 import AboutWhoWeAre from "./AboutWhoWeAre";
 //import AboutApproach from "./AboutApproach";
 //import AboutImpact from "./AboutImpact";
-import AboutCta from "./AboutCta";
+//import AboutCta from "./AboutCta";
 import Script from "next/script";
 import Leadership from "./Leadership";
+import CallToAction from "../home/CallToAction";
 
 export const dynamic = "force-dynamic";
 
@@ -82,7 +83,7 @@ export default function AboutPage() {
       <AboutHero />
       <AboutWhoWeAre />
       <Leadership />
-      <AboutCta />
+      <CallToAction />
 
       <Footer />
     </>
