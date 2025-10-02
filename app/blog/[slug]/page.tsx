@@ -135,9 +135,10 @@ export default async function ArticlePage({
                 text-white
               "
             >
-              <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-sm backdrop-blur">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
                 EcoNugget Insights
-              </p>
+              </div>
               <h1
                 id="article-title"
                 className="mt-2 text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] max-w-4xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
