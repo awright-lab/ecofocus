@@ -7,46 +7,25 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
-const EVENT_NAME = "SB’25 San Diego";
-const EVENT_URL = "https://sustainablebrands.com/events/sb25";
-const TARGET_ISO = "2025-10-13T00:00:00-07:00"; // adjust if needed
-const SHOW_EVENT_BANNER = true; // toggle on/off
-
-function useCountdown(targetIso: string) {
-  const target = new Date(targetIso).getTime();
-  const [now, setNow] = useState<number>(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const diff = Math.max(0, target - now);
-  const seconds = Math.floor(diff / 1000) % 60;
-  const minutes = Math.floor(diff / (1000 * 60)) % 60;
-  const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  return { diff, days, hours, minutes, seconds, happening: diff === 0 };
-}
+// Event countdown date
+const EVENT_DATE = new Date('2025-10-13T09:00:00-07:00'); // SB'25 San Diego start date
+const SHOW_EVENT_BANNER = true; // toggle if needed
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [heroInView, setHeroInView] = useState(false); // 👈 observe hero
+  const [timeLeft, setTimeLeft] = useState('');
+  const [showBanner, setShowBanner] = useState(true);
+
   const reduceMotion = useReducedMotion();
   const pathname = usePathname();
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
 
-  // Observe hero sentinel (bottom of hero). Logo is hidden only while in view.
-  useEffect(() => {
-    const el = document.getElementById('hero-sentinel');
-    if (!el) { setHeroInView(false); return; }
-    const io = new IntersectionObserver(
-      (entries) => setHeroInView(entries[0]?.isIntersecting ?? false),
-      { rootMargin: '0px 0px 0px 0px', threshold: 0 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [pathname]);
+  const isHome = pathname === '/';
+  const isContactPage =
+    pathname === '/contact' || pathname.startsWith('/contact/');
 
+  // Scroll listener for header style
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 10);
     onScroll();
@@ -54,10 +33,12 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Close menu on route change (always reset, no conditional needed)
   useEffect(() => {
-    if (isMenuOpen) setIsMenuOpen(false);
-  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+    setIsMenuOpen(false);
+  }, [pathname]);
 
+  // Lock body scroll when menu is open + close on Esc
   useEffect(() => {
     if (!isMenuOpen) return;
     const prev = document.body.style.overflow;
@@ -75,12 +56,30 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
+  // Countdown timer
+  useEffect(() => {
+    if (!SHOW_EVENT_BANNER || !isHome) return;
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = EVENT_DATE.getTime() - now.getTime();
+      if (diff <= 0) {
+        setTimeLeft('Live now!');
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const mins = Math.floor((diff / (1000 * 60)) % 60);
+      setTimeLeft(`${days}d ${hours}h ${mins}m`);
+    }
+
+    updateCountdown();
+    const t = setInterval(updateCountdown, 60000);
+    return () => clearInterval(t);
+  }, [isHome]);
+
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
-
-  const isHome = pathname === '/';
-  const isContactPage = pathname === '/contact' || pathname.startsWith('/contact/');
-  const { days, hours, minutes, seconds, happening } = useCountdown(TARGET_ISO);
 
   const navLinks = [
     { name: 'Home', href: '/' },
@@ -88,9 +87,6 @@ export default function Header() {
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
-
-  // Hide logo only on home while hero is visible
-  const hideLogo = isHome && heroInView;
 
   return (
     <>
@@ -102,58 +98,55 @@ export default function Header() {
         Skip to content
       </a>
 
-      {/* One unified header (banner is inside it) */}
+      {/* Event Banner — only on homepage */}
+      {SHOW_EVENT_BANNER && isHome && showBanner && (
+        <div className="fixed top-0 inset-x-0 z-[95] bg-gradient-to-r from-emerald-600 to-blue-600 text-white text-sm px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="font-semibold">
+              SB&apos;25 San Diego — Starts in {timeLeft}
+            </span>
+            <Link
+              href="/event"
+              className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium hover:bg-white/30 transition"
+            >
+              Learn More
+            </Link>
+          </div>
+          <button
+            onClick={() => setShowBanner(false)}
+            className="ml-4 text-white/80 hover:text-white"
+            aria-label="Dismiss banner"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Sticky header */}
       <header
         data-home={isHome ? 'true' : 'false'}
         data-scrolled={isScrolled ? 'true' : 'false'}
-        className={`fixed inset-x-0 top-0 z-[90] transition-colors ${
+        className={`fixed inset-x-0 ${
+          SHOW_EVENT_BANNER && isHome && showBanner ? 'top-8' : 'top-0'
+        } z-[90] transition-colors ${
           isScrolled
             ? 'bg-white/80 supports-[backdrop-filter]:bg-white/60 backdrop-blur-md shadow-sm'
             : 'bg-white'
         }`}
         aria-label="Primary"
       >
-        {/* Countdown strip (slim, integrated) */}
-        {SHOW_EVENT_BANNER && (
-          <div className="h-10 bg-neutral-900/95 text-white supports-[backdrop-filter]:bg-neutral-900/80">
-            <div className="mx-auto max-w-7xl h-full px-4 sm:px-6 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs sm:text-sm">
-                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
-                {happening ? (
-                  <span className="font-semibold">{EVENT_NAME} is happening now — join us in San Diego.</span>
-                ) : (
-                  <>
-                    <span className="text-white/90">Countdown to {EVENT_NAME}:</span>
-                    <span className="font-semibold tabular-nums">
-                      {String(days).padStart(2,'0')}d : {String(hours).padStart(2,'0')}h : {String(minutes).padStart(2,'0')}m : {String(seconds).padStart(2,'0')}s
-                    </span>
-                  </>
-                )}
-              </div>
-              <a
-                href={EVENT_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hidden sm:inline-flex items-center rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white/95 hover:bg-white/10"
-                aria-label="Learn more about SB’25"
-              >
-                Learn more
-              </a>
-            </div>
-          </div>
-        )}
-
-        {/* Main bar */}
         <div className="mx-auto max-w-7xl h-14 md:h-20 px-4 sm:px-6">
           <div className="flex h-full items-center justify-between">
-            {/* Logo: keeps space; invisible only while hero in view on home */}
+            {/* Logo (keeps space; invisible on home top until scroll past hero) */}
             <div className="flex items-center w-[140px] sm:w-[150px] lg:w-[160px] xl:w-[180px]">
               <Link
                 href="/"
                 aria-label="EcoFocus Home"
-                aria-hidden={hideLogo ? 'true' : undefined}
-                tabIndex={hideLogo ? -1 : 0}
-                className={`flex items-center ${hideLogo ? 'opacity-0 pointer-events-none' : ''}`}
+                aria-hidden={isHome ? 'true' : undefined}
+                tabIndex={isHome ? -1 : 0}
+                className={`flex items-center ${
+                  isHome ? 'opacity-0 pointer-events-none' : ''
+                }`}
               >
                 <Image
                   src="/images/ef-logo.png"
@@ -168,16 +161,25 @@ export default function Header() {
             </div>
 
             {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Primary">
+            <nav
+              className="hidden lg:flex items-center gap-5 xl:gap-8"
+              aria-label="Primary"
+            >
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
-                  <motion.div key={link.href} whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
+                  <motion.div
+                    key={link.href}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <Link
                       href={link.href}
                       aria-current={active ? 'page' : undefined}
                       className={`relative font-medium transition-colors group ${
-                        active ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-600'
+                        active
+                          ? 'text-emerald-700'
+                          : 'text-gray-700 hover:text-emerald-600'
                       } text-[15px]`}
                     >
                       {link.name}
@@ -192,7 +194,7 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Desktop CTA — space preserved; invisible on contact page */}
+            {/* Desktop CTA container (invisible on contact page) */}
             <div className="hidden lg:flex items-center w-[128px] xl:w-[190px] justify-end">
               <Link
                 href="/contact"
@@ -206,6 +208,7 @@ export default function Header() {
               >
                 <span className="relative z-10">Contact</span>
               </Link>
+
               <Link
                 href="/contact"
                 aria-label="Contact us"
@@ -230,12 +233,15 @@ export default function Header() {
               aria-expanded={isMenuOpen}
               aria-controls="mobile-nav"
             >
-              <i className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-2xl text-gray-800`} aria-hidden="true" />
+              <i
+                className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-2xl text-gray-800`}
+                aria-hidden="true"
+              />
             </button>
           </div>
         </div>
 
-        {/* Keep only the normal underline under the nav (no extra divider under banner) */}
+        {/* Decorative gradient underline */}
         <div className="pointer-events-none absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
 
         {/* Mobile nav */}
@@ -258,7 +264,9 @@ export default function Header() {
                       key={link.href}
                       href={link.href}
                       className={`font-medium transition-colors ${
-                        active ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-600'
+                        active
+                          ? 'text-emerald-700'
+                          : 'text-gray-700 hover:text-emerald-600'
                       }`}
                     >
                       {link.name}
@@ -273,6 +281,7 @@ export default function Header() {
     </>
   );
 }
+
 
 
 
