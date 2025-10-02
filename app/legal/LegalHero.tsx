@@ -10,7 +10,7 @@ export default function LegalHero() {
       <Hero
         variant="solutions"
         size="normal" // compact height
-        badge="Our Story"
+        badge="Policies"
         headline={
           <>
             Privacy, Terms &amp; Cookies

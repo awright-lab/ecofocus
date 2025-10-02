@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 
-import Header from "../components/Header";
+//import Header from "../components/Header";
 import Footer from "../components/Footer";
 // import StickyButtons from "../components/StickyButtons";
 
@@ -15,6 +15,7 @@ import EcoNuggetInsights from "./home/EcoNuggetInsights";
 import QuickStats from "./home/QuickStats";
 import SayDoGapSection from "./home/SayDoGapSection";
 import InteractiveDashboardShowcase from "./home/InteractiveDashboardShowcase";
+import HeaderEvent from "@/components/HeaderEvent";
 
 const SITE_URL = "https://ecofocusresearch.netlify.app";
 
@@ -80,7 +81,7 @@ export default function HomePage() {
       />
 
       {/* Move the header OUTSIDE <main> so fixed positioning is reliable */}
-      <Header />
+      <HeaderEvent />
 
       {/* Pad the page content to clear the fixed header (matches Header: h-14 md:h-20) */}
       <main id="main" className="pt-14 md:pt-20">
