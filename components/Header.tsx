@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 // Event countdown date
-const EVENT_DATE = new Date('2025-10-13T09:00:00-07:00'); // SB'25 San Diego start date
+const EVENT_DATE = new Date('2025-10-13T09:00:00-07:00'); // SB'25 start date
 const SHOW_EVENT_BANNER = true; // toggle if needed
 
 export default function Header() {
@@ -16,6 +16,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [timeLeft, setTimeLeft] = useState('');
   const [showBanner, setShowBanner] = useState(true);
+  const [heroVisible, setHeroVisible] = useState(false);
 
   const reduceMotion = useReducedMotion();
   const pathname = usePathname();
@@ -33,7 +34,7 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menu on route change (always reset, no conditional needed)
+  // Close menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
@@ -56,7 +57,7 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
-  // Countdown timer
+  // Countdown timer with seconds
   useEffect(() => {
     if (!SHOW_EVENT_BANNER || !isHome) return;
 
@@ -70,12 +71,30 @@ export default function Header() {
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const mins = Math.floor((diff / (1000 * 60)) % 60);
-      setTimeLeft(`${days}d ${hours}h ${mins}m`);
+      const secs = Math.floor((diff / 1000) % 60);
+      setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s`);
     }
 
     updateCountdown();
-    const t = setInterval(updateCountdown, 60000);
+    const t = setInterval(updateCountdown, 1000); // update every second
     return () => clearInterval(t);
+  }, [isHome]);
+
+  // Observe hero visibility (logo hides only while hero is visible)
+  useEffect(() => {
+    if (!isHome) return;
+    const sentinel = document.querySelector('#hero-sentinel');
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setHeroVisible(entries[0].isIntersecting);
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, [isHome]);
 
   const isActive = (href: string) =>
@@ -137,15 +156,13 @@ export default function Header() {
       >
         <div className="mx-auto max-w-7xl h-14 md:h-20 px-4 sm:px-6">
           <div className="flex h-full items-center justify-between">
-            {/* Logo (keeps space; invisible on home top until scroll past hero) */}
+            {/* Logo (hides only while hero is visible on homepage) */}
             <div className="flex items-center w-[140px] sm:w-[150px] lg:w-[160px] xl:w-[180px]">
               <Link
                 href="/"
                 aria-label="EcoFocus Home"
-                aria-hidden={isHome ? 'true' : undefined}
-                tabIndex={isHome ? -1 : 0}
-                className={`flex items-center ${
-                  isHome ? 'opacity-0 pointer-events-none' : ''
+                className={`flex items-center transition-opacity duration-300 ${
+                  isHome && heroVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}
               >
                 <Image
@@ -154,7 +171,7 @@ export default function Header() {
                   width={160}
                   height={50}
                   sizes="(min-width:1280px) 180px, (min-width:1024px) 160px, (min-width:640px) 150px, 140px"
-                  className="site-logo h-6 md:h-7 w-auto object-contain transition-opacity"
+                  className="site-logo h-6 md:h-7 w-auto object-contain"
                   priority
                 />
               </Link>
@@ -194,7 +211,7 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Desktop CTA container (invisible on contact page) */}
+            {/* Desktop CTA container */}
             <div className="hidden lg:flex items-center w-[128px] xl:w-[190px] justify-end">
               <Link
                 href="/contact"
@@ -241,7 +258,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Decorative gradient underline */}
+        {/* Decorative underline */}
         <div className="pointer-events-none absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
 
         {/* Mobile nav */}
@@ -281,6 +298,7 @@ export default function Header() {
     </>
   );
 }
+
 
 
 
