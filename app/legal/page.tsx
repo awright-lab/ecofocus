@@ -4,11 +4,10 @@
 import * as React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import Hero from '@/components/Hero'; // ← using your Hero component
-
-const LAST_UPDATED = 'October 1, 2025';
+import LegalHero from './LegalHero';
+//import Hero from '@/components/Hero'; // ← using your Hero component
 const COMPANY = 'EcoFocus Research';
-const LEGAL_EMAIL = 'privacy@ecofocusworldwide.com'; // update if needed
+const LEGAL_EMAIL = 'mcroft@ecofocusworldwide.com'; // update if needed
 
 export default function LegalPage() {
   return (
@@ -17,14 +16,7 @@ export default function LegalPage() {
 
       <main id="main" className="relative bg-white">
         {/* Hero (using your component) */}
-        <Hero
-          variant="solutions"
-          size="short"
-          badge="Legal"
-          headline={<>Privacy, Terms &amp; Cookies</>}
-          subhead={<>Last updated: {LAST_UPDATED}</>}
-          overlay="dense"
-        />
+        <LegalHero />
 
         {/* Content */}
         <section

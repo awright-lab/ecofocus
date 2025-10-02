@@ -46,11 +46,9 @@ export default function Header() {
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
-  const isHome = pathname === '/';
 
-  // 👉 Hide CTA when on /contact (or /contact/anything)
-  const isContactPage =
-    pathname === '/contact' || pathname.startsWith('/contact/');
+  const isHome = pathname === '/';
+  const isContactPage = pathname === '/contact' || pathname.startsWith('/contact/');
 
   // TEMP NAV
   const navLinks = [
@@ -81,21 +79,28 @@ export default function Header() {
         }`}
         aria-label="Primary"
       >
-        {/* Outer height: compact on mobile */}
         <div className="mx-auto max-w-7xl h-14 md:h-20 px-4 sm:px-6">
           <div className="flex h-full items-center justify-between">
-            {/* Logo */}
-            <Link href="/" aria-label="EcoFocus Home" className="flex items-center">
-              <Image
-                src="/images/ef-logo.png"
-                alt="EcoFocus"
-                width={160}
-                height={50}
-                sizes="(min-width:1280px) 180px, (min-width:1024px) 160px, (min-width:640px) 150px, 140px"
-                className="site-logo h-6 md:h-7 w-auto object-contain transition-opacity"
-                priority
-              />
-            </Link>
+            {/* Logo (keeps space; invisible on home) */}
+            <div className="flex items-center w-[140px] sm:w-[150px] lg:w-[160px] xl:w-[180px]">
+              <Link
+                href="/"
+                aria-label="EcoFocus Home"
+                aria-hidden={isHome ? 'true' : undefined}
+                tabIndex={isHome ? -1 : 0}
+                className={`flex items-center ${isHome ? 'opacity-0 pointer-events-none' : ''}`}
+              >
+                <Image
+                  src="/images/ef-logo.png"
+                  alt="EcoFocus"
+                  width={160}
+                  height={50}
+                  sizes="(min-width:1280px) 180px, (min-width:1024px) 160px, (min-width:640px) 150px, 140px"
+                  className="site-logo h-6 md:h-7 w-auto object-contain transition-opacity"
+                  priority
+                />
+              </Link>
+            </div>
 
             {/* Desktop nav */}
             <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Primary">
@@ -122,29 +127,34 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Desktop CTA — hidden on contact page */}
-            {!isContactPage && (
-              <div className="hidden lg:flex items-center">
-                <Link
-                  href="/contact"
-                  className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                             before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                             before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 xl:hidden"
-                  aria-label="Contact us"
-                >
-                  <span className="relative z-10">Contact</span>
-                </Link>
-                <Link
-                  href="/contact"
-                  className="relative ml-3 hidden xl:inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                             before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                             before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-                  aria-label="Contact us"
-                >
-                  <span className="relative z-10">Contact Us</span>
-                </Link>
-              </div>
-            )}
+            {/* Desktop CTA container (keeps space; invisible on contact page) */}
+            <div className="hidden lg:flex items-center w-[128px] xl:w-[190px] justify-end">
+              <Link
+                href="/contact"
+                aria-label="Contact us"
+                aria-hidden={isContactPage ? 'true' : undefined}
+                tabIndex={isContactPage ? -1 : 0}
+                className={`relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 xl:hidden
+                  ${isContactPage ? 'opacity-0 pointer-events-none' : ''}`}
+              >
+                <span className="relative z-10">Contact</span>
+              </Link>
+
+              <Link
+                href="/contact"
+                aria-label="Contact us"
+                aria-hidden={isContactPage ? 'true' : undefined}
+                tabIndex={isContactPage ? -1 : 0}
+                className={`relative ml-3 hidden xl:inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                  before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                  before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0
+                  ${isContactPage ? 'opacity-0 pointer-events-none' : ''}`}
+              >
+                <span className="relative z-10">Contact Us</span>
+              </Link>
+            </div>
 
             {/* Mobile menu button */}
             <button

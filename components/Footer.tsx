@@ -1,28 +1,16 @@
+// app/components/Footer.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
+import NewsletterForm from '@/components/newsletter/NewsletterForm'; // ← import it
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-  const [msg, setMsg] = useState<string | null>(null);
   const [showTop, setShowTop] = useState(false);
   const reduceMotion = useReducedMotion();
   const year = new Date().getFullYear();
-
-  function handleNewsletterSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    // TODO: wire to your email provider (HubSpot, Mailchimp, etc.)
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setMsg('Please enter a valid email.');
-      return;
-    }
-    setMsg('Thanks! You’re subscribed.');
-    setEmail('');
-    setTimeout(() => setMsg(null), 3500);
-  }
 
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
@@ -60,13 +48,12 @@ export default function Footer() {
           />
           <p className="text-sm leading-relaxed text-gray-400">
             Turning sustainability data into actionable strategies for over a decade.
-            Trusted by leading brands worldwide.
           </p>
 
           {/* Social */}
           <div className="mt-6 flex space-x-4">
             <a
-              href="https://www.linkedin.com/" // swap to your real page
+              href="https://www.linkedin.com/company/ecofocus-worldwide-llc/"
               target="_blank"
               rel="noopener noreferrer"
               className="grid h-10 w-10 place-items-center rounded-full bg-gray-800 transition hover:bg-gradient-to-r hover:from-emerald-500 hover:to-blue-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
@@ -77,7 +64,7 @@ export default function Footer() {
           </div>
         </motion.section>
 
-        {/* Quick Links (Solutions + Reports removed) */}
+        {/* Quick Links */}
         <motion.nav
           aria-label="Quick links"
           initial={reduceMotion ? false : { opacity: 0, y: 20 }}
@@ -105,7 +92,7 @@ export default function Footer() {
           </ul>
         </motion.nav>
 
-        {/* Newsletter */}
+        {/* Newsletter — now using shared component */}
         <motion.section
           aria-label="Newsletter signup"
           initial={reduceMotion ? false : { opacity: 0, y: 20 }}
@@ -118,35 +105,7 @@ export default function Footer() {
             Get the latest sustainability insights delivered to your inbox.
           </p>
 
-          <form onSubmit={handleNewsletterSubmit} className="space-y-3" noValidate>
-            <label htmlFor="footer-email" className="sr-only">
-              Email address
-            </label>
-            <input
-              id="footer-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-3 text-sm text-white placeholder-gray-400 focus:border-emerald-500 focus:outline-none"
-              required
-              aria-describedby={msg ? 'footer-msg' : undefined}
-            />
-            <button
-              type="submit"
-              className="relative inline-flex w-full items-center justify-center overflow-hidden rounded-lg bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition
-                         before:absolute before:inset-0 before:rounded-lg before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
-                         before:z-0 before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-            >
-              <span className="relative z-10">Subscribe</span>
-            </button>
-
-            {msg && (
-              <p id="footer-msg" className="text-xs text-gray-300">
-                {msg}
-              </p>
-            )}
-          </form>
+          <NewsletterForm theme="dark" className="space-y-3" />
         </motion.section>
       </div>
 
@@ -181,6 +140,7 @@ export default function Footer() {
     </footer>
   );
 }
+
 
 
 

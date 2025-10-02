@@ -151,15 +151,15 @@ export default function ContactPage() {
             <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2">
               <FaqItem
                 q="Can you tailor insights for our category?"
-                a="Yes. We map EcoFocus findings to your category and target segments, identifying the claims and messages most likely to convert."
+                a="Yes. We map EcoFocus findings to your category and target segments, identifying the questions most relevant to your business needs."
               />
               <FaqItem
                 q="Do you work with agencies?"
-                a="Absolutely—strategy, creative, and media teams use us to sharpen briefs and validate message frameworks."
+                a="Absolutely. Strategy, creative, and media teams use us to sharpen briefs and validate message frameworks."
               />
               <FaqItem
                 q="Can we preview relevant data?"
-                a="We can share a short deck with anonymized cuts and example proof points so you can confirm fit before committing."
+                a="Yes. We have a demo version of our Interactive Dashboard that we can share with you."
               />
               <FaqItem
                 q="How do you handle privacy?"

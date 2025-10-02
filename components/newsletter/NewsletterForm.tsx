@@ -1,3 +1,4 @@
+// app/components/NewsletterForm.tsx
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
@@ -11,7 +12,15 @@ function getHutk() {
   return m ? decodeURIComponent(m[1]) : '';
 }
 
-export default function NewsletterForm({ className = '' }: { className?: string }) {
+type Theme = 'light' | 'dark';
+
+export default function NewsletterForm({
+  className = '',
+  theme = 'light',
+}: {
+  className?: string;
+  theme?: Theme;
+}) {
   const [email, setEmail] = useState('');
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
@@ -43,7 +52,7 @@ export default function NewsletterForm({ className = '' }: { className?: string 
 
     const elapsedMs = Date.now() - startRef.current;
 
-    // Optional Turnstile token (if widget enabled)
+    // Optional Turnstile token
     let turnstileToken = '';
     if (TURNSTILE_SITE_KEY) {
       const input = document.querySelector('input[name="cf-turnstile-response"]') as HTMLInputElement | null;
@@ -89,10 +98,20 @@ export default function NewsletterForm({ className = '' }: { className?: string 
     }
   }
 
+  const isDark = theme === 'dark';
+  const labelCls = isDark ? 'block text-sm text-gray-300' : 'block text-sm text-gray-700';
+  const inputCls = isDark
+    ? 'mt-1 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500'
+    : 'mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500';
+  const checkboxLabelCls = isDark ? 'flex items-start gap-2 text-sm text-gray-300' : 'flex items-start gap-2 text-sm text-gray-700';
+
   if (done) {
     return (
       <div className={className}>
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900">
+        <div className={isDark
+          ? 'rounded-xl border border-emerald-400/40 bg-emerald-500/10 p-4 text-emerald-200'
+          : 'rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-900'}
+        >
           <p className="font-semibold">You’re subscribed!</p>
           <p className="text-sm">Thanks for joining EcoNuggets.</p>
         </div>
@@ -102,7 +121,7 @@ export default function NewsletterForm({ className = '' }: { className?: string 
 
   return (
     <form onSubmit={onSubmit} className={className} noValidate>
-      {/* Honeypot field (hidden off-screen; bots often fill it) */}
+      {/* Honeypot */}
       <div style={{ position: 'absolute', left: '-10000px', height: 0, width: 0, overflow: 'hidden' }} aria-hidden="true">
         <label>
           If you are human, leave this field empty:
@@ -119,42 +138,42 @@ export default function NewsletterForm({ className = '' }: { className?: string 
 
       <div className="grid grid-cols-1 gap-3">
         <div>
-          <label className="block text-sm text-gray-700">First Name</label>
+          <label className={labelCls}>First Name</label>
           <input
             type="text"
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className={inputCls}
             autoComplete="given-name"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-700">Last Name</label>
+          <label className={labelCls}>Last Name</label>
           <input
             type="text"
             value={lastname}
             onChange={(e) => setLastname(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className={inputCls}
             autoComplete="family-name"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-700">
-            Email <span className="text-red-600">*</span>
+          <label className={labelCls}>
+            Email <span className="text-red-500">*</span>
           </label>
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className={inputCls}
             autoComplete="email"
           />
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-gray-700">
+        <label className={checkboxLabelCls}>
           <input
             type="checkbox"
             checked={consent}
@@ -164,11 +183,11 @@ export default function NewsletterForm({ className = '' }: { className?: string 
           />
           <span>
             I agree to receive EcoNuggets newsletter. See our{' '}
-            <a href="/privacy" className="underline">Privacy Policy</a>.
+            <a href="/privacy" className={isDark ? 'underline text-emerald-300' : 'underline text-emerald-700'}>Privacy Policy</a>.
           </span>
         </label>
 
-        {/* Optional Turnstile widget (auto-injected hidden input with token) */}
+        {/* Optional Turnstile */}
         {TURNSTILE_SITE_KEY && (
           <>
             <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
@@ -176,7 +195,7 @@ export default function NewsletterForm({ className = '' }: { className?: string 
           </>
         )}
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className={isDark ? 'text-sm text-red-400' : 'text-sm text-red-600'}>{error}</p>}
 
         <button
           type="submit"
