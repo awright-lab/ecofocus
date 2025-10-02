@@ -7,28 +7,19 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
-// Event countdown date
-const EVENT_DATE = new Date('2025-10-13T09:00:00-07:00'); // SB'25 start date
-const SHOW_EVENT_BANNER = true; // toggle if needed
-
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [timeLeft, setTimeLeft] = useState('');
-  const [showBanner, setShowBanner] = useState(true);
   const [heroVisible, setHeroVisible] = useState(false);
-  const [bannerH, setBannerH] = useState(0); // ← dynamic banner height
 
   const reduceMotion = useReducedMotion();
   const pathname = usePathname();
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
-  const bannerRef = useRef<HTMLDivElement | null>(null);
 
   const isHome = pathname === '/';
-  const isContactPage =
-    pathname === '/contact' || pathname.startsWith('/contact/');
+  const isContactPage = pathname === '/contact' || pathname.startsWith('/contact/');
 
-  // Scroll listener for header style
+  // Header style on scroll
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 10);
     onScroll();
@@ -36,7 +27,7 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close menu on route change
+  // Close mobile menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [pathname]);
@@ -59,32 +50,12 @@ export default function Header() {
     };
   }, [isMenuOpen]);
 
-  // Countdown timer with seconds
+  // Observe hero visibility (logo hides only while hero is visible on homepage)
   useEffect(() => {
-    if (!SHOW_EVENT_BANNER || !isHome) return;
-
-    function updateCountdown() {
-      const now = new Date();
-      const diff = EVENT_DATE.getTime() - now.getTime();
-      if (diff <= 0) {
-        setTimeLeft('Live now!');
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const mins = Math.floor((diff / (1000 * 60)) % 60);
-      const secs = Math.floor((diff / 1000) % 60);
-      setTimeLeft(`${days}d ${hours}h ${mins}m ${secs}s`);
+    if (!isHome) {
+      setHeroVisible(false);
+      return;
     }
-
-    updateCountdown();
-    const t = setInterval(updateCountdown, 1000); // update every second
-    return () => clearInterval(t);
-  }, [isHome]);
-
-  // Observe hero visibility (logo hides only while hero is visible)
-  useEffect(() => {
-    if (!isHome) return;
     const sentinel = document.querySelector('#hero-sentinel');
     if (!sentinel) return;
 
@@ -97,34 +68,6 @@ export default function Header() {
     return () => observer.disconnect();
   }, [isHome]);
 
-  // Measure banner height so the header can sit below it (prevents overlap on mobile)
-  useEffect(() => {
-    if (!bannerRef.current) {
-      setBannerH(0);
-      return;
-    }
-
-    const el = bannerRef.current;
-
-    const measure = () => setBannerH(el.offsetHeight || 0);
-
-    // Measure on mount, on resize, and when fonts/layout settle
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-
-    window.addEventListener('resize', measure, { passive: true });
-
-    // If countdown text changes (seconds), layout could shift; measure occasionally
-    const interval = setInterval(() => measure(), 1000);
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', measure);
-      clearInterval(interval);
-    };
-  }, [showBanner, isHome]);
-
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
@@ -134,8 +77,6 @@ export default function Header() {
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
-
-  const bannerVisible = SHOW_EVENT_BANNER && isHome && showBanner;
 
   return (
     <>
@@ -147,44 +88,11 @@ export default function Header() {
         Skip to content
       </a>
 
-      {/* Event Banner — only on homepage */}
-      {bannerVisible && (
-        <div
-          ref={bannerRef}
-          className="fixed top-0 inset-x-0 z-[95] bg-gradient-to-r from-emerald-600 to-blue-600 text-white text-sm px-3 sm:px-4 py-2"
-        >
-          <div className="mx-auto max-w-7xl flex items-center justify-between gap-2">
-            {/* Left: countdown + Learn More */}
-            <div className="min-w-0 flex items-center gap-2 sm:gap-3">
-              <span className="truncate font-semibold">
-                SB&apos;25 San Diego — Starts in {timeLeft}
-              </span>
-              <Link
-                href="/event"
-                className="shrink-0 rounded-full bg-white/20 px-2.5 py-1 text-xs font-medium hover:bg-white/30 transition"
-              >
-                Learn More
-              </Link>
-            </div>
-
-            {/* Right: dismiss */}
-            <button
-              onClick={() => setShowBanner(false)}
-              className="shrink-0 ml-2 text-white/80 hover:text-white"
-              aria-label="Dismiss banner"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Sticky header – sits exactly below the banner height */}
+      {/* Sticky header */}
       <header
         data-home={isHome ? 'true' : 'false'}
         data-scrolled={isScrolled ? 'true' : 'false'}
-        style={{ top: bannerVisible ? bannerH : 0, position: 'fixed', left: 0, right: 0 }}
-        className={`z-[90] transition-colors ${
+        className={`fixed inset-x-0 top-0 z-[90] transition-colors ${
           isScrolled
             ? 'bg-white/80 supports-[backdrop-filter]:bg-white/60 backdrop-blur-md shadow-sm'
             : 'bg-white'
@@ -193,11 +101,13 @@ export default function Header() {
       >
         <div className="mx-auto max-w-7xl h-14 md:h-20 px-4 sm:px-6">
           <div className="flex h-full items-center justify-between">
-            {/* Logo (hides only while hero is visible on homepage) */}
+            {/* Logo (keeps space; invisible while hero visible on home) */}
             <div className="flex items-center w-[140px] sm:w-[150px] lg:w-[160px] xl:w-[180px]">
               <Link
                 href="/"
                 aria-label="EcoFocus Home"
+                aria-hidden={isHome && heroVisible ? 'true' : undefined}
+                tabIndex={isHome && heroVisible ? -1 : 0}
                 className={`flex items-center transition-opacity duration-300 ${
                   isHome && heroVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}
@@ -239,7 +149,7 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Desktop CTA container */}
+            {/* Desktop CTA container (keeps space; invisible on contact page) */}
             <div className="hidden lg:flex items-center w-[128px] xl:w-[190px] justify-end">
               <Link
                 href="/contact"
@@ -317,6 +227,24 @@ export default function Header() {
             </motion.nav>
           )}
         </AnimatePresence>
+
+        {/* (Optional) subtle homepage-only logo tint while hero is visible */}
+        <style jsx global>{`
+          html[data-hero-logo-visible='true']
+            header[data-home='true'][data-scrolled='false']
+            .site-logo {
+            opacity: 0.06;
+            filter: saturate(0.6) brightness(0.92);
+            transition: opacity 220ms ease, filter 220ms ease;
+          }
+          html[data-hero-logo-visible='true']
+            header[data-home='true'][data-scrolled='true']
+            .site-logo {
+            opacity: 0.18;
+            filter: saturate(0.6) brightness(0.92);
+            transition: opacity 220ms ease, filter 220ms ease;
+          }
+        `}</style>
       </header>
     </>
   );
