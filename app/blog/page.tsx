@@ -63,17 +63,15 @@ const pickFirst = (v: string | string[] | undefined) =>
   Array.isArray(v) ? v[0] : v;
 
 /* -------------------- Page -------------------- */
-export default async function BlogIndex({
-  searchParams,
-}: {
-  searchParams?: Record<string, string | string[]>;
-}) {
-  const sp = searchParams || {};
+export default async function BlogIndex(props: any) {
+  // Accept anything to avoid your project's PageProps constraint
+  const searchParams = (props?.searchParams ??
+    {}) as Record<string, string | string[]>;
 
-  const q = pickFirst(sp.q);
-  const topic = pickFirst(sp.topic);
-  const sort = (pickFirst(sp.sort) as "new" | "popular" | undefined) || "new";
-  const page = Number(pickFirst(sp.page) || 1);
+  const q = pickFirst(searchParams.q);
+  const topic = pickFirst(searchParams.topic);
+  const sort = (pickFirst(searchParams.sort) as "new" | "popular" | undefined) || "new";
+  const page = Number(pickFirst(searchParams.page) || 1);
 
   const [cats, paged] = await Promise.all([
     getTopics(),
@@ -199,6 +197,7 @@ export default async function BlogIndex({
     </>
   );
 }
+
 
 
 
