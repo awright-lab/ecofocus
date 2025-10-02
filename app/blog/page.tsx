@@ -12,14 +12,13 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleFeedMobile from "@/components/blog/ArticleFeedMobile";
 
-// ✅ Make the page dynamic so it re-renders on querystring changes
-export const dynamic = "force-dynamic"; // or: export const revalidate = 0;
+export const dynamic = "force-dynamic"; // ensure fresh results for filters
 
 const SITE_URL = "https://ecofocusresearch.netlify.app";
 
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
-  title: { absolute: "EcoFocus Research | EcoNuggets Insights Blog"},
+  title: { absolute: "EcoFocus Research | EcoNuggets Insights Blog" },
   description:
     "Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.",
   alternates: { canonical: "/blog" },
@@ -67,17 +66,15 @@ const pickFirst = (v: string | string[] | undefined) =>
 export default async function BlogIndex({
   searchParams,
 }: {
-  // ✅ Read searchParams directly (not Promise)
   searchParams?: Record<string, string | string[]>;
 }) {
   const sp = searchParams || {};
 
-  const q = pickFirst(sp.q) || "";
-  const topic = pickFirst(sp.topic) || "";
+  const q = pickFirst(sp.q);
+  const topic = pickFirst(sp.topic);
   const sort = (pickFirst(sp.sort) as "new" | "popular" | undefined) || "new";
   const page = Number(pickFirst(sp.page) || 1);
 
-  // ✅ Ensure your data helpers actually use q/topic and aren't cached
   const [cats, paged] = await Promise.all([
     getTopics(),
     getPosts({ q, topicSlug: topic, page, limit: 12 }),
@@ -85,7 +82,7 @@ export default async function BlogIndex({
 
   const { docs, totalDocs, totalPages } = paged;
 
-  // ---------- JSON-LD ----------
+  // ---------- JSON-LD: Blog + Breadcrumbs + SearchAction ----------
   const pageUrl = `${SITE_URL}/blog`;
   const ld = {
     "@context": "https://schema.org",
@@ -111,6 +108,7 @@ export default async function BlogIndex({
 
   return (
     <>
+      {/* Structured data */}
       <Script
         id="blog-jsonld"
         type="application/ld+json"
@@ -151,14 +149,14 @@ export default async function BlogIndex({
           {/* Mobile feed */}
           <ArticleFeedMobile
             initial={{ docs, page, totalPages, totalDocs }}
-            q={q || undefined}
+            q={q}
             category={topic || undefined}
             sort={sort}
           />
 
           {/* Desktop grid */}
           <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {docs.map((p: any) => (
+            {docs.map((p) => (
               <BlogCard key={p.id} post={p} />
             ))}
           </div>
@@ -201,6 +199,7 @@ export default async function BlogIndex({
     </>
   );
 }
+
 
 
 
