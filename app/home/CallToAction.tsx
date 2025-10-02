@@ -46,6 +46,7 @@ export default function CallToAction() {
                 Perform
               </span>
             </h2>
+
             <p className="mx-auto md:mx-0 max-w-prose text-sm text-gray-600 sm:text-base leading-relaxed">
               We are laser focused on delivering data driven information that
               leads to solutions. In order to do that we need to have a clear
@@ -66,30 +67,32 @@ export default function CallToAction() {
             </p>
           </motion.div>
 
-          {/* Right: Callout Card */}
+          {/* Right: Callout Card — lowered so it doesn't align with title */}
           <motion.aside
-            className="md:col-span-5"
+            className="md:col-span-5 md:mt-8 lg:mt-12"
             initial={reduceMotion ? false : { opacity: 0, x: 20 }}
             whileInView={reduceMotion ? undefined : { opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.15 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
             viewport={{ once: true, amount: 0.6 }}
           >
             <div className="rounded-2xl bg-white shadow-xl ring-1 ring-gray-200 p-6 md:p-7">
               <h3 className="text-lg font-semibold text-gray-900">
-                What you’ll get
+                What this includes
               </h3>
+
+              {/* Bullets strictly reflecting the paragraph above */}
               <ul className="mt-4 space-y-2 text-sm text-gray-700">
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Clear objectives & success criteria
+                  A no-cost, no-obligation discovery call to understand objectives and success criteria
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Options mapped to your budget & timeline
+                  A review of available EcoFocus options aligned to your needs and budget
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Scope doc with deliverables & costs
+                  A follow-up scope document outlining deliverables, timeline, and cost
                 </li>
               </ul>
 
@@ -98,6 +101,7 @@ export default function CallToAction() {
                 className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white overflow-hidden transition-all duration-300
                   before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
                   before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 relative"
+                aria-label="Book a discovery call"
               >
                 <span className="relative z-10">Book a discovery call</span>
               </Link>
@@ -112,6 +116,7 @@ export default function CallToAction() {
     </section>
   );
 }
+
 
 
 
