@@ -80,18 +80,27 @@ export default function CallToAction() {
                 What this includes
               </h3>
 
-              {/* Bullets strictly reflecting the paragraph above */}
+              {/* Bullets strictly reflecting the paragraph above — PERFECT DOTS */}
               <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <li className="relative pl-5">
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                  />
                   A no-cost, no-obligation discovery call to understand objectives and success criteria
                 </li>
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <li className="relative pl-5">
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                  />
                   A review of available EcoFocus options aligned to your needs and budget
                 </li>
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                <li className="relative pl-5">
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                  />
                   A follow-up scope document outlining deliverables, timeline, and cost
                 </li>
               </ul>
@@ -116,6 +125,7 @@ export default function CallToAction() {
     </section>
   );
 }
+
 
 
 

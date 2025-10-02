@@ -1,3 +1,4 @@
+// payload.ts
 import type { Paginated, Post, Category as Topic, Author } from './cms'
 
 const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL?.replace(/\/$/, '')
@@ -11,22 +12,7 @@ type GetPostsParams = {
   draftToken?: string
 }
 
-// Helper to build Payload "where" filters
-function buildWhere({ q, topicSlug }: { q?: string; topicSlug?: string }) {
-  const clauses: any[] = []
-  if (q) {
-    clauses.push({
-      or: [{ title: { like: q } }, { dek: { like: q } }, { excerpt: { like: q } }],
-    })
-  }
-  if (topicSlug) {
-    // Filter by related topic's slug (depth=2 makes nested slugs available)
-    clauses.push({ 'topics.slug': { equals: topicSlug } })
-  }
-  if (clauses.length === 0) return undefined
-  if (clauses.length === 1) return clauses[0]
-  return { and: clauses }
-}
+/* ------------------------------ fetch helpers ------------------------------ */
 
 function withHeaders(init?: RequestInit): RequestInit {
   const headers: HeadersInit = {
@@ -38,13 +24,17 @@ function withHeaders(init?: RequestInit): RequestInit {
   return { ...init, headers }
 }
 
+/** Never cache (good for interactive filters) */
 function noStore(init?: RequestInit): RequestInit {
   return withHeaders({ ...init, cache: 'no-store', next: { revalidate: 0 } as any })
 }
 
+/** Light caching (ok for taxonomies / topics) */
 function maybeRevalidate(init?: RequestInit): RequestInit {
   return withHeaders({ ...init, next: { revalidate: 60 } as any })
 }
+
+/* --------------------------------- mappers --------------------------------- */
 
 function mapImage(node: any): { url: string; alt?: string } | null {
   if (!node) return null
@@ -69,8 +59,7 @@ function richToText(v: any): string {
     const walk = (node: any): string => {
       if (!node) return ''
       if (Array.isArray(node)) return node.map(walk).join('')
-      const type = node.type
-      if (type === 'text') return node.text || ''
+      if (node.type === 'text') return node.text || ''
       if (node.children) return node.children.map(walk).join('')
       if (node.root) return walk(node.root)
       return ''
@@ -116,7 +105,7 @@ function mapPost(p: any): Post {
     slug: p.slug,
     excerpt: isRich(dekVal) ? richToText(dekVal) : dekVal,
     coverImage: mapImage(p.hero || p.heroImage || p.cover || p.image || p.featuredImage),
-    html: p.html, // optional; if using blocks, render via PostBody
+    html: p.html, // optional; project prefers blocks via `body`
     publishedAt: p.publishedAt || p._publishedAt || p.createdAt || p.updatedAt,
     updatedAt: p.updatedAt,
     categories: mapTopics(p.topics || p.categories || []),
@@ -138,6 +127,8 @@ function mapPost(p: any): Post {
   }
 }
 
+/* ------------------------------- public APIs ------------------------------- */
+
 export async function getTopics(): Promise<Topic[]> {
   if (!CMS_URL) return []
   const url = `${CMS_URL}/api/topics?depth=0&limit=100`
@@ -148,30 +139,69 @@ export async function getTopics(): Promise<Topic[]> {
   return mapTopics(docs)
 }
 
+/** Resolve a topic ID by slug (robust way to filter relationships in Payload) */
+async function getTopicIdBySlug(slug?: string, init?: RequestInit): Promise<string | undefined> {
+  if (!CMS_URL || !slug) return
+  const url = new URL(`${CMS_URL}/api/topics`)
+  url.searchParams.set('limit', '1')
+  url.searchParams.set('where[slug][equals]', slug)
+
+  const res = await fetch(url.toString(), withHeaders(init))
+  if (!res.ok) return
+  const data = await res.json()
+  const doc = data?.docs?.[0]
+  const id = doc?.id ?? doc?._id
+  return id ? String(id) : undefined
+}
+
 export async function getPosts(params: GetPostsParams = {}): Promise<Paginated<Post>> {
   const { page = 1, limit = 12, q, topicSlug, draftToken } = params
   if (!CMS_URL) {
     return { docs: [], totalDocs: 0, page: 1, totalPages: 1, limit }
   }
+
+  // Resolve topic ID first — filtering relationship fields by slug is unreliable
+  const topicId = await getTopicIdBySlug(topicSlug, noStore())
+
   const url = new URL(`${CMS_URL}/api/posts`)
   url.searchParams.set('depth', '2')
   url.searchParams.set('page', String(page))
   url.searchParams.set('limit', String(limit))
   url.searchParams.set('sort', '-publishedAt')
 
-  const where = buildWhere({ q, topicSlug })
-  if (where) url.searchParams.set('where', JSON.stringify(where))
+  // Build Payload "where" object
+  const clauses: any[] = []
+  if (q) {
+    clauses.push({
+      or: [
+        { title: { like: q } },
+        { dek: { like: q } },
+        { excerpt: { like: q } },
+      ],
+    })
+  }
+  if (topicId) {
+    // Relationship field filter: topics[in]=[topicId]
+    clauses.push({ topics: { in: [topicId] } })
+  }
+  if (clauses.length === 1) {
+    url.searchParams.set('where', JSON.stringify(clauses[0]))
+  } else if (clauses.length > 1) {
+    url.searchParams.set('where', JSON.stringify({ and: clauses }))
+  }
 
   if (draftToken) {
     url.searchParams.set('draft', 'true')
     url.searchParams.set('previewToken', draftToken)
   }
 
-  const init = draftToken ? noStore() : maybeRevalidate()
+  // ❗ Use noStore so UI filters reflect immediately on each querystring change
+  const init = noStore()
   const res = await fetch(url.toString(), init)
   if (!res.ok) {
     return { docs: [], totalDocs: 0, page: 1, totalPages: 1, limit }
   }
+
   const data = await res.json()
   const docs = (data?.docs ?? []).map(mapPost)
   return {
@@ -188,14 +218,8 @@ export async function getPostBySlug(slug: string, draftToken?: string): Promise<
   const url = new URL(`${CMS_URL}/api/posts`)
   url.searchParams.set('depth', '2')
   url.searchParams.set('limit', '1')
-
-  // ❗ Use bracketed where so Payload actually filters by slug
+  // Bracketed where is reliable for single-field lookup
   url.searchParams.set('where[slug][equals]', slug)
-
-  if (draftToken) {
-    url.searchParams.set('draft', 'true')
-    url.searchParams.set('previewToken', draftToken)
-  }
 
   const init = draftToken ? noStore() : maybeRevalidate()
   const res = await fetch(url.toString(), init)
@@ -205,14 +229,15 @@ export async function getPostBySlug(slug: string, draftToken?: string): Promise<
   const doc = data?.docs?.[0]
   if (!doc) return null
 
-  // Map + include raw blocks for PostBody (this project uses `body` only)
   const post = mapPost(doc) as any
   post.body = doc.body || []
 
-  // Prevent stale HTML from overriding proper blocks rendering
+  // Prefer blocks over legacy HTML when present
   if (Array.isArray(post.body) ? post.body.length > 0 : !!post.body) {
     post.html = undefined
   }
 
   return post
 }
+
+

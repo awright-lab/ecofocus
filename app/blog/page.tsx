@@ -12,7 +12,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ArticleFeedMobile from "@/components/blog/ArticleFeedMobile";
 
-export const dynamic = "force-static";
+// ✅ Make the page dynamic so it re-renders on querystring changes
+export const dynamic = "force-dynamic"; // or: export const revalidate = 0;
 
 const SITE_URL = "https://ecofocusresearch.netlify.app";
 
@@ -37,12 +38,12 @@ export const metadata: Metadata = {
     title: "EcoFocus Research | EcoNuggets Insights Blog",
     description:
       "Bite-size research takeaways on sustainability and consumer decisions—ready for briefs and campaigns.",
-    url: `${SITE_URL}/blog`,                       // ✅ absolute URL
+    url: `${SITE_URL}/blog`,
     type: "website",
     siteName: "EcoFocus Research",
     images: [
       {
-        url: `${SITE_URL}/images/og/og-blog.png`,  // ✅ absolute URL
+        url: `${SITE_URL}/images/og/og-blog.png`,
         width: 1200,
         height: 630,
         alt: "EcoNuggets – EcoFocus Research Blog",
@@ -54,7 +55,7 @@ export const metadata: Metadata = {
     title: "EcoFocus Research | EcoNuggets Insights Blog",
     description:
       "Short, actionable “EcoNuggets” on sustainability, consumer behavior, and data-driven strategy.",
-    images: [`${SITE_URL}/images/og/og-blog.png`], // ✅ absolute URL
+    images: [`${SITE_URL}/images/og/og-blog.png`],
   },
 };
 
@@ -66,15 +67,17 @@ const pickFirst = (v: string | string[] | undefined) =>
 export default async function BlogIndex({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[]>>;
+  // ✅ Read searchParams directly (not Promise)
+  searchParams?: Record<string, string | string[]>;
 }) {
-  const sp = (await searchParams) || {};
+  const sp = searchParams || {};
 
-  const q = pickFirst(sp.q);
-  const topic = pickFirst(sp.topic);
+  const q = pickFirst(sp.q) || "";
+  const topic = pickFirst(sp.topic) || "";
   const sort = (pickFirst(sp.sort) as "new" | "popular" | undefined) || "new";
   const page = Number(pickFirst(sp.page) || 1);
 
+  // ✅ Ensure your data helpers actually use q/topic and aren't cached
   const [cats, paged] = await Promise.all([
     getTopics(),
     getPosts({ q, topicSlug: topic, page, limit: 12 }),
@@ -82,7 +85,7 @@ export default async function BlogIndex({
 
   const { docs, totalDocs, totalPages } = paged;
 
-  // ---------- JSON-LD: Blog + Breadcrumbs + SearchAction ----------
+  // ---------- JSON-LD ----------
   const pageUrl = `${SITE_URL}/blog`;
   const ld = {
     "@context": "https://schema.org",
@@ -108,7 +111,6 @@ export default async function BlogIndex({
 
   return (
     <>
-      {/* Structured data */}
       <Script
         id="blog-jsonld"
         type="application/ld+json"
@@ -149,14 +151,14 @@ export default async function BlogIndex({
           {/* Mobile feed */}
           <ArticleFeedMobile
             initial={{ docs, page, totalPages, totalDocs }}
-            q={q}
+            q={q || undefined}
             category={topic || undefined}
             sort={sort}
           />
 
           {/* Desktop grid */}
           <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {docs.map((p) => (
+            {docs.map((p: any) => (
               <BlogCard key={p.id} post={p} />
             ))}
           </div>
@@ -199,6 +201,7 @@ export default async function BlogIndex({
     </>
   );
 }
+
 
 
 

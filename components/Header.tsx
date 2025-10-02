@@ -17,10 +17,12 @@ export default function Header() {
   const [timeLeft, setTimeLeft] = useState('');
   const [showBanner, setShowBanner] = useState(true);
   const [heroVisible, setHeroVisible] = useState(false);
+  const [bannerH, setBannerH] = useState(0); // ← dynamic banner height
 
   const reduceMotion = useReducedMotion();
   const pathname = usePathname();
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
+  const bannerRef = useRef<HTMLDivElement | null>(null);
 
   const isHome = pathname === '/';
   const isContactPage =
@@ -87,15 +89,41 @@ export default function Header() {
     if (!sentinel) return;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        setHeroVisible(entries[0].isIntersecting);
-      },
+      (entries) => setHeroVisible(entries[0].isIntersecting),
       { threshold: 0.2 }
     );
 
     observer.observe(sentinel);
     return () => observer.disconnect();
   }, [isHome]);
+
+  // Measure banner height so the header can sit below it (prevents overlap on mobile)
+  useEffect(() => {
+    if (!bannerRef.current) {
+      setBannerH(0);
+      return;
+    }
+
+    const el = bannerRef.current;
+
+    const measure = () => setBannerH(el.offsetHeight || 0);
+
+    // Measure on mount, on resize, and when fonts/layout settle
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+
+    window.addEventListener('resize', measure, { passive: true });
+
+    // If countdown text changes (seconds), layout could shift; measure occasionally
+    const interval = setInterval(() => measure(), 1000);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+      clearInterval(interval);
+    };
+  }, [showBanner, isHome]);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
@@ -106,6 +134,8 @@ export default function Header() {
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
+
+  const bannerVisible = SHOW_EVENT_BANNER && isHome && showBanner;
 
   return (
     <>
@@ -118,36 +148,43 @@ export default function Header() {
       </a>
 
       {/* Event Banner — only on homepage */}
-      {SHOW_EVENT_BANNER && isHome && showBanner && (
-        <div className="fixed top-0 inset-x-0 z-[95] bg-gradient-to-r from-emerald-600 to-blue-600 text-white text-sm px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-semibold">
-              SB&apos;25 San Diego — Starts in {timeLeft}
-            </span>
-            <Link
-              href="/event"
-              className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium hover:bg-white/30 transition"
+      {bannerVisible && (
+        <div
+          ref={bannerRef}
+          className="fixed top-0 inset-x-0 z-[95] bg-gradient-to-r from-emerald-600 to-blue-600 text-white text-sm px-3 sm:px-4 py-2"
+        >
+          <div className="mx-auto max-w-7xl flex items-center justify-between gap-2">
+            {/* Left: countdown + Learn More */}
+            <div className="min-w-0 flex items-center gap-2 sm:gap-3">
+              <span className="truncate font-semibold">
+                SB&apos;25 San Diego — Starts in {timeLeft}
+              </span>
+              <Link
+                href="/event"
+                className="shrink-0 rounded-full bg-white/20 px-2.5 py-1 text-xs font-medium hover:bg-white/30 transition"
+              >
+                Learn More
+              </Link>
+            </div>
+
+            {/* Right: dismiss */}
+            <button
+              onClick={() => setShowBanner(false)}
+              className="shrink-0 ml-2 text-white/80 hover:text-white"
+              aria-label="Dismiss banner"
             >
-              Learn More
-            </Link>
+              ✕
+            </button>
           </div>
-          <button
-            onClick={() => setShowBanner(false)}
-            className="ml-4 text-white/80 hover:text-white"
-            aria-label="Dismiss banner"
-          >
-            ✕
-          </button>
         </div>
       )}
 
-      {/* Sticky header */}
+      {/* Sticky header – sits exactly below the banner height */}
       <header
         data-home={isHome ? 'true' : 'false'}
         data-scrolled={isScrolled ? 'true' : 'false'}
-        className={`fixed inset-x-0 ${
-          SHOW_EVENT_BANNER && isHome && showBanner ? 'top-8' : 'top-0'
-        } z-[90] transition-colors ${
+        style={{ top: bannerVisible ? bannerH : 0, position: 'fixed', left: 0, right: 0 }}
+        className={`z-[90] transition-colors ${
           isScrolled
             ? 'bg-white/80 supports-[backdrop-filter]:bg-white/60 backdrop-blur-md shadow-sm'
             : 'bg-white'
@@ -178,25 +215,16 @@ export default function Header() {
             </div>
 
             {/* Desktop nav */}
-            <nav
-              className="hidden lg:flex items-center gap-5 xl:gap-8"
-              aria-label="Primary"
-            >
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Primary">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
-                  <motion.div
-                    key={link.href}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                  <motion.div key={link.href} whileHover={{ scale: 1.05 }} transition={{ duration: 0.2 }}>
                     <Link
                       href={link.href}
                       aria-current={active ? 'page' : undefined}
                       className={`relative font-medium transition-colors group ${
-                        active
-                          ? 'text-emerald-700'
-                          : 'text-gray-700 hover:text-emerald-600'
+                        active ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-600'
                       } text-[15px]`}
                     >
                       {link.name}
@@ -250,10 +278,7 @@ export default function Header() {
               aria-expanded={isMenuOpen}
               aria-controls="mobile-nav"
             >
-              <i
-                className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-2xl text-gray-800`}
-                aria-hidden="true"
-              />
+              <i className={`ri-${isMenuOpen ? 'close' : 'menu'}-line text-2xl text-gray-800`} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -281,9 +306,7 @@ export default function Header() {
                       key={link.href}
                       href={link.href}
                       className={`font-medium transition-colors ${
-                        active
-                          ? 'text-emerald-700'
-                          : 'text-gray-700 hover:text-emerald-600'
+                        active ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-600'
                       }`}
                     >
                       {link.name}
@@ -298,6 +321,7 @@ export default function Header() {
     </>
   );
 }
+
 
 
 

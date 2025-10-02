@@ -119,19 +119,18 @@ export default function CoreServices({ services }: Props) {
         before:bg-[radial-gradient(60rem_40rem_at_10%_20%,rgba(16,185,129,0.06),transparent_60%),radial-gradient(48rem_32rem_at_120%_-20%,rgba(59,130,246,0.05),transparent_60%)]
         before:content-['']
       "
-      /* Alignment tokens for perfect row/CTA baselines */
       style={
         {
-          ['--card-hdr' as any]: '164px',  // title + kicker area (includes number chip row)
-          ['--card-img' as any]: '200px',  // image height (identical)
-          ['--card-desc' as any]: '184px', // description (collapsed block height)
-          ['--card-bul' as any]: '96px',   // bullets block height
-          ['--card-note' as any]: '20px',  // reserved status line below CTA
+          ['--card-hdr' as any]: '164px',
+          ['--card-img' as any]: '200px',
+          ['--card-desc' as any]: '184px',
+          ['--card-bul' as any]: '96px',
+          ['--card-note' as any]: '20px',
         } as React.CSSProperties
       }
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        {/* Section badge (static) */}
+        {/* Section badge */}
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
           <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
           <span className="text-black/60">Core Services</span>
@@ -154,7 +153,7 @@ export default function CoreServices({ services }: Props) {
           </p>
         </div>
 
-        {/* Desktop grid (static cards) */}
+        {/* Desktop grid */}
         <div className="hidden md:grid grid-cols-3 gap-8 mt-12">
           {items.map((s, i) => (
             <div
@@ -169,7 +168,6 @@ export default function CoreServices({ services }: Props) {
                   transition
                   flex flex-col
                 "
-                // If you want to remove even the hover shadow change, delete `hover:shadow[...]` and `transition` above.
               >
                 {/* Header */}
                 <div className="px-6 pt-6 pb-4 min-h-[var(--card-hdr)]">
@@ -222,13 +220,16 @@ export default function CoreServices({ services }: Props) {
                   <ExpandableText text={s.description} collapseHeight={140} />
                 </div>
 
-                {/* Bullets */}
+                {/* Bullets (perfect dots) */}
                 <div className="px-6 pt-2 pb-1 min-h-[var(--card-bul)]">
                   {s.bullets && s.bullets.length > 0 ? (
                     <ul className="grid gap-1.5">
                       {s.bullets.slice(0, 3).map((b) => (
-                        <li key={b} className="flex gap-2 text-sm text-slate-600">
-                          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        <li key={b} className="relative pl-5 text-sm text-slate-600">
+                          <span
+                            aria-hidden
+                            className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                          />
                           <span>{b}</span>
                         </li>
                       ))}
@@ -244,7 +245,6 @@ export default function CoreServices({ services }: Props) {
                       className="inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:translate-y-[1px] transition"
                       aria-label={`Learn more about ${s.title}`}
                     >
-                      {/* replace this section later with this: {i === 0 ? 'Explore the study' : i === 1 ? 'See integration options' : 'Start a custom brief'} */}
                       {i === 0 ? 'Contact us to learn more' : i === 1 ? 'Contact us to learn more' : 'Contact us to learn more'}
                     </Link>
                   )}
@@ -261,7 +261,7 @@ export default function CoreServices({ services }: Props) {
           ))}
         </div>
 
-        {/* Mobile stack (static cards) */}
+        {/* Mobile stack */}
         <div className="md:hidden mt-8 grid gap-6">
           {items.map((s, i) => (
             <div
@@ -299,12 +299,16 @@ export default function CoreServices({ services }: Props) {
                   <ExpandableText text={s.description} collapseHeight={140} />
                 </div>
 
+                {/* Bullets (perfect dots) */}
                 <div className="px-5 pt-2 pb-1">
                   {s.bullets && s.bullets.length > 0 ? (
                     <ul className="grid gap-1.5">
                       {s.bullets.slice(0, 3).map((b) => (
-                        <li key={b} className="flex gap-2 text-sm text-slate-600">
-                          <span className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        <li key={b} className="relative pl-5 text-sm text-slate-600">
+                          <span
+                            aria-hidden
+                            className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                          />
                           <span>{b}</span>
                         </li>
                       ))}
@@ -319,8 +323,7 @@ export default function CoreServices({ services }: Props) {
                       className="inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition active:translate-y-[1px]"
                       aria-label={`Learn more about ${s.title}`}
                     >
-                      {/* replace this section later with this: {i === 0 ? 'Explore the study' : i === 1 ? 'See integration options' : 'Start a custom brief'} */}
-                      {i === 0 ? 'Contact us to learn more' : i === 1 ? 'Contact us to learn more' : 'Contact us to learn more'} 
+                      {i === 0 ? 'Contact us to learn more' : i === 1 ? 'Contact us to learn more' : 'Contact us to learn more'}
                     </Link>
                   )}
                   <div className="h-[var(--card-note)] flex items-center justify-center">
@@ -339,6 +342,7 @@ export default function CoreServices({ services }: Props) {
     </section>
   );
 }
+
 
 
 

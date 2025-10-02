@@ -82,15 +82,35 @@ export default async function ArticlePage({
     <>
       <Header />
 
-      <main className="bg-neutral-50">
-        {/* HERO (cover image as background) */}
+      {/* PAGE BACKGROUND with subtle visual interest */}
+      <main
+        className="
+          relative
+          bg-neutral-50
+          /* subtle grid pattern */
+          [background-image:linear-gradient(to_right,rgba(0,0,0,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.03)_1px,transparent_1px)]
+          [background-size:28px_28px]
+          [background-position:0_0,0_0]
+        "
+      >
+        {/* soft radial washes (top-left + bottom-right) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              'radial-gradient(40rem 30rem at 8% 12%, rgba(16,185,129,0.08), rgba(0,0,0,0) 60%), radial-gradient(36rem 24rem at 92% 88%, rgba(59,130,246,0.07), rgba(0,0,0,0) 60%)',
+          }}
+        />
+
+        {/* HERO */}
         <section className="relative isolate overflow-hidden min-h-[50svh] md:min-h-[56svh]">
           {/* Background image or brand gradient */}
           <div className="absolute inset-0 -z-10">
             {post.coverImage?.url ? (
               <Image
                 src={post.coverImage.url}
-                alt="" // decorative background
+                alt=""
                 fill
                 priority
                 className="object-cover"
@@ -105,23 +125,33 @@ export default async function ArticlePage({
             <div className="h-full w-full bg-gradient-to-br from-black/55 via-emerald-950/35 to-blue-950/45" />
           </div>
 
-          {/* Content (more top padding to clear header, slightly more bottom) */}
-          <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-28 sm:pt-32 pb-14 text-white">
-            <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">
-              {/* was: EcoFocus Insights */}
-              EcoNugget Insights
-            </p>
-            <h1
-              id="article-title"
-              className="mt-2 text-3xl sm:text-4xl font-semibold leading-tight max-w-4xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+          {/* Content: more vertical centering + bigger title */}
+          <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
+            <div
+              className="
+                flex flex-col justify-center
+                min-h-[50svh] md:min-h-[56svh]
+                pt-24 sm:pt-28 pb-16
+                text-white
+              "
             >
-              {post.title}
-            </h1>
-            <PostMeta author={post.author} date={post.publishedAt} readTime={readTime} />
+              <p className="text-emerald-200 text-xs font-medium tracking-wide uppercase">
+                EcoNugget Insights
+              </p>
+              <h1
+                id="article-title"
+                className="mt-2 text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.1] max-w-4xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+              >
+                {post.title}
+              </h1>
+              <div className="mt-4">
+                <PostMeta author={post.author} date={post.publishedAt} readTime={readTime} />
+              </div>
+            </div>
           </div>
 
-          {/* Bottom fade into page background (taller) */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-28 bg-gradient-to-t from-neutral-50 to-transparent" />
+          {/* Brand gradient border at bottom (replaces white fade) */}
+          <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
         </section>
 
         {/* BREADCRUMBS */}
@@ -131,27 +161,41 @@ export default async function ArticlePage({
         />
 
         {/* BODY + SIDEBAR */}
-        <section className="mx-auto max-w-5xl px-4 sm:px-6 py-10">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_320px]">
+        <section className="relative mx-auto max-w-5xl px-4 sm:px-6 py-10">
+          {/* subtle highlight under article column to add depth */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white/70 to-transparent" />
+
+          <div className="relative grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,1fr)_320px]">
             <article>
               <div className="mb-6">
                 <SocialShare url={canonical} title={post.title} />
               </div>
 
-              <div id="article-body" className="prose prose-neutral max-w-none">
+              <div
+                id="article-body"
+                className="
+                  prose prose-neutral max-w-none
+                  prose-headings:scroll-mt-28
+                  /* optional: slightly higher contrast for body text on patterned bg */
+                  prose-p:text-slate-800
+                "
+              >
                 {post?.html ? (
-                  // 1) Legacy HTML path
-                  <div dangerouslySetInnerHTML={{ __html: post.html }} />
+                  <div className="rounded-2xl bg-white/90 backdrop-blur-[1px] ring-1 ring-black/5 shadow-sm px-6 sm:px-8 py-6">
+                    <div dangerouslySetInnerHTML={{ __html: post.html }} />
+                  </div>
                 ) : isLexical(post?.body) ? (
-                  // 2) Lexical JSON path
-                  <RichTextRenderer
-                    content={post.body}
-                    baseURL={process.env.NEXT_PUBLIC_CMS_URL}
-                    debug={process.env.NODE_ENV !== 'production'}
-                  />
+                  <div className="rounded-2xl bg-white/90 backdrop-blur-[1px] ring-1 ring-black/5 shadow-sm px-6 sm:px-8 py-6">
+                    <RichTextRenderer
+                      content={post.body}
+                      baseURL={process.env.NEXT_PUBLIC_CMS_URL}
+                      debug={process.env.NODE_ENV !== 'production'}
+                    />
+                  </div>
                 ) : isBlocks(post?.body) ? (
-                  // 3) Blocks layout path (uses your existing renderer)
-                  <PostBody blocks={post.body} html={undefined} />
+                  <div className="rounded-2xl bg-white/90 backdrop-blur-[1px] ring-1 ring-black/5 shadow-sm px-6 sm:px-8 py-6">
+                    <PostBody blocks={post.body} html={undefined} />
+                  </div>
                 ) : (
                   <p className="text-gray-500 italic">No content available.</p>
                 )}
@@ -245,6 +289,7 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
+
 
 
 
