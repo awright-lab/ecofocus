@@ -7,12 +7,45 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
+const EVENT_NAME = "SB’25 San Diego";
+const EVENT_URL = "https://sustainablebrands.com/events/sb25";
+const TARGET_ISO = "2025-10-13T00:00:00-07:00"; // adjust if needed
+const SHOW_EVENT_BANNER = true; // toggle on/off
+
+function useCountdown(targetIso: string) {
+  const target = new Date(targetIso).getTime();
+  const [now, setNow] = useState<number>(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const diff = Math.max(0, target - now);
+  const seconds = Math.floor(diff / 1000) % 60;
+  const minutes = Math.floor(diff / (1000 * 60)) % 60;
+  const hours = Math.floor(diff / (1000 * 60 * 60)) % 24;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  return { diff, days, hours, minutes, seconds, happening: diff === 0 };
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [heroInView, setHeroInView] = useState(false); // 👈 observe hero
   const reduceMotion = useReducedMotion();
   const pathname = usePathname();
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
+
+  // Observe hero sentinel (bottom of hero). Logo is hidden only while in view.
+  useEffect(() => {
+    const el = document.getElementById('hero-sentinel');
+    if (!el) { setHeroInView(false); return; }
+    const io = new IntersectionObserver(
+      (entries) => setHeroInView(entries[0]?.isIntersecting ?? false),
+      { rootMargin: '0px 0px 0px 0px', threshold: 0 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 10);
@@ -21,12 +54,10 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     if (isMenuOpen) setIsMenuOpen(false);
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Lock body scroll when menu is open + close on Esc
   useEffect(() => {
     if (!isMenuOpen) return;
     const prev = document.body.style.overflow;
@@ -49,14 +80,17 @@ export default function Header() {
 
   const isHome = pathname === '/';
   const isContactPage = pathname === '/contact' || pathname.startsWith('/contact/');
+  const { days, hours, minutes, seconds, happening } = useCountdown(TARGET_ISO);
 
-  // TEMP NAV
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
+
+  // Hide logo only on home while hero is visible
+  const hideLogo = isHome && heroInView;
 
   return (
     <>
@@ -68,7 +102,7 @@ export default function Header() {
         Skip to content
       </a>
 
-      {/* Sticky header */}
+      {/* One unified header (banner is inside it) */}
       <header
         data-home={isHome ? 'true' : 'false'}
         data-scrolled={isScrolled ? 'true' : 'false'}
@@ -79,16 +113,47 @@ export default function Header() {
         }`}
         aria-label="Primary"
       >
+        {/* Countdown strip (slim, integrated) */}
+        {SHOW_EVENT_BANNER && (
+          <div className="h-10 bg-neutral-900/95 text-white supports-[backdrop-filter]:bg-neutral-900/80">
+            <div className="mx-auto max-w-7xl h-full px-4 sm:px-6 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs sm:text-sm">
+                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
+                {happening ? (
+                  <span className="font-semibold">{EVENT_NAME} is happening now — join us in San Diego.</span>
+                ) : (
+                  <>
+                    <span className="text-white/90">Countdown to {EVENT_NAME}:</span>
+                    <span className="font-semibold tabular-nums">
+                      {String(days).padStart(2,'0')}d : {String(hours).padStart(2,'0')}h : {String(minutes).padStart(2,'0')}m : {String(seconds).padStart(2,'0')}s
+                    </span>
+                  </>
+                )}
+              </div>
+              <a
+                href={EVENT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden sm:inline-flex items-center rounded-full border border-white/30 px-3 py-1.5 text-xs font-semibold text-white/95 hover:bg-white/10"
+                aria-label="Learn more about SB’25"
+              >
+                Learn more
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Main bar */}
         <div className="mx-auto max-w-7xl h-14 md:h-20 px-4 sm:px-6">
           <div className="flex h-full items-center justify-between">
-            {/* Logo (keeps space; invisible on home) */}
+            {/* Logo: keeps space; invisible only while hero in view on home */}
             <div className="flex items-center w-[140px] sm:w-[150px] lg:w-[160px] xl:w-[180px]">
               <Link
                 href="/"
                 aria-label="EcoFocus Home"
-                aria-hidden={isHome ? 'true' : undefined}
-                tabIndex={isHome ? -1 : 0}
-                className={`flex items-center ${isHome ? 'opacity-0 pointer-events-none' : ''}`}
+                aria-hidden={hideLogo ? 'true' : undefined}
+                tabIndex={hideLogo ? -1 : 0}
+                className={`flex items-center ${hideLogo ? 'opacity-0 pointer-events-none' : ''}`}
               >
                 <Image
                   src="/images/ef-logo.png"
@@ -127,7 +192,7 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Desktop CTA container (keeps space; invisible on contact page) */}
+            {/* Desktop CTA — space preserved; invisible on contact page */}
             <div className="hidden lg:flex items-center w-[128px] xl:w-[190px] justify-end">
               <Link
                 href="/contact"
@@ -141,7 +206,6 @@ export default function Header() {
               >
                 <span className="relative z-10">Contact</span>
               </Link>
-
               <Link
                 href="/contact"
                 aria-label="Contact us"
@@ -171,7 +235,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Decorative gradient underline (doesn't add height) */}
+        {/* Keep only the normal underline under the nav (no extra divider under banner) */}
         <div className="pointer-events-none absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
 
         {/* Mobile nav */}
@@ -205,28 +269,11 @@ export default function Header() {
             </motion.nav>
           )}
         </AnimatePresence>
-
-        {/* Homepage-only navbar logo behavior */}
-        <style jsx global>{`
-          html[data-hero-logo-visible='true']
-            header[data-home='true'][data-scrolled='false']
-            .site-logo {
-            opacity: 0.06;
-            filter: saturate(0.6) brightness(0.92);
-            transition: opacity 220ms ease, filter 220ms ease;
-          }
-          html[data-hero-logo-visible='true']
-            header[data-home='true'][data-scrolled='true']
-            .site-logo {
-            opacity: 0.18;
-            filter: saturate(0.6) brightness(0.92);
-            transition: opacity 220ms ease, filter 220ms ease;
-          }
-        `}</style>
       </header>
     </>
   );
 }
+
 
 
 
