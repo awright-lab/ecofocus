@@ -10,7 +10,6 @@ import AboutWhoWeAre from "./AboutWhoWeAre";
 import Script from "next/script";
 import Leadership from "./Leadership";
 import CallToAction from "../home/CallToAction";
-import EventPopup from "@/components/EventsPopup";
 
 export const dynamic = "force-dynamic";
 
@@ -72,8 +71,6 @@ export default function AboutPage() {
 
   return (
     <>
-    {/* Popup appears ONLY on the homepage because we render it here */}
-      <EventPopup />
       <Header />
 
       <Script

@@ -15,6 +15,7 @@ import EcoNuggetInsights from "./home/EcoNuggetInsights";
 import QuickStats from "./home/QuickStats";
 import SayDoGapSection from "./home/SayDoGapSection";
 import InteractiveDashboardShowcase from "./home/InteractiveDashboardShowcase";
+import EventPopup from "@/components/EventsPopup";
 
 const SITE_URL = "https://ecofocusresearch.netlify.app";
 
@@ -78,7 +79,8 @@ export default function HomePage() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
-
+      {/* Popup appears ONLY on the homepage because we render it here */}
+      <EventPopup />
       {/* Move the header OUTSIDE <main> so fixed positioning is reliable */}
       <Header />
 
