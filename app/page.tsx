@@ -80,7 +80,11 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       {/* Popup appears ONLY on the homepage because we render it here */}
-      <EventPopup />
+      <EventPopup 
+      delayMs={7000}                  // adjust if you want
+      logoSrc="/images/ef-icon.png" // optional; drop your icon path here
+      logoAlt="EcoFocus Research"
+      />
       {/* Move the header OUTSIDE <main> so fixed positioning is reliable */}
       <Header />
 

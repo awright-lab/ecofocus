@@ -1,148 +1,143 @@
-// components/EventPopup.tsx
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { X } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function EventPopup() {
+type PopupProps = {
+  delayMs?: number;         // default 7000ms
+  logoSrc?: string;         // optional icon on the right
+  logoAlt?: string;
+};
+
+export default function EventsPopup({
+  delayMs = 7000,
+  logoSrc,
+  logoAlt = 'EcoFocus',
+}: PopupProps) {
+  const pathname = usePathname();
+  const isHome = pathname === '/';
+
   const [open, setOpen] = useState(false);
-  const panelRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
 
-  // Show after a short delay
+  // show only on homepage, after delay
   useEffect(() => {
-    const t = setTimeout(() => setOpen(true), 800);
+    if (!isHome) return;
+    const t = window.setTimeout(() => setOpen(true), delayMs); // ← const fixes prefer-const
     return () => clearTimeout(t);
-  }, []);
+  }, [isHome, delayMs]);
 
-  // Lock body scroll while open
+  // close on Esc
   useEffect(() => {
     if (!open) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [open]);
-
-  // ESC to close
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [open]);
 
-  // Click backdrop to close (but not when clicking inside the panel)
-  const onBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-      setOpen(false);
-    }
+  const onBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) setOpen(false);
   };
 
-  if (!open) return null;
+  if (!isHome) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-      onMouseDown={onBackdrop}
-      aria-modal="true"
-      role="dialog"
-      aria-labelledby="sb25-title"
-    >
-      <div
-        ref={panelRef}
-        className="relative w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 animate-ef-pop"
-      >
-        {/* Brand stripe top */}
-        <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
-
-        {/* Close */}
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          className="absolute right-3 top-3 rounded-full p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-          aria-label="Dismiss"
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[2px]"
+          onMouseDown={onBackdropClick}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          aria-hidden={!open}
         >
-          <X className="h-5 w-5" />
-        </button>
+          <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Sustainable Brands 2025"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[92vw] max-w-[980px] rounded-2xl bg-white shadow-2xl ring-1 ring-black/10 overflow-hidden"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.22 }}
+          >
+            <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
 
-        {/* Content */}
-        <div className="grid gap-6 p-6 md:grid-cols-[1fr_auto] md:gap-8 md:p-8">
-          {/* Left: message */}
-          <div>
-            <p className="text-[13px] font-semibold tracking-wide text-emerald-700 uppercase">
-              Event
-            </p>
-            <h2
-              id="sb25-title"
-              className="mt-1 text-2xl font-extrabold leading-snug text-gray-900 sm:text-3xl"
-            >
-              I’m going to <span className="text-emerald-600">SB’25 San Diego</span>
-            </h2>
-            <p className="mt-1 text-lg font-semibold text-emerald-600">
-              See you there?
-            </p>
+            <div className="grid grid-cols-1 md:grid-cols-[1.2fr_0.8fr]">
+              <div className="p-6 sm:p-8">
+                <p className="text-xs font-semibold tracking-wide text-emerald-700 uppercase">
+                  We’re heading to SB’25
+                </p>
+                <h2 className="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight text-gray-900">
+                  Going to <span className="text-emerald-700">SB’25 San Diego</span>?
+                  <br />
+                  <span className="text-emerald-600">See you there?</span>
+                </h2>
+                <p className="mt-4 text-sm sm:text-base text-gray-600 leading-relaxed">
+                  We’ll be in San Diego October 13–16. If you’re attending,
+                  let’s connect to talk purpose-driven growth and sustainability insights.
+                </p>
 
-            <div className="mt-3 space-y-1">
-              <div className="text-xl font-bold text-gray-900">
-                <span className="bg-gradient-to-r from-blue-500 to-emerald-500 bg-clip-text text-transparent">
-                  SB 2025
-                </span>{' '}
-                San Diego
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    href="/contact"
+                    className="relative inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
+                    before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#10b981,_#3b82f6)]
+                    before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="relative z-10">Let’s Connect</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="inline-flex items-center rounded-full border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  >
+                    Maybe later
+                  </button>
+                </div>
               </div>
-              <p className="text-sm text-gray-600">
-                October 13–16 · Town &amp; Country Resort
-              </p>
+
+              <div className="relative hidden md:block">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-blue-50" />
+                <div className="relative h-full w-full grid place-items-center p-8">
+                  {logoSrc ? (
+                    <Image
+                      src={logoSrc}
+                      alt={logoAlt}
+                      width={240}
+                      height={240}
+                      className="h-auto w-auto max-w-[260px] max-h-[200px] object-contain"
+                      priority
+                    />
+                  ) : (
+                    <div className="h-40 w-40 rounded-full ring-1 ring-emerald-200 bg-white grid place-items-center" aria-hidden>
+                      <span className="text-xs text-emerald-600">EcoFocus Icon</span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <Link
-              href="https://sustainablebrands.com/events/sb25"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl"
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Close"
+              className="absolute right-3 top-3 inline-grid h-9 w-9 place-items-center rounded-full bg-white/90 text-gray-700 shadow ring-1 ring-black/10 hover:bg-white"
             >
-              Register Now
-            </Link>
-
-            <p className="mt-2 text-xs text-gray-500">
-              External site (Sustainable Brands)
-            </p>
-          </div>
-
-          {/* Right: simple branded badge area */}
-          <div className="relative hidden md:block">
-            <div className="h-full w-40 rounded-xl bg-gradient-to-br from-emerald-50 via-blue-50 to-white ring-1 ring-gray-200 shadow-sm" />
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 opacity-20 blur-lg" />
-            </div>
-            <div className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-[11px] font-semibold text-emerald-700">
-              EcoFocus®
-            </div>
-          </div>
-        </div>
-
-        {/* Brand stripe bottom */}
-        <div className="h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
-      </div>
-
-      <style jsx global>{`
-        @keyframes ef-pop {
-          0% {
-            opacity: 0;
-            transform: translateY(8px) scale(0.98);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        .animate-ef-pop {
-          animation: ef-pop 260ms ease-out both;
-        }
-      `}</style>
-    </div>
+              ✕
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
+
+
