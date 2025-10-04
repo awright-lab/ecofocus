@@ -81,7 +81,7 @@ export default function EventsPopup({
                 </h2>
                 <p className="mt-4 text-sm sm:text-base text-gray-600 leading-relaxed">
                   We’ll be in San Diego October 13–16. If you’re attending, let’s connect to talk
-                  purpose-driven growth and sustainability insights.
+                  purpose-driven growth and sustainability insights. Come and see us at Booth 612
                 </p>
 
                 <div className="mt-6 flex flex-wrap gap-3">
