@@ -14,7 +14,7 @@ const PAGE_PATH = "/demo";
 
 const PAGE_TITLE = "EcoFocus Demo";
 const PAGE_DESCRIPTION =
-  "Watch a quick walkthrough of EcoFocus: dashboards, insights, and how we help brands turn sustainability intent into action.";
+  "Watch a quick walkthrough of our interactive dashboard and how teams can turn sustainability intent into action.";
 
 // Your R2-hosted MP4
 const VIDEO_MP4 =
@@ -157,7 +157,7 @@ export default function DemoPage() {
                 See EcoFocus in Action
               </h1>
               <p className="mt-3 text-base leading-7 text-slate-600">
-                A quick walkthrough of our dashboards and how teams turn sustainability intent into action.
+                A quick walkthrough of our  interactive dashboard and how teams can turn sustainability intent into action.
               </p>
             </div>
 
