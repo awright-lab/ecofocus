@@ -91,7 +91,7 @@ export default function CoreServices({ services }: Props) {
       bullets: [
         'Secure data exchange (files or data share)',
         'Contextualize your customer data with sustainability insights',
-        'Indentify growth opportunities in product and marketing strategy',
+        'Identify growth opportunities in product and marketing strategy',
       ],
       icon: 'ri-database-2-line',
     },
