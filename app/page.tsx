@@ -15,7 +15,6 @@ import EcoNuggetInsights from "./home/EcoNuggetInsights";
 import QuickStats from "./home/QuickStats";
 import SayDoGapSection from "./home/SayDoGapSection";
 import InteractiveDashboardShowcase from "./home/InteractiveDashboardShowcase";
-import EventPopup from "@/components/EventsPopup";
 
 const SITE_URL = "https://ecofocusresearch.netlify.app";
 
@@ -79,12 +78,6 @@ export default function HomePage() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
-      {/* Popup appears ONLY on the homepage because we render it here */}
-      <EventPopup 
-      delayMs={7000}                  // adjust if you want
-      logoSrc="/images/ef-icon.png" // optional; drop your icon path here
-      logoAlt="EcoFocus Research"
-      />
       {/* Move the header OUTSIDE <main> so fixed positioning is reliable */}
       <Header />
 
@@ -106,7 +99,6 @@ export default function HomePage() {
     </>
   );
 }
-
 
 
 
