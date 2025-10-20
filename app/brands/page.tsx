@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
-import { MeasureCard } from "@/components/benchmark/MeasureCard";
-import { BrandsByVertical } from "@/components/benchmark/BrandsByVertical";
-import { PricingTable } from "@/components/benchmark/PricingTable";
-import { GetResultsCard, MethodsSnapshotCard } from "@/components/benchmark/Callouts";
+import { MeasureCard } from "./MeasureCard";
+import { BrandsByVertical } from "./BrandsByVertical";
+import { PricingTable } from "./PricingTable";
+import { GetResultsCard, MethodsSnapshotCard } from "./Callouts";
 
 export const metadata: Metadata = {
   title: "Decoding the Purpose-Driven Shopper: 2025 Brand Benchmark | EcoFocus Research",
