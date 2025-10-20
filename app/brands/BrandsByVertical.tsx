@@ -14,7 +14,7 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
 
 function BrandColumn({ heading, items }: { heading: string; items: string[] }) {
   return (
-    <div>
+    <div className="px-4">
       <h3 className="font-semibold text-slate-800">{heading}</h3>
       <ul className="mt-2 space-y-1 text-slate-600">
         {items.map((x) => (
@@ -29,34 +29,73 @@ export function BrandsByVertical() {
   return (
     <FadeUp>
       <Panel title="Brands by Vertical">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div
+          className="
+            grid grid-cols-1 gap-8
+            md:grid-cols-2 lg:grid-cols-4
+            divide-y md:divide-y-0 md:divide-x
+            divide-slate-200
+          "
+        >
           <BrandColumn
             heading="CPG"
             items={[
-              "Mars", "Trolli", "Keurig", "Peet’s Coffee", "Coca Cola",
-              "Constellation Brands–Corona", "Dr. Pepper", "General Mills",
-              "Campbell’s Condensed", "Heinz", "Pepsi",
+              "Mars",
+              "Trolli",
+              "Keurig",
+              "Peet’s Coffee",
+              "Coca Cola",
+              "Constellation Brands–Corona",
+              "Dr. Pepper",
+              "General Mills",
+              "Campbell’s Condensed",
+              "Heinz",
+              "Pepsi",
             ]}
           />
           <BrandColumn
             heading="Soft Goods"
             items={[
-              "Patagonia", "Allbirds", "Gap", "Adidas", "Under Armor",
-              "Dior", "Ralph Lauren", "Converse", "Chanel", "Nike",
+              "Patagonia",
+              "Allbirds",
+              "Gap",
+              "Adidas",
+              "Under Armor",
+              "Dior",
+              "Ralph Lauren",
+              "Converse",
+              "Chanel",
+              "Nike",
             ]}
           />
           <BrandColumn
             heading="Homeowners"
             items={[
-              "Duravit", "TimberTech AZEK", "Trex", "Kraus", "TOTO",
-              "Kohler", "Janus et Cie", "James Hardie", "Andersen Windows", "Hunter Douglas",
+              "Duravit",
+              "TimberTech AZEK",
+              "Trex",
+              "Kraus",
+              "TOTO",
+              "Kohler",
+              "Janus et Cie",
+              "James Hardie",
+              "Andersen Windows",
+              "Hunter Douglas",
             ]}
           />
           <BrandColumn
             heading="Pets"
             items={[
-              "All the Best Pet Care", "Blue Buffalo", "Freshpet", "Hill’s Pet Nutrition",
-              "CBD Dog Health", "Primal Pet Foods", "Hartz", "V-Dog", "I and Love You", "Wellness Pet Food",
+              "All the Best Pet Care",
+              "Blue Buffalo",
+              "Freshpet",
+              "Hill’s Pet Nutrition",
+              "CBD Dog Health",
+              "Primal Pet Foods",
+              "Hartz",
+              "V-Dog",
+              "I and Love You",
+              "Wellness Pet Food",
             ]}
           />
         </div>
@@ -70,4 +109,5 @@ export function BrandsByVertical() {
     </FadeUp>
   );
 }
+
 

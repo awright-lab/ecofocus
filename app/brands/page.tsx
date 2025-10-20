@@ -25,7 +25,7 @@ export default function BrandBenchmarkPage() {
     <main id="main" className="min-h-screen bg-white">
       <Hero
         variant="report"
-        size="tall"
+        size="normal"
         badge="EcoFocus Research • Syndicated Insights"
         headline={
           <>

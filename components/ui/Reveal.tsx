@@ -1,15 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { ReactNode, ElementType } from "react";
+import type { ReactNode } from "react";
 
 export function FadeUp({
-  as: Tag = "div",
   delay = 0,
   children,
   className = "",
 }: {
-  as?: ElementType;
   delay?: number;
   children: ReactNode;
   className?: string;
@@ -26,3 +24,4 @@ export function FadeUp({
     </motion.div>
   );
 }
+
