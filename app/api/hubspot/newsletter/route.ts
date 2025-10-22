@@ -1,4 +1,3 @@
-// app/api/hubspot/newsletter/route.ts
 import { NextResponse } from 'next/server';
 
 type RateEntry = { count: number; resetAt: number };
@@ -46,7 +45,7 @@ export async function POST(req: Request) {
       hp,            // honeypot value
       elapsedMs,     // time-to-submit
       turnstileToken,
-      tags,          // optional: array of tag internal values; defaults below
+      tags,          // optional: array of tag internal values; backend has defaults
     } = body || {};
 
     // Honeypot: any value => silently drop
@@ -78,7 +77,7 @@ export async function POST(req: Request) {
     }
 
     const portalId = process.env.HUBSPOT_PORTAL_ID!;
-    const formId = process.env.HUBSPOT_NEWSLETTER_FORM_ID!;
+    const formId = process.env.HUBSPOT_NEWSLETTER_FORM_ID!; // e.g., fa67e7c1-10e9-4d8a-a397-d124d9277c0a
     if (!portalId || !formId) {
       return NextResponse.json({ ok: false, error: 'Missing HubSpot env vars' }, { status: 500 });
     }
@@ -96,7 +95,7 @@ export async function POST(req: Request) {
       ? tags.map((t) => String(t).trim()).filter(Boolean)
       : fallbackTags;
 
-    // TEMP/DEBUG: Log what we're sending (won't run in prod logs on some hosts)
+    // TEMP/DEBUG: Log what we're sending (won't appear in some prod logs)
     if (process.env.NODE_ENV !== 'production') {
       console.log('[newsletter] sending tags:', tagValues);
     }
@@ -106,10 +105,10 @@ export async function POST(req: Request) {
       { name: 'email', value: String(email) },
       firstname ? { name: 'firstname', value: String(firstname) } : null,
       lastname  ? { name: 'lastname',  value: String(lastname)  } : null,
-      { name: 'newsletter_consent', value: consent ? 'true' : 'false' },  // custom single checkbox
+      { name: 'newsletter_consent', value: consent ? 'true' : 'false' },  // custom single checkbox (or boolean text)
       { name: 'tags', value: tagValues.join(';') },                        // ✅ multiple checkboxes
       // Safety net for quick visibility in CRM:
-      { name: 'signup_channel', value: 'newsletter' },                     // custom single-line text (optional)
+      { name: 'signup_channel', value: 'newsletter' },                     // optional custom text property
       // UTM params (create text properties if you want these)
       utm?.source   ? { name: 'utm_source',   value: String(utm.source)   } : null,
       utm?.medium   ? { name: 'utm_medium',   value: String(utm.medium)   } : null,
@@ -149,6 +148,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: e?.message || 'Unknown error' }, { status: 500 });
   }
 }
+
 
 
 
