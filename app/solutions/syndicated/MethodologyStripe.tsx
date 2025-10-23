@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function MethodologyStripe() {
   const r = useReducedMotion();
   const stats = [
-    { label: "Years Tracking", value: "13+" },
-    { label: "Respondents / Wave", value: "4,000+" },
-    { label: "Data Points", value: "90k+" },
-    { label: "National MoE", value: "±1.55%" },
+    { label: 'Years Tracking', value: '13+' },
+    { label: 'Respondents / Wave', value: '4,000' },
+    { label: 'National MoE', value: '±1.55%' },
+    { label: 'Latest Fielded', value: 'Sep 2025' },
   ];
 
   return (
@@ -22,22 +22,23 @@ export default function MethodologyStripe() {
           transition={{ duration: 0.5 }}
           className="text-center font-bold leading-tight text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
-          Methodology You Can <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Defend</span>
+          Methodology You Can Defend
         </motion.h2>
+
+        <p className="mx-auto mt-4 max-w-3xl text-center text-white/85">
+          Nationally representative U.S. adults (18+), balanced to U.S. Census. Online survey, ~20–25 minutes.
+        </p>
 
         <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-white/10 p-6 backdrop-blur sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="text-center">
               <div className="text-2xl font-bold">{s.value}</div>
-              <div className="mt-0.5 text-xs text-white/80">{s.label}</div>
+              <div className="text-sm opacity-90">{s.label}</div>
             </div>
           ))}
         </div>
-
-        <p className="mt-3 text-center text-xs text-white/75">
-          MoE refers to national totals; segment MoE varies by base size. Full details in Methodology.
-        </p>
       </div>
     </section>
   );
 }
+

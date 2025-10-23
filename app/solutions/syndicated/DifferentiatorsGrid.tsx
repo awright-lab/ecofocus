@@ -1,63 +1,41 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ShieldCheck, BarChart, Layers3 } from 'lucide-react';
-
-const differentiators = [
-  {
-    icon: <ShieldCheck className="w-6 h-6 text-emerald-600" />,
-    title: 'Trusted Since 2010',
-    description:
-      'Over a decade of experience in sustainability research, serving some of the most recognized brands and organizations in the space.',
-  },
-  {
-    icon: <BarChart className="w-6 h-6 text-blue-600" />,
-    title: 'Depth & Breadth',
-    description:
-      'Rich datasets across dozens of behavioral, attitudinal, and demographic dimensions — updated annually and continuously refined.',
-  },
-  {
-    icon: <Layers3 className="w-6 h-6 text-cyan-600" />,
-    title: 'Multi-Sector Relevance',
-    description:
-      'From CPG to retail to public policy, our research is built to drive strategy across verticals without losing specificity.',
-  },
-];
-
 export default function DifferentiatorsGrid() {
-  return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.h2
-          className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          What Makes Our Research{' '}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-blue-500">
-            Unmatched
-          </span>
-        </motion.h2>
+  const items = [
+    {
+      title: 'Landing Zone → Launching Pad',
+      body:
+        'Most needs are solved by our deep syndicated database. If you need more, we extend into bespoke research seamlessly.',
+    },
+    {
+      title: 'De-Risk Your Messaging',
+      body:
+        'Test which claims resonate and avoid vague language that triggers skepticism. Communicate with confidence.',
+    },
+    {
+      title: 'Purpose Behavior Engine',
+      body:
+        'Behavioral baseline, psychographic & demographic profiles, message resonance, and packaging/label influence—built for CMOs.',
+    },
+  ];
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {differentiators.map((item, i) => (
-            <motion.div
-              key={i}
-              className="bg-gray-50 border border-gray-100 hover:border-emerald-300 rounded-2xl shadow-sm hover:shadow-md p-6 text-center transition"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-            >
-              <div className="flex justify-center mb-4">{item.icon}</div>
-              <h3 className="font-semibold text-lg text-gray-900 mb-2">{item.title}</h3>
-              <p className="text-sm text-gray-600">{item.description}</p>
-            </motion.div>
+  return (
+    <section className="relative bg-gray-50" aria-labelledby="diff-grid">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <h2 id="diff-grid" className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]">
+          What Makes EcoFocus Different
+        </h2>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((d) => (
+            <div key={d.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900">{d.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{d.body}</p>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 }
+

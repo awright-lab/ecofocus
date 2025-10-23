@@ -1,34 +1,39 @@
-"use client";
+'use client';
 
-import { motion, useReducedMotion } from "framer-motion";
-import Link from "next/link";
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function WhatYouGet() {
   const r = useReducedMotion();
-
   const cols = [
     {
-      title: "Included",
-      items: [
-        "Seat-based access to the Interactive Dashboard",
-        "White-label chart exports (PNG) & CSV",
-        "Generational & segment filters (e.g., Gen Z, parents)",
+      title: 'Syndicated Access',
+      lines: [
+        'All dashboard modules',
+        'Crosstabs & quick exports',
+        'Two onboarding sessions',
+        'Quarterly consult touchpoints',
       ],
-      icon: "ri-checkbox-circle-line",
     },
     {
-      title: "Optional add-ons",
-      items: [
-        "Executive briefing deck",
-        "Crosstabs/appendix",
-        "Secure data delivery for BI joins (under DPA)",
+      title: 'Custom Add-Ons',
+      lines: [
+        'Proprietary questions fielded in the next wave',
+        'Custom dashboard including your proprietary data',
+        'Executive summary of custom results',
       ],
-      icon: "ri-add-circle-line",
+    },
+    {
+      title: 'Integration',
+      lines: [
+        'Wrap EcoFocus data around your existing research',
+        'Augment personas & journey maps',
+        'De-risk messaging & packaging decisions',
+      ],
     },
   ];
 
   return (
-    <section className="relative bg-white" aria-labelledby="what-you-get">
+    <section className="relative bg-gray-50" aria-labelledby="what-you-get">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.h2
           id="what-you-get"
@@ -36,49 +41,25 @@ export default function WhatYouGet() {
           whileInView={r ? undefined : { opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
+          className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
         >
           What You Get
         </motion.h2>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
-          {cols.map((c, i) => (
-            <motion.div
-              key={c.title}
-              initial={r ? false : { opacity: 0, y: 12 }}
-              whileInView={r ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.06 }}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
-            >
-              <div className="mb-2 flex items-center gap-3">
-                <i className={`${c.icon} text-xl text-emerald-600`} />
-                <h3 className="text-base font-semibold text-gray-900">{c.title}</h3>
-              </div>
-              <ul className="mt-2 space-y-2.5 text-sm text-gray-700">
-                {c.items.map((t) => (
-                  <li key={t} className="flex items-start gap-3">
-                    <span className="mt-1.5 h-2 w-2 rounded-full bg-amber-400" />
-                    <span>{t}</span>
-                  </li>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {cols.map((c) => (
+            <div key={c.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900">{c.title}</h3>
+              <ul className="mt-3 list-disc pl-5 text-sm text-gray-600">
+                {c.lines.map((l) => (
+                  <li key={l}>{l}</li>
                 ))}
               </ul>
-            </motion.div>
+            </div>
           ))}
-        </div>
-
-        <div className="mt-6 text-center">
-          <Link
-            href="/solutions/seat-packs"
-            className="inline-flex items-center justify-center rounded-full relative min-h-[44px] bg-emerald-600 px-5 py-3 sm:py-2.5 text-sm font-semibold text-white overflow-hidden transition-all duration-300
-                           touch-manipulation
-                           before:absolute before:inset-0 before:rounded-full before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                           before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-          >
-            <span className="relative z-10">See Seat Packs</span>
-          </Link>
         </div>
       </div>
     </section>
   );
 }
+

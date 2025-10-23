@@ -1,28 +1,34 @@
-"use client";
+'use client';
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function StudyOverview() {
   const r = useReducedMotion();
 
   const points = [
     {
-      title: "Purpose, claims & behavior",
+      title: 'Purpose, claims & behavior',
       body:
-        "Attitudes, stated priorities, pack/claims language, and real behaviors—built to reveal the say–do gap.",
-      icon: "ri-chat-check-line",
+        'We connect beliefs and message resonance to the behaviors that drive growth—so you can close the say–do gap with confidence.',
+      icon: 'ri-chat-check-line',
     },
     {
-      title: "Generational focus",
+      title: 'Generational & parental influence',
       body:
-        "Granular reads for Gen Z and Millennials with segment flags for life stage and category users.",
-      icon: "ri-group-line",
+        'Gen Z and Millennials lead, with younger Gen X rising—plus strong parental transmission of environmental values.',
+      icon: 'ri-team-line',
     },
     {
-      title: "From insight to action",
+      title: 'Packaging & label impact',
       body:
-        "Agency-ready charts, trends, and cuts to brief creative, validate claims, and de-risk campaigns.",
-      icon: "ri-rocket-2-line",
+        'Which on-pack claims move the needle—e.g., Plastic-Free, Recyclable, Plant-Based, Certified Carbon Neutral—and which read like greenwashing.',
+      icon: 'ri-price-tag-3-line',
+    },
+    {
+      title: 'Corporate responsibility & trust',
+      body:
+        'How transparency, supply-chain accountability, and EPR expectations shape brand trust and retention.',
+      icon: 'ri-shield-check-line',
     },
   ];
 
@@ -44,30 +50,22 @@ export default function StudyOverview() {
           initial={r ? false : { opacity: 0 }}
           whileInView={r ? undefined : { opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.06 }}
-          className="mx-auto mt-3 max-w-3xl text-center text-sm sm:text-base text-gray-700"
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mx-auto mt-4 max-w-3xl text-center text-gray-600"
         >
-          A stable tracker designed for agencies: measure values, evaluate
-          sustainability language, and track behaviors over time—then cut by
-          your audience and export for decks.
+          We decode how sustainability values influence buying, messaging, and retention—turning purpose into a
+          business advantage at a fraction of traditional costs.
         </motion.p>
 
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {points.map((p, i) => (
-            <motion.div
-              key={p.title}
-              initial={r ? false : { opacity: 0, y: 12 }}
-              whileInView={r ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.06 }}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
-            >
-              <div className="mb-2 flex items-center gap-3">
-                <i className={`${p.icon} text-xl text-emerald-600`} />
-                <h3 className="text-base font-semibold text-gray-900">{p.title}</h3>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {points.map((p) => (
+            <div key={p.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="text-emerald-600 mb-2">
+                <i className={`${p.icon} text-xl`} />
               </div>
-              <p className="text-sm text-gray-700">{p.body}</p>
-            </motion.div>
+              <h3 className="font-semibold text-gray-900">{p.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{p.body}</p>
+            </div>
           ))}
         </div>
       </div>

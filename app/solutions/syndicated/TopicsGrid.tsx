@@ -1,75 +1,68 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Lightbulb, PackageSearch, Leaf, Users, ScanSearch, TrendingUp } from 'lucide-react';
+import { CloudSun, Recycle, HeartPulse, Shield, FlaskConical, PackageSearch } from 'lucide-react';
 
 const topics = [
   {
-    icon: <Lightbulb className="w-6 h-6 text-yellow-500" />,
-    title: 'Consumer Priorities',
-    description: 'Understand which sustainability issues are top-of-mind for today’s shoppers.',
+    icon: <CloudSun className="w-6 h-6 text-emerald-600" />,
+    title: 'Climate & Environment',
+    description:
+      'Climate change beliefs, extreme weather experiences, and attitudes toward emissions and fossil fuel extraction.',
   },
   {
-    icon: <PackageSearch className="w-6 h-6 text-emerald-500" />,
-    title: 'Packaging Preferences',
-    description: 'Discover how material types, labeling, and formats impact purchase behavior.',
+    icon: <FlaskConical className="w-6 h-6 text-emerald-600" />,
+    title: 'Chemical Safety',
+    description:
+      'Awareness and avoidance of BPA, phthalates, PFAS, VOCs, microplastics—across food, personal care, and home.',
   },
   {
-    icon: <Leaf className="w-6 h-6 text-green-500" />,
-    title: 'Sustainable Lifestyles',
-    description: 'Track adoption of low-impact habits across key demographics and regions.',
+    icon: <Recycle className="w-6 h-6 text-emerald-600" />,
+    title: 'Circularity Behaviors',
+    description:
+      'Recycling, composting, waste reduction, and preferences for reusable, refillable, and recyclable packaging.',
   },
   {
-    icon: <Users className="w-6 h-6 text-blue-500" />,
-    title: 'Demographic Segmentation',
-    description: 'Analyze differences in attitude and behavior across generations, incomes, and more.',
+    icon: <PackageSearch className="w-6 h-6 text-emerald-600" />,
+    title: 'Sustainable Consumption',
+    description:
+      'Willingness to pay, organic/local buying, and the role of certifications in building consumer trust.',
   },
   {
-    icon: <ScanSearch className="w-6 h-6 text-cyan-500" />,
-    title: 'Label & Certification Trust',
-    description: 'Which logos, seals, and claims do consumers recognize and rely on most?',
+    icon: <Shield className="w-6 h-6 text-emerald-600" />,
+    title: 'Corporate Responsibility',
+    description:
+      'Expectations for commitments, transparency, and accountability (e.g., Extended Producer Responsibility).',
   },
   {
-    icon: <TrendingUp className="w-6 h-6 text-indigo-500" />,
-    title: 'Year-over-Year Trends',
-    description: 'Identify which sustainability behaviors are growing, declining, or staying stable.',
+    icon: <HeartPulse className="w-6 h-6 text-emerald-600" />,
+    title: 'Health–Environment Link',
+    description:
+      'How personal wellness and environmental stewardship connect in choices about materials, ingredients, and labels.',
   },
 ];
 
 export default function TopicsGrid() {
   return (
-    <section className="py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.h2
-          className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          Sample Topics{' '}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-blue-500">
-            Covered
-          </span>
-        </motion.h2>
+    <section className="relative bg-gray-50" aria-labelledby="topics-grid">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <h2 id="topics-grid" className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]">
+          How We Measure Sustainability
+        </h2>
+        <p className="mx-auto mt-4 max-w-3xl text-center text-gray-600">
+          Our view spans environmental and health dimensions that shape real-world choices.
+        </p>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {topics.map((topic, index) => (
-            <motion.div
-              key={index}
-              className="bg-white border border-gray-100 hover:border-blue-300 rounded-2xl shadow-sm hover:shadow-md p-6 transition-all"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <div className="flex items-center justify-center mb-4">{topic.icon}</div>
-              <h3 className="font-semibold text-lg text-gray-900 mb-2">{topic.title}</h3>
-              <p className="text-sm text-gray-600">{topic.description}</p>
-            </motion.div>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {topics.map((t) => (
+            <div key={t.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-3">{t.icon}</div>
+              <h3 className="font-semibold text-gray-900">{t.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{t.description}</p>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 }
+

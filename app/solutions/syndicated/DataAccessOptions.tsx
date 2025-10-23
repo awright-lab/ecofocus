@@ -7,27 +7,27 @@ const dataAccessItems = [
   {
     title: 'Interactive Dashboard',
     description:
-      'Explore trends, filter data by audience, and build custom views using our web-based insights platform.',
+      'Explore trends, filter by audience, and build custom views—24/7/365 access to tens of thousands of data points.',
     image: '/images/dashboard-card.png',
   },
   {
     title: 'Exportable Crosstabs',
     description:
-      'Download robust crosstabs tailored to your organization’s priorities — no manual slicing needed.',
-    image: '/images/crosstabs-card.png',
+      'Download robust crosstabs aligned to your priorities—no manual slicing. Great for quick internal share-outs.',
+    image: '/images/crosstab-card.png',
   },
   {
-    title: 'Annual Reports',
+    title: 'Executive Summary & Consulting',
     description:
-      'Receive detailed PDF reports highlighting core findings, trends, and year-over-year comparisons.',
-    image: '/images/reports-card.png',
+      'Executive summaries, insights, and optional consulting to connect findings to strategy, planning, and activation.',
+    image: '/images/report-card.png',
   },
 ];
 
 export default function DataAccessOptions() {
   return (
-    <section className="py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="relative bg-white" aria-labelledby="data-access-options">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.h2
           className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center"
           initial={{ opacity: 0, y: 20 }}
@@ -42,31 +42,20 @@ export default function DataAccessOptions() {
         </motion.h2>
 
         <div className="grid md:grid-cols-3 gap-8">
-          {dataAccessItems.map((item, index) => (
-            <motion.div
-              key={index}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-gray-100 hover:border-emerald-300 transition"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <div className="h-48 w-full relative">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                />
+          {dataAccessItems.map((i) => (
+            <div key={i.title} className="group relative h-full overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50 ring-1 ring-black/5 shadow-[0_14px_48px_-18px_rgba(2,12,27,.22)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_72px_-22px_rgba(2,12,27,.32)]">
+              <div className="p-6">
+                <h3 className="font-semibold text-gray-900">{i.title}</h3>
+                <p className="mt-2 text-sm text-gray-600">{i.description}</p>
               </div>
-              <div className="p-6 flex-1 flex flex-col">
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-600">{item.description}</p>
+              <div className="relative h-40 w-full">
+                <Image src={i.image} alt={i.title} fill className="object-cover" />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 }
+

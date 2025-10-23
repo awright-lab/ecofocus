@@ -1,63 +1,65 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Briefcase, Lightbulb, BarChart3 } from 'lucide-react';
+import { Briefcase, Users, ShoppingBasket, Landmark } from 'lucide-react';
 
 const useCases = [
   {
     icon: <Briefcase className="w-6 h-6 text-emerald-600" />,
-    title: 'Marketing & Brand Strategy',
-    description:
-      'Uncover the sustainability drivers that shape consumer perception and build campaigns that resonate with conscious buyers.',
+    title: 'For CMOs',
+    points: [
+      'Translate sustainability into growth with data-backed message and claim testing.',
+      'Know which levers drive switching, loyalty, and price tolerance.',
+    ],
   },
   {
-    icon: <Lightbulb className="w-6 h-6 text-blue-600" />,
-    title: 'Product Innovation',
-    description:
-      'Validate new ideas or pivot existing product lines using emerging trends in consumer behavior and sustainability concerns.',
+    icon: <Users className="w-6 h-6 text-emerald-600" />,
+    title: 'For CHROs & Talent',
+    points: [
+      'Link employer brand to the values that matter to emerging talent.',
+      'Back your EVP with real data to reduce churn and boost attraction.',
+    ],
   },
   {
-    icon: <BarChart3 className="w-6 h-6 text-cyan-600" />,
-    title: 'Investor & ESG Communications',
-    description:
-      'Leverage data-backed narratives to showcase alignment with environmental priorities and consumer demand shifts.',
+    icon: <ShoppingBasket className="w-6 h-6 text-emerald-600" />,
+    title: 'Retail & Grocery',
+    points: [
+      'Choose the right on-pack claims and signage for shopper values by region.',
+      'Align private label and vendor messaging to demand signals.',
+    ],
+  },
+  {
+    icon: <Landmark className="w-6 h-6 text-emerald-600" />,
+    title: 'Financial Services',
+    points: [
+      'Understand which sustainability themes build trust with younger customers.',
+      'Validate ESG product narratives and avoid greenwashing.',
+    ],
   },
 ];
 
 export default function UseCasesGrid() {
   return (
-    <section className="py-24 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.h2
-          className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-blue-500">
-            Real-World Applications
-          </span>{' '}
-          of Syndicated Insights
-        </motion.h2>
+    <section className="relative bg-white" aria-labelledby="use-cases-grid">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <h2 id="use-cases-grid" className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]">
+          Use Cases Across the Business
+        </h2>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {useCases.map((useCase, i) => (
-            <motion.div
-              key={i}
-              className="bg-white border border-gray-100 hover:border-emerald-300 rounded-2xl shadow-md hover:shadow-xl p-6 text-center transition"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-            >
-              <div className="flex justify-center mb-4">{useCase.icon}</div>
-              <h3 className="font-semibold text-lg text-gray-900 mb-2">{useCase.title}</h3>
-              <p className="text-sm text-gray-600">{useCase.description}</p>
-            </motion.div>
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {useCases.map((u) => (
+            <div key={u.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="mb-2">{u.icon}</div>
+              <h3 className="font-semibold text-gray-900">{u.title}</h3>
+              <ul className="mt-3 list-disc pl-5 text-sm text-gray-600">
+                {u.points.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 }
+

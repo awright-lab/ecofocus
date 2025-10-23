@@ -1,13 +1,30 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
+'use client';
 
 const faqs = [
-  { q: "How are seats counted?", a: "One seat equals one named user with dashboard access. You can reassign seats as team members change." },
-  { q: "Can we add seats mid-cycle?", a: "Yes. We’ll prorate additional seats for the remainder of your term." },
-  { q: "Does an agency license include seats?", a: "Syndicated Study agency licenses include a base number of seats. Seat Packs add more access for broader teams." },
-  { q: "Do you support SSO?", a: "Single sign-on is available on Studio and Enterprise (and as an add-on for eligible Team plans)." },
-  { q: "What about security and DPAs?", a: "We support security reviews and data-processing agreements on Enterprise. Talk to us about your requirements." },
+  {
+    q: 'Is your data representative of the U.S. population?',
+    a: 'Yes. We survey 4,000 U.S. adults (18+), balanced to key Census demographics for national representativeness.',
+  },
+  {
+    q: 'What is the margin of error?',
+    a: '±1.55% at the national level for n=4,000.',
+  },
+  {
+    q: 'How do you conduct your surveys—and how in-depth are they?',
+    a: 'Online surveys, ~20–25 minutes. Sample design and quotas ensure robust coverage across key segments.',
+  },
+  {
+    q: 'Do you do B2B research as well as B2C?',
+    a: 'Yes. Contact us to discuss audiences and scope.',
+  },
+  {
+    q: 'Do you only do syndicated research?',
+    a: 'No. We also run custom qualitative and quantitative projects (surveys, polls, special reports) and consulting.',
+  },
+  {
+    q: 'Can your experts brief my team or speak at an event?',
+    a: 'Yes—whether or not you have a subscription package.',
+  },
 ];
 
 export default function FAQSyndicated() {
@@ -22,8 +39,11 @@ export default function FAQSyndicated() {
         </h2>
 
         <div className="mt-8 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white shadow-sm">
-          {faqs.map((f, i) => (
-            <FAQItem key={i} q={f.q} a={f.a} initiallyOpen={i === 0} />
+          {faqs.map((f) => (
+            <div key={f.q} className="p-5">
+              <div className="font-medium text-gray-900">{f.q}</div>
+              <p className="mt-2 text-sm text-gray-600">{f.a}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -31,59 +51,7 @@ export default function FAQSyndicated() {
   );
 }
 
-function FAQItem({
-  q,
-  a,
-  initiallyOpen = false,
-}: {
-  q: string;
-  a: string;
-  initiallyOpen?: boolean;
-}) {
-  const detailsRef = useRef<HTMLDetailsElement | null>(null);
-  const [open, setOpen] = useState<boolean>(initiallyOpen);
 
-  // Set initial open state once on mount without controlling afterwards
-  useEffect(() => {
-    if (detailsRef.current && initiallyOpen) {
-      detailsRef.current.open = true;
-      setOpen(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return (
-    <details
-      ref={detailsRef}
-      onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
-      className="group"
-    >
-      <summary className="cursor-pointer list-none px-5 py-4 sm:px-6 sm:py-5 [&::-webkit-details-marker]:hidden">
-        <div className="flex items-center justify-between gap-4">
-          <h3 className="text-sm sm:text-base font-semibold text-gray-900">{q}</h3>
-
-          {/* perfectly centered circular control with heavier icon strokes */}
-          <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-400 text-emerald-950 ring-1 ring-amber-300/60">
-            {open ? (
-              // minus (heavier stroke)
-              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 12h14" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-              </svg>
-            ) : (
-              // plus (heavier stroke)
-              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 5v14" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-                <path d="M5 12h14" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-              </svg>
-            )}
-          </span>
-        </div>
-      </summary>
-
-      <div className="px-5 pb-5 sm:px-6 sm:pb-6 text-sm text-gray-700">{a}</div>
-    </details>
-  );
-}
 
 
 
