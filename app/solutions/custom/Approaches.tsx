@@ -1,39 +1,43 @@
-// components/solutions/custom/Approaches.tsx
+'use client';
+
+const items = [
+  {
+    title: 'Quantitative Surveys',
+    body: 'Custom questionnaires aligned to your goals, with robust sampling and clean, crosstab-ready outputs.',
+  },
+  {
+    title: 'Qualitative Depth',
+    body: 'Interviews, mini-groups, or communities to explore motivations, language, and message resonance.',
+  },
+  {
+    title: 'Hybrid Designs',
+    body: 'Quant + qual sequencing to size impact and explain the why behind behavior.',
+  },
+  {
+    title: 'Embedded Constructs',
+    body: 'Proven EcoFocus sustainability measures for claims, packaging, and trust—mapped to your categories.',
+  },
+];
+
 export default function Approaches() {
-    const cols = [
-      {
-        title: 'Quantitative',
-        points: ['Concept, claims & pack tests', 'Conjoint / MaxDiff', 'TURF & feature prioritization', 'Market sizing & incidence'],
-      },
-      {
-        title: 'Qualitative',
-        points: ['1:1 depth interviews', 'Mini-groups & co-creation', 'In-home & shop-along', 'Usability / diary studies'],
-      },
-      {
-        title: 'Mixed Methods',
-        points: ['Segmentation builds & refreshes', 'Journey mapping', 'Attitude-behavior linkage', 'Price & value perception'],
-      },
-    ]
-  
-    return (
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
-        <h2 className="text-xl font-semibold text-gray-900">Approaches we use</h2>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          {cols.map((col) => (
-            <div key={col.title} className="rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-sm">
-              <h3 className="font-semibold text-gray-900">{col.title}</h3>
-              <ul className="mt-3 space-y-2 text-sm text-gray-700">
-                {col.points.map((p) => (
-                  <li key={p} className="flex items-start gap-2">
-                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
-                    <span>{p}</span>
-                  </li>
-                ))}
-              </ul>
+  return (
+    <section className="relative bg-gray-50" aria-labelledby="custom-approaches">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <h2 id="custom-approaches" className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]">
+          Research Approaches
+        </h2>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((x) => (
+            <div key={x.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900">{x.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{x.body}</p>
             </div>
           ))}
         </div>
-      </section>
-    )
-  }
+      </div>
+    </section>
+  );
+}
+
   

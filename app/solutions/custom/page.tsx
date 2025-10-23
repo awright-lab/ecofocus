@@ -1,46 +1,53 @@
-"use client";
+'use client';
 
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 
-import CustomHero from "./CustomHero";
-import CustomOverview from "./CustomOverview";
-import CustomMethods from "./CustomMethods";
-import CustomWorkflow from "./CustomWorkflow";
-import DeliverablesCustom from "./DeliverablesCustom";
-import SampleOutputs from "./SampleOutputs";
-import FAQCustom from "./FAQCustom";
-import CustomCTA from "./CustomCTA";
+import CustomHero from './CustomHero';
+import CustomOverview from './CustomOverview';
+import CustomApproachesGrid from './Approaches';
+import CustomWorkflowSteps from './CustomWorkflow';
+import CustomDeliverables from './Deliverables';
+import CustomUseCasesGrid from './CustomUseCasesGrid';
+import CustomMethodsStripe from './CustomMethodsStripe';
+import CustomTeamStripe from './CustomTeamStripe';
+import CustomFAQ from './FAQCustom';
+import CustomCTA from './CustomCTA';
 
-export default function CustomResearchPage() {
+export default function CustomStudiesPage() {
   return (
     <>
       <Header />
+
       <main className="bg-white text-gray-900">
         <CustomHero />
 
         <Breadcrumbs
           items={[
-            { label: "Home", href: "/" },
-            { label: "Solutions", href: "/solutions" },
-            { label: "Custom Research" },
+            { label: 'Home', href: '/' },
+            { label: 'Solutions', href: '/solutions' },
+            { label: 'Custom Studies' },
           ]}
           maxWidth="max-w-7xl"
         />
 
         <CustomOverview />
-        <CustomMethods />
-        <CustomWorkflow />
-        <DeliverablesCustom />
-        <SampleOutputs />
-        <FAQCustom />
+        <CustomApproachesGrid />
+        <CustomWorkflowSteps />
+        <CustomDeliverables />
+        <CustomUseCasesGrid />
+        <CustomMethodsStripe />
+        <CustomTeamStripe />
+        <CustomFAQ />
         <CustomCTA />
       </main>
+
       <Footer />
     </>
   );
 }
+
 
 
 

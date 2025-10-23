@@ -1,41 +1,54 @@
-// components/solutions/custom/Deliverables.tsx
-import Link from 'next/link'
+'use client';
+
+const cols = [
+  {
+    title: 'Executive Summary',
+    lines: [
+      'Key findings with a clear storyline',
+      'Implications and recommendations',
+      'Appendix with methods detail',
+    ],
+  },
+  {
+    title: 'Data & Visualization',
+    lines: [
+      'Crosstabs and exports',
+      'Dashboards (optional) for ongoing exploration',
+      'Figures suitable for stakeholder share-outs',
+    ],
+  },
+  {
+    title: 'Enablement',
+    lines: [
+      'Team readouts and Q&A',
+      'Claim and packaging guidance',
+      'Workshops or consulting as needed',
+    ],
+  },
+];
 
 export default function Deliverables() {
-  const cards = [
-    {
-      title: 'Executive Story Decks',
-      desc: 'Clear narrative with implications for marketing, product, and sustainability teams.',
-    },
-    {
-      title: 'Exportable Crosstabs',
-      desc: 'Ready-to-share tables aligned to your priorities—no manual slicing required.',
-    },
-    {
-      title: 'Optional Dashboard Access',
-      desc: 'Explore trends in our web platform. Filter by audience and export visuals.',
-      cta: { href: '/dashboard', label: 'Explore the Dashboard →' },
-    },
-  ]
-
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
-      <h2 className="text-xl font-semibold text-gray-900">Deliverables you can act on</h2>
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {cards.map((d) => (
-          <div key={d.title} className="rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-sm">
-            <h3 className="font-semibold text-gray-900">{d.title}</h3>
-            <p className="mt-2 text-sm text-gray-600">{d.desc}</p>
-            {'cta' in d && d.cta ? (
-              <div className="mt-3">
-                <Link href={d.cta.href} className="text-sm font-semibold text-emerald-700 hover:underline">
-                  {d.cta.label}
-                </Link>
-              </div>
-            ) : null}
-          </div>
-        ))}
+    <section className="relative bg-gray-50" aria-labelledby="custom-deliverables">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
+        <h2 id="custom-deliverables" className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]">
+          Deliverables
+        </h2>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {cols.map((c) => (
+            <div key={c.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-900">{c.title}</h3>
+              <ul className="mt-3 list-disc pl-5 text-sm text-gray-600">
+                {c.lines.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
-  )
+  );
 }
+
