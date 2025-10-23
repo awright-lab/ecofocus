@@ -71,9 +71,11 @@ export default function Header() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
+  // ✅ Added “Brands” link
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
+    { name: 'Brands', href: '/brands' },
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -249,6 +251,7 @@ export default function Header() {
     </>
   );
 }
+
 
 
 
