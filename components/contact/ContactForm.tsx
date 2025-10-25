@@ -16,9 +16,9 @@ export default function ContactForm({ className = '' }: { className?: string }) 
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
   const [company, setCompany] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState('');      // If your HubSpot property is `jobtitle`, we’ll map it in the API
   const [message, setMessage] = useState('');
-  const [consent, setConsent] = useState(false);
+  const [consent, setConsent] = useState(false); // “Okay to contact me about this inquiry” (not marketing)
   const [hp, setHp] = useState(''); // honeypot
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
@@ -41,7 +41,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (submitting) return; // prevent double submit
+    if (submitting) return;
     setSubmitting(true);
     setError(null);
 
@@ -54,37 +54,13 @@ export default function ContactForm({ className = '' }: { className?: string }) 
       turnstileToken = input?.value || '';
     }
 
-    // Client-side validation (all required except message)
-    if (!firstname.trim()) {
-      setSubmitting(false);
-      setError('Please enter your first name.');
-      return;
-    }
-    if (!lastname.trim()) {
-      setSubmitting(false);
-      setError('Please enter your last name.');
-      return;
-    }
-    if (!email.trim()) {
-      setSubmitting(false);
-      setError('Please enter your email.');
-      return;
-    }
-    if (!company.trim()) {
-      setSubmitting(false);
-      setError('Please enter your company.');
-      return;
-    }
-    if (!role.trim()) {
-      setSubmitting(false);
-      setError('Please enter your role/title.');
-      return;
-    }
-    if (!consent) {
-      setSubmitting(false);
-      setError('Please agree to be contacted.');
-      return;
-    }
+    // Client-side validation
+    if (!firstname.trim()) return bail('Please enter your first name.');
+    if (!lastname.trim()) return bail('Please enter your last name.');
+    if (!email.trim()) return bail('Please enter your email.');
+    if (!company.trim()) return bail('Please enter your company.');
+    if (!role.trim()) return bail('Please enter your role/title.');
+    if (!consent) return bail('Please agree to be contacted.');
 
     try {
       const res = await fetch('/api/hubspot/contact', {
@@ -96,7 +72,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
           lastname,
           company,
           role,
-          message, // optional
+          message,
           consent,
           hutk,
           pageUri,
@@ -115,6 +91,11 @@ export default function ContactForm({ className = '' }: { className?: string }) 
     } finally {
       setSubmitting(false);
     }
+
+    function bail(msg: string) {
+      setSubmitting(false);
+      setError(msg);
+    }
   }
 
   if (done) {
@@ -129,161 +110,170 @@ export default function ContactForm({ className = '' }: { className?: string }) 
   }
 
   return (
-    <form onSubmit={onSubmit} className={className} noValidate>
-      {/* Honeypot */}
-      <div
-        style={{ position: 'absolute', left: '-10000px', height: 0, width: 0, overflow: 'hidden' }}
-        aria-hidden="true"
+    <>
+      {/* Tell HubSpot tracking to ignore THIS form so it won’t create “Unidentified Form” */}
+      <Script id="hs-ignore-contact" strategy="afterInteractive">
+        {`
+          window._hsq = window._hsq || [];
+          window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Contact_Form']);
+        `}
+      </Script>
+
+      <form
+        id="EcoFocus_Contact_Form"
+        name="EcoFocus Contact Form"
+        data-hs-ignore="true"
+        onSubmit={onSubmit}
+        className={className}
+        noValidate
       >
-        <label>
-          If you are human, leave this field empty:
-          <input
-            type="text"
-            name="website"
-            tabIndex={-1}
-            autoComplete="off"
-            value={hp}
-            onChange={(e) => setHp(e.target.value)}
-          />
-        </label>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm text-gray-700">
-              First Name <span className="text-red-600">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={firstname}
-              onChange={(e) => setFirstname(e.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              autoComplete="given-name"
-              aria-invalid={!!error && !firstname ? 'true' : 'false'}
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700">
-              Last Name <span className="text-red-600">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              autoComplete="family-name"
-              aria-invalid={!!error && !lastname ? 'true' : 'false'}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-gray-700">
-            Email <span className="text-red-600">*</span>
-          </label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            autoComplete="email"
-            inputMode="email"
-            autoCapitalize="none"
-            spellCheck={false}
-            aria-invalid={!!error && !email ? 'true' : 'false'}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm text-gray-700">
-              Company <span className="text-red-600">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              autoComplete="organization"
-              aria-invalid={!!error && !company ? 'true' : 'false'}
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700">
-              Role / Title <span className="text-red-600">*</span>
-            </label>
-            <input
-              type="text"
-              required
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              autoComplete="organization-title"
-              aria-invalid={!!error && !role ? 'true' : 'false'}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm text-gray-700">Message</label>
-          <textarea
-            rows={5}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            placeholder="How can we help? Goals, audience, timing…"
-            aria-invalid="false"
-            maxLength={4000}
-          />
-        </div>
-
-        <label className="flex items-start gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={consent}
-            onChange={(e) => setConsent(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-            required
-            aria-invalid={!!error && !consent ? 'true' : 'false'}
-          />
-          <span>
-            I agree to be contacted about my inquiry. See our{' '}
-            <a href="/privacy" className="underline">Privacy Policy</a>.
-            <span className="text-red-600"> *</span>
-          </span>
-        </label>
-
-        {/* Optional Turnstile */}
-        {TURNSTILE_SITE_KEY && (
-          <>
-            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-            <div className="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="flexible" />
-          </>
-        )}
-
-        {error && (
-          <p className="text-sm text-red-600" role="status" aria-live="polite">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="mt-1 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+        {/* Honeypot */}
+        <div
+          style={{ position: 'absolute', left: '-10000px', height: 0, width: 0, overflow: 'hidden' }}
+          aria-hidden="true"
         >
-          {submitting ? 'Sending…' : 'Send message'}
-        </button>
+          <label>
+            If you are human, leave this field empty:
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={hp}
+              onChange={(e) => setHp(e.target.value)}
+            />
+          </label>
+        </div>
 
-        {/* Note at the bottom */}
-        <p className="mt-2 text-xs text-gray-500">Fields marked with <span className="text-red-600">*</span> are required.</p>
-      </div>
-    </form>
+        <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm text-gray-700">
+                First Name <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={firstname}
+                onChange={(e) => setFirstname(e.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                autoComplete="given-name"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-700">
+                Last Name <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                autoComplete="family-name"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700">
+              Email <span className="text-red-600">*</span>
+            </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              spellCheck={false}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm text-gray-700">
+                Company <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                autoComplete="organization"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-700">
+                Role / Title <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                autoComplete="organization-title"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-700">Message</label>
+            <textarea
+              rows={5}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              placeholder="How can we help? Goals, audience, timing…"
+              maxLength={4000}
+            />
+          </div>
+
+          <label className="flex items-start gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+              required
+            />
+            <span>
+              I agree to be contacted about my inquiry. See our{' '}
+              <a href="/privacy" className="underline">Privacy Policy</a>.
+              <span className="text-red-600"> *</span>
+            </span>
+          </label>
+
+          {/* Optional Turnstile */}
+          {TURNSTILE_SITE_KEY && (
+            <>
+              <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+              <div className="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="flexible" />
+            </>
+          )}
+
+          {error && (
+            <p className="text-sm text-red-600" role="status" aria-live="polite">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="mt-1 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+          >
+            {submitting ? 'Sending…' : 'Send message'}
+          </button>
+
+          <p className="mt-2 text-xs text-gray-500">Fields marked with <span className="text-red-600">*</span> are required.</p>
+        </div>
+      </form>
+    </>
   );
 }
 
