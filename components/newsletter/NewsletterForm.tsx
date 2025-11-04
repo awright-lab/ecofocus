@@ -46,6 +46,7 @@ export default function NewsletterForm({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return; // safety
     setSubmitting(true);
     setError(null);
 
@@ -58,7 +59,9 @@ export default function NewsletterForm({
       turnstileToken = input?.value || '';
     }
 
-    if (!email) {
+    const normalizedEmail = (email || '').trim().toLowerCase();
+
+    if (!normalizedEmail) {
       setSubmitting(false);
       setError('Please enter your email.');
       return;
@@ -74,9 +77,9 @@ export default function NewsletterForm({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email,
-          firstname,
-          lastname,
+          email: normalizedEmail,
+          firstname: (firstname || '').trim(),
+          lastname: (lastname || '').trim(),
           consent,
           hutk,
           pageUri,
@@ -85,9 +88,8 @@ export default function NewsletterForm({
           hp,
           elapsedMs,
           turnstileToken,
-          // Optional: pass custom tags to HubSpot “tags” (multiple checkboxes) property
-          // If omitted, backend will fall back to env default or ["newsletter"]
-          // tags: ['newsletter', 'econuggets'],
+          // Optional: override default HubSpot “tags” multiple-checkbox values
+          // tags: ['newsletter','econuggets'],
         }),
       });
       const data = await res.json();
@@ -126,7 +128,7 @@ export default function NewsletterForm({
 
   return (
     <>
-      {/* JS fallback that tells HubSpot tracking to ignore THIS form selector */}
+      {/* Local fallback: tell HubSpot tracking to ignore THIS form selector */}
       <Script id="hs-ignore-newsletter" strategy="afterInteractive">
         {`
           window._hsq = window._hsq || [];
@@ -137,10 +139,11 @@ export default function NewsletterForm({
       <form
         id="EcoFocus_Newsletter_Signup"
         name="EcoFocus Newsletter Signup"
-        data-hs-ignore="true"        // ✅ Prevents Non-HubSpot (Collected) Forms from creating “Unidentified Form…”
+        data-hs-ignore="true"         // prevent Non-HubSpot (Collected) Forms from logging it
         onSubmit={onSubmit}
         className={className}
         noValidate
+        autoComplete="off"            // reduces autofill-bot noise
       >
         {/* Honeypot */}
         <div style={{ position: 'absolute', left: '-10000px', height: 0, width: 0, overflow: 'hidden' }} aria-hidden="true">
@@ -191,6 +194,11 @@ export default function NewsletterForm({
               onChange={(e) => setEmail(e.target.value)}
               className={inputCls}
               autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              // light client-side format nudge (server still does real validation & blocklist)
+              pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$"
             />
           </div>
 
@@ -206,8 +214,7 @@ export default function NewsletterForm({
               I agree to receive EcoNuggets newsletter. See our{' '}
               <a href="/privacy" className={isDark ? 'underline text-emerald-300' : 'underline text-emerald-700'}>
                 Privacy Policy
-              </a>
-              .
+              </a>.
             </span>
           </label>
 

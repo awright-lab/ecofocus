@@ -1,12 +1,36 @@
+// app/api/hubspot/contact/route.ts
 import { NextResponse } from 'next/server';
 
 type RateEntry = { count: number; resetAt: number };
 
+// ---- Config -----------------------------------------------------------------
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_MAX = 20;                   // max submissions / IP / window
-const ipHits = new Map<string, RateEntry>(); // naive in-memory rate store
 
-function rateOk(ip: string) {
+// Comma-separated list of allowed origins; override in env if needed.
+const ALLOWED_ORIGINS: string[] = (
+  process.env.CONTACT_ALLOWED_ORIGINS ||
+  'https://ecofocusresearch.netlify.app,https://www.ecofocusresearch.netlify.app'
+)
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+// Regexes / validators
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+const DISPOSABLE_RE =
+  /(mailinator|guerrillamail|tempmail|10minutemail|yopmail|sharklasers|getnada|trashmail|throwawaymail|moakt|fakeinbox|mintemail|maildrop|dispostable|spambog|temp\-?mail)\./i;
+const NAME_OK = (s?: string) => !!s && /^[A-Za-zÀ-ÖØ-öø-ÿ' -]{2,50}$/.test(s);
+const TEXT_CLEAN = (s?: string) =>
+  (s || '')
+    .replace(/<\/?[^>]+(>|$)/g, '')        // strip HTML tags
+    .replace(/\u0000/g, '')                // strip nulls
+    .trim()
+    .slice(0, 4000);                       // cap length to a safe size
+
+// In-memory naive rate limiter
+const ipHits = new Map<string, RateEntry>();
+function rateOk(ip: string): boolean {
   const now = Date.now();
   const hit = ipHits.get(ip);
   if (!hit || now > hit.resetAt) {
@@ -18,6 +42,24 @@ function rateOk(ip: string) {
   return true;
 }
 
+// ---- Types ------------------------------------------------------------------
+type ContactBody = {
+  email?: string;
+  firstname?: string;
+  lastname?: string;
+  company?: string;
+  role?: string;                // FE sends "role"; mapped to jobtitle by default
+  message?: string;
+  consent?: boolean;
+  hutk?: string;
+  pageUri?: string;
+  pageName?: string;
+  utm?: { source?: string; medium?: string; campaign?: string };
+  hp?: string;
+  elapsedMs?: number;
+  turnstileToken?: string;
+};
+
 export async function POST(req: Request) {
   try {
     const ip =
@@ -27,19 +69,27 @@ export async function POST(req: Request) {
       req.headers.get('x-real-ip') ||
       '0.0.0.0';
 
-    // Soft throttle
+    // Soft throttle: silently accept but drop if exceeded
     if (!rateOk(String(ip))) {
       return NextResponse.json({ ok: true });
     }
 
-    const body = await req.json();
+    // Origin guard (optional but recommended)
+    const origin = req.headers.get('origin') || '';
+    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const body = (await req.json()) as ContactBody;
+
+    // Destructure & normalize (const to satisfy prefer-const)
     const {
-      email,
-      firstname,
-      lastname,
-      company,
-      role,            // FE sends "role"; map below to your HubSpot property
-      message,
+      email: rawEmail,
+      firstname: rawFirst,
+      lastname: rawLast,
+      company: rawCompany,
+      role: rawRole,
+      message: rawMessage,
       consent,
       hutk,
       pageUri,
@@ -50,17 +100,18 @@ export async function POST(req: Request) {
       turnstileToken,
     } = body || {};
 
-    // Honeypot
-    if (hp && String(hp).trim().length > 0) {
-      return NextResponse.json({ ok: true });
-    }
+    const email = (rawEmail || '').trim().toLowerCase();
+    const firstname = (rawFirst || '').trim();
+    const lastname  = (rawLast || '').trim();
+    const company   = (rawCompany || '').trim();
+    const role      = (rawRole || '').trim();
+    const message   = TEXT_CLEAN(rawMessage);
 
-    // Time trap
-    if (typeof elapsedMs === 'number' && elapsedMs < 1200) {
-      return NextResponse.json({ ok: true });
-    }
+    // Honeypot / time trap
+    if (hp && hp.trim().length > 0) return NextResponse.json({ ok: true });
+    if (typeof elapsedMs === 'number' && elapsedMs < 1200) return NextResponse.json({ ok: true });
 
-    // Optional Turnstile verify
+    // Turnstile verify (optional)
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
     if (turnstileSecret) {
       if (!turnstileToken) return NextResponse.json({ ok: true });
@@ -69,51 +120,55 @@ export async function POST(req: Request) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
       });
-      const v = (await verify.json()) as any;
+      const v = (await verify.json()) as { success?: boolean };
       if (!v.success) return NextResponse.json({ ok: true });
     }
 
-    // Basic validation
+    // Required + spam checks
     if (!email || !firstname || !lastname || !company || !role || !consent) {
       return NextResponse.json({ ok: false, error: 'Missing required fields' }, { status: 400 });
     }
+    if (!EMAIL_RE.test(email) || DISPOSABLE_RE.test(email)) {
+      return NextResponse.json({ ok: true });
+    }
+    if (!NAME_OK(firstname) || !NAME_OK(lastname)) {
+      return NextResponse.json({ ok: true });
+    }
 
-    const portalId = process.env.HUBSPOT_PORTAL_ID!;
-    const formId = process.env.HUBSPOT_CONTACT_FORM_ID!; // <-- set this env to your real HubSpot *Contact* form GUID
+    const portalId = process.env.HUBSPOT_PORTAL_ID;
+    const formId = process.env.HUBSPOT_CONTACT_FORM_ID; // set to your HubSpot *Contact* form GUID
     if (!portalId || !formId) {
       return NextResponse.json({ ok: false, error: 'Missing HubSpot env vars' }, { status: 500 });
     }
 
     // Map to HubSpot properties.
-    // NOTE: If your internal property is "jobtitle" (HubSpot default), we map role -> jobtitle.
-    // If you actually created a custom "role" property, change "jobtitle" to "role".
-    const fields = [
-      { name: 'email', value: String(email) },
-      { name: 'firstname', value: String(firstname) },
-      { name: 'lastname', value: String(lastname) },
-      { name: 'company', value: String(company) },
-      { name: 'jobtitle', value: String(role) },          // change to 'role' if that’s your internal name
-      message ? { name: 'message', value: String(message) } : null, // ensure a "message" text property exists
-      { name: 'inquiry_consent', value: consent ? 'true' : 'false' }, // optional custom property for audit
+    // If your internal property is actually "role" (custom), change 'jobtitle' → 'role' below.
+    const fields: Array<{ name: string; value: string }> = [
+      { name: 'email', value: email },
+      { name: 'firstname', value: firstname },
+      { name: 'lastname', value: lastname },
+      { name: 'company', value: company },
+      { name: 'jobtitle', value: role },                 // ← change to 'role' if that’s your internal name
+      ...(message ? [{ name: 'message', value: message }] : []), // ensure "message" property exists (text/long text)
+      { name: 'inquiry_consent', value: consent ? 'true' : 'false' }, // optional custom checkbox/text
       // UTMs (create text props if desired)
-      utm?.source   ? { name: 'utm_source',   value: String(utm.source)   } : null,
-      utm?.medium   ? { name: 'utm_medium',   value: String(utm.medium)   } : null,
-      utm?.campaign ? { name: 'utm_campaign', value: String(utm.campaign) } : null,
-      { name: 'signup_channel', value: 'contact' },                     // optional text property for dashboards
-      { name: 'source', value: 'Website' },                             // optional text property
-    ].filter(Boolean) as { name: string; value: string }[];
+      ...(utm?.source   ? [{ name: 'utm_source',   value: String(utm.source)   }] : []),
+      ...(utm?.medium   ? [{ name: 'utm_medium',   value: String(utm.medium)   }] : []),
+      ...(utm?.campaign ? [{ name: 'utm_campaign', value: String(utm.campaign) }] : []),
+      // Helpful context tags
+      { name: 'signup_channel', value: 'contact' },
+      { name: 'source', value: 'Website' },
+    ];
 
-    const context: Record<string, any> = {};
-    if (pageUri) context.pageUri = String(pageUri);
+    // Context (include hutk only if present to avoid INVALID_HUTK)
+    const context: Record<string, string> = {};
+    if (pageUri)  context.pageUri = String(pageUri);
     if (pageName) context.pageName = String(pageName);
-    if (typeof hutk === 'string' && hutk.trim().length > 0) {
-      context.hutk = hutk.trim();
-    }
+    if (typeof hutk === 'string' && hutk.trim()) context.hutk = hutk.trim();
 
-    // Payload — we deliberately DO NOT include a marketing subscription/communications consent block here.
-    // This prevents auto-marketing unless your HubSpot form’s own setting forces it (turn that off).
-    const payload: any = { fields };
-    if (Object.keys(context).length > 0) payload.context = context;
+    // Payload — deliberately NO marketing subscription/communications block
+    const payload: { fields: Array<{ name: string; value: string }>; context?: Record<string, string> } = { fields };
+    if (Object.keys(context).length) payload.context = context;
 
     const url = `https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formId}`;
     const hsRes = await fetch(url, {
@@ -128,7 +183,9 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ ok: true });
-  } catch (e: any) {
-    return NextResponse.json({ ok: false, error: e?.message || 'Unknown error' }, { status: 500 });
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Unknown error';
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
+

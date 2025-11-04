@@ -8,7 +8,7 @@ import { Inter } from "next/font/google";
 // 1) CLS-safe font loading
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
-// 2) Site constants (USE THE LIVE, CRAWLABLE URL)
+// 2) Site constants
 const SITE_URL = "https://ecofocusresearch.netlify.app";
 const SITE_NAME = "EcoFocus Research";
 const SITE_DESC =
@@ -18,7 +18,7 @@ const SITE_DESC =
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  viewportFit: "cover",                 // ⬅️ important for iOS safe areas + true edge-to-edge
+  viewportFit: "cover",
   colorScheme: "light dark",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#10B981" },
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  // 5) Organization JSON-LD (non-blocking)
+  // Organization JSON-LD (non-blocking)
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -103,7 +103,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className="h-full bg-white dark:bg-gray-900"        // ⬅️ ensure full-height root
+      className="h-full bg-white dark:bg-gray-900"
       suppressHydrationWarning
     >
       <head>
@@ -124,20 +124,72 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           />
         ) : null}
 
+        {/* ✅ Full favicon + Apple icon set for macOS/iOS */}
+        {/* Modern scalable favicon */}
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        {/* Legacy .ico fallback (used by Safari/macOS) */}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Explicit PNGs */}
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/images/icons/favicon-32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/images/icons/favicon-16.png"
+        />
+        {/* Apple Touch Icons */}
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/images/icons/apple-touch-icon-180.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="167x167"
+          href="/images/icons/apple-touch-icon-167.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="152x152"
+          href="/images/icons/apple-touch-icon-152.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="120x120"
+          href="/images/icons/apple-touch-icon-120.png"
+        />
+        {/* Safari pinned tab (monochrome SVG) */}
+        <link
+          rel="mask-icon"
+          href="/images/icons/safari-pinned-tab.svg"
+          color="#156C2B"
+        />
+
+        {/* iOS meta hints */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
         {/* Helpful preconnects */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://js.hs-scripts.com" />
         <link rel="dns-prefetch" href="https://js.hs-scripts.com" />
       </head>
+
       <body
-        className={`${inter.className} text-gray-900 dark:text-white min-h-dvh max-w-[100vw] overflow-x-clip`} 
-        //            ⬑ stop horizontal overflow (prevents mobile auto-zoom and lets sections truly full-bleed)
+        className={`${inter.className} text-gray-900 dark:text-white min-h-dvh max-w-[100vw] overflow-x-clip`}
       >
         {children}
       </body>
     </html>
   );
 }
+
+
 
 
 
