@@ -29,13 +29,13 @@ export default function DataAccessOptions() {
     <section className="relative bg-white" aria-labelledby="data-access-options">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.h2
-          className="text-3xl md:text-4xl font-bold text-gray-900 mb-12 text-center"
+          className="text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight font-bold text-gray-900 mb-12 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-blue-500">
+          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
             Multiple Access Points
           </span>{' '}
           to the Insights You Need

@@ -46,7 +46,7 @@ export default function TopicsGrid() {
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
               <span className="text-emerald-300">Measurement Framework</span>
             </span>
-            <h2 id="topics-grid-title" className="mt-3 font-bold leading-tight text-white text-[clamp(1.8rem,4vw,2.6rem)]">
+            <h2 id="topics-grid-title" className="mt-3 font-bold leading-tight text-white text-[clamp(1.8rem,4.5vw,2.5rem)]">
               How We Measure Sustainability.{` `}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 Built for Real Decisions.

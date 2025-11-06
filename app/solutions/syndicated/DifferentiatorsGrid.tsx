@@ -39,9 +39,9 @@ export default function DifferentiatorsShowcase() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-20">
         <h2
           id="diff-showcase"
-          className="text-center font-bold text-slate-900 text-[clamp(1.8rem,5vw,2.4rem)]"
+          className="text-center font-bold text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)]"
         >
-          What Makes <span className="text-emerald-600">EcoFocus</span> Different
+          What Makes <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">EcoFocus</span> Different
         </h2>
 
         <p className="mt-4 text-center text-slate-600 max-w-3xl mx-auto">
