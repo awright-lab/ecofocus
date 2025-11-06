@@ -143,19 +143,22 @@ function SpotCard({
       style={{ willChange: 'transform' }}
       aria-label={title}
     >
-      {/* Solid white ring on outer wrapper */}
-      <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white shadow-2xl">
-        {/* Solid white ring on inner card as well */}
-        <article className={`overflow-hidden rounded-2xl ${active ? 'bg-slate-800' : 'bg-slate-800/90'} ring-1 ring-white`}>
+      {/* OUTER: solid fill + white ring (fills the gutter area) */}
+      <div className="relative rounded-3xl p-[6px] ring-1 ring-white bg-slate-800 shadow-2xl">
+        {/* INNER: white ring as well (optional—keep if you want the double ring) */}
+        <article
+          className={`overflow-hidden rounded-2xl ring-1 ring-white ${
+            active ? 'bg-slate-800' : 'bg-slate-800/90'
+          }`}
+        >
           <div className="p-6">
             <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
               <Icon className="h-5 w-5" />
             </div>
-            {/* No line clamps — show full copy */}
+            {/* Show full copy (no clamps) */}
             <h3 className="font-semibold text-white leading-snug">{title}</h3>
             <p className="mt-2 text-sm text-slate-300">{description}</p>
           </div>
-          {/* bottom accent bar removed */}
         </article>
       </div>
     </motion.button>
