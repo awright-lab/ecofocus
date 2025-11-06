@@ -12,7 +12,7 @@ import CustomDeliverables from './Deliverables';
 import CustomUseCasesGrid from './CustomUseCasesGrid';
 import CustomMethodsStripe from './CustomMethodsStripe';
 import CustomTeamStripe from './CustomTeamStripe';
-import CustomFAQ from './FAQCustom';
+import CustomFAQ from './CustomFAQ';
 import CustomCTA from './CustomCTA';
 
 export default function CustomStudiesPage() {
