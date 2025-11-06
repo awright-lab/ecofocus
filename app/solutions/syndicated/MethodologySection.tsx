@@ -46,13 +46,6 @@ export default function MethodologySection() {
     { label: 'Latest Fielded',     value: 'Sep 2025',icon: 'ri-calendar-line',     theme: 'emerald' },
   ];
 
-  // Deduped details: removed "Mode / Duration" (already in the dek)
-  const rows = [
-    { label: 'Universe',             value: 'U.S. Adults (18+), balanced to U.S. Census' },
-    { label: 'N (Gen Pop)',          value: 'n = 4,000' },
-    { label: 'N (Grocery Shoppers)', value: 'n ≈ 3,900' },
-  ];
-
   return (
     <section aria-labelledby="methodology-heading" className="relative bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
@@ -64,10 +57,9 @@ export default function MethodologySection() {
           transition={{ duration: 0.45 }}
           className="text-center font-bold leading-tight text-slate-900 text-[clamp(1.6rem,5.2vw,2.3rem)]"
         >
-          Methodology You Can Defend
+          Background & Methodology Snapshot
         </motion.h2>
 
-        {/* keep the single dek; don't repeat Mode/Duration below */}
         <motion.p
           initial={reduce ? false : { opacity: 0 }}
           whileInView={reduce ? undefined : { opacity: 1 }}
@@ -78,7 +70,7 @@ export default function MethodologySection() {
           Nationally representative U.S. adults (18+), balanced to U.S. Census. Online survey, ~20–25 minutes.
         </motion.p>
 
-        {/* QuickStats-style cards */}
+        {/* QuickStats-style metrics */}
         <motion.div
           layout
           className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 sm:gap-6 md:gap-8"
@@ -92,22 +84,38 @@ export default function MethodologySection() {
                 initial={reduce ? false : { opacity: 0, y: 16 }}
                 whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.4 }}
-                transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.7, delay: i * 0.06 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 420,
+                  damping: 36,
+                  mass: 0.7,
+                  delay: i * 0.06,
+                }}
                 whileHover={reduce ? {} : { y: -4 }}
                 className={`relative rounded-2xl ring-1 ${t.ring} ${t.panel} shadow-[0_18px_44px_-18px_rgba(3,10,20,.45)]`}
                 style={{ willChange: 'transform' }}
               >
+                {/* subtle diagonal sheen on hover */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity"
-                  style={{ background: 'linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 70%)' }}
+                  style={{
+                    background:
+                      'linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 70%)',
+                  }}
                 />
+
                 <div className="relative z-10 px-5 py-6 sm:px-6 sm:py-7 flex items-center sm:block gap-4">
-                  <span className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${t.iconWrap}`} aria-hidden="true">
+                  <span
+                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${t.iconWrap}`}
+                    aria-hidden="true"
+                  >
                     <i className={`${stat.icon} text-2xl ${t.icon}`} />
                   </span>
                   <div className="min-w-0">
-                    <div className={`mt-0 sm:mt-3 text-3xl sm:text-4xl font-semibold tracking-tight ${t.value}`}>
+                    <div
+                      className={`mt-0 sm:mt-3 text-3xl sm:text-4xl font-semibold tracking-tight ${t.value}`}
+                    >
                       {stat.value}
                     </div>
                     <div className={`mt-1 text-sm sm:text-base ${t.label}`}>{stat.label}</div>
@@ -117,23 +125,9 @@ export default function MethodologySection() {
             );
           })}
         </motion.div>
-
-        {/* Divider and concise details */}
-        <div className="mt-10 sm:mt-12 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-
-        <div className="mx-auto mt-8 max-w-5xl">
-          <h3 className="text-center font-semibold text-slate-900">Background & Methodology Snapshot</h3>
-          <div className="mt-6 divide-y divide-slate-200 rounded-2xl ring-1 ring-slate-200 bg-white shadow-sm">
-            {rows.map((r) => (
-              <div key={r.label} className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[220px,1fr]">
-                <div className="text-sm font-medium text-slate-700">{r.label}</div>
-                <div className="text-sm text-slate-900">{r.value}</div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </section>
   );
 }
+
 
