@@ -1,6 +1,12 @@
 'use client';
 
-export default function DifferentiatorsGrid() {
+import { motion, useReducedMotion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+
+export default function DifferentiatorsShowcase() {
+  const reduce = useReducedMotion();
+  const [index, setIndex] = useState(0);
+
   const items = [
     {
       title: 'Landing Zone → Launching Pad',
@@ -19,23 +25,76 @@ export default function DifferentiatorsGrid() {
     },
   ];
 
+  // auto-advance every 8s unless motion reduced
+  useEffect(() => {
+    if (reduce) return;
+    const timer = setInterval(() => {
+      setIndex((i) => (i + 1) % items.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [reduce, items.length]);
+
   return (
-    <section className="relative bg-gray-50" aria-labelledby="diff-grid">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-        <h2 id="diff-grid" className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]">
-          What Makes EcoFocus Different
+    <section className="relative bg-gradient-to-b from-white to-gray-50" aria-labelledby="diff-showcase">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-20">
+        <h2
+          id="diff-showcase"
+          className="text-center font-bold text-slate-900 text-[clamp(1.8rem,5vw,2.4rem)]"
+        >
+          What Makes <span className="text-emerald-600">EcoFocus</span> Different
         </h2>
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((d) => (
-            <div key={d.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900">{d.title}</h3>
-              <p className="mt-2 text-sm text-gray-600">{d.body}</p>
-            </div>
-          ))}
+        <p className="mt-4 text-center text-slate-600 max-w-3xl mx-auto">
+          Each differentiator is part of our DNA—building a bridge between syndicated depth and brand-ready agility.
+        </p>
+
+        {/* Carousel container */}
+        <div className="relative mt-12 flex items-center justify-center overflow-hidden h-[260px] sm:h-[240px]">
+          {items.map((item, i) => {
+            const isActive = i === index;
+            const offset = (i - index + items.length) % items.length;
+
+            return (
+              <motion.div
+                key={item.title}
+                animate={{
+                  x: offset * 340 - (offset > 1 ? items.length * 340 : 0),
+                  scale: isActive ? 1 : 0.9,
+                  opacity: isActive ? 1 : 0.3,
+                  rotateY: isActive ? 0 : offset === 1 ? -15 : 15,
+                }}
+                transition={{ duration: reduce ? 0 : 0.9, ease: [0.25, 0.8, 0.4, 1] }}
+                className={`absolute w-[320px] sm:w-[340px] rounded-3xl bg-white ring-1 ring-gray-200 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.08)] p-6 flex flex-col justify-center text-center`}
+                style={{
+                  zIndex: isActive ? 10 : 1,
+                  transformStyle: 'preserve-3d',
+                }}
+              >
+                <h3 className="font-semibold text-slate-900 text-lg">{item.title}</h3>
+                <p className="mt-3 text-slate-600 text-sm leading-relaxed">{item.body}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Controls */}
+        <div className="mt-10 flex justify-center gap-3">
+          <button
+            onClick={() => setIndex((i) => (i - 1 + items.length) % items.length)}
+            className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
+          >
+            Prev
+          </button>
+          <button
+            onClick={() => setIndex((i) => (i + 1) % items.length)}
+            className="rounded-full border border-slate-300 px-4 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
+          >
+            Next
+          </button>
         </div>
       </div>
     </section>
   );
 }
+
 
