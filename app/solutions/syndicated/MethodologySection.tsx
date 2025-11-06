@@ -1,0 +1,160 @@
+'use client';
+
+import * as React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+
+/** ---------- QuickStats-style theming ---------- */
+type StatTheme = 'emerald' | 'slate' | 'marigold';
+type Stat = { label: string; value: string; icon: string; theme: StatTheme };
+
+const THEMES: Record<
+  StatTheme,
+  {
+    panel: string;   // card background
+    ring: string;    // subtle ring/border
+    value: string;   // value color
+    label: string;   // label color
+    iconWrap: string;// icon container
+    icon: string;    // icon color
+  }
+> = {
+  emerald: {
+    panel: 'bg-gradient-to-br from-emerald-600 to-emerald-700',
+    ring: 'ring-emerald-500/30',
+    value: 'text-white',
+    label: 'text-emerald-50/95',
+    iconWrap: 'bg-emerald-500/25 ring-1 ring-emerald-300/40',
+    icon: 'text-white',
+  },
+  slate: {
+    panel: 'bg-gradient-to-br from-[#0F1A28] to-[#0B1320]',
+    ring: 'ring-white/15',
+    value: 'text-white',
+    label: 'text-slate-200/90',
+    iconWrap: 'bg-white/10 ring-1 ring-white/20',
+    icon: 'text-white',
+  },
+  marigold: {
+    panel: 'bg-gradient-to-br from-[#F8B84A] to-[#EF9601]',
+    ring: 'ring-[#b26d00]/25',
+    value: 'text-slate-900',
+    label: 'text-slate-900/80',
+    iconWrap: 'bg-white/60 ring-1 ring-white/70',
+    icon: 'text-slate-900',
+  },
+};
+
+/** ---------- Combined Section ---------- */
+export default function MethodologySection() {
+  const reduce = useReducedMotion();
+
+  // Stats from MethodologyStripe, mapped to QuickStats style (added icons)
+  const stats: Stat[] = [
+    { label: 'Years Tracking',           value: '13+',     icon: 'ri-bar-chart-2-line',  theme: 'emerald' },
+    { label: 'Respondents / Wave',       value: '4,000',   icon: 'ri-group-line',        theme: 'slate' },
+    { label: 'National MoE',             value: '±1.55%',  icon: 'ri-equalizer-line',    theme: 'marigold' },
+    { label: 'Latest Fielded',           value: 'Sep 2025',icon: 'ri-calendar-line',     theme: 'emerald' },
+  ];
+
+  // Rows from CoverageGrid
+  const rows = [
+    { label: 'Universe',             value: 'U.S. Adults (18+), balanced to U.S. Census' },
+    { label: 'N (Gen Pop)',          value: 'n = 4,000' },
+    { label: 'N (Grocery Shoppers)', value: 'n ≈ 3,900' },
+    { label: 'Mode / Duration',      value: 'Online / ~20–25 minutes' },
+  ];
+
+  return (
+    <section aria-labelledby="methodology-heading" className="relative bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
+        {/* Heading + dek (from MethodologyStripe) */}
+        <motion.h2
+          id="methodology-heading"
+          initial={reduce ? false : { opacity: 0, y: -12 }}
+          whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.45 }}
+          className="text-center font-bold leading-tight text-slate-900 text-[clamp(1.6rem,5.2vw,2.3rem)]"
+        >
+          Methodology You Can Defend
+        </motion.h2>
+
+        <motion.p
+          initial={reduce ? false : { opacity: 0 }}
+          whileInView={reduce ? undefined : { opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.45, delay: 0.06 }}
+          className="mx-auto mt-4 max-w-3xl text-center text-slate-600"
+        >
+          Nationally representative U.S. adults (18+), balanced to U.S. Census. Online survey, ~20–25 minutes.
+        </motion.p>
+
+        {/* QuickStats-style cards */}
+        <motion.div
+          layout
+          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4 sm:gap-6 md:gap-8"
+        >
+          {stats.map((stat, i) => {
+            const t = THEMES[stat.theme];
+            return (
+              <motion.div
+                key={stat.label}
+                layout
+                initial={reduce ? false : { opacity: 0, y: 16 }}
+                whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 36, mass: 0.7, delay: i * 0.06 }}
+                whileHover={reduce ? {} : { y: -4 }}
+                className={`relative rounded-2xl ring-1 ${t.ring} ${t.panel} shadow-[0_18px_44px_-18px_rgba(3,10,20,.45)]`}
+                style={{ willChange: 'transform' }}
+              >
+                {/* sheen on hover */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity"
+                  style={{
+                    background:
+                      'linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 70%)',
+                  }}
+                />
+                <div className="relative z-10 px-5 py-6 sm:px-6 sm:py-7 flex items-center sm:block gap-4">
+                  <span
+                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${t.iconWrap}`}
+                    aria-hidden="true"
+                  >
+                    <i className={`${stat.icon} text-2xl ${t.icon}`} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className={`mt-0 sm:mt-3 text-3xl sm:text-4xl font-semibold tracking-tight ${t.value}`}>
+                      {stat.value}
+                    </div>
+                    <div className={`mt-1 text-sm sm:text-base ${t.label}`}>{stat.label}</div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+
+        {/* Divider between cards and details */}
+        <div className="mt-10 sm:mt-12 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+
+        {/* Coverage details (from CoverageGrid), centered and clean */}
+        <div className="mx-auto mt-8 max-w-5xl">
+          <h3 className="text-center font-semibold text-slate-900">
+            Background & Methodology Snapshot
+          </h3>
+
+          <div className="mt-6 divide-y divide-slate-200 rounded-2xl ring-1 ring-slate-200 bg-white shadow-sm">
+            {rows.map((r) => (
+              <div key={r.label} className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[220px,1fr]">
+                <div className="text-sm font-medium text-slate-700">{r.label}</div>
+                <div className="text-sm text-slate-900">{r.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

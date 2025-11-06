@@ -7,8 +7,6 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import SyndicatedHero from './SyndicatedHero';
 import StudyOverview from './StudyOverview';
 import TopicsGrid from './TopicsGrid';
-import MethodologyStripe from './MethodologyStripe';
-import CoverageGrid from './CoverageGrid';
 import DifferentiatorsGrid from './DifferentiatorsGrid';
 import UseCasesGrid from './UseCasesGrid';
 import DataAccessOptions from './DataAccessOptions';
@@ -17,6 +15,7 @@ import SyndicatedReportHighlight from './SyndicatedReportHighlight';
 import SampleVisual from './SampleVisual';
 import FAQSyndicated from './FAQSyndicated';
 import SyndicatedCTA from './SyndicatedCTA';
+import MethodologySection from './MethodologySection';
 
 export default function SyndicatedPage() {
   return (
@@ -37,8 +36,7 @@ export default function SyndicatedPage() {
 
         <StudyOverview />
         <TopicsGrid />
-        <MethodologyStripe />
-        <CoverageGrid />
+        <MethodologySection />
         <DifferentiatorsGrid />
         <UseCasesGrid />
         <DataAccessOptions />
