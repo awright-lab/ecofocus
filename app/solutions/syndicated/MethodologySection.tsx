@@ -3,20 +3,12 @@
 import * as React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
-/** ---------- QuickStats-style theming ---------- */
 type StatTheme = 'emerald' | 'slate' | 'marigold';
 type Stat = { label: string; value: string; icon: string; theme: StatTheme };
 
 const THEMES: Record<
   StatTheme,
-  {
-    panel: string;   // card background
-    ring: string;    // subtle ring/border
-    value: string;   // value color
-    label: string;   // label color
-    iconWrap: string;// icon container
-    icon: string;    // icon color
-  }
+  { panel: string; ring: string; value: string; label: string; iconWrap: string; icon: string }
 > = {
   emerald: {
     panel: 'bg-gradient-to-br from-emerald-600 to-emerald-700',
@@ -44,30 +36,26 @@ const THEMES: Record<
   },
 };
 
-/** ---------- Combined Section ---------- */
 export default function MethodologySection() {
   const reduce = useReducedMotion();
 
-  // Stats from MethodologyStripe, mapped to QuickStats style (added icons)
   const stats: Stat[] = [
-    { label: 'Years Tracking',           value: '13+',     icon: 'ri-bar-chart-2-line',  theme: 'emerald' },
-    { label: 'Respondents / Wave',       value: '4,000',   icon: 'ri-group-line',        theme: 'slate' },
-    { label: 'National MoE',             value: '±1.55%',  icon: 'ri-equalizer-line',    theme: 'marigold' },
-    { label: 'Latest Fielded',           value: 'Sep 2025',icon: 'ri-calendar-line',     theme: 'emerald' },
+    { label: 'Years Tracking',     value: '13+',     icon: 'ri-bar-chart-2-line',  theme: 'emerald' },
+    { label: 'Respondents / Wave', value: '4,000',   icon: 'ri-group-line',        theme: 'slate' },
+    { label: 'National MoE',       value: '±1.55%',  icon: 'ri-equalizer-line',    theme: 'marigold' },
+    { label: 'Latest Fielded',     value: 'Sep 2025',icon: 'ri-calendar-line',     theme: 'emerald' },
   ];
 
-  // Rows from CoverageGrid
+  // Deduped details: removed "Mode / Duration" (already in the dek)
   const rows = [
     { label: 'Universe',             value: 'U.S. Adults (18+), balanced to U.S. Census' },
     { label: 'N (Gen Pop)',          value: 'n = 4,000' },
     { label: 'N (Grocery Shoppers)', value: 'n ≈ 3,900' },
-    { label: 'Mode / Duration',      value: 'Online / ~20–25 minutes' },
   ];
 
   return (
     <section aria-labelledby="methodology-heading" className="relative bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
-        {/* Heading + dek (from MethodologyStripe) */}
         <motion.h2
           id="methodology-heading"
           initial={reduce ? false : { opacity: 0, y: -12 }}
@@ -79,6 +67,7 @@ export default function MethodologySection() {
           Methodology You Can Defend
         </motion.h2>
 
+        {/* keep the single dek; don't repeat Mode/Duration below */}
         <motion.p
           initial={reduce ? false : { opacity: 0 }}
           whileInView={reduce ? undefined : { opacity: 1 }}
@@ -108,20 +97,13 @@ export default function MethodologySection() {
                 className={`relative rounded-2xl ring-1 ${t.ring} ${t.panel} shadow-[0_18px_44px_-18px_rgba(3,10,20,.45)]`}
                 style={{ willChange: 'transform' }}
               >
-                {/* sheen on hover */}
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 hover:opacity-100 transition-opacity"
-                  style={{
-                    background:
-                      'linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 70%)',
-                  }}
+                  style={{ background: 'linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 70%)' }}
                 />
                 <div className="relative z-10 px-5 py-6 sm:px-6 sm:py-7 flex items-center sm:block gap-4">
-                  <span
-                    className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${t.iconWrap}`}
-                    aria-hidden="true"
-                  >
+                  <span className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${t.iconWrap}`} aria-hidden="true">
                     <i className={`${stat.icon} text-2xl ${t.icon}`} />
                   </span>
                   <div className="min-w-0">
@@ -136,15 +118,11 @@ export default function MethodologySection() {
           })}
         </motion.div>
 
-        {/* Divider between cards and details */}
+        {/* Divider and concise details */}
         <div className="mt-10 sm:mt-12 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
-        {/* Coverage details (from CoverageGrid), centered and clean */}
         <div className="mx-auto mt-8 max-w-5xl">
-          <h3 className="text-center font-semibold text-slate-900">
-            Background & Methodology Snapshot
-          </h3>
-
+          <h3 className="text-center font-semibold text-slate-900">Background & Methodology Snapshot</h3>
           <div className="mt-6 divide-y divide-slate-200 rounded-2xl ring-1 ring-slate-200 bg-white shadow-sm">
             {rows.map((r) => (
               <div key={r.label} className="grid grid-cols-1 gap-2 p-5 sm:grid-cols-[220px,1fr]">
@@ -158,3 +136,4 @@ export default function MethodologySection() {
     </section>
   );
 }
+
