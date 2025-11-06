@@ -2,7 +2,7 @@
 
 import { CloudSun, Recycle, HeartPulse, Shield, FlaskConical, PackageSearch } from 'lucide-react';
 import { type ComponentType, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 type Topic = { icon: ComponentType<{ className?: string }>; title: string; description: string };
 
@@ -21,26 +21,26 @@ export default function TopicsGrid() {
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  // Slower auto-advance: every 9s (pause on hover, respect reduced motion)
+  // Auto-advance every 9s (pause on hover; respect Reduced Motion)
   useEffect(() => {
     if (reduce || paused) return;
     timerRef.current = window.setInterval(() => setIdx((v) => (v + 1) % topics.length), 9000);
     return () => { if (timerRef.current) window.clearInterval(timerRef.current); };
   }, [reduce, paused]);
 
-  // Top/mid/back cards for the stack
-  const stack = useMemo(() => {
-    const a = topics[idx % topics.length];
-    const b = topics[(idx + 1) % topics.length];
-    const c = topics[(idx + 2) % topics.length];
-    return [a, b, c];
+  // Get the three visible cards: left, center (active), right
+  const visible = useMemo(() => {
+    const center = topics[idx % topics.length];
+    const left   = topics[(idx - 1 + topics.length) % topics.length];
+    const right  = topics[(idx + 1) % topics.length];
+    return { left, center, right };
   }, [idx]);
 
   return (
     <section className="relative section-slab-deep" aria-labelledby="topics-grid-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
-          {/* LEFT copy (kept to match InteractiveDashboardShowcase) */}
+          {/* LEFT COPY (matches InteractiveDashboardShowcase) */}
           <div className="md:col-span-5">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
@@ -58,41 +58,54 @@ export default function TopicsGrid() {
             </p>
           </div>
 
-          {/* RIGHT: stacked deck — centered vertically & nudged lower */}
+          {/* RIGHT: Hybrid 3-up spotlight carousel */}
           <div
-            className="md:col-span-7 hidden sm:flex items-center justify-center md:translate-y-2"
+            className="md:col-span-7 hidden sm:block"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
-            aria-live="polite"
           >
-            <div className="relative h-[380px] w-full">
-              <AnimatePresence initial={false} mode="popLayout">
-                {/* Back layer (straight, slightly smaller, lower) */}
-                <StackLayer key={`back-${stack[2].title}-${idx}`} depth="back">
-                  <Card {...stack[2]} depth="back" />
-                </StackLayer>
+            <div className="relative h-[360px] overflow-hidden">
+              {/* Track holds three positions: left, center, right */}
+              <motion.div
+                key={idx} // trigger slide animation on index change
+                initial={reduce ? false : { x: 0 }}
+                animate={reduce ? {} : { x: 0 }}
+                transition={{ duration: 0.6, ease: [0.22, 0.8, 0.36, 1] }}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[980px]"
+              >
+                <div className="relative h-[320px]">
+                  {/* LEFT card */}
+                  <SpotCard
+                    topic={visible.left}
+                    position="left"
+                    onClick={() => setIdx((v) => (v - 1 + topics.length) % topics.length)}
+                  />
+                  {/* CENTER (active) */}
+                  <SpotCard
+                    topic={visible.center}
+                    position="center"
+                    active
+                    onClick={() => setIdx((v) => (v + 1) % topics.length)}
+                  />
+                  {/* RIGHT card */}
+                  <SpotCard
+                    topic={visible.right}
+                    position="right"
+                    onClick={() => setIdx((v) => (v + 1) % topics.length)}
+                  />
+                </div>
+              </motion.div>
+            </div>
 
-                {/* Mid layer */}
-                <StackLayer key={`mid-${stack[1].title}-${idx}`} depth="mid">
-                  <Card {...stack[1]} depth="mid" />
-                </StackLayer>
-
-                {/* Top layer — new card rises from below and lands */}
-                <StackLayer key={`top-${stack[0].title}-${idx}`} depth="top" entering={!reduce}>
-                  <Card {...stack[0]} depth="top" />
-                </StackLayer>
-              </AnimatePresence>
-
-              {/* Controls */}
-              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3">
-                <DeckBtn onClick={() => setIdx((v) => (v - 1 + topics.length) % topics.length)}>Prev</DeckBtn>
-                <DeckBtn onClick={() => setIdx((v) => (v + 1) % topics.length)}>Next</DeckBtn>
-                <DeckBtn aria-pressed={paused} onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</DeckBtn>
-              </div>
+            {/* Controls */}
+            <div className="mt-6 flex items-center justify-center gap-3">
+              <DeckBtn onClick={() => setIdx((v) => (v - 1 + topics.length) % topics.length)}>Prev</DeckBtn>
+              <DeckBtn onClick={() => setIdx((v) => (v + 1) % topics.length)}>Next</DeckBtn>
+              <DeckBtn aria-pressed={paused} onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</DeckBtn>
             </div>
           </div>
 
-          {/* Mobile fallback: simple list */}
+          {/* Mobile: simple list */}
           <div className="sm:hidden grid gap-6 grid-cols-1">
             {topics.map((t) => (
               <div key={t.title} className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
@@ -109,73 +122,64 @@ export default function TopicsGrid() {
   );
 }
 
-/* ====== Layer (now perfectly straight) ====== */
-function StackLayer({
-  children,
-  depth,
-  entering = false,
+/* ---------- Spotlight card (outer ring chrome + position transforms) ---------- */
+
+function SpotCard({
+  topic,
+  position,
+  active = false,
+  onClick,
 }: {
-  children: React.ReactNode;
-  depth: 'top' | 'mid' | 'back';
-  entering?: boolean;
+  topic: Topic;
+  position: 'left' | 'center' | 'right';
+  active?: boolean;
+  onClick?: () => void;
 }) {
-  // Straight stack (no rotation). Subtle size/offset to show layers.
-  const cfg =
-    depth === 'top'
-      ? { z: 30, y: 0,   scale: 1.0,   shadow: 'shadow-2xl', initialY: 68, dur: 1.0 }
-      : depth === 'mid'
-      ? { z: 20, y: 18,  scale: 0.992, shadow: 'shadow-xl',  dur: 0.9 }
-      : {   z: 10, y: 32,  scale: 0.984, shadow: 'shadow-lg',  dur: 0.85 };
+  const { icon: Icon, title, description } = topic;
+
+  // Horizontal offsets for three-up layout (no rotations; clean align)
+  const x =
+    position === 'left' ? -320 :
+    position === 'right' ? 320 : 0;
+
+  const scale = active ? 1 : 0.94;
+  const y = active ? 0 : 12;
+  const opacity = active ? 1 : 0.75;
 
   return (
     <motion.div
-      className={`absolute inset-x-0 mx-auto max-w-[640px] ${cfg.shadow}`}
-      style={{ zIndex: cfg.z, willChange: 'transform' }}
-      initial={
-        entering
-          ? { opacity: 0, y: cfg.initialY, scale: 0.985 }
-          : { opacity: 1, y: cfg.y, scale: cfg.scale }
-      }
-      animate={{ opacity: 1, y: cfg.y, scale: cfg.scale }}
-      exit={{ opacity: 0, y: cfg.y + 10, scale: cfg.scale * 0.99 }}
-      transition={{ type: 'spring', stiffness: 240, damping: 32, mass: 0.9, duration: cfg.dur }}
+      role={active ? 'group' : 'button'}
+      onClick={onClick}
+      initial={false}
+      animate={{ x, scale, y, opacity }}
+      transition={{ duration: 0.6, ease: [0.22, 0.8, 0.36, 1] }}
+      className="absolute left-1/2 top-1/2 w-[300px] -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+      style={{ willChange: 'transform' }}
     >
-      {children}
+      <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+        <article className={`overflow-hidden rounded-2xl ${active ? 'bg-slate-800' : 'bg-slate-800/90'} ring-1 ${active ? 'ring-white/15' : 'ring-white/10'}`}>
+          <div className="p-6">
+            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
+              <Icon className="h-5 w-5" />
+            </div>
+            <h3 className="font-semibold text-white leading-snug line-clamp-1">{title}</h3>
+            <p className="mt-2 text-sm text-slate-300 line-clamp-2">{description}</p>
+          </div>
+          <div className="h-[4px] w-full bg-slate-700" />
+        </article>
+      </div>
     </motion.div>
   );
 }
 
-/* ====== Card chrome (top fully opaque; others dimmed slightly) ====== */
-function Card(t: Topic & { depth: 'top' | 'mid' | 'back' }) {
-  const outer = 'relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10';
-  const inner =
-    t.depth === 'top'
-      ? 'overflow-hidden rounded-2xl bg-slate-800 ring-1 ring-white/15'
-      : 'overflow-hidden rounded-2xl bg-slate-800/90 ring-1 ring-white/10';
-
+function CardBody({ icon: Icon, title, description }: Topic) {
   return (
-    <div className={outer}>
-      <article className={inner} aria-hidden={t.depth !== 'top'}>
-        <CardBody {...t} muted={t.depth !== 'top'} />
-        <div className="h-[4px] w-full bg-slate-700" />
-      </article>
-    </div>
-  );
-}
-
-function CardBody({
-  icon: Icon,
-  title,
-  description,
-  muted = false,
-}: Topic & { muted?: boolean }) {
-  return (
-    <div className={`p-6 ${muted ? 'opacity-75' : 'opacity-100'}`}>
+    <div className="p-6">
       <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
         <Icon className="h-5 w-5" />
       </div>
-      <h3 className="font-semibold text-white leading-snug line-clamp-1">{title}</h3>
-      <p className="mt-2 text-sm text-slate-300 line-clamp-2">{description}</p>
+      <h3 className="font-semibold text-white leading-snug">{title}</h3>
+      <p className="mt-2 text-sm text-slate-300">{description}</p>
     </div>
   );
 }
@@ -188,6 +192,7 @@ function DeckBtn(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
     />
   );
 }
+
 
 
 
