@@ -21,14 +21,14 @@ export default function TopicsGrid() {
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  // Auto-advance every 7s, pause on hover, respect reduced motion
+  // Slower auto-advance: every 9s (pause on hover, respect reduced motion)
   useEffect(() => {
     if (reduce || paused) return;
-    timerRef.current = window.setInterval(() => setIdx((v) => (v + 1) % topics.length), 7000);
+    timerRef.current = window.setInterval(() => setIdx((v) => (v + 1) % topics.length), 9000);
     return () => { if (timerRef.current) window.clearInterval(timerRef.current); };
   }, [reduce, paused]);
 
-  // Top/mid/back cards
+  // Top/mid/back cards for the stack
   const stack = useMemo(() => {
     const a = topics[idx % topics.length];
     const b = topics[(idx + 1) % topics.length];
@@ -40,7 +40,7 @@ export default function TopicsGrid() {
     <section className="relative section-slab-deep" aria-labelledby="topics-grid-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
-          {/* LEFT COPY (unchanged from your InteractiveDashboardShowcase style) */}
+          {/* LEFT copy (kept to match InteractiveDashboardShowcase) */}
           <div className="md:col-span-5">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
               <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
@@ -58,16 +58,16 @@ export default function TopicsGrid() {
             </p>
           </div>
 
-          {/* RIGHT: stacked deck */}
+          {/* RIGHT: stacked deck — centered vertically & nudged lower */}
           <div
-            className="md:col-span-7 hidden sm:block"
+            className="md:col-span-7 hidden sm:flex items-center justify-center md:translate-y-2"
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
             aria-live="polite"
           >
-            <div className="relative h-[360px]">
+            <div className="relative h-[380px] w-full">
               <AnimatePresence initial={false} mode="popLayout">
-                {/* Back layer (dim, smaller, slightly offset) */}
+                {/* Back layer (straight, slightly smaller, lower) */}
                 <StackLayer key={`back-${stack[2].title}-${idx}`} depth="back">
                   <Card {...stack[2]} depth="back" />
                 </StackLayer>
@@ -82,17 +82,17 @@ export default function TopicsGrid() {
                   <Card {...stack[0]} depth="top" />
                 </StackLayer>
               </AnimatePresence>
-            </div>
 
-            {/* Controls */}
-            <div className="mt-4 flex items-center justify-center gap-3">
-              <DeckBtn onClick={() => setIdx((v) => (v - 1 + topics.length) % topics.length)}>Prev</DeckBtn>
-              <DeckBtn onClick={() => setIdx((v) => (v + 1) % topics.length)}>Next</DeckBtn>
-              <DeckBtn aria-pressed={paused} onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</DeckBtn>
+              {/* Controls */}
+              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center gap-3">
+                <DeckBtn onClick={() => setIdx((v) => (v - 1 + topics.length) % topics.length)}>Prev</DeckBtn>
+                <DeckBtn onClick={() => setIdx((v) => (v + 1) % topics.length)}>Next</DeckBtn>
+                <DeckBtn aria-pressed={paused} onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</DeckBtn>
+              </div>
             </div>
           </div>
 
-          {/* Mobile fallback: simple list (no motion) */}
+          {/* Mobile fallback: simple list */}
           <div className="sm:hidden grid gap-6 grid-cols-1">
             {topics.map((t) => (
               <div key={t.title} className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
@@ -109,8 +109,7 @@ export default function TopicsGrid() {
   );
 }
 
-/* ===================== Layer & motion ===================== */
-
+/* ====== Layer (now perfectly straight) ====== */
 function StackLayer({
   children,
   depth,
@@ -120,13 +119,13 @@ function StackLayer({
   depth: 'top' | 'mid' | 'back';
   entering?: boolean;
 }) {
-  // offsets tuned to read as a physical stack (slower, clearer)
+  // Straight stack (no rotation). Subtle size/offset to show layers.
   const cfg =
     depth === 'top'
-      ? { z: 30, y: 0,   scale: 1.0,   rotate: 0,    shadow: 'shadow-2xl',  initialY: 56,  duration: 0.75 }
+      ? { z: 30, y: 0,   scale: 1.0,   shadow: 'shadow-2xl', initialY: 68, dur: 1.0 }
       : depth === 'mid'
-      ? { z: 20, y: 16,  scale: 0.985, rotate: -1.1, shadow: 'shadow-xl',   duration: 0.65 }
-      : {   z: 10, y: 28,  scale: 0.97,  rotate: 1.1,  shadow: 'shadow-lg',   duration: 0.6  };
+      ? { z: 20, y: 18,  scale: 0.992, shadow: 'shadow-xl',  dur: 0.9 }
+      : {   z: 10, y: 32,  scale: 0.984, shadow: 'shadow-lg',  dur: 0.85 };
 
   return (
     <motion.div
@@ -135,36 +134,28 @@ function StackLayer({
       initial={
         entering
           ? { opacity: 0, y: cfg.initialY, scale: 0.985 }
-          : { opacity: 1, y: cfg.y, scale: cfg.scale, rotate: cfg.rotate }
+          : { opacity: 1, y: cfg.y, scale: cfg.scale }
       }
-      animate={{ opacity: 1, y: cfg.y, scale: cfg.scale, rotate: cfg.rotate }}
-      exit={{ opacity: 0, y: cfg.y + 8, scale: cfg.scale * 0.99 }}
-      transition={{
-        type: 'spring',
-        stiffness: 320,
-        damping: 32,
-        mass: 0.8,
-        duration: cfg.duration, // acts as a cap for reduced "pop"
-      }}
+      animate={{ opacity: 1, y: cfg.y, scale: cfg.scale }}
+      exit={{ opacity: 0, y: cfg.y + 10, scale: cfg.scale * 0.99 }}
+      transition={{ type: 'spring', stiffness: 240, damping: 32, mass: 0.9, duration: cfg.dur }}
     >
       {children}
     </motion.div>
   );
 }
 
-/* ===================== Card chrome ===================== */
-
+/* ====== Card chrome (top fully opaque; others dimmed slightly) ====== */
 function Card(t: Topic & { depth: 'top' | 'mid' | 'back' }) {
-  // Top card is fully opaque; others slightly dim so text doesn't compete.
   const outer = 'relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10';
-  const innerBase =
+  const inner =
     t.depth === 'top'
-      ? 'overflow-hidden rounded-2xl bg-slate-800 ring-1 ring-white/15'      // solid
-      : 'overflow-hidden rounded-2xl bg-slate-800/85 ring-1 ring-white/10';  // dimmed
+      ? 'overflow-hidden rounded-2xl bg-slate-800 ring-1 ring-white/15'
+      : 'overflow-hidden rounded-2xl bg-slate-800/90 ring-1 ring-white/10';
 
   return (
     <div className={outer}>
-      <article className={innerBase} aria-hidden={t.depth !== 'top'}>
+      <article className={inner} aria-hidden={t.depth !== 'top'}>
         <CardBody {...t} muted={t.depth !== 'top'} />
         <div className="h-[4px] w-full bg-slate-700" />
       </article>
@@ -179,7 +170,7 @@ function CardBody({
   muted = false,
 }: Topic & { muted?: boolean }) {
   return (
-    <div className={`p-6 ${muted ? 'opacity-70' : 'opacity-100'}`}>
+    <div className={`p-6 ${muted ? 'opacity-75' : 'opacity-100'}`}>
       <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
         <Icon className="h-5 w-5" />
       </div>
@@ -197,6 +188,7 @@ function DeckBtn(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
     />
   );
 }
+
 
 
 
