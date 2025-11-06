@@ -11,7 +11,7 @@ type UseCase = {
 
 const useCases: UseCase[] = [
   {
-    icon: <Briefcase className="w-6 h-6 text-emerald-600" />,
+    icon: <Briefcase className="w-6 h-6 text-emerald-700" />,
     title: 'For CMOs',
     points: [
       'Translate sustainability into growth with data-backed message and claim testing.',
@@ -19,7 +19,7 @@ const useCases: UseCase[] = [
     ],
   },
   {
-    icon: <Users className="w-6 h-6 text-emerald-600" />,
+    icon: <Users className="w-6 h-6 text-emerald-700" />,
     title: 'For CHROs & Talent',
     points: [
       'Link employer brand to the values that matter to emerging talent.',
@@ -27,7 +27,7 @@ const useCases: UseCase[] = [
     ],
   },
   {
-    icon: <ShoppingBasket className="w-6 h-6 text-emerald-600" />,
+    icon: <ShoppingBasket className="w-6 h-6 text-emerald-700" />,
     title: 'Retail & Grocery',
     points: [
       'Choose the right on-pack claims and signage for shopper values by region.',
@@ -35,7 +35,7 @@ const useCases: UseCase[] = [
     ],
   },
   {
-    icon: <Landmark className="w-6 h-6 text-emerald-600" />,
+    icon: <Landmark className="w-6 h-6 text-emerald-700" />,
     title: 'Financial Services',
     points: [
       'Understand which sustainability themes build trust with younger customers.',
@@ -49,67 +49,80 @@ export default function UseCasesGrid() {
 
   return (
     <section className="relative bg-white" aria-labelledby="use-cases-grid">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
-        {/* Section badge */}
-        <div className="mb-4 flex justify-center">
-          <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            Who It’s For
-          </span>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
+        {/* Badge — same as StudyOverview/CoreServices */}
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+          <span className="text-black/60">Who It’s For</span>
         </div>
 
-        {/* Headline (matches Study Overview) */}
-        <motion.h2
-          id="use-cases-grid"
-          initial={r ? false : { opacity: 0, y: -10 }}
-          whileInView={r ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45 }}
-          className="text-center font-bold leading-tight text-slate-900 text-[clamp(1.6rem,5vw,2.3rem)]"
-        >
-          Use Cases <span className="text-emerald-600">Across the Business</span>
-        </motion.h2>
+        {/* Headline + copy — two-column layout identical to StudyOverview */}
+        <div className="mt-0 md:mt-2 grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">
+          <motion.h2
+            id="use-cases-grid"
+            initial={r ? false : { opacity: 0, y: -10 }}
+            whileInView={r ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45 }}
+            className="md:col-span-6 font-bold leading-tight text-slate-900
+                       text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
+          >
+            Use Cases{' '}
+            <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+              Across the Business
+            </span>
+          </motion.h2>
 
-        <motion.p
-          initial={r ? false : { opacity: 0 }}
-          whileInView={r ? undefined : { opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45, delay: 0.1 }}
-          className="mx-auto mt-4 max-w-3xl text-center text-slate-600"
-        >
-          Put EcoFocus insights to work—from brand and retail to talent and finance—so teams act with
-          clarity and confidence.
-        </motion.p>
+          <motion.p
+            initial={r ? false : { opacity: 0 }}
+            whileInView={r ? undefined : { opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.45, delay: 0.08 }}
+            className="md:col-span-6 text-base md:text-lg text-slate-600"
+          >
+            Put EcoFocus insights to work—from brand and retail to talent and finance—so teams act
+            with clarity and confidence.
+          </motion.p>
+        </div>
 
-        {/* Cards (Study Overview styling) */}
-        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {useCases.map((u, i) => (
-            <motion.div
+        {/* Cards — gradient edge, white inner card, same ring/shadows */}
+        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {useCases.map((u) => (
+            <div
               key={u.title}
-              initial={r ? false : { opacity: 0, y: 8 }}
-              whileInView={r ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.05 * i }}
-              className="group flex flex-col justify-between rounded-2xl bg-white ring-1 ring-slate-200/80 shadow-sm hover:shadow-md hover:ring-emerald-400 transition-all duration-200"
+              className="relative p-[1px] rounded-[1.05rem]
+                         bg-[linear-gradient(135deg,rgba(16,185,129,0.35),rgba(59,130,246,0.25),transparent)]"
             >
-              <div className="p-6">
-                <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-                  {u.icon}
+              <article
+                className="h-full rounded-[1rem] bg-white ring-1 ring-gray-100
+                           shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)]
+                           hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)]
+                           transition flex flex-col"
+              >
+                <div className="px-6 pt-6 pb-5">
+                  <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+                    {u.icon}
+                  </div>
+                  <h3 className="text-[20px] md:text-[22px] font-semibold tracking-tight text-slate-900 leading-snug">
+                    {u.title}
+                  </h3>
                 </div>
-                <h3 className="font-semibold text-slate-900">{u.title}</h3>
-                <ul className="mt-3 grid gap-1.5 text-sm text-slate-600">
-                  {u.points.map((p) => (
-                    <li key={p} className="relative pl-5">
-                      <span
-                        aria-hidden
-                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
-                      />
-                      {p}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="h-[4px] w-full rounded-b-2xl bg-slate-100 group-hover:bg-emerald-500 transition-colors" />
-            </motion.div>
+
+                <div className="px-6 pb-6">
+                  <ul className="grid gap-1.5">
+                    {u.points.map((p) => (
+                      <li key={p} className="relative pl-5 text-[15px] text-slate-700 leading-relaxed">
+                        <span
+                          aria-hidden
+                          className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                        />
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            </div>
           ))}
         </div>
       </div>

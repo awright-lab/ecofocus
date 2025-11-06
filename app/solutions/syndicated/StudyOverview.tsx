@@ -38,72 +38,57 @@ export default function StudyOverview() {
 
   return (
     <section className="relative bg-white" aria-labelledby="syn-overview">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        {/* Section badge — mirrors CoreServices */}
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-          <span className="text-black/60">Study Overview</span>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
+        {/* Category label */}
+        <div className="mb-4 flex justify-center">
+          <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+            Research Focus
+          </span>
         </div>
 
-        {/* Headline + copy — same 2-column layout and typographic scale as CoreServices */}
-        <div className="mt-0 md:mt-2 grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">
-          <motion.h2
-            id="syn-overview"
-            initial={r ? false : { opacity: 0, y: -10 }}
-            whileInView={r ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45 }}
-            className="md:col-span-6 font-bold leading-tight text-slate-900
-                       text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
-          >
-            What the Syndicated Study{' '}
-            <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-              Covers
-            </span>
-          </motion.h2>
+        {/* Headline */}
+        <motion.h2
+          id="syn-overview"
+          initial={r ? false : { opacity: 0, y: -10 }}
+          whileInView={r ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+          className="text-center font-bold leading-tight text-slate-900 text-[clamp(1.6rem,5vw,2.3rem)]"
+        >
+          What the <span className="text-emerald-600">Syndicated Study</span> Covers
+        </motion.h2>
 
-          <motion.p
-            initial={r ? false : { opacity: 0 }}
-            whileInView={r ? undefined : { opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45, delay: 0.08 }}
-            className="md:col-span-6 text-base md:text-lg text-slate-600"
-          >
-            We decode how sustainability values influence buying, messaging, and retention—turning purpose into a
-            business advantage at a fraction of traditional costs.
-          </motion.p>
-        </div>
+        <motion.p
+          initial={r ? false : { opacity: 0 }}
+          whileInView={r ? undefined : { opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45, delay: 0.1 }}
+          className="mx-auto mt-4 max-w-3xl text-center text-slate-600"
+        >
+          We decode how sustainability values influence buying, messaging, and retention—turning purpose into a
+          business advantage at a fraction of traditional costs.
+        </motion.p>
 
-        {/* Cards — same cleanliness/shadows/border treatment as CoreServices */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {points.map((p) => (
-            <div
+        {/* Card Grid */}
+        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {points.map((p, i) => (
+            <motion.div
               key={p.title}
-              className="relative p-[1px] rounded-[1.05rem]
-                         bg-[linear-gradient(135deg,rgba(16,185,129,0.35),rgba(59,130,246,0.25),transparent)]"
+              initial={r ? false : { opacity: 0, y: 8 }}
+              whileInView={r ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.05 * i }}
+              className="group flex flex-col justify-between rounded-2xl bg-white ring-1 ring-slate-200/80 shadow-sm hover:shadow-md hover:ring-emerald-400 transition-all duration-200"
             >
-              <article
-                className="h-full rounded-[1rem] bg-white ring-1 ring-gray-100
-                           shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)]
-                           hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)]
-                           transition flex flex-col"
-              >
-                {/* Header block (mirrors CoreServices spacing) */}
-                <div className="px-6 pt-6 pb-4">
-                  <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${p.color}`}>
-                    <i className={`${p.icon} text-[1.05rem]`} />
-                  </div>
-                  <h3 className="text-[20px] md:text-[22px] font-semibold tracking-tight text-slate-900 leading-snug">
-                    {p.title}
-                  </h3>
+              <div className="p-6">
+                <div className={`mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg ${p.color}`}>
+                  <i className={`${p.icon} text-lg`} />
                 </div>
-
-                {/* Description (same type rhythm as ExpandableText’s paragraph size) */}
-                <div className="px-6 pb-6">
-                  <p className="text-[15px] text-slate-700 leading-relaxed">{p.body}</p>
-                </div>
-              </article>
-            </div>
+                <h3 className="font-semibold text-slate-900">{p.title}</h3>
+                <p className="mt-2 text-sm text-slate-600">{p.body}</p>
+              </div>
+              <div className="h-[4px] w-full rounded-b-2xl bg-slate-100 group-hover:bg-emerald-500 transition-colors" />
+            </motion.div>
           ))}
         </div>
       </div>
