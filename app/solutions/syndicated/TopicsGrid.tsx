@@ -17,120 +17,101 @@ const topics: Topic[] = [
 
 export default function TopicsGrid() {
   const reduce = useReducedMotion();
-  const [i, setI] = useState(0);
+  const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  // Auto-advance every 6s (respect reduced motion & pause on hover)
+  // Auto-advance every 7s, pause on hover, respect reduced motion
   useEffect(() => {
     if (reduce || paused) return;
-    timerRef.current = window.setInterval(() => setI((v) => (v + 1) % topics.length), 6000);
+    timerRef.current = window.setInterval(() => setIdx((v) => (v + 1) % topics.length), 7000);
     return () => { if (timerRef.current) window.clearInterval(timerRef.current); };
   }, [reduce, paused]);
 
-  // Visible stack: top + two peeks (middle/back)
+  // Top/mid/back cards
   const stack = useMemo(() => {
-    const a = topics[i % topics.length];
-    const b = topics[(i + 1) % topics.length];
-    const c = topics[(i + 2) % topics.length];
+    const a = topics[idx % topics.length];
+    const b = topics[(idx + 1) % topics.length];
+    const c = topics[(idx + 2) % topics.length];
     return [a, b, c];
-  }, [i]);
+  }, [idx]);
 
   return (
     <section className="relative section-slab-deep" aria-labelledby="topics-grid-title">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
-          {/* Copy column — unchanged */}
-          <HeaderCopy />
+          {/* LEFT COPY (unchanged from your InteractiveDashboardShowcase style) */}
+          <div className="md:col-span-5">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+              <span className="text-emerald-300">Measurement Framework</span>
+            </span>
+            <h2 id="topics-grid-title" className="mt-3 font-bold leading-tight text-white text-[clamp(1.8rem,4vw,2.6rem)]">
+              How We Measure Sustainability.{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Built for Real Decisions.
+              </span>
+            </h2>
+            <p className="mt-3 text-white/85 text-sm sm:text-base">
+              Our coverage spans environmental and health dimensions that shape real-world choices—so you can align
+              strategy, packaging, and claims with what actually moves consumers.
+            </p>
+          </div>
 
-          {/* Cards column — STACK animation */}
-          <motion.div
-            initial={reduce ? false : { opacity: 0, y: 8 }}
-            whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="md:col-span-7"
+          {/* RIGHT: stacked deck */}
+          <div
+            className="md:col-span-7 hidden sm:block"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            aria-live="polite"
           >
-            {/* Desktop: stacked deck */}
-            <div
-              className="relative hidden sm:block"
-              onMouseEnter={() => setPaused(true)}
-              onMouseLeave={() => setPaused(false)}
-              aria-live="polite"
-            >
-              <div className="relative h-[360px]">
-                <AnimatePresence initial={false} mode="popLayout">
-                  {/* Back (bottom) layer */}
-                  {stack.slice(2, 3).map((card) => (
-                    <Layer key={`back-${card.title}-${i}`} depth="back">
-                      <Card {...card} />
-                    </Layer>
-                  ))}
-                  {/* Middle layer */}
-                  {stack.slice(1, 2).map((card) => (
-                    <Layer key={`mid-${card.title}-${i}`} depth="mid">
-                      <Card {...card} />
-                    </Layer>
-                  ))}
-                  {/* Top layer — NEW card slides up and lands */}
-                  {stack.slice(0, 1).map((card) => (
-                    <Layer key={`top-${card.title}-${i}`} depth="top" entering={!reduce}>
-                      <Card {...card} />
-                    </Layer>
-                  ))}
-                </AnimatePresence>
-              </div>
+            <div className="relative h-[360px]">
+              <AnimatePresence initial={false} mode="popLayout">
+                {/* Back layer (dim, smaller, slightly offset) */}
+                <StackLayer key={`back-${stack[2].title}-${idx}`} depth="back">
+                  <Card {...stack[2]} depth="back" />
+                </StackLayer>
 
-              {/* Controls */}
-              <div className="mt-4 flex items-center justify-center gap-3">
-                <Btn onClick={() => setI((v) => (v - 1 + topics.length) % topics.length)}>Prev</Btn>
-                <Btn onClick={() => setI((v) => (v + 1) % topics.length)}>Next</Btn>
-                <Btn aria-pressed={paused} onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</Btn>
-              </div>
+                {/* Mid layer */}
+                <StackLayer key={`mid-${stack[1].title}-${idx}`} depth="mid">
+                  <Card {...stack[1]} depth="mid" />
+                </StackLayer>
+
+                {/* Top layer — new card rises from below and lands */}
+                <StackLayer key={`top-${stack[0].title}-${idx}`} depth="top" entering={!reduce}>
+                  <Card {...stack[0]} depth="top" />
+                </StackLayer>
+              </AnimatePresence>
             </div>
 
-            {/* Mobile: simple list */}
-            <div className="sm:hidden grid gap-6 grid-cols-1">
-              {topics.map((t) => (
-                <div key={t.title} className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
-                  <article className="overflow-hidden rounded-2xl bg-slate-800/90 ring-1 ring-white/15">
-                    <CardBody {...t} />
-                    <div className="h-[4px] w-full bg-slate-700" />
-                  </article>
-                </div>
-              ))}
+            {/* Controls */}
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <DeckBtn onClick={() => setIdx((v) => (v - 1 + topics.length) % topics.length)}>Prev</DeckBtn>
+              <DeckBtn onClick={() => setIdx((v) => (v + 1) % topics.length)}>Next</DeckBtn>
+              <DeckBtn aria-pressed={paused} onClick={() => setPaused((p) => !p)}>{paused ? 'Resume' : 'Pause'}</DeckBtn>
             </div>
-          </motion.div>
+          </div>
+
+          {/* Mobile fallback: simple list (no motion) */}
+          <div className="sm:hidden grid gap-6 grid-cols-1">
+            {topics.map((t) => (
+              <div key={t.title} className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+                <article className="overflow-hidden rounded-2xl bg-slate-800 ring-1 ring-white/15">
+                  <CardBody {...t} />
+                  <div className="h-[4px] w-full bg-slate-700" />
+                </article>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-/* ------- Left column copied styling (InteractiveDashboardShowcase) ------- */
-function HeaderCopy() {
-  return (
-    <div className="md:col-span-5">
-      <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide mb-4">
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-        <span className="text-emerald-300">Measurement Framework</span>
-      </span>
-      <h2 id="topics-grid-title" className="mt-3 font-bold leading-tight text-white text-[clamp(1.8rem,4vw,2.6rem)]">
-        How We Measure Sustainability.{' '}
-        <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-          Built for Real Decisions.
-        </span>
-      </h2>
-      <p className="mt-3 text-white/85 text-sm sm:text-base">
-        Our coverage spans environmental and health dimensions that shape real-world choices—so you can align
-        strategy, packaging, and claims with what actually moves consumers.
-      </p>
-    </div>
-  );
-}
+/* ===================== Layer & motion ===================== */
 
-/* ------- Layer wrapper with tidy stack motion (no blur/glass) ------- */
-function Layer({
+function StackLayer({
   children,
   depth,
   entering = false,
@@ -139,17 +120,17 @@ function Layer({
   depth: 'top' | 'mid' | 'back';
   entering?: boolean;
 }) {
-  // Clean offsets that look like a true stack
+  // offsets tuned to read as a physical stack (slower, clearer)
   const cfg =
     depth === 'top'
-      ? { z: 30, y: 0, scale: 1, rotate: 0, className: 'shadow-2xl', initialY: 42 }
+      ? { z: 30, y: 0,   scale: 1.0,   rotate: 0,    shadow: 'shadow-2xl',  initialY: 56,  duration: 0.75 }
       : depth === 'mid'
-      ? { z: 20, y: 14, scale: 0.985, rotate: -1.2, className: 'shadow-xl' }
-      : { z: 10, y: 26, scale: 0.97, rotate: 1.2, className: 'shadow-lg' };
+      ? { z: 20, y: 16,  scale: 0.985, rotate: -1.1, shadow: 'shadow-xl',   duration: 0.65 }
+      : {   z: 10, y: 28,  scale: 0.97,  rotate: 1.1,  shadow: 'shadow-lg',   duration: 0.6  };
 
   return (
     <motion.div
-      className={`absolute inset-x-0 mx-auto max-w-[640px] ${cfg.className}`}
+      className={`absolute inset-x-0 mx-auto max-w-[640px] ${cfg.shadow}`}
       style={{ zIndex: cfg.z, willChange: 'transform' }}
       initial={
         entering
@@ -158,38 +139,57 @@ function Layer({
       }
       animate={{ opacity: 1, y: cfg.y, scale: cfg.scale, rotate: cfg.rotate }}
       exit={{ opacity: 0, y: cfg.y + 8, scale: cfg.scale * 0.99 }}
-      transition={{ type: 'spring', stiffness: 520, damping: 36, mass: 0.7 }}
+      transition={{
+        type: 'spring',
+        stiffness: 320,
+        damping: 32,
+        mass: 0.8,
+        duration: cfg.duration, // acts as a cap for reduced "pop"
+      }}
     >
       {children}
     </motion.div>
   );
 }
 
-/* ------- Card chrome matches InteractiveDashboardShowcase outer ring ------- */
-function Card(t: Topic) {
+/* ===================== Card chrome ===================== */
+
+function Card(t: Topic & { depth: 'top' | 'mid' | 'back' }) {
+  // Top card is fully opaque; others slightly dim so text doesn't compete.
+  const outer = 'relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10';
+  const innerBase =
+    t.depth === 'top'
+      ? 'overflow-hidden rounded-2xl bg-slate-800 ring-1 ring-white/15'      // solid
+      : 'overflow-hidden rounded-2xl bg-slate-800/85 ring-1 ring-white/10';  // dimmed
+
   return (
-    <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10">
-      <article className="overflow-hidden rounded-2xl bg-slate-800/90 ring-1 ring-white/15">
-        <CardBody {...t} />
+    <div className={outer}>
+      <article className={innerBase} aria-hidden={t.depth !== 'top'}>
+        <CardBody {...t} muted={t.depth !== 'top'} />
         <div className="h-[4px] w-full bg-slate-700" />
       </article>
     </div>
   );
 }
 
-function CardBody({ icon: Icon, title, description }: Topic) {
+function CardBody({
+  icon: Icon,
+  title,
+  description,
+  muted = false,
+}: Topic & { muted?: boolean }) {
   return (
-    <div className="p-6">
+    <div className={`p-6 ${muted ? 'opacity-70' : 'opacity-100'}`}>
       <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-300">
         <Icon className="h-5 w-5" />
       </div>
-      <h3 className="font-semibold text-white leading-snug">{title}</h3>
-      <p className="mt-2 text-sm text-slate-300">{description}</p>
+      <h3 className="font-semibold text-white leading-snug line-clamp-1">{title}</h3>
+      <p className="mt-2 text-sm text-slate-300 line-clamp-2">{description}</p>
     </div>
   );
 }
 
-function Btn(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+function DeckBtn(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
@@ -197,6 +197,8 @@ function Btn(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
     />
   );
 }
+
+
 
 
 
