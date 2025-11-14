@@ -1,14 +1,17 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
-import Link from "next/link";
+import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
+import Link from 'next/link';
 
 export default function SampleVisual() {
   const r = useReducedMotion();
 
   return (
-    <section className="relative bg-white" aria-labelledby="sample-visual">
+    <section
+      className="relative bg-gradient-to-b from-white to-gray-50"
+      aria-labelledby="sample-visual"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         <motion.h2
           id="sample-visual"
@@ -77,3 +80,4 @@ export default function SampleVisual() {
     </section>
   );
 }
+
