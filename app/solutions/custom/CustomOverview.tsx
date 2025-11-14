@@ -1,3 +1,4 @@
+// app/solutions/custom/CustomOverview.tsx
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
@@ -9,30 +10,30 @@ export default function CustomOverview() {
     {
       title: 'Custom Projects',
       body:
-        'B2C and B2B research designed around your specific business questions – from quick pulses to multi-country deep dives.',
+        'B2C and B2B studies designed around your specific business questions—from rapid pulses to multi-country deep dives.',
     },
     {
       title: 'From Trend to Deep Dive',
       body:
-        'Extend from the EcoFocus sustainability tracker, or commission a stand-alone study when you need a fresh view.',
+        'Extend from the EcoFocus tracker when you need more detail, or commission a stand-alone study when you need a fresh view.',
     },
     {
       title: 'Consulting Partnership',
       body:
-        'Our team helps refine the brief, choose the right methods, and turn findings into clear next steps for stakeholders.',
+        'We help refine the brief, choose the right methods, and turn findings into clear next steps for your stakeholders.',
     },
   ];
 
   return (
     <section className="relative bg-white" aria-labelledby="custom-overview">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        {/* Section badge — mirrors CoreServices / StudyOverview */}
+        {/* Badge */}
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
           <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-          <span className="text-black/60">Custom Projects</span>
+          <span className="text-black/60">Custom Studies Overview</span>
         </div>
 
-        {/* Headline + body — same 2-column layout + type scale as StudyOverview */}
+        {/* Headline + copy */}
         <div className="mt-0 md:mt-2 grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">
           <motion.h2
             id="custom-overview"
@@ -41,11 +42,12 @@ export default function CustomOverview() {
             viewport={{ once: true }}
             transition={{ duration: 0.45 }}
             className="md:col-span-6 font-bold leading-tight text-slate-900
-                       text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
+                       text-[clamp(1.8rem,4.5vw,2.5rem)]
+                       md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
           >
-            Custom Studies{' '}
+            Custom Research{' '}
             <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-              Built Around Your Questions
+              Built on the EcoFocus Framework
             </span>
           </motion.h2>
 
@@ -56,13 +58,13 @@ export default function CustomOverview() {
             transition={{ duration: 0.45, delay: 0.08 }}
             className="md:col-span-6 text-base md:text-lg text-slate-600"
           >
-            We offer tailored research solutions that meet you where you are—whether you need to pressure-test a
-            concept, understand a new audience, or connect sustainability to growth. We recommend the right approach,
-            assemble the methods, and stay with you through design, field, and delivery.
+            We bring the same proven sustainability constructs from our syndicated study into bespoke work—so
+            you’re not starting from scratch. You get rigor, comparability, and the flexibility to answer the
+            questions that matter most to your teams.
           </motion.p>
         </div>
 
-        {/* Pillars — same card treatment as StudyOverview / CoreServices */}
+        {/* Pillars */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-8">
           {pillars.map((p) => (
             <div
@@ -81,7 +83,6 @@ export default function CustomOverview() {
                     {p.title}
                   </h3>
                 </div>
-
                 <div className="px-6 pb-6">
                   <p className="text-[15px] text-slate-700 leading-relaxed">{p.body}</p>
                 </div>
@@ -93,5 +94,6 @@ export default function CustomOverview() {
     </section>
   );
 }
+
 
 

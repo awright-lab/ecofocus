@@ -1,3 +1,4 @@
+// app/solutions/custom/CustomUseCasesGrid.tsx
 'use client';
 
 import { motion, useReducedMotion } from 'framer-motion';
@@ -43,13 +44,13 @@ export default function CustomUseCasesGrid() {
   return (
     <section className="relative bg-white" aria-labelledby="custom-use-cases-grid">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-        {/* Badge — mirrors Syndicated use-cases section */}
+        {/* Badge */}
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
           <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
           <span className="text-black/60">Where Custom Shines</span>
         </div>
 
-        {/* Headline + copy — same 2-column treatment as StudyOverview */}
+        {/* Headline + copy */}
         <div className="mt-0 md:mt-2 grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">
           <motion.h2
             id="custom-use-cases-grid"
@@ -58,7 +59,8 @@ export default function CustomUseCasesGrid() {
             viewport={{ once: true }}
             transition={{ duration: 0.45 }}
             className="md:col-span-6 font-bold leading-tight text-slate-900
-                       text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
+                       text-[clamp(1.8rem,4.5vw,2.5rem)]
+                       md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight"
           >
             Use Cases{' '}
             <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
@@ -73,13 +75,13 @@ export default function CustomUseCasesGrid() {
             transition={{ duration: 0.45, delay: 0.08 }}
             className="md:col-span-6 text-base md:text-lg text-slate-600"
           >
-            Custom work is where we connect your context to the EcoFocus point of view—whether that’s sharpening brand
-            positioning, supporting EVP and culture, guiding retail activation, or informing ESG storytelling for
-            boards and investors.
+            Custom work is where we connect your context to the EcoFocus point of view—whether that’s sharpening
+            brand positioning, supporting EVP and culture, guiding retail activation, or informing ESG storytelling
+            for boards and investors.
           </motion.p>
         </div>
 
-        {/* Cards — same gradient-frame style as StudyOverview/UseCasesGrid on Syndicated */}
+        {/* Cards */}
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {groups.map((g) => (
             <div
@@ -120,4 +122,5 @@ export default function CustomUseCasesGrid() {
     </section>
   );
 }
+
 
