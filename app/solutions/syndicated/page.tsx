@@ -12,7 +12,6 @@ import UseCasesGrid from './UseCasesGrid';
 import DataAccessOptions from './DataAccessOptions';
 import WhatYouGet from './WhatYouGet';
 import SampleVisual from './SampleVisual';
-import FAQSyndicated from './FAQSyndicated';
 import SyndicatedCTA from './SyndicatedCTA';
 import MethodologySection from './MethodologySection';
 
@@ -39,9 +38,8 @@ export default function SyndicatedPage() {
         <DifferentiatorsGrid />
         <UseCasesGrid />
         <DataAccessOptions />
-        <WhatYouGet />
         <SampleVisual />
-        <FAQSyndicated />
+        <WhatYouGet />
         <SyndicatedCTA />
       </main>
 
