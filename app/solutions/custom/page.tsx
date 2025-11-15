@@ -1,33 +1,55 @@
-// app/solutions/custom/page.tsx
+'use client';
+
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
+
 import CustomHero from './CustomHero';
 import CustomOverview from './CustomOverview';
-import CustomStudyTypes from './CustomStudyTypes';
-import CustomProcess from './CustomProcess';
-import CustomWhatYouGet from './CustomWhatYouGet';
+import CustomDesignLevers from './CustomDesignLevers';
+import CustomMethodologySection from './CustomMethodologySection';
+import CustomWhyEcoFocus from './CustomWhyEcoFocus';
 import CustomUseCasesGrid from './CustomUseCasesGrid';
-import CustomDifferentiators from './CustomDifferentiators';
+import CustomAccessPoints from './CustomAccessPoints';
+import CustomSampleOutput from './CustomSampleOutput';
+import CustomWhatYouGet from './CustomWhatYouGet';
 import CustomCTA from './CustomCTA';
+// If you already have a FAQ component for custom, you can keep it:
+import CustomFAQ from './CustomFAQ';
 
-export const metadata = {
-  title: 'Custom Studies & Consulting | EcoFocus Research',
-  description:
-    'EcoFocus custom studies apply a proven sustainability framework to your unique business questions—helping you de-risk decisions in brand, innovation, talent, and ESG.',
-};
-
-export default function CustomPage() {
+export default function CustomStudiesPage() {
   return (
-    <main className="min-h-screen bg-white">
-      <CustomHero />
-      <CustomOverview />
-      <CustomStudyTypes />
-      <CustomProcess />
-      <CustomWhatYouGet />
-      <CustomUseCasesGrid />
-      <CustomDifferentiators />
-      <CustomCTA />
-    </main>
+    <>
+      <Header />
+
+      <main className="min-h-screen bg-white">
+        <CustomHero />
+
+        <Breadcrumbs
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Solutions', href: '/solutions' },
+            { label: 'Custom Studies', href: '/solutions/custom' },
+          ]}
+        />
+
+        <CustomOverview />
+        <CustomDesignLevers />
+        <CustomMethodologySection />
+        <CustomWhyEcoFocus />
+        <CustomUseCasesGrid />
+        <CustomAccessPoints />
+        <CustomSampleOutput />
+        <CustomWhatYouGet />
+        <CustomCTA />
+        <CustomFAQ />
+      </main>
+
+      <Footer />
+    </>
   );
 }
+
 
 
 
