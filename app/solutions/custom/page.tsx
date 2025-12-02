@@ -10,12 +10,11 @@ import BenefitsGrid from './BenefitsGrid';
 import CoverageGrid from './CoverageGrid';
 import TopicsGrid from './TopicsGrid';
 import CustomDifferentiators from './CustomDifferentiators';
-import SnapshotPreview from './SnapshotPreview';
 import CustomMethodologyStripe from './CustomMethodsStripe';
 import WhatYouGet from './WhatYouGet';
-import UseCasesGrid from './UseCases';
 import AccessOptions from './AccessOptions';
 import CTA from './FinalCTA';
+import CustomUseCasesGrid from './CustomUseCasesGrid';
 
 export default function CustomStudiesPage() {
   return (
@@ -36,13 +35,12 @@ export default function CustomStudiesPage() {
         <CustomOverview />
         <BenefitsGrid />
         <CustomMethodologyStripe />
-        <CoverageGrid />
-        <TopicsGrid />
         <CustomDifferentiators />
-        <SnapshotPreview />
-        <WhatYouGet />
-        <UseCasesGrid />
+        <CustomUseCasesGrid />
+        <CoverageGrid />
+        <TopicsGrid />       
         <AccessOptions />
+        <WhatYouGet />
         <CTA />
       </main>
 
