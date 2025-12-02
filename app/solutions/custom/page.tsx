@@ -7,7 +7,6 @@ import CustomHero from './CustomHero';
 import CustomOverview from './CustomOverview';
 // If you already have a FAQ component for custom, you can keep it:
 import BenefitsGrid from './BenefitsGrid';
-import CoverageGrid from './CoverageGrid';
 import TopicsGrid from './TopicsGrid';
 import CustomDifferentiators from './CustomDifferentiators';
 import CustomMethodologyStripe from './CustomMethodsStripe';
@@ -15,6 +14,7 @@ import WhatYouGet from './WhatYouGet';
 import AccessOptions from './AccessOptions';
 import CTA from './FinalCTA';
 import CustomUseCasesGrid from './CustomUseCasesGrid';
+import SampleOutputs from './SampleOutputs';
 
 export default function CustomStudiesPage() {
   return (
@@ -36,10 +36,9 @@ export default function CustomStudiesPage() {
         <BenefitsGrid />
         <CustomMethodologyStripe />
         <CustomDifferentiators />
-        <CustomUseCasesGrid />
-        <CoverageGrid />
-        <TopicsGrid />       
+        <CustomUseCasesGrid />    
         <AccessOptions />
+        <SampleOutputs />
         <WhatYouGet />
         <CTA />
       </main>
