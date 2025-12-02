@@ -1,89 +1,54 @@
 "use client";
 
-import {
-  BarChart3,
-  Users,
-  Gauge,
-  CalendarDays
-} from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 
-interface StatCardProps {
-  icon: React.ComponentType<{ className?: string }>;
-  value: string;
-  label: string;
-  bg: string;
-}
+export default function MethodologyStripe() {
+  const r = useReducedMotion();
 
-function StatCard({ icon: Icon, value, label, bg }: StatCardProps) {
+  const stats = [
+    { label: "Years Tracking Sustainability", value: "13+" },
+    { label: "Trend Engine Sample / Wave", value: "4,000" },
+    { label: "Typical Custom Timeline", value: "4–8 weeks" },
+    { label: "Design Options", value: "Quant • Qual • Hybrid" },
+  ];
+
   return (
-    <div
-      className={`rounded-2xl p-6 shadow-sm ring-1 ring-black/5 ${bg}`}
+    <section
+      className="relative section-slab-emerald"
+      aria-labelledby="methodology-stripe"
     >
-      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 mb-4">
-        <Icon className="h-5 w-5 text-white/90" />
-      </div>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16 text-white">
+        <motion.h2
+          id="methodology-stripe"
+          initial={r ? false : { opacity: 0, y: -10 }}
+          whileInView={r ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center font-bold leading-tight text-[clamp(1.6rem,5.2vw,2.2rem)]"
+        >
+          Methodology You Can Defend
+        </motion.h2>
 
-      <p className="text-white text-3xl font-semibold tracking-tight">
-        {value}
-      </p>
-
-      <p className="mt-1 text-white/80 text-sm">
-        {label}
-      </p>
-    </div>
-  );
-}
-
-export default function MethodologySnapshot() {
-  return (
-    <section className="bg-white py-20">
-      <div className="mx-auto max-w-7xl px-6 text-center">
-        {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
-          Background & Methodology Snapshot
-        </h2>
-
-        <p className="mt-2 text-slate-600 max-w-3xl mx-auto text-sm sm:text-base">
-          Custom Studies are built on rigorous sampling, methodological precision,
-          and sustainability expertise—ensuring accurate, decision-ready insights.
+        <p className="mx-auto mt-4 max-w-3xl text-center text-white/85">
+          Custom Studies are designed using the same rigorous standards as our
+          annual EcoFocus trend engine—grounded in representative sampling and
+          best-practice research design, then tailored to your audience and
+          decisions.
         </p>
 
-        {/* Cards */}
-        <div className="mt-12 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-
-          <StatCard
-            icon={BarChart3}
-            value="4–8 Weeks"
-            label="Typical Field & Analysis"
-            bg="bg-emerald-600"
-          />
-
-          <StatCard
-            icon={Users}
-            value="N = Custom"
-            label="Audience-Specific Sample"
-            bg="bg-slate-900"
-          />
-
-          <StatCard
-            icon={Gauge}
-            value="Flexible"
-            label="Quant / Qual / Hybrid Designs"
-            bg="bg-amber-500"
-          />
-
-          <StatCard
-            icon={CalendarDays}
-            value="2025"
-            label="Latest Framework Update"
-            bg="bg-teal-600"
-          />
-
+        <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-white/10 p-6 backdrop-blur sm:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="text-center">
+              <div className="text-2xl font-bold">{s.value}</div>
+              <div className="text-sm opacity-90">{s.label}</div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
+
 
 
 
