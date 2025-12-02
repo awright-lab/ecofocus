@@ -12,6 +12,7 @@ import UseCasesGrid from "./UseCasesGrid";
 import DataAccessOptions from "./DataAccessOptions";
 import WhatYouGet from "./WhatYouGet";
 import SampleVisual from "../syndicated/SampleVisual";
+import DifferentiatorsShowcase from "./DifferentiatorsShowcase";
 
 export default function EnhanceYourDataPage() {
   return (
@@ -32,6 +33,7 @@ export default function EnhanceYourDataPage() {
         <IntegrationOverview />
         <Spotlight />
         <MethodologySection />
+        <DifferentiatorsShowcase />
         <UseCasesGrid />
         <DataAccessOptions />
         <SampleVisual />
