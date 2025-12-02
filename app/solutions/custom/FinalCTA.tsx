@@ -1,31 +1,46 @@
-// components/solutions/custom/FinalCTA.tsx
-import Link from 'next/link'
+import Link from "next/link";
 
-export default function FinalCTA() {
+export default function CTA() {
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
-      <div className="rounded-2xl bg-white p-6 ring-1 ring-black/5 shadow-sm md:flex md:items-center md:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Ready to design your study?</h3>
-          <p className="mt-1 text-sm text-gray-600">
-            Share your objectives and timelines—our team will recommend an approach and scope in plain English.
-          </p>
-        </div>
-        <div className="mt-4 md:mt-0 flex gap-3">
+    <section className="relative overflow-hidden bg-slate-950 py-20">
+      {/* Glow accents */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-0 left-10 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl" />
+      </div>
+
+      <div className="relative mx-auto max-w-3xl px-6 text-center">
+        <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">
+          Ready to begin?
+        </h2>
+
+        <h3 className="mt-4 text-balance text-3xl font-semibold text-white sm:text-4xl">
+          Let’s design a custom study that delivers clarity and confidence.
+        </h3>
+
+        <p className="mx-auto mt-4 max-w-xl text-sm text-slate-300 sm:text-base">
+          We’ll help you answer your most important sustainability questions
+          with rigorous, evidence-backed research—built for your category, your
+          audience, and your next strategic decision.
+        </p>
+
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
           <Link
-            href="/contact?type=custom"
-            className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            href="/contact"
+            className="inline-flex rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-300 hover:shadow-emerald-400/40"
           >
-            Request a Proposal
+            Schedule a discovery call
           </Link>
+
           <Link
-            href="/reports"
-            className="inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50"
+            href="/resources/sample-custom-report"
+            className="inline-flex rounded-full border border-slate-600 px-6 py-3 text-sm font-medium text-slate-200 hover:border-emerald-300 hover:text-emerald-200"
           >
-            Explore Reports
+            View sample deliverables
           </Link>
         </div>
       </div>
     </section>
-  )
+  );
 }
+

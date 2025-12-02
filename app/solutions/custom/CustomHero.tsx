@@ -9,16 +9,15 @@ export default function CustomHero() {
       badge="Custom Studies"
       headline={
         <>
-          Purpose-Built{" "}
+          Custom Research Designed For Your{" "}
           <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-            Research That Moves Decisions
+            Exact Business Questions
           </span>
         </>
       }
       subhead={
         <>
-          B2C and B2B studies designed around your questions. We combine proven sustainability constructs
-          with your audiences, products, and objectives to deliver defensible insights that drive action.
+          EcoFocus Custom Studies decode what your consumers, employees, and stakeholders believe, expect, and respond to when it comes to sustainability, so your next move is built on evidence, not gut feel.
         </>
       }
       videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"

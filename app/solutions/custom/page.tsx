@@ -3,19 +3,19 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumbs from '@/components/Breadcrumbs';
-
 import CustomHero from './CustomHero';
 import CustomOverview from './CustomOverview';
-import CustomDesignLevers from './CustomDesignLevers';
-import CustomMethodologySection from './CustomMethodologySection';
-import CustomWhyEcoFocus from './CustomWhyEcoFocus';
-import CustomUseCasesGrid from './CustomUseCasesGrid';
-import CustomAccessPoints from './CustomAccessPoints';
-import CustomSampleOutput from './CustomSampleOutput';
-import CustomWhatYouGet from './CustomWhatYouGet';
-import CustomCTA from './CustomCTA';
 // If you already have a FAQ component for custom, you can keep it:
-import CustomFAQ from './CustomFAQ';
+import BenefitsGrid from './BenefitsGrid';
+import CoverageGrid from './CoverageGrid';
+import TopicsGrid from './TopicsGrid';
+import CustomDifferentiators from './CustomDifferentiators';
+import SnapshotPreview from './SnapshotPreview';
+import CustomMethodologyStripe from './CustomMethodsStripe';
+import WhatYouGet from './WhatYouGet';
+import UseCasesGrid from './UseCases';
+import AccessOptions from './AccessOptions';
+import CTA from './FinalCTA';
 
 export default function CustomStudiesPage() {
   return (
@@ -34,15 +34,16 @@ export default function CustomStudiesPage() {
         />
 
         <CustomOverview />
-        <CustomDesignLevers />
-        <CustomMethodologySection />
-        <CustomWhyEcoFocus />
-        <CustomUseCasesGrid />
-        <CustomAccessPoints />
-        <CustomSampleOutput />
-        <CustomWhatYouGet />
-        <CustomCTA />
-        <CustomFAQ />
+        <BenefitsGrid />
+        <CoverageGrid />
+        <TopicsGrid />
+        <CustomDifferentiators />
+        <SnapshotPreview />
+        <CustomMethodologyStripe />
+        <WhatYouGet />
+        <UseCasesGrid />
+        <AccessOptions />
+        <CTA />
       </main>
 
       <Footer />
