@@ -1,63 +1,62 @@
-"use client";
+'use client';
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from 'framer-motion';
 
 export default function IntegrationOverview() {
   const r = useReducedMotion();
 
-  const cards = [
-    {
-      title: "What it is",
-      body:
-        "We join EcoFocus sustainability measures to your client data to sharpen personas, sizing, and messaging—without reinventing research.",
-      icon: "ri-stack-line",
-    },
-    {
-      title: "Why it matters",
-      body:
-        "Purpose talk is cheap. Join shows where values drive behavior, where price/access blocks, and where claims can backfire.",
-      icon: "ri-lightbulb-flash-line",
-    },
-    {
-      title: "Where it lands",
-      body:
-        "Analyst-ready datasets, optional dashboard modules, and white-label exports for pitches, POVs, and approvals.",
-      icon: "ri-send-plane-2-line",
-    },
-  ];
-
   return (
-    <section className="relative bg-white" aria-labelledby="int-overview">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-        <motion.h2
-          id="int-overview"
-          initial={r ? false : { opacity: 0, y: -10 }}
-          whileInView={r ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
-        >
-          Integration for Agency Outcomes
-        </motion.h2>
+    <section className="relative bg-white" aria-labelledby="integration-overview">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-20">
 
-        <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-          {cards.map((c, i) => (
-            <motion.article
-              key={c.title}
-              initial={r ? false : { opacity: 0, y: 12 }}
-              whileInView={r ? undefined : { opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.06 }}
-              className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
-            >
-              <div className="mb-2 flex items-center gap-3">
-                <i className={`${c.icon} text-xl text-emerald-600`} />
-                <h3 className="text-base font-semibold text-gray-900">{c.title}</h3>
-              </div>
-              <p className="text-sm text-gray-700">{c.body}</p>
-            </motion.article>
-          ))}
+        {/* Badge */}
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+          <span className="text-black/60">What It Is</span>
         </div>
+
+        {/* Headline + body */}
+        <div className="grid grid-cols-1 md:grid-cols-12 md:items-end gap-4 md:gap-6">
+          <motion.h2
+            id="integration-overview"
+            initial={r ? false : { opacity: 0, y: -12 }}
+            whileInView={r ? undefined : { opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.45 }}
+            className="md:col-span-6 font-bold leading-tight text-slate-900
+                       text-[clamp(1.8rem,4.5vw,2.6rem)] tracking-tight"
+          >
+            Everything You Need to Give Your Data{' '}
+            <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 
+                             bg-clip-text text-transparent animate-gradient">
+              Sustainability Intelligence
+            </span>
+          </motion.h2>
+
+          <motion.p
+            initial={r ? false : { opacity: 0 }}
+            whileInView={r ? undefined : { opacity: 1 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.45, delay: 0.06 }}
+            className="md:col-span-6 text-slate-600 text-base md:text-lg"
+          >
+            EcoFocus strengthens your existing datasets by infusing them with 13+ years of sustainability-specific
+            consumer intelligence—revealing the “why” behind your KPIs and turning everyday metrics into actionable
+            drivers for brand, innovation, and ESG decisions.
+          </motion.p>
+        </div>
+
+        <motion.p
+          initial={r ? false : { opacity: 0 }}
+          whileInView={r ? undefined : { opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.45, delay: 0.12 }}
+          className="mt-5 max-w-3xl text-slate-600"
+        >
+          We wrap EcoFocus trend data around your internal datasets—sales, personas, trackers, loyalty files,
+          qualitative insights, or segmentation—to add sustainability context, behavioral depth, and meaning your
+          teams can act on with confidence.
+        </motion.p>
       </div>
     </section>
   );

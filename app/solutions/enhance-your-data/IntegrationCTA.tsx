@@ -1,58 +1,36 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
+import Link from 'next/link';
 
 export default function IntegrationCTA() {
-  const r = useReducedMotion();
-
   return (
-    <section className="relative bg-brand-tint-blue" aria-labelledby="integration-cta">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
-        <motion.h2
-          id="integration-cta"
-          initial={r ? false : { opacity: 0, y: -10 }}
-          whileInView={r ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center font-bold leading-tight text-gray-900 text-[clamp(1.6rem,5.2vw,2.2rem)]"
+    <section className="relative bg-gray-50" aria-labelledby="cta-integration">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 py-14">
+        <h2
+          id="cta-integration"
+          className="text-center font-bold text-gray-900 text-[clamp(1.6rem,5vw,2.1rem)]"
         >
-          Ready to enhance your data?
-        </motion.h2>
+          Let’s Find the Right Way to Enhance Your Data
+        </h2>
 
-        <motion.p
-          initial={r ? false : { opacity: 0 }}
-          whileInView={r ? undefined : { opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.45, delay: 0.06 }}
-          className="mx-auto mt-3 max-w-2xl text-center text-sm sm:text-base text-gray-700"
-        >
-          Blend EcoFocus trendlines with your client datasets to sharpen personas, validate claims,
-          and de-risk launches—delivered securely with optional dashboard views.
-        </motion.p>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-gray-600">
+          We begin with a no-cost discovery call to understand the datasets you have, the gaps you’re seeing,
+          and what decisions your teams need to make. From there, we’ll shape the right integration path for your
+          goals and budget.
+        </p>
 
-        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-6 flex justify-center">
           <Link
             href="/contact"
-            className="relative inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300
-                       before:content-[''] before:absolute before:inset-0 before:rounded-full
-                       before:bg-[radial-gradient(circle_at_center,_#059669,_#1B6C7A)]
-                       before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
+            className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 font-medium 
+                       text-white shadow hover:bg-emerald-700"
           >
-            <span className="relative z-10">Talk to us</span>
-          </Link>
-          <Link
-            href="/solutions/dashboard"
-            className="relative inline-flex items-center justify-center gap-2 rounded-full bg-[#FFC107] px-6 py-3 text-sm font-semibold text-emerald-950 shadow-md transition-all duration-300
-                       before:content-[''] before:absolute before:inset-0 before:rounded-full
-                       before:bg-[radial-gradient(circle_at_center,_#FFD54F,_#FFA000)]
-                       before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0"
-          >
-            <span className="relative z-10">See dashboard in action</span>
+            Book a discovery call
           </Link>
         </div>
       </div>
     </section>
   );
 }
+
 

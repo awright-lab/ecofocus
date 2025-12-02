@@ -3,16 +3,15 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
-
 import IntegrationHero from "./IntegrationHero";
 import IntegrationOverview from "./IntegrationOverview";
-import IntegrationWorkflow from "./IntegrationWorkflow";
-import DataWeJoin from "./DataWeJoin";
-import DeliverablesIntegrations from "./DeliverablesIntegrations";
-import SampleJoinVisual from "./SampleJoinVisual";
-import SecurityGovernance from "./SecurityGovernance";
-import FAQIntegration from "./FAQIntegration";
 import IntegrationCTA from "./IntegrationCTA";
+import Spotlight from "./Spotlight";
+import MethodologySection from "./MethodologySection";
+import UseCasesGrid from "./UseCasesGrid";
+import DataAccessOptions from "./DataAccessOptions";
+import WhatYouGet from "./WhatYouGet";
+import SampleVisual from "../syndicated/SampleVisual";
 
 export default function EnhanceYourDataPage() {
   return (
@@ -31,12 +30,12 @@ export default function EnhanceYourDataPage() {
         />
 
         <IntegrationOverview />
-        <IntegrationWorkflow />
-        <DataWeJoin />
-        <DeliverablesIntegrations />
-        <SampleJoinVisual />
-        <SecurityGovernance />
-        <FAQIntegration />
+        <Spotlight />
+        <MethodologySection />
+        <UseCasesGrid />
+        <DataAccessOptions />
+        <SampleVisual />
+        <WhatYouGet />
         <IntegrationCTA />
       </main>
       <Footer />
