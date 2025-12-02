@@ -1,106 +1,106 @@
+"use client";
+
+interface OverviewCardProps {
+  title: string;
+  description: string;
+  iconBg: string;
+  iconColor: string;
+}
+
+function OverviewCard({ title, description, iconBg, iconColor }: OverviewCardProps) {
+  return (
+    <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md">
+      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg}`}>
+        <span className={`text-xl ${iconColor}`}>✔</span>
+      </div>
+
+      <h3 className="mt-5 text-lg font-semibold text-slate-900">{title}</h3>
+
+      <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+        {description}
+      </p>
+    </div>
+  );
+}
+
 export default function CustomOverview() {
   return (
-    <section className="bg-slate-950 py-16 sm:py-20">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mb-8 max-w-3xl">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">
-            Overview
-          </h2>
-          <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
-            When syndicated data isn&apos;t enough, custom research fills the
-            gaps.
-          </h3>
-          <p className="mt-4 text-sm text-slate-300 sm:text-base">
-            EcoFocus Custom Studies are built for leaders who need to move
-            beyond &quot;what&apos;s generally true&quot; and uncover{" "}
-            <span className="font-semibold text-emerald-200">
-              what&apos;s true for their exact audience, category, and decision.
-            </span>{" "}
-            Whether you&apos;re navigating packaging changes, rethinking your
-            sustainability messaging, or strengthening your employer brand, we
-            design a study that puts reliable evidence behind your next move.
+    <section className="bg-white py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        
+        {/* Section Tag */}
+        <div className="flex items-center gap-2 mb-6">
+          <span className="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+            Custom Research Overview
+          </span>
+        </div>
+
+        {/* Header */}
+        <div className="grid gap-10 md:grid-cols-2">
+          <div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 leading-tight">
+              What Custom Studies
+              <span className="block text-emerald-500">Deliver</span>
+            </h2>
+          </div>
+
+          <p className="text-slate-600 text-base leading-relaxed">
+            EcoFocus Custom Studies provide deeper, tailored insights where 
+            syndicated data can’t go — revealing how your exact consumers, 
+            employees, or stakeholders think about sustainability, packaging, 
+            messaging, and corporate responsibility.
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)]">
-          {/* Left column */}
-          <div className="space-y-5 text-sm text-slate-200 sm:text-base">
-            <p>
-              Unlike generic research or one-off polls, our custom projects are
-              built on top of{" "}
-              <span className="font-semibold">
-                13+ years of sustainability trend data
-              </span>{" "}
-              and a nationally representative 4,000-respondent study. Your
-              proprietary questions are designed and interpreted in the context
-              of what we already know about the Purpose-Driven Generation.
-            </p>
+        {/* Cards Grid */}
+        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <OverviewCard
+            iconBg="bg-emerald-100"
+            iconColor="text-emerald-600"
+            title="Messaging & Claims Clarity"
+            description="Identify which sustainability claims move the needle and which trigger skepticism, helping you de-risk communication."
+          />
 
-            <p>
-              We work with both{" "}
-              <span className="font-semibold">B2C and B2B audiences</span> —
-              consumers, shoppers, employees, job seekers, account holders, and
-              stakeholders — to understand how sustainability values shape their
-              expectations and decisions. The result: insights that speak the
-              language of your category and your brand.
-            </p>
+          <OverviewCard
+            iconBg="bg-amber-100"
+            iconColor="text-amber-600"
+            title="Audience-Specific Insights"
+            description="Understand how your category segments—consumers, shoppers, or workforce—interpret your sustainability actions."
+          />
 
-            <p className="text-slate-300">
-              Our role is simple: turn sustainability from something you{" "}
-              <em>hope</em> resonates into something you can{" "}
-              <span className="font-semibold text-emerald-200">prove</span>{" "}
-              drives retention, loyalty, and growth.
-            </p>
-          </div>
+          <OverviewCard
+            iconBg="bg-teal-100"
+            iconColor="text-teal-600"
+            title="Packaging & Label Testing"
+            description="Evaluate material choices, recyclability cues, and label elements that drive pickup and brand trust."
+          />
 
-          {/* Right column card */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-sm text-slate-200 shadow-lg shadow-emerald-500/10">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
-              Where custom fits
-            </p>
-            <ul className="mt-3 space-y-3">
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
-                <span>
-                  You have a{" "}
-                  <span className="font-semibold">specific decision</span> to
-                  make and need evidence for your board, leadership team, or
-                  investors.
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
-                <span>
-                  You need to know how{" "}
-                  <span className="font-semibold">
-                    your customers or employees
-                  </span>{" "}
-                  respond to sustainability, not just the general population.
-                </span>
-              </li>
-              <li className="flex gap-2">
-                <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
-                <span>
-                  You want to{" "}
-                  <span className="font-semibold">
-                    de-risk a change in packaging, claims, or positioning
-                  </span>{" "}
-                  before taking it to market.
-                </span>
-              </li>
-            </ul>
+          <OverviewCard
+            iconBg="bg-blue-100"
+            iconColor="text-blue-600"
+            title="Employer Brand & EVP Signals"
+            description="Measure how sustainability influences talent attraction, retention, and workforce engagement."
+          />
 
-            <p className="mt-4 text-xs text-slate-400">
-              Every engagement starts with a no-cost discovery call where we
-              clarify objectives, define what success looks like, and recommend
-              the right custom research design for your needs and budget.
-            </p>
-          </div>
+          <OverviewCard
+            iconBg="bg-purple-100"
+            iconColor="text-purple-600"
+            title="Regional or Demographic Variation"
+            description="Reveal how sustainability expectations shift by age, region, or shopper type—ensuring your messaging resonates locally."
+          />
+
+          <OverviewCard
+            iconBg="bg-emerald-100"
+            iconColor="text-emerald-600"
+            title="Concept & Innovation Validation"
+            description="Test early product ideas and understand how sustainability impacts purchase intent or brand perception."
+          />
         </div>
       </div>
     </section>
   );
 }
+
 
 
 
