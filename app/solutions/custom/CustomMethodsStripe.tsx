@@ -1,66 +1,85 @@
-export default function CustomMethodologyStripe() {
+"use client";
+
+import {
+  BarChart3,
+  Users,
+  Gauge,
+  CalendarDays
+} from "lucide-react";
+
+interface StatCardProps {
+  icon: React.ComponentType<{ className?: string }>;
+  value: string;
+  label: string;
+  bg: string;
+}
+
+function StatCard({ icon: Icon, value, label, bg }: StatCardProps) {
   return (
-    <section className="relative border-y border-slate-800 bg-slate-900/40 py-14 sm:py-16">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-20 left-10 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl" />
-        <div className="absolute bottom-0 right-10 h-48 w-48 rounded-full bg-amber-400/10 blur-3xl" />
+    <div
+      className={`rounded-2xl p-6 shadow-sm flex flex-col justify-center ring-1 ring-black/5 ${bg}`}
+    >
+      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/15">
+        <Icon className="h-5 w-5 text-white/90" />
       </div>
 
-      <div className="relative mx-auto max-w-5xl px-6">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">
-          Methodology
+      <p className="text-white text-3xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-1 text-white/80 text-sm">{label}</p>
+    </div>
+  );
+}
+
+export default function CustomMethodologyStripe() {
+  return (
+    <section className="bg-white py-20">
+      <div className="mx-auto max-w-7xl px-6 text-center">
+        {/* Heading */}
+        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+          Background & Methodology Snapshot
         </h2>
 
-        <h3 className="mt-3 text-2xl font-semibold text-white sm:text-3xl">
-          Research tailored to your exact questions.
-        </h3>
-
-        <p className="mt-4 max-w-3xl text-sm text-slate-300 sm:text-base">
-          Custom studies use a flexible mix of qualitative and quantitative
-          methods. We recommend the right design based on your objectives,
-          audience, and the decisions you need to make. Every project is built
-          on our sustainability expertise and anchored in 13+ years of trend
-          data.
+        <p className="mt-2 text-slate-600 max-w-3xl mx-auto text-sm sm:text-base">
+          Custom Studies use rigorous sampling and research design grounded in our 
+          sustainability expertise — ensuring accuracy, representativeness, and 
+          decision-ready clarity for your category.
         </p>
 
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          <MethodCard
-            title="Quantitative surveys"
-            body="National or targeted samples designed to measure attitudes, behaviors, and response to sustainability signals."
+        {/* Cards */}
+        <div className="mt-12 grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+
+          <StatCard
+            icon={BarChart3}
+            value="4–8 Weeks"
+            label="Typical Field & Analysis"
+            bg="bg-emerald-600"
           />
-          <MethodCard
-            title="Qualitative interviews"
-            body="One-on-one discussions with consumers, employees, or stakeholders to uncover deeper motivations."
+
+          <StatCard
+            icon={Users}
+            value="N = Custom"
+            label="Audience-Specific Sample"
+            bg="bg-slate-900"
           />
-          <MethodCard
-            title="Message & packaging testing"
-            body="A/B or multi-cell testing to evaluate claims, designs, materials, and ESG narratives."
+
+          <StatCard
+            icon={Gauge}
+            value="Flexible"
+            label="Quant / Qual / Hybrid Designs"
+            bg="bg-amber-500"
           />
-          <MethodCard
-            title="Concept validation"
-            body="Early-stage or pre-launch evaluation of new products or sustainable innovation ideas."
+
+          <StatCard
+            icon={CalendarDays}
+            value="2025"
+            label="Latest Method Framework Update"
+            bg="bg-teal-600"
           />
-          <MethodCard
-            title="Persona & segmentation work"
-            body="Build sustainability-led personas that reflect attitudes, trust cues, and behaviors."
-          />
-          <MethodCard
-            title="EVP & workforce studies"
-            body="Understand how sustainability impacts talent attraction, retention, and employee alignment."
-          />
+
         </div>
       </div>
     </section>
   );
 }
 
-function MethodCard({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-sm transition hover:border-emerald-300/70">
-      <h4 className="text-sm font-semibold text-white">{title}</h4>
-      <p className="mt-3 text-xs text-slate-300 sm:text-sm">{body}</p>
-    </div>
-  );
-}
 
 

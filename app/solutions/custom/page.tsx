@@ -35,11 +35,11 @@ export default function CustomStudiesPage() {
 
         <CustomOverview />
         <BenefitsGrid />
+        <CustomMethodologyStripe />
         <CoverageGrid />
         <TopicsGrid />
         <CustomDifferentiators />
         <SnapshotPreview />
-        <CustomMethodologyStripe />
         <WhatYouGet />
         <UseCasesGrid />
         <AccessOptions />
