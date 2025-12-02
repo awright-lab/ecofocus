@@ -13,7 +13,7 @@ import WhatYouGet from './WhatYouGet';
 import AccessOptions from './AccessOptions';
 import CTA from './FinalCTA';
 import CustomUseCasesGrid from './CustomUseCasesGrid';
-import SampleOutputs from './SampleOutputs';
+import SampleOutputs from '../syndicated/SampleVisual';
 
 export default function CustomStudiesPage() {
   return (
