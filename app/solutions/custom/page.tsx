@@ -11,9 +11,9 @@ import CustomDifferentiators from './CustomDifferentiators';
 import CustomMethodologyStripe from './CustomMethodsStripe';
 import WhatYouGet from './WhatYouGet';
 import AccessOptions from './AccessOptions';
-import CTA from './FinalCTA';
 import CustomUseCasesGrid from './CustomUseCasesGrid';
 import SampleOutputs from '../syndicated/SampleVisual';
+import CustomCTA from './FinalCTA';
 
 export default function CustomStudiesPage() {
   return (
@@ -39,7 +39,7 @@ export default function CustomStudiesPage() {
         <AccessOptions />
         <SampleOutputs />
         <WhatYouGet />
-        <CTA />
+        <CustomCTA />
       </main>
 
       <Footer />
