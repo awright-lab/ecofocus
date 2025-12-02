@@ -17,19 +17,24 @@ interface StatCardProps {
 function StatCard({ icon: Icon, value, label, bg }: StatCardProps) {
   return (
     <div
-      className={`rounded-2xl p-6 shadow-sm flex flex-col justify-center ring-1 ring-black/5 ${bg}`}
+      className={`rounded-2xl p-6 shadow-sm ring-1 ring-black/5 ${bg}`}
     >
-      <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/15">
+      <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-white/15 mb-4">
         <Icon className="h-5 w-5 text-white/90" />
       </div>
 
-      <p className="text-white text-3xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-1 text-white/80 text-sm">{label}</p>
+      <p className="text-white text-3xl font-semibold tracking-tight">
+        {value}
+      </p>
+
+      <p className="mt-1 text-white/80 text-sm">
+        {label}
+      </p>
     </div>
   );
 }
 
-export default function CustomMethodologyStripe() {
+export default function MethodologySnapshot() {
   return (
     <section className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-6 text-center">
@@ -39,9 +44,8 @@ export default function CustomMethodologyStripe() {
         </h2>
 
         <p className="mt-2 text-slate-600 max-w-3xl mx-auto text-sm sm:text-base">
-          Custom Studies use rigorous sampling and research design grounded in our 
-          sustainability expertise — ensuring accuracy, representativeness, and 
-          decision-ready clarity for your category.
+          Custom Studies are built on rigorous sampling, methodological precision,
+          and sustainability expertise—ensuring accurate, decision-ready insights.
         </p>
 
         {/* Cards */}
@@ -71,7 +75,7 @@ export default function CustomMethodologyStripe() {
           <StatCard
             icon={CalendarDays}
             value="2025"
-            label="Latest Method Framework Update"
+            label="Latest Framework Update"
             bg="bg-teal-600"
           />
 
@@ -80,6 +84,7 @@ export default function CustomMethodologyStripe() {
     </section>
   );
 }
+
 
 
 
