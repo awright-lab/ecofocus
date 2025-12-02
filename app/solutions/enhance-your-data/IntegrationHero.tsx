@@ -1,6 +1,5 @@
-"use client";
-
-import Hero from "@/components/Hero";
+'use client';
+import Hero from '@/components/Hero';
 
 export default function IntegrationHero() {
   return (
@@ -10,18 +9,19 @@ export default function IntegrationHero() {
       badge="Data Integration"
       headline={
         <>
-          Sustainability + Your Data:{" "}
-          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Sharper Personas, Stronger Proof</span>
+          Enhance Your Data With{" "}
+          <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+            Sustainability Intelligence
+          </span>
         </>
       }
       subhead={
         <>
-          Blend EcoFocus trendlines with client sales/CRM/BI. Build cohorts that behave like real
-          buyers, validate claims before launch, and give teams evidence they can defend.
+          Transform your existing datasets—sales, personas, trackers, CRM, loyalty, or research—by wrapping them
+          with 13+ years of EcoFocus sustainability intelligence. Bring clarity and context to the KPIs your
+          teams care about most.
         </>
       }
-      ctaPrimary={{ label: "Talk about your data", href: "/contact" }}
-      ctaSecondary={{ label: "See the Dashboard", href: "/solutions/dashboard" }}
       videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
       posterSrc="/images/hero-6-poster.jpg"
       overlay="dense"
