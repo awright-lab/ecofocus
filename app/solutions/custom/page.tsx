@@ -7,7 +7,6 @@ import CustomHero from './CustomHero';
 import CustomOverview from './CustomOverview';
 // If you already have a FAQ component for custom, you can keep it:
 import BenefitsGrid from './BenefitsGrid';
-import TopicsGrid from './TopicsGrid';
 import CustomDifferentiators from './CustomDifferentiators';
 import CustomMethodologyStripe from './CustomMethodsStripe';
 import WhatYouGet from './WhatYouGet';
