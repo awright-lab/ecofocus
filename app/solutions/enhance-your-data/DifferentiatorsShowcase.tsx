@@ -53,7 +53,7 @@ export default function DifferentiatorsShowcase() {
         </p>
 
         {/* Carousel */}
-        <div className="relative mt-12 flex items-center justify-center overflow-hidden h-[260px] sm:h-[240px]">
+        <div className="relative mt-12 flex items-center justify-center overflow-hidden h-[300px] sm:h-[280px] md:h-[260px]">
           {items.map((item, i) => {
             const isActive = i === index;
             const offset = (i - index + items.length) % items.length;
