@@ -120,7 +120,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Script
             id="hs-script-loader"
             strategy="afterInteractive"
-            src={`https://js.hs-scripts.com/${process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID}.js`}
+            // Disable Non-HubSpot form capture so submissions must go through our API (spam filters, honeypot, etc.)
+            src={`https://js.hs-scripts.com/${process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID}.js?collectedforms=off`}
           />
         ) : null}
 
@@ -188,7 +189,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
 
 
