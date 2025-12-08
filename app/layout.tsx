@@ -115,6 +115,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
 
+        {/* Pre-config HubSpot queue so Collected Forms ignores our custom forms */}
+        <Script id="hs-ignore-custom-forms" strategy="beforeInteractive">
+          {`
+            window._hsq = window._hsq || [];
+            window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Newsletter_Signup']);
+            window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Contact_Form']);
+          `}
+        </Script>
+
         {/* HubSpot tracking (guarded) */}
         {process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID ? (
           <Script
@@ -189,7 +198,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
 
 

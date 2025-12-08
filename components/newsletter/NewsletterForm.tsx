@@ -128,14 +128,6 @@ export default function NewsletterForm({
 
   return (
     <>
-      {/* Local fallback: tell HubSpot tracking to ignore THIS form selector */}
-      <Script id="hs-ignore-newsletter" strategy="afterInteractive">
-        {`
-          window._hsq = window._hsq || [];
-          window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Newsletter_Signup']);
-        `}
-      </Script>
-
       <form
         id="EcoFocus_Newsletter_Signup"
         name="EcoFocus Newsletter Signup"

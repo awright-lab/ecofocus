@@ -111,14 +111,6 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
   return (
     <>
-      {/* Tell HubSpot tracking to ignore THIS form so it won’t create “Unidentified Form” */}
-      <Script id="hs-ignore-contact" strategy="afterInteractive">
-        {`
-          window._hsq = window._hsq || [];
-          window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Contact_Form']);
-        `}
-      </Script>
-
       <form
         id="EcoFocus_Contact_Form"
         name="EcoFocus Contact Form"
