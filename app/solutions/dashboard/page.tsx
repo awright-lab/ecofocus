@@ -6,12 +6,12 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 
 import DashboardHero from "./DashboardHero";
 import DashboardDemo from "./DashboardDemo";
-import CoverageTaxonomy from "./CoverageTaxonomy";
-import AnalysisWorkbench from "./AnalysisWorkbench";
-import ExportsAndTheming from "./ExportsAndTheming";
-import CollaborationGovernance from "./CollaborationGovernance";
-import SecurityOps from "./SecurityOps";
 import DashboardAccessCTA from "./DashboardAccessCTA";
+import DashboardDifferentiators from "./DashboardDifferentiators";
+import DashboardCapabilities from "./DashboardCapabilities";
+import DashboardMethodology from "./DashboardMethodology";
+import DashboardUseCases from "./DashboardUseCases";
+import DashboardAccess from "./DashboardAccess";
 
 export default function DashboardPage() {
   return (
@@ -30,15 +30,15 @@ export default function DashboardPage() {
         />
 
         {/* Deep-dive sections (no repeats from Solutions) */}
-        <CoverageTaxonomy />
-        <AnalysisWorkbench />
+        <DashboardDifferentiators />
+        <DashboardCapabilities />
 
         {/* Demo slab */}
         <DashboardDemo />
 
-        <ExportsAndTheming />
-        <CollaborationGovernance />
-        <SecurityOps />
+        <DashboardMethodology />
+        <DashboardUseCases />
+        <DashboardAccess />
 
         <DashboardAccessCTA />
       </main>

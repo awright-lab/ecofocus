@@ -10,13 +10,12 @@ export default function DashboardHero() {
       badge="Interactive Dashboard"
       headline={
         <>
-          The EcoFocus Sustainability <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Insights Workbench</span>
+          The EcoFocus Interactive Sustainability <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">Dashboard</span>
         </>
       }
       subhead={
         <>
-          Go beyond toplines: segment builder, crosstabs, trend comparisons, and export-ready visuals.
-          Everything is seat-based and agency-friendly.
+          Instant access to the data that moves behavior, not assumptions.
         </>
       }
       ctaPrimary={{ label: "Watch the demo", href: "#demo" }}
