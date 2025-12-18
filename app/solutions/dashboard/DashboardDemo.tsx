@@ -31,10 +31,14 @@ export default function DashboardDemo() {
   };
 
   return (
-    <section id="demo" className="relative section-slab-emerald" aria-labelledby="dash-demo">
+    <section
+      id="demo"
+      className="relative bg-gradient-to-b from-[#071226] via-[#050d1b] to-[#02060c]"
+      aria-labelledby="dash-demo"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-14 md:py-16">
         {/* Centered heading + badge */}
-        <div className="mb-6 text-center">
+        <div className="mb-6 text-center text-white">
           <motion.h2
             id="dash-demo"
             initial={reduceMotion ? false : { opacity: 0, y: -10 }}
@@ -45,7 +49,7 @@ export default function DashboardDemo() {
           >
             Inside the Interactive Dashboard
           </motion.h2>
-          <div className="mt-2 inline-flex items-center rounded-full bg-amber-400/20 px-2.5 py-1 text-xs font-semibold text-amber-300 ring-1 ring-amber-300/30">
+          <div className="mt-2 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white/80">
             Demo Video
           </div>
         </div>
@@ -133,6 +137,5 @@ export default function DashboardDemo() {
     </section>
   );
 }
-
 
 
