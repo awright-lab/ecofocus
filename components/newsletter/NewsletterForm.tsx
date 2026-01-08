@@ -129,11 +129,11 @@ export default function NewsletterForm({
     <>
       <div
         id="EcoFocus_Newsletter_Signup"
-        name="EcoFocus Newsletter Signup"
         data-hs-ignore="true"         // prevent Non-HubSpot (Collected) Forms from logging it
         className={className}
         role="form"
         aria-label="EcoFocus Newsletter Signup"
+        data-form-name="EcoFocus Newsletter Signup"
       >
         {/* HubSpot collected-forms ignore hint (prevents Non-HubSpot capture) */}
         <label htmlFor="amex" style={{ display: 'none' }}>AMEX</label>
