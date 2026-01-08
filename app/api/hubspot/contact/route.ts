@@ -162,7 +162,7 @@ export async function POST(req: Request) {
       { name: 'company', value: company },
       { name: 'jobtitle', value: role },                 // ← change to 'role' if that’s your internal name
       ...(message ? [{ name: 'message', value: message }] : []), // ensure "message" property exists (text/long text)
-      { name: 'inquiry_consent', value: consent ? 'true' : 'false' }, // optional custom checkbox/text
+      { name: 'contact_consent', value: consent ? 'true' : 'false' }, // optional custom checkbox/text
       // UTMs (create text props if desired)
       ...(utm?.source   ? [{ name: 'utm_source',   value: String(utm.source)   }] : []),
       ...(utm?.medium   ? [{ name: 'utm_medium',   value: String(utm.medium)   }] : []),
