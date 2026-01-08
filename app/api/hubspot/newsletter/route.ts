@@ -16,6 +16,12 @@ const ALLOWED_ORIGINS: string[] = (
   .map(s => s.trim())
   .filter(Boolean);
 
+// HubSpot property names (create these in HubSpot; override via env if different)
+const FORM_SOURCE_PROPERTY =
+  process.env.HUBSPOT_FORM_SOURCE_PROPERTY || 'ef_form_source';
+const NEWSLETTER_SUBSCRIPTION_PROPERTY =
+  process.env.HUBSPOT_NEWSLETTER_SUBSCRIPTION_PROPERTY || 'ef_subscription_type';
+
 // Regexes
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const DISPOSABLE_RE =
@@ -149,6 +155,8 @@ export async function POST(req: Request) {
       ...(utm?.medium   ? [{ name: 'utm_medium',   value: String(utm.medium)   }] : []),
       ...(utm?.campaign ? [{ name: 'utm_campaign', value: String(utm.campaign) }] : []),
       { name: 'source', value: 'Website' },
+      { name: FORM_SOURCE_PROPERTY, value: 'Newsletter Signup' }, // custom dropdown/text property
+      { name: NEWSLETTER_SUBSCRIPTION_PROPERTY, value: 'EcoNuggets Newsletter' }, // subscription tag
     ];
 
     // Context (include hutk only if present to avoid INVALID_HUTK)

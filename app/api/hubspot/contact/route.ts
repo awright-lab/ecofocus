@@ -16,6 +16,10 @@ const ALLOWED_ORIGINS: string[] = (
   .map(s => s.trim())
   .filter(Boolean);
 
+// HubSpot property names (create these in HubSpot; override via env if different)
+const FORM_SOURCE_PROPERTY =
+  process.env.HUBSPOT_FORM_SOURCE_PROPERTY || 'ef_form_source';
+
 // Regexes / validators
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const DISPOSABLE_RE =
@@ -158,6 +162,7 @@ export async function POST(req: Request) {
       // Helpful context tags
       { name: 'signup_channel', value: 'contact' },
       { name: 'source', value: 'Website' },
+      { name: FORM_SOURCE_PROPERTY, value: 'Contact Form' }, // custom dropdown/text property
     ];
 
     // Context (include hutk only if present to avoid INVALID_HUTK)
