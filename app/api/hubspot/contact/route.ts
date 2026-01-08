@@ -163,9 +163,7 @@ export async function POST(req: Request) {
       ...(utm?.source   ? [{ name: 'utm_source',   value: String(utm.source)   }] : []),
       ...(utm?.medium   ? [{ name: 'utm_medium',   value: String(utm.medium)   }] : []),
       ...(utm?.campaign ? [{ name: 'utm_campaign', value: String(utm.campaign) }] : []),
-      // Helpful context tags
-      { name: 'signup_channel', value: 'contact' },
-      { name: 'source', value: 'Website' },
+      // Helpful context tags (custom only)
       { name: FORM_SOURCE_PROPERTY, value: 'Contact Form' }, // custom dropdown/text property
     ];
 
@@ -173,6 +171,7 @@ export async function POST(req: Request) {
     const context: Record<string, string> = {};
     if (pageUri)  context.pageUri = String(pageUri);
     if (pageName) context.pageName = String(pageName);
+    if (ip && ip !== '0.0.0.0') context.ipAddress = ip;
     if (typeof hutk === 'string' && hutk.trim()) context.hutk = hutk.trim();
 
     // Payload — deliberately NO marketing subscription/communications block

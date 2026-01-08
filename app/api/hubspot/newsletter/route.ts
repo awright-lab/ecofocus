@@ -154,11 +154,9 @@ export async function POST(req: Request) {
       ...(lastname  ? [{ name: 'lastname',  value: lastname  }] : []),
       { name: 'newsletter_consent', value: consent ? 'true' : 'false' },
       { name: 'tags', value: tagValues.join(';') },
-      { name: 'signup_channel', value: 'newsletter' },
       ...(utm?.source   ? [{ name: 'utm_source',   value: String(utm.source)   }] : []),
       ...(utm?.medium   ? [{ name: 'utm_medium',   value: String(utm.medium)   }] : []),
       ...(utm?.campaign ? [{ name: 'utm_campaign', value: String(utm.campaign) }] : []),
-      { name: 'source', value: 'Website' },
       { name: FORM_SOURCE_PROPERTY, value: 'Newsletter Signup' }, // custom dropdown/text property
       { name: NEWSLETTER_SUBSCRIPTION_PROPERTY, value: 'EcoNuggets Newsletter' }, // subscription tag
     ];
@@ -167,6 +165,7 @@ export async function POST(req: Request) {
     const context: Record<string, string> = {};
     if (pageUri)  context.pageUri = String(pageUri);
     if (pageName) context.pageName = String(pageName);
+    if (ip && ip !== '0.0.0.0') context.ipAddress = ip;
     if (typeof hutk === 'string' && hutk.trim()) context.hutk = hutk.trim();
 
     const payload: { fields: Array<{ name: string; value: string }>; context?: Record<string, string> } = { fields };
