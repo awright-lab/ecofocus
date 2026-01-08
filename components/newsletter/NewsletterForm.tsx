@@ -137,6 +137,10 @@ export default function NewsletterForm({
         noValidate
         autoComplete="off"            // reduces autofill-bot noise
       >
+        {/* HubSpot collected-forms ignore hint (prevents Non-HubSpot capture) */}
+        <label htmlFor="amex" style={{ display: 'none' }}>AMEX</label>
+        <input type="hidden" name="amex" id="amex" value="" />
+
         {/* Honeypot */}
         <div style={{ position: 'absolute', left: '-10000px', height: 0, width: 0, overflow: 'hidden' }} aria-hidden="true">
           <label>

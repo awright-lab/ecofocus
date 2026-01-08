@@ -119,6 +119,10 @@ export default function ContactForm({ className = '' }: { className?: string }) 
         className={className}
         noValidate
       >
+        {/* HubSpot collected-forms ignore hint (prevents Non-HubSpot capture) */}
+        <label htmlFor="amex" style={{ display: 'none' }}>AMEX</label>
+        <input type="hidden" name="amex" id="amex" value="" />
+
         {/* Honeypot */}
         <div
           style={{ position: 'absolute', left: '-10000px', height: 0, width: 0, overflow: 'hidden' }}
