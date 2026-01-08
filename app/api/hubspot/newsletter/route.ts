@@ -7,14 +7,18 @@ type RateEntry = { count: number; resetAt: number };
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_MAX = 20;                   // max submissions / IP / window
 
-// Comma-separated list of allowed origins in env; falls back to your Netlify URL.
-const ALLOWED_ORIGINS: string[] = (
-  process.env.NEWSLETTER_ALLOWED_ORIGINS ||
-  'https://ecofocusresearch.netlify.app,https://www.ecofocusresearch.netlify.app'
-)
+// Comma-separated list of allowed origins in env; if unset, allow all (no blocking).
+const ALLOWED_ORIGINS: string[] = (process.env.NEWSLETTER_ALLOWED_ORIGINS || '')
   .split(',')
-  .map(s => s.trim())
+  .map(s => s.trim().replace(/\/+$/, ''))
   .filter(Boolean);
+
+function originAllowed(origin?: string | null) {
+  if (!origin) return true;
+  if (!ALLOWED_ORIGINS.length) return true; // no allowlist configured → allow all
+  const normalized = origin.replace(/\/+$/, '');
+  return ALLOWED_ORIGINS.includes(normalized);
+}
 
 // HubSpot property names (create these in HubSpot; override via env if different)
 const FORM_SOURCE_PROPERTY =
@@ -72,10 +76,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const origin = req.headers.get('origin') || '';
-    if (origin && !ALLOWED_ORIGINS.includes(origin)) {
-      // Unknown origin → drop quietly
-      return NextResponse.json({ ok: true });
+    const origin = req.headers.get('origin');
+    if (!originAllowed(origin)) {
+      // Unknown origin → drop quietly (returns ok so bots get no signal)
+      return NextResponse.json({ ok: true, skipped: true });
     }
 
     const body = (await req.json()) as NewsletterBody;
