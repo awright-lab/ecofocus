@@ -39,8 +39,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
     };
   }, []);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function onSubmit() {
     if (submitting) return;
     setSubmitting(true);
     setError(null);
@@ -111,13 +110,13 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
   return (
     <>
-      <form
+      <div
         id="EcoFocus_Contact_Form"
-        name="EcoFocus Contact Form"
+        data-form-name="EcoFocus Contact Form"
         data-hs-ignore="true"
-        onSubmit={onSubmit}
         className={className}
-        noValidate
+        role="form"
+        aria-label="EcoFocus Contact Form"
       >
         {/* HubSpot collected-forms ignore hint (prevents Non-HubSpot capture) */}
         <label htmlFor="amex" style={{ display: 'none' }}>AMEX</label>
@@ -259,16 +258,17 @@ export default function ContactForm({ className = '' }: { className?: string }) 
           )}
 
           <button
-            type="submit"
+            type="button" // disable native form submit; call onSubmit manually
             disabled={submitting}
             className="mt-1 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+            onClick={onSubmit}
           >
             {submitting ? 'Sending…' : 'Send message'}
           </button>
 
           <p className="mt-2 text-xs text-gray-500">Fields marked with <span className="text-red-600">*</span> are required.</p>
         </div>
-      </form>
+      </div>
     </>
   );
 }
