@@ -44,8 +44,7 @@ export default function NewsletterForm({
     };
   }, []);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit() {
     if (submitting) return; // safety
     setSubmitting(true);
     setError(null);
@@ -128,14 +127,13 @@ export default function NewsletterForm({
 
   return (
     <>
-      <form
+      <div
         id="EcoFocus_Newsletter_Signup"
         name="EcoFocus Newsletter Signup"
         data-hs-ignore="true"         // prevent Non-HubSpot (Collected) Forms from logging it
-        onSubmit={onSubmit}
         className={className}
-        noValidate
-        autoComplete="off"            // reduces autofill-bot noise
+        role="form"
+        aria-label="EcoFocus Newsletter Signup"
       >
         {/* HubSpot collected-forms ignore hint (prevents Non-HubSpot capture) */}
         <label htmlFor="amex" style={{ display: 'none' }}>AMEX</label>
@@ -225,14 +223,15 @@ export default function NewsletterForm({
           {error && <p className={isDark ? 'text-sm text-red-400' : 'text-sm text-red-600'}>{error}</p>}
 
           <button
-            type="submit"
+            type="button"              // disable native form submit; we call handleSubmit instead
             disabled={submitting}
             className="mt-1 inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+            onClick={handleSubmit}
           >
             {submitting ? 'Submitting…' : 'Subscribe'}
           </button>
         </div>
-      </form>
+      </div>
     </>
   );
 }
