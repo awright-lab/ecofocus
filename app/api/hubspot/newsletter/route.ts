@@ -5,7 +5,7 @@ type RateEntry = { count: number; resetAt: number };
 
 // ---- Config -----------------------------------------------------------------
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const RATE_MAX = 20;                   // max submissions / IP / window
+const RATE_MAX = 10;                   // max submissions / IP / window (stricter)
 
 // Comma-separated list of allowed origins in env; if unset, allow all (no blocking).
 const ALLOWED_ORIGINS: string[] = (process.env.NEWSLETTER_ALLOWED_ORIGINS || '')
@@ -112,14 +112,18 @@ export async function POST(req: Request) {
     // Turnstile verify (optional)
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
     if (turnstileSecret) {
-      if (!turnstileToken) return NextResponse.json({ ok: true });
+      if (!turnstileToken) {
+        return NextResponse.json({ ok: false, error: 'Turnstile token missing' }, { status: 400 });
+      }
       const verify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
       });
       const v = (await verify.json()) as { success?: boolean };
-      if (!v.success) return NextResponse.json({ ok: true });
+      if (!v.success) {
+        return NextResponse.json({ ok: false, error: 'Turnstile verification failed' }, { status: 400 });
+      }
     }
 
     // Required & spam checks
@@ -159,6 +163,7 @@ export async function POST(req: Request) {
       ...(utm?.campaign ? [{ name: 'utm_campaign', value: String(utm.campaign) }] : []),
       { name: FORM_SOURCE_PROPERTY, value: 'Newsletter Signup' }, // custom dropdown/text property
       { name: NEWSLETTER_SUBSCRIPTION_PROPERTY, value: 'EcoNuggets Newsletter' }, // subscription tag
+      ...(ip && ip !== '0.0.0.0' ? [{ name: 'ef_ip_address', value: ip }] : []),
     ];
 
     // Context (include hutk only if present to avoid INVALID_HUTK)
