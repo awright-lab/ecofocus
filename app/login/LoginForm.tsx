@@ -14,13 +14,14 @@ export default function LoginForm({ redirect }: { redirect: string }) {
     setError(null);
     try {
       const supabase = getBrowserSupabase();
-      // Hardcoded production URL for magic links
       const siteUrl = "https://www.ecofocusresearch.com";
-      const redirectTo = `${siteUrl}${redirect || "/portal"}`;
+      const redirectTarget = redirect || "/portal";
+      // Send user back to login with redirect preserved, so the code arrives at /login?code=...&redirect=/portal
+      const emailRedirectTo = `${siteUrl}/login?redirect=${encodeURIComponent(redirectTarget)}`;
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: redirectTo,
+          emailRedirectTo,
         },
       });
       if (authError) throw authError;
