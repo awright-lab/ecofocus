@@ -11,12 +11,12 @@ export const metadata: Metadata = {
     noarchive: true,
     nocache: true,
     nosnippet: true,
-  },
-  googleBot: {
-    index: false,
-    follow: false,
-    noarchive: true,
-    nosnippet: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noarchive: true,
+      nosnippet: true,
+    },
   },
 };
 
