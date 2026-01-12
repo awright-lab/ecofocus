@@ -10,8 +10,8 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.warn('Supabase env vars missing: SUPABASE_URL and SUPABASE_ANON_KEY are required for portal auth.');
 }
 
-export function getServerSupabase() {
-  const cookieStore = cookies();
+export async function getServerSupabase() {
+  const cookieStore = await cookies();
   return createServerClient(SUPABASE_URL || '', SUPABASE_ANON_KEY || '', {
     cookies: {
       get(name) {
@@ -37,7 +37,7 @@ export function getServiceSupabase() {
 }
 
 export async function getSession() {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   const { data, error } = await supabase.auth.getSession();
   if (error) throw error;
   return data.session;

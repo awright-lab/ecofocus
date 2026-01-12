@@ -8,7 +8,7 @@ type CrosstabBody = {
 };
 
 async function assertAuthed() {
-  const supabase = getServerSupabase();
+  const supabase = await getServerSupabase();
   const { data, error } = await supabase.auth.getSession();
   if (error || !data?.session) {
     return null;
