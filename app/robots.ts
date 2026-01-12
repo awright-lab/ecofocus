@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Disallow obvious noise (adjust to your routes)
-      disallow: ["/api/", "/admin", "/dashboard"],
+      disallow: ["/api/", "/admin", "/dashboard", "/portal"],
     },
     sitemap: [`${base}/sitemap.xml`],
   };

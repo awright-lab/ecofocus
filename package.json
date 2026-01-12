@@ -12,6 +12,8 @@
     "@headlessui/react": "^2.2.7",
     "@payloadcms/richtext-lexical": "^3.55.1",
     "@stripe/stripe-js": "^7.8.0",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.90.1",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
