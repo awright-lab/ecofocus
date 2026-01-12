@@ -11,17 +11,19 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 }
 
 export async function getServerSupabase() {
-  const cookieStore = await cookies();
+  // Use Next's cookie store so Supabase can persist the PKCE verifier/session
+  // cookies required for magic-link auth.
+  const cookieStore = cookies();
   return createServerClient(SUPABASE_URL || '', SUPABASE_ANON_KEY || '', {
     cookies: {
-      get(name) {
+      get(name: string) {
         return cookieStore.get(name)?.value;
       },
-      set() {
-        // read-only in server components; middleware/route handlers handle writes
+      set(name: string, value: string, options: any) {
+        cookieStore.set({ name, value, ...options });
       },
-      remove() {
-        // read-only in server components
+      remove(name: string, options: any) {
+        cookieStore.delete({ name, ...options });
       },
     },
   });

@@ -14,7 +14,8 @@ export default function LoginForm({ redirect }: { redirect: string }) {
     setError(null);
     try {
       const supabase = getBrowserSupabase();
-      const siteUrl = "https://www.ecofocusresearch.com";
+      // Use the exact origin the user is on to avoid PKCE domain mismatches (www vs apex).
+      const siteUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || "";
       const redirectTarget = redirect || "/portal";
       // Send user back to login with redirect preserved, so the code arrives at /login?code=...&redirect=/portal
       const emailRedirectTo = `${siteUrl}/login?redirect=${encodeURIComponent(redirectTarget)}`;
