@@ -14,10 +14,8 @@ export default function LoginForm({ redirect }: { redirect: string }) {
     setError(null);
     try {
       const supabase = getBrowserSupabase();
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-      if (!siteUrl) {
-        throw new Error("NEXT_PUBLIC_SITE_URL is not set; cannot build redirect URL.");
-      }
+      // Hardcoded production URL for magic links
+      const siteUrl = "https://www.ecofocusresearch.com";
       const redirectTo = `${siteUrl}${redirect || "/portal"}`;
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
