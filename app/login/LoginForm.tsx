@@ -14,9 +14,10 @@ export default function LoginForm({ redirect }: { redirect: string }) {
     setError(null);
     try {
       const supabase = getBrowserSupabase();
-      const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ||
-        (typeof window !== "undefined" ? window.location.origin : "");
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+      if (!siteUrl) {
+        throw new Error("NEXT_PUBLIC_SITE_URL is not set; cannot build redirect URL.");
+      }
       const redirectTo = `${siteUrl}${redirect || "/portal"}`;
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
