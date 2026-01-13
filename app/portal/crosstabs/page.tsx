@@ -4,11 +4,22 @@ import { getServiceSupabase } from "@/lib/supabase/server";
 async function getQuestionOptions() {
   try {
     const supabase = getServiceSupabase();
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("question_lookup")
-      .select("db_column, question_text")
+      .select("db_column, question_text, topic")
       .order("db_column", { ascending: true })
       .limit(300);
+    if (error) {
+      if (String(error.message || "").includes('column "topic"') && String(error.message || "").includes("does not exist")) {
+        const fallback = await supabase
+          .from("question_lookup")
+          .select("db_column, question_text")
+          .order("db_column", { ascending: true })
+          .limit(300);
+        return fallback.data || [];
+      }
+      return [];
+    }
     return data || [];
   } catch {
     return [];
