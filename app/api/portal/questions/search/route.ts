@@ -11,6 +11,12 @@ function isMissingColumnError(error: any, column: string) {
   return message.includes(`column "${column}"`) && message.includes("does not exist");
 }
 
+async function pickQuestionLookupTable(admin: ReturnType<typeof getServiceSupabase>) {
+  const { error } = await admin.from("responses_2025_question_lookup").select("db_column").limit(1);
+  if (!error) return "responses_2025_question_lookup";
+  throw new Error("Missing table/view: responses_2025_question_lookup");
+}
+
 export async function GET(req: NextRequest) {
   const supabase = await getServerSupabase();
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -26,32 +32,27 @@ export async function GET(req: NextRequest) {
   try {
     const admin = getServiceSupabase();
     const searchFilter = `question_text.ilike.%${q}%,db_column.ilike.%${q}%`;
+    const table = await pickQuestionLookupTable(admin);
 
     const { data, error } = await admin
-      .from("question_lookup")
+      .from(table)
       .select("db_column, question_text, topic")
       .or(searchFilter)
       .limit(50);
 
     if (error && isMissingColumnError(error, "topic")) {
       const retry = await admin
-        .from("question_lookup")
+        .from(table)
         .select("db_column, question_text")
         .or(searchFilter)
         .limit(50);
       if (retry.error) {
-        if (isMissingRelationError(retry.error)) {
-          return NextResponse.json({ error: "Missing table/view: question_lookup" }, { status: 500 });
-        }
         return NextResponse.json({ error: retry.error.message || "Query failed" }, { status: 500 });
       }
       return NextResponse.json({ data: retry.data || [] });
     }
 
     if (error) {
-      if (isMissingRelationError(error)) {
-        return NextResponse.json({ error: "Missing table/view: question_lookup" }, { status: 500 });
-      }
       return NextResponse.json({ error: error.message || "Query failed" }, { status: 500 });
     }
 

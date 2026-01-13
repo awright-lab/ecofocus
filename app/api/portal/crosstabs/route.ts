@@ -19,6 +19,7 @@ const FALLBACK_TABLES = [
 
 const MAX_ROWS = 5000;
 const UUID_CHUNK = 500;
+const QUESTION_LOOKUP_TABLES = ["responses_2025_question_lookup"];
 
 function isMissingRelationError(error: any) {
   const message = String(error?.message || "");
@@ -47,14 +48,15 @@ async function assertAuthed() {
 }
 
 async function loadAllowlist(admin: ReturnType<typeof getServiceSupabase>) {
-  const { data, error } = await admin.from("question_lookup").select("db_column").limit(1000);
-  if (error || !data) {
-    if (error && isMissingRelationError(error)) {
-      throw new Error("Missing table/view: question_lookup");
+  const table = QUESTION_LOOKUP_TABLES[0];
+  const { data, error } = await admin.from(table).select("db_column").limit(1000);
+  if (error) {
+    if (isMissingRelationError(error)) {
+      throw new Error("Missing table/view: responses_2025_question_lookup");
     }
-    throw new Error(error?.message || "Failed to load allowlist");
+    throw new Error(error.message || "Failed to load allowlist");
   }
-  return new Set(data.map((row) => row.db_column));
+  return new Set((data || []).map((row) => row.db_column));
 }
 
 function validateFilters(
