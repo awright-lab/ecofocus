@@ -10,12 +10,23 @@ type QuestionRow = {
 };
 
 const DEBOUNCE_MS = 300;
+const PIPE_REGEX = /\[pipe:\s*([A-Za-z0-9_]+)\]/g;
+
+const isInternalQuestion = (row?: QuestionRow | null) => {
+  if (!row) return false;
+  const column = row.db_column.toLowerCase();
+  const text = row.question_text.toLowerCase();
+  if (column.includes("hidden")) return true;
+  if (text.includes("assign randomly")) return true;
+  return false;
+};
 
 export default function QuestionSearch() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<QuestionRow[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showInternal, setShowInternal] = useState(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -70,12 +81,38 @@ export default function QuestionSearch() {
     router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
   };
 
+  const rowMap = useMemo(() => {
+    const map = new Map<string, QuestionRow>();
+    for (const row of rows) {
+      map.set(row.db_column.toLowerCase(), row);
+    }
+    return map;
+  }, [rows]);
+
+  const formatQuestionText = (text: string) => {
+    return text.replace(PIPE_REGEX, (_, token) => {
+      const ref = rowMap.get(String(token).toLowerCase());
+      if (!ref || isInternalQuestion(ref)) return "assigned topic";
+      return ref.question_text.split("\n")[0].trim();
+    });
+  };
+
+  const visibleRows = useMemo(() => {
+    if (showInternal) return rows;
+    return rows.filter((row) => !isInternalQuestion(row));
+  }, [rows, showInternal]);
+
   const summary = useMemo(() => {
     if (!query.trim()) return "Type to search question text or variable.";
     if (loading) return "Searching…";
     if (error) return error;
-    return rows.length ? `${rows.length} result${rows.length === 1 ? "" : "s"}` : "No matches found.";
-  }, [query, loading, error, rows.length]);
+    if (!visibleRows.length) return "No matches found.";
+    const hiddenCount = rows.length - visibleRows.length;
+    if (hiddenCount > 0 && !showInternal) {
+      return `${visibleRows.length} result${visibleRows.length === 1 ? "" : "s"} (${hiddenCount} hidden)`;
+    }
+    return `${visibleRows.length} result${visibleRows.length === 1 ? "" : "s"}`;
+  }, [query, loading, error, rows.length, showInternal, visibleRows.length]);
 
   return (
     <div className="space-y-3">
@@ -92,6 +129,15 @@ export default function QuestionSearch() {
         placeholder="e.g., recycle, climate, packaging, db_column"
         className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
       />
+      <label className="flex items-center gap-2 text-xs text-gray-600">
+        <input
+          type="checkbox"
+          checked={showInternal}
+          onChange={(event) => setShowInternal(event.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+        />
+        Show internal variables
+      </label>
 
       <div className="overflow-hidden rounded-xl border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -104,13 +150,13 @@ export default function QuestionSearch() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 bg-white">
-            {rows.map((row) => {
+            {visibleRows.map((row) => {
               const isRow = rowVarParam === row.db_column;
               const isCol = colVarParam === row.db_column;
               return (
                 <tr key={row.db_column}>
                   <td className="px-3 py-2 font-mono text-xs text-gray-800">{row.db_column}</td>
-                  <td className="px-3 py-2 text-gray-800">{row.question_text}</td>
+                  <td className="px-3 py-2 text-gray-800">{formatQuestionText(row.question_text)}</td>
                   <td className="px-3 py-2 text-gray-700">{row.topic || "—"}</td>
                   <td className="px-3 py-2">
                     <div className="flex flex-wrap gap-2">
@@ -153,6 +199,13 @@ export default function QuestionSearch() {
               <tr>
                 <td colSpan={4} className="px-3 py-4 text-center text-sm text-gray-500">
                   {query.trim() ? "No matches yet." : "Start typing to see results."}
+                </td>
+              </tr>
+            )}
+            {!loading && !error && rows.length > 0 && !visibleRows.length && (
+              <tr>
+                <td colSpan={4} className="px-3 py-4 text-center text-sm text-gray-500">
+                  All matches are hidden internal variables. Toggle "Show internal variables" to view them.
                 </td>
               </tr>
             )}

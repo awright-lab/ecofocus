@@ -31,6 +31,25 @@ type FilterState = {
   values: string[];
 };
 
+const PIPE_REGEX = /\[pipe:\s*([A-Za-z0-9_]+)\]/g;
+
+const isInternalQuestion = (question?: Question | null) => {
+  if (!question) return false;
+  const column = question.db_column.toLowerCase();
+  const text = question.question_text.toLowerCase();
+  if (column.includes("hidden")) return true;
+  if (text.includes("assign randomly")) return true;
+  return false;
+};
+
+const formatQuestionText = (text: string, questionMap: Map<string, Question>) => {
+  return text.replace(PIPE_REGEX, (_, token) => {
+    const ref = questionMap.get(String(token).toLowerCase());
+    if (!ref || isInternalQuestion(ref)) return "assigned topic";
+    return ref.question_text.split("\n")[0].trim();
+  });
+};
+
 export default function CrosstabClient({ questions }: { questions: Question[] }) {
   const [rowVar, setRowVar] = useState("");
   const [colVar, setColVar] = useState("");
@@ -48,6 +67,7 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
   const [percentMode, setPercentMode] = useState<"row" | "col" | "total">("row");
   const [showChart, setShowChart] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [showInternal, setShowInternal] = useState(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -200,14 +220,27 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
     return query.trim() ? searchResults : questions;
   }, [questions, query, searchResults]);
 
+  const questionMap = useMemo(() => {
+    const map = new Map<string, Question>();
+    for (const question of [...questions, ...searchResults]) {
+      map.set(question.db_column.toLowerCase(), question);
+    }
+    return map;
+  }, [questions, searchResults]);
+
+  const visibleVariables = useMemo(() => {
+    if (showInternal) return availableVariables;
+    return availableVariables.filter((question) => !isInternalQuestion(question));
+  }, [availableVariables, showInternal]);
+
   const options = useMemo(() => {
-    return availableVariables.map((q) => (
+    return visibleVariables.map((q) => (
       <option key={q.db_column} value={q.db_column}>
-        {q.db_column} — {q.question_text}
+        {q.db_column} — {formatQuestionText(q.question_text, questionMap)}
         {q.topic ? ` (${q.topic})` : ""}
       </option>
     ));
-  }, [availableVariables]);
+  }, [visibleVariables, questionMap]);
 
   const rowKeys = useMemo(() => (result ? Object.keys(result.totals.rowTotals) : []), [result]);
   const colKeys = useMemo(() => (result ? Object.keys(result.totals.colTotals) : []), [result]);
@@ -222,6 +255,9 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
     () => filters.reduce((sum, filter) => sum + filter.values.length, 0),
     [filters]
   );
+
+  const rowInfo = questionMap.get(rowVar.toLowerCase());
+  const colInfo = questionMap.get(colVar.toLowerCase());
 
   const getPct = (cell?: CrosstabCell) => {
     if (!cell) return 0;
@@ -262,9 +298,18 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
               <p className="text-xs text-gray-500">Showing recent questions. Type to search more.</p>
             )}
           </div>
+          <label className="flex items-center gap-2 text-xs text-gray-600">
+            <input
+              type="checkbox"
+              checked={showInternal}
+              onChange={(event) => setShowInternal(event.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            Show internal variables
+          </label>
 
           <div className="max-h-[480px] space-y-2 overflow-y-auto rounded-xl border border-gray-200 bg-white p-2">
-            {availableVariables.map((variable) => (
+            {visibleVariables.map((variable) => (
               <div
                 key={variable.db_column}
                 draggable
@@ -276,7 +321,9 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-semibold text-gray-500">{variable.db_column}</p>
-                    <p className="text-sm text-gray-900">{variable.question_text}</p>
+                    <p className="text-sm text-gray-900">
+                      {formatQuestionText(variable.question_text, questionMap)}
+                    </p>
                     {variable.topic && (
                       <p className="text-xs text-gray-500">Topic: {variable.topic}</p>
                     )}
@@ -330,15 +377,23 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
             >
               <p className="text-xs font-semibold text-emerald-700">Row</p>
               {rowVar ? (
-                <div className="mt-2 flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm shadow-sm">
-                  <span className="font-mono text-xs text-gray-700">{rowVar}</span>
-                  <button
-                    type="button"
-                    onClick={() => setRowSelection("")}
-                    className="text-xs font-semibold text-gray-500 hover:text-gray-700"
-                  >
-                    Clear
-                  </button>
+                <div className="mt-2 space-y-1 rounded-lg bg-white px-3 py-2 text-sm shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs text-gray-700">{rowVar}</span>
+                    <button
+                      type="button"
+                      onClick={() => setRowSelection("")}
+                      className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  {rowInfo && (
+                    <p className="text-xs text-gray-600">
+                      {formatQuestionText(rowInfo.question_text, questionMap)}
+                      {isInternalQuestion(rowInfo) && " (internal)"}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-gray-600">Drop a variable here.</p>
@@ -352,15 +407,23 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
             >
               <p className="text-xs font-semibold text-emerald-700">Column</p>
               {colVar ? (
-                <div className="mt-2 flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm shadow-sm">
-                  <span className="font-mono text-xs text-gray-700">{colVar}</span>
-                  <button
-                    type="button"
-                    onClick={() => setColSelection("")}
-                    className="text-xs font-semibold text-gray-500 hover:text-gray-700"
-                  >
-                    Clear
-                  </button>
+                <div className="mt-2 space-y-1 rounded-lg bg-white px-3 py-2 text-sm shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs text-gray-700">{colVar}</span>
+                    <button
+                      type="button"
+                      onClick={() => setColSelection("")}
+                      className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  {colInfo && (
+                    <p className="text-xs text-gray-600">
+                      {formatQuestionText(colInfo.question_text, questionMap)}
+                      {isInternalQuestion(colInfo) && " (internal)"}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <p className="mt-2 text-sm text-gray-600">Drop a variable here.</p>
@@ -391,11 +454,12 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
             >
               Drop variables here to filter.
             </div>
-            {filters.length > 0 && (
+              {filters.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {filters.map((filter) => (
                   <span
                     key={filter.variable}
+                    title={questionMap.get(filter.variable.toLowerCase())?.question_text || ""}
                     className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-700"
                   >
                     {filter.variable}
