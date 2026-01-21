@@ -260,6 +260,20 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
     return availableVariables.filter((question) => !isInternalQuestion(question));
   }, [availableVariables, showInternal]);
 
+  const rowKeys = useMemo(() => (result ? Object.keys(result.totals.rowTotals) : []), [result]);
+  const colKeys = useMemo(() => (result ? Object.keys(result.totals.colTotals) : []), [result]);
+  const cellMap = useMemo(() => {
+    const map = new Map<string, CrosstabCell>();
+    for (const cell of result?.cells || []) {
+      map.set(`${cell.row}|||${cell.col}`, cell);
+    }
+    return map;
+  }, [result]);
+  const activeFilterCount = useMemo(
+    () => filters.reduce((sum, filter) => sum + filter.values.length, 0),
+    [filters]
+  );
+
   useEffect(() => {
     const tokensToFetch = new Set<string>();
     for (const variable of visibleVariables) {
@@ -317,20 +331,6 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
         });
     }
   }, [colKeys, pipeLoading, pipeValues, result, rowKeys]);
-
-  const rowKeys = useMemo(() => (result ? Object.keys(result.totals.rowTotals) : []), [result]);
-  const colKeys = useMemo(() => (result ? Object.keys(result.totals.colTotals) : []), [result]);
-  const cellMap = useMemo(() => {
-    const map = new Map<string, CrosstabCell>();
-    for (const cell of result?.cells || []) {
-      map.set(`${cell.row}|||${cell.col}`, cell);
-    }
-    return map;
-  }, [result]);
-  const activeFilterCount = useMemo(
-    () => filters.reduce((sum, filter) => sum + filter.values.length, 0),
-    [filters]
-  );
 
   const rowInfo = questionMap.get(rowVar.toLowerCase());
   const colInfo = questionMap.get(colVar.toLowerCase());
