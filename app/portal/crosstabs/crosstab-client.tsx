@@ -51,6 +51,15 @@ const formatQuestionText = (text: string, questionMap: Map<string, Question>) =>
   });
 };
 
+const extractPipeTokens = (text: string) => {
+  const tokens: string[] = [];
+  const normalized = String(text || "");
+  for (const match of normalized.matchAll(PIPE_REGEX)) {
+    if (match[1]) tokens.push(match[1]);
+  }
+  return Array.from(new Set(tokens));
+};
+
 export default function CrosstabClient({ questions }: { questions: Question[] }) {
   const [rowVar, setRowVar] = useState("");
   const [colVar, setColVar] = useState("");
@@ -69,6 +78,8 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
   const [showChart, setShowChart] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [showInternal, setShowInternal] = useState(false);
+  const [pipeValues, setPipeValues] = useState<Record<string, string[]>>({});
+  const [pipeLoading, setPipeLoading] = useState<Record<string, boolean>>({});
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -236,6 +247,35 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
     return availableVariables.filter((question) => !isInternalQuestion(question));
   }, [availableVariables, showInternal]);
 
+  useEffect(() => {
+    const tokensToFetch = new Set<string>();
+    for (const variable of visibleVariables) {
+      for (const token of extractPipeTokens(variable.question_text)) {
+        const ref = questionMap.get(token.toLowerCase());
+        if (!ref || !isInternalQuestion(ref)) continue;
+        if (pipeValues[token] || pipeLoading[token]) continue;
+        tokensToFetch.add(token);
+      }
+    }
+
+    if (!tokensToFetch.size) return;
+
+    for (const token of tokensToFetch) {
+      setPipeLoading((prev) => ({ ...prev, [token]: true }));
+      fetch(`/api/portal/questions/values?var=${encodeURIComponent(token)}`)
+        .then((res) => res.json().then((json) => ({ ok: res.ok, json })))
+        .then(({ ok, json }) => {
+          if (ok) {
+            setPipeValues((prev) => ({ ...prev, [token]: json.values || [] }));
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          setPipeLoading((prev) => ({ ...prev, [token]: false }));
+        });
+    }
+  }, [pipeLoading, pipeValues, questionMap, visibleVariables]);
+
   const rowKeys = useMemo(() => (result ? Object.keys(result.totals.rowTotals) : []), [result]);
   const colKeys = useMemo(() => (result ? Object.keys(result.totals.colTotals) : []), [result]);
   const cellMap = useMemo(() => {
@@ -318,6 +358,21 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                     <p className="text-sm text-gray-900">
                       {formatQuestionText(variable.question_text, questionMap)}
                     </p>
+                    {extractPipeTokens(variable.question_text).map((token) => {
+                      const ref = questionMap.get(token.toLowerCase());
+                      if (!ref || !isInternalQuestion(ref)) return null;
+                      const values = pipeValues[token] || [];
+                      const label = values.length
+                        ? values.slice(0, 4).join(" / ")
+                        : pipeLoading[token]
+                          ? "Loading assigned terms…"
+                          : "Assigned term";
+                      return (
+                        <p key={token} className="text-xs text-gray-500">
+                          Assigned term: {label}
+                        </p>
+                      );
+                    })}
                     {variable.topic && (
                       <p className="text-xs text-gray-500">Topic: {variable.topic}</p>
                     )}
@@ -383,10 +438,27 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                     </button>
                   </div>
                   {rowInfo && (
-                    <p className="text-xs text-gray-600">
-                      {formatQuestionText(rowInfo.question_text, questionMap)}
-                      {isInternalQuestion(rowInfo) && " (internal)"}
-                    </p>
+                    <div className="text-xs text-gray-600">
+                      <p>
+                        {formatQuestionText(rowInfo.question_text, questionMap)}
+                        {isInternalQuestion(rowInfo) && " (internal)"}
+                      </p>
+                      {extractPipeTokens(rowInfo.question_text).map((token) => {
+                        const ref = questionMap.get(token.toLowerCase());
+                        if (!ref || !isInternalQuestion(ref)) return null;
+                        const values = pipeValues[token] || [];
+                        const label = values.length
+                          ? values.slice(0, 4).join(" / ")
+                          : pipeLoading[token]
+                            ? "Loading assigned terms…"
+                            : "Assigned term";
+                        return (
+                          <p key={token} className="text-xs text-gray-500">
+                            Assigned term: {label}
+                          </p>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               ) : (
@@ -413,10 +485,27 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                     </button>
                   </div>
                   {colInfo && (
-                    <p className="text-xs text-gray-600">
-                      {formatQuestionText(colInfo.question_text, questionMap)}
-                      {isInternalQuestion(colInfo) && " (internal)"}
-                    </p>
+                    <div className="text-xs text-gray-600">
+                      <p>
+                        {formatQuestionText(colInfo.question_text, questionMap)}
+                        {isInternalQuestion(colInfo) && " (internal)"}
+                      </p>
+                      {extractPipeTokens(colInfo.question_text).map((token) => {
+                        const ref = questionMap.get(token.toLowerCase());
+                        if (!ref || !isInternalQuestion(ref)) return null;
+                        const values = pipeValues[token] || [];
+                        const label = values.length
+                          ? values.slice(0, 4).join(" / ")
+                          : pipeLoading[token]
+                            ? "Loading assigned terms…"
+                            : "Assigned term";
+                        return (
+                          <p key={token} className="text-xs text-gray-500">
+                            Assigned term: {label}
+                          </p>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
               ) : (
