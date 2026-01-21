@@ -42,7 +42,7 @@ async function loadAllowlist(admin: ReturnType<typeof getServiceSupabase>) {
     }
     throw new Error(error.message || "Failed to load allowlist");
   }
-  return new Set((data || []).map((row) => row.db_column));
+  return new Set((data || []).map((row) => String(row.db_column || "").toLowerCase()));
 }
 
 async function queryValuesFromView(
@@ -106,27 +106,28 @@ export async function GET(req: NextRequest) {
   }
 
   const column = (req.nextUrl.searchParams.get("var") || "").trim();
-  if (!column) {
+  const columnNormalized = column.toLowerCase();
+  if (!columnNormalized) {
     return NextResponse.json({ error: "var is required" }, { status: 400 });
   }
 
   try {
     const admin = getServiceSupabase();
     const allowlist = await loadAllowlist(admin);
-    if (!allowlist.has(column)) {
+    if (!allowlist.has(columnNormalized)) {
       return NextResponse.json({ error: `Invalid column: ${column}` }, { status: 400 });
     }
 
     const values = new Set<string>();
-    const viewResult = await queryValuesFromView(admin, column);
+    const viewResult = await queryValuesFromView(admin, columnNormalized);
     if (viewResult.kind === "ok") {
       for (const row of viewResult.data as Array<Record<string, any>>) {
-        const value = row[column];
+        const value = row[columnNormalized];
         if (value == null || value === "") continue;
         values.add(String(value));
       }
     } else {
-      const table = await findTableForColumn(admin, column);
+      const table = await findTableForColumn(admin, columnNormalized);
       if (!table) {
         throw new Error(`Invalid column: ${column}. Not found in responses_2025_all or fallback tables.`);
       }
@@ -135,7 +136,7 @@ export async function GET(req: NextRequest) {
       for (const chunk of chunkArray(uuids, UUID_CHUNK)) {
         const { data, error } = await admin
           .from(table)
-          .select(`uuid, ${column}`)
+          .select(`uuid, ${columnNormalized}`)
           .in("uuid", chunk);
         if (error) {
           if (isMissingRelationError(error)) {
@@ -144,7 +145,7 @@ export async function GET(req: NextRequest) {
           throw new Error(error.message || `Failed loading ${table}`);
         }
         for (const row of data || []) {
-          const value = (row as any)[column];
+          const value = (row as any)[columnNormalized];
           if (value == null || value === "") continue;
           values.add(String(value));
         }

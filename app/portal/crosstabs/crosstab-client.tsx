@@ -55,9 +55,22 @@ const extractPipeTokens = (text: string) => {
   const tokens: string[] = [];
   const normalized = String(text || "");
   for (const match of normalized.matchAll(PIPE_REGEX)) {
-    if (match[1]) tokens.push(match[1]);
+    if (match[1]) tokens.push(String(match[1]).toLowerCase());
   }
   return Array.from(new Set(tokens));
+};
+
+const replacePipeTokens = (
+  text: string,
+  pipeValues: Record<string, string[]>,
+  pipeLoading: Record<string, boolean>
+) => {
+  return String(text || "").replace(PIPE_REGEX, (_, token) => {
+    const key = String(token || "").toLowerCase();
+    if (pipeLoading[key]) return "assigned topic";
+    const values = pipeValues[key] || [];
+    return values.length ? values.join(" / ") : "assigned topic";
+  });
 };
 
 export default function CrosstabClient({ questions }: { questions: Question[] }) {
@@ -251,7 +264,7 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
     const tokensToFetch = new Set<string>();
     for (const variable of visibleVariables) {
       for (const token of extractPipeTokens(variable.question_text)) {
-        const ref = questionMap.get(token.toLowerCase());
+        const ref = questionMap.get(token);
         if (!ref || !isInternalQuestion(ref)) continue;
         if (pipeValues[token] || pipeLoading[token]) continue;
         tokensToFetch.add(token);
@@ -275,6 +288,35 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
         });
     }
   }, [pipeLoading, pipeValues, questionMap, visibleVariables]);
+
+  useEffect(() => {
+    if (!result) return;
+    const tokensToFetch = new Set<string>();
+    const labels = [...rowKeys, ...colKeys];
+    for (const label of labels) {
+      for (const token of extractPipeTokens(label)) {
+        if (pipeValues[token] || pipeLoading[token]) continue;
+        tokensToFetch.add(token);
+      }
+    }
+
+    if (!tokensToFetch.size) return;
+
+    for (const token of tokensToFetch) {
+      setPipeLoading((prev) => ({ ...prev, [token]: true }));
+      fetch(`/api/portal/questions/values?var=${encodeURIComponent(token)}`)
+        .then((res) => res.json().then((json) => ({ ok: res.ok, json })))
+        .then(({ ok, json }) => {
+          if (ok) {
+            setPipeValues((prev) => ({ ...prev, [token]: json.values || [] }));
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          setPipeLoading((prev) => ({ ...prev, [token]: false }));
+        });
+    }
+  }, [colKeys, pipeLoading, pipeValues, result, rowKeys]);
 
   const rowKeys = useMemo(() => (result ? Object.keys(result.totals.rowTotals) : []), [result]);
   const colKeys = useMemo(() => (result ? Object.keys(result.totals.colTotals) : []), [result]);
@@ -356,10 +398,14 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                   <div>
                     <p className="text-xs font-semibold text-gray-500">{variable.db_column}</p>
                     <p className="text-sm text-gray-900">
-                      {formatQuestionText(variable.question_text, questionMap)}
+                      {replacePipeTokens(
+                        formatQuestionText(variable.question_text, questionMap),
+                        pipeValues,
+                        pipeLoading
+                      )}
                     </p>
                     {extractPipeTokens(variable.question_text).map((token) => {
-                      const ref = questionMap.get(token.toLowerCase());
+                      const ref = questionMap.get(token);
                       if (!ref || !isInternalQuestion(ref)) return null;
                       const values = pipeValues[token] || [];
                       const label = values.length
@@ -440,11 +486,15 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                   {rowInfo && (
                     <div className="text-xs text-gray-600">
                       <p>
-                        {formatQuestionText(rowInfo.question_text, questionMap)}
+                        {replacePipeTokens(
+                          formatQuestionText(rowInfo.question_text, questionMap),
+                          pipeValues,
+                          pipeLoading
+                        )}
                         {isInternalQuestion(rowInfo) && " (internal)"}
                       </p>
                       {extractPipeTokens(rowInfo.question_text).map((token) => {
-                        const ref = questionMap.get(token.toLowerCase());
+                        const ref = questionMap.get(token);
                         if (!ref || !isInternalQuestion(ref)) return null;
                         const values = pipeValues[token] || [];
                         const label = values.length
@@ -487,11 +537,15 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                   {colInfo && (
                     <div className="text-xs text-gray-600">
                       <p>
-                        {formatQuestionText(colInfo.question_text, questionMap)}
+                        {replacePipeTokens(
+                          formatQuestionText(colInfo.question_text, questionMap),
+                          pipeValues,
+                          pipeLoading
+                        )}
                         {isInternalQuestion(colInfo) && " (internal)"}
                       </p>
                       {extractPipeTokens(colInfo.question_text).map((token) => {
-                        const ref = questionMap.get(token.toLowerCase());
+                        const ref = questionMap.get(token);
                         if (!ref || !isInternalQuestion(ref)) return null;
                         const values = pipeValues[token] || [];
                         const label = values.length
@@ -708,9 +762,13 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                 <table className="min-w-full divide-y divide-gray-200 text-sm">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-3 py-2 text-left font-semibold text-gray-700">{result.rowVar} \\ {result.colVar}</th>
+                      <th className="px-3 py-2 text-left font-semibold text-gray-700">
+                        {result.rowVar} \\ {result.colVar}
+                      </th>
                       {colKeys.map((col) => (
-                        <th key={col} className="px-3 py-2 text-left font-semibold text-gray-700">{col}</th>
+                        <th key={col} className="px-3 py-2 text-left font-semibold text-gray-700">
+                          {replacePipeTokens(col, pipeValues, pipeLoading)}
+                        </th>
                       ))}
                       <th className="px-3 py-2 text-left font-semibold text-gray-700">Total</th>
                     </tr>
@@ -718,7 +776,9 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                   <tbody className="divide-y divide-gray-100 bg-white">
                     {rowKeys.map((row) => (
                       <tr key={row}>
-                        <th className="px-3 py-2 text-left font-semibold text-gray-800">{row}</th>
+                        <th className="px-3 py-2 text-left font-semibold text-gray-800">
+                          {replacePipeTokens(row, pipeValues, pipeLoading)}
+                        </th>
                         {colKeys.map((col) => {
                           const cell = cellMap.get(`${row}|||${col}`);
                           const count = cell?.count || 0;
