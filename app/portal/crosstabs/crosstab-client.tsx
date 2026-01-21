@@ -37,17 +37,17 @@ const isInternalQuestion = (question?: Question | null) => {
   if (!question) return false;
   if (!question.db_column) return false;
   const column = question.db_column.toLowerCase();
-  const text = question.question_text.toLowerCase();
+  const text = typeof question.question_text === "string" ? question.question_text.toLowerCase() : "";
   if (column.includes("hidden")) return true;
   if (text.includes("assign randomly")) return true;
   return false;
 };
 
 const formatQuestionText = (text: string, questionMap: Map<string, Question>) => {
-  return text.replace(PIPE_REGEX, (_, token) => {
+  return String(text || "").replace(PIPE_REGEX, (_, token) => {
     const ref = questionMap.get(String(token).toLowerCase());
     if (!ref || isInternalQuestion(ref)) return "assigned topic";
-    return ref.question_text.split("\n")[0].trim();
+    return String(ref.question_text || "").split("\n")[0].trim();
   });
 };
 

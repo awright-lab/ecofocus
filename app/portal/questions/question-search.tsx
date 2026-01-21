@@ -16,7 +16,7 @@ const isInternalQuestion = (row?: QuestionRow | null) => {
   if (!row) return false;
   if (!row.db_column) return false;
   const column = row.db_column.toLowerCase();
-  const text = row.question_text.toLowerCase();
+  const text = typeof row.question_text === "string" ? row.question_text.toLowerCase() : "";
   if (column.includes("hidden")) return true;
   if (text.includes("assign randomly")) return true;
   return false;
@@ -92,10 +92,10 @@ export default function QuestionSearch() {
   }, [rows]);
 
   const formatQuestionText = (text: string) => {
-    return text.replace(PIPE_REGEX, (_, token) => {
+    return String(text || "").replace(PIPE_REGEX, (_, token) => {
       const ref = rowMap.get(String(token).toLowerCase());
       if (!ref || isInternalQuestion(ref)) return "assigned topic";
-      return ref.question_text.split("\n")[0].trim();
+      return String(ref.question_text || "").split("\n")[0].trim();
     });
   };
 

@@ -18,12 +18,14 @@ async function getQuestionOptions() {
           .order("db_column", { ascending: true })
           .limit(300);
         return (fallback.data || []).filter(
-          (row) => typeof row.db_column === "string" && row.db_column.trim()
+          (row) => row && typeof row.db_column === "string" && row.db_column.trim()
         );
       }
       return [];
     }
-    return (data || []).filter((row) => typeof row.db_column === "string" && row.db_column.trim());
+    return (data || []).filter(
+      (row) => row && typeof row.db_column === "string" && row.db_column.trim()
+    );
   } catch {
     return [];
   }
