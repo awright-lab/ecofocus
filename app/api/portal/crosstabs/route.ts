@@ -220,6 +220,22 @@ function applyFilterMatch(
   return true;
 }
 
+function calcColumnSig(
+  count: number,
+  colTotal: number,
+  rowTotal: number,
+  overall: number
+) {
+  if (!overall || !colTotal) return null;
+  const pOverall = rowTotal / overall;
+  const pCol = count / colTotal;
+  const variance = pOverall * (1 - pOverall) / colTotal;
+  if (variance <= 0) return null;
+  const z = (pCol - pOverall) / Math.sqrt(variance);
+  if (Math.abs(z) < 1.96) return null;
+  return z > 0 ? "up" : "down";
+}
+
 export async function POST(req: NextRequest) {
   const session = await assertAuthed();
   if (!session) {
@@ -310,6 +326,7 @@ export async function POST(req: NextRequest) {
         rowPct: count / rowTotal,
         colPct: count / colTotal,
         totalPct: overall ? count / overall : 0,
+        sig: calcColumnSig(count, colTotal, rowTotals[r] || 0, overall),
       };
     });
 
