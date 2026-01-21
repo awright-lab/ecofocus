@@ -47,6 +47,7 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
   const [filterError, setFilterError] = useState<Record<string, string | null>>({});
   const [percentMode, setPercentMode] = useState<"row" | "col" | "total">("row");
   const [showChart, setShowChart] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -217,6 +218,10 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
     }
     return map;
   }, [result]);
+  const activeFilterCount = useMemo(
+    () => filters.reduce((sum, filter) => sum + filter.values.length, 0),
+    [filters]
+  );
 
   const getPct = (cell?: CrosstabCell) => {
     if (!cell) return 0;
@@ -227,13 +232,13 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-6 lg:grid-cols-[1.15fr,0.85fr]">
+      <div className="grid gap-6 lg:grid-cols-[1fr,1.15fr]">
         <div className="space-y-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Variable Library</p>
-            <h3 className="text-lg font-semibold text-gray-900">Drag variables into the canvas</h3>
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Variables</p>
+            <h3 className="text-lg font-semibold text-gray-900">Pick and assign</h3>
             <p className="text-sm text-gray-600">
-              Search for a variable, then drop it into Row, Column, or Filters.
+              Search the library and add variables to Row, Column, or Filters.
             </p>
           </div>
 
@@ -258,7 +263,7 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
             )}
           </div>
 
-          <div className="max-h-[360px] space-y-2 overflow-y-auto rounded-xl border border-gray-200 bg-white p-2">
+          <div className="max-h-[480px] space-y-2 overflow-y-auto rounded-xl border border-gray-200 bg-white p-2">
             {availableVariables.map((variable) => (
               <div
                 key={variable.db_column}
@@ -312,9 +317,9 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
 
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Assignments</p>
-            <h3 className="text-lg font-semibold text-gray-900">Crosstab canvas</h3>
-            <p className="text-sm text-gray-600">Drop variables into each slot or pick from dropdowns.</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Canvas</p>
+            <h3 className="text-lg font-semibold text-gray-900">Build your crosstab</h3>
+            <p className="text-sm text-gray-600">Drop variables into each slot.</p>
           </div>
 
           <div className="space-y-3">
@@ -361,112 +366,122 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
                 <p className="mt-2 text-sm text-gray-600">Drop a variable here.</p>
               )}
             </div>
+          </div>
 
+          <div className="rounded-xl border border-gray-200 bg-white p-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold text-gray-500">Filters</p>
+                <p className="text-sm text-gray-700">
+                  {filters.length ? `${filters.length} variables selected` : "No filters applied"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFiltersOpen((prev) => !prev)}
+                className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 hover:border-gray-300"
+              >
+                {filtersOpen ? "Close filters" : `Open filters${activeFilterCount ? ` (${activeFilterCount})` : ""}`}
+              </button>
+            </div>
             <div
               onDrop={handleDrop("filter")}
               onDragOver={(event) => event.preventDefault()}
-              className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-3"
+              className="mt-3 rounded-lg border border-dashed border-gray-200 bg-gray-50 p-3 text-sm text-gray-600"
             >
-              <p className="text-xs font-semibold text-gray-700">Filters</p>
-              <p className="mt-2 text-sm text-gray-600">Drop variables here to filter results.</p>
+              Drop variables here to filter.
             </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-800">Row variable</label>
-              <select
-                value={rowVar}
-                onChange={(e) => setRowSelection(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="">Select row var</option>
-                {options}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-800">Column variable</label>
-              <select
-                value={colVar}
-                onChange={(e) => setColSelection(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="">Select column var</option>
-                {options}
-              </select>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/60 p-3">
-            <p className="text-xs font-semibold text-gray-600">Weighting</p>
-            <p className="text-sm text-gray-600">
-              Weighting is not configured for this dataset yet.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Filters</p>
-            <h4 className="text-lg font-semibold text-gray-900">Refine the cut</h4>
-            <p className="text-sm text-gray-600">Add filters to restrict the base.</p>
-          </div>
-        </div>
-        {filters.length === 0 && (
-          <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-            Drop a variable above to add a filter.
-          </div>
-        )}
-        <div className="grid gap-3 md:grid-cols-2">
-          {filters.map((filter) => {
-            const values = filterOptions[filter.variable] || [];
-            const shown = values.slice(0, 40);
-            const hasMore = values.length > 40;
-            return (
-              <div key={filter.variable} className="rounded-xl border border-gray-200 bg-white p-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-500">{filter.variable}</p>
-                    <p className="text-sm text-gray-800">Select values to include</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeFilterVar(filter.variable)}
-                    className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+            {filters.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {filters.map((filter) => (
+                  <span
+                    key={filter.variable}
+                    className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-700"
                   >
-                    Remove
-                  </button>
-                </div>
-                {filterLoading[filter.variable] && (
-                  <p className="mt-2 text-xs text-gray-500">Loading values…</p>
-                )}
-                {!filterLoading[filter.variable] && filterError[filter.variable] && (
-                  <p className="mt-2 text-xs text-red-600">{filterError[filter.variable]}</p>
-                )}
-                {!filterLoading[filter.variable] && !filterError[filter.variable] && (
-                  <div className="mt-2 max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50 p-2 text-xs text-gray-700">
-                    {shown.map((value) => (
-                      <label key={value} className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={filter.values.includes(value)}
-                          onChange={() => toggleFilterValue(filter.variable, value)}
-                          className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <span>{value}</span>
-                      </label>
-                    ))}
-                    {!shown.length && <p className="text-xs text-gray-500">No values found.</p>}
-                    {hasMore && (
-                      <p className="text-xs text-gray-500">Showing first 40 values.</p>
-                    )}
-                  </div>
-                )}
+                    {filter.variable}
+                    <button
+                      type="button"
+                      onClick={() => removeFilterVar(filter.variable)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
               </div>
-            );
-          })}
+            )}
+          </div>
+
+          {filtersOpen && (
+            <div className="space-y-3 rounded-xl border border-gray-200 bg-white p-3">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-emerald-600">Filter values</p>
+                  <p className="text-sm text-gray-600">Choose which values to include.</p>
+                </div>
+              </div>
+              {filters.length === 0 && (
+                <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+                  Drop a variable above to add a filter.
+                </div>
+              )}
+              <div className="grid gap-3 md:grid-cols-2">
+                {filters.map((filter) => {
+                  const values = filterOptions[filter.variable] || [];
+                  const shown = values.slice(0, 40);
+                  const hasMore = values.length > 40;
+                  return (
+                    <div key={filter.variable} className="rounded-xl border border-gray-200 bg-white p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-semibold text-gray-500">{filter.variable}</p>
+                          <p className="text-sm text-gray-800">Select values to include</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeFilterVar(filter.variable)}
+                          className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      {filterLoading[filter.variable] && (
+                        <p className="mt-2 text-xs text-gray-500">Loading values…</p>
+                      )}
+                      {!filterLoading[filter.variable] && filterError[filter.variable] && (
+                        <p className="mt-2 text-xs text-red-600">{filterError[filter.variable]}</p>
+                      )}
+                      {!filterLoading[filter.variable] && !filterError[filter.variable] && (
+                        <div className="mt-2 max-h-40 space-y-2 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50 p-2 text-xs text-gray-700">
+                          {shown.map((value) => (
+                            <label key={value} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={filter.values.includes(value)}
+                                onChange={() => toggleFilterValue(filter.variable, value)}
+                                className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                              />
+                              <span>{value}</span>
+                            </label>
+                          ))}
+                          {!shown.length && <p className="text-xs text-gray-500">No values found.</p>}
+                          {hasMore && (
+                            <p className="text-xs text-gray-500">Showing first 40 values.</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50/60 p-3">
+                <p className="text-xs font-semibold text-gray-600">Weighting</p>
+                <p className="text-sm text-gray-600">
+                  Weighting is not configured for this dataset yet.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
