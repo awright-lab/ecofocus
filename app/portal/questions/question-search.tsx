@@ -205,7 +205,7 @@ export default function QuestionSearch() {
             {!loading && !error && rows.length > 0 && !visibleRows.length && (
               <tr>
                 <td colSpan={4} className="px-3 py-4 text-center text-sm text-gray-500">
-                  All matches are hidden internal variables. Toggle "Show internal variables" to view them.
+                  All matches are hidden internal variables. Toggle Show internal variables to view them.
                 </td>
               </tr>
             )}

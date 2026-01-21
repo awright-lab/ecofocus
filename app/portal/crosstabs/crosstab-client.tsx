@@ -233,15 +233,6 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
     return availableVariables.filter((question) => !isInternalQuestion(question));
   }, [availableVariables, showInternal]);
 
-  const options = useMemo(() => {
-    return visibleVariables.map((q) => (
-      <option key={q.db_column} value={q.db_column}>
-        {q.db_column} — {formatQuestionText(q.question_text, questionMap)}
-        {q.topic ? ` (${q.topic})` : ""}
-      </option>
-    ));
-  }, [visibleVariables, questionMap]);
-
   const rowKeys = useMemo(() => (result ? Object.keys(result.totals.rowTotals) : []), [result]);
   const colKeys = useMemo(() => (result ? Object.keys(result.totals.colTotals) : []), [result]);
   const cellMap = useMemo(() => {

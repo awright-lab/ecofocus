@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSupabase, getServiceSupabase } from "@/lib/supabase/server";
 
-function isMissingRelationError(error: any) {
-  const message = String(error?.message || "");
-  return message.includes("does not exist") && message.includes("relation");
-}
-
 function isMissingColumnError(error: any, column: string) {
   const message = String(error?.message || "");
   return message.includes(`column "${column}"`) && message.includes("does not exist");
