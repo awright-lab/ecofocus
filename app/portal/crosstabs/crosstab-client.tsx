@@ -35,6 +35,7 @@ const PIPE_REGEX = /\[pipe:\s*([A-Za-z0-9_]+)\]/g;
 
 const isInternalQuestion = (question?: Question | null) => {
   if (!question) return false;
+  if (!question.db_column) return false;
   const column = question.db_column.toLowerCase();
   const text = question.question_text.toLowerCase();
   if (column.includes("hidden")) return true;
@@ -217,12 +218,14 @@ export default function CrosstabClient({ questions }: { questions: Question[] })
   };
 
   const availableVariables = useMemo(() => {
-    return query.trim() ? searchResults : questions;
+    const source = query.trim() ? searchResults : questions;
+    return source.filter((question) => Boolean(question.db_column));
   }, [questions, query, searchResults]);
 
   const questionMap = useMemo(() => {
     const map = new Map<string, Question>();
     for (const question of [...questions, ...searchResults]) {
+      if (!question.db_column) continue;
       map.set(question.db_column.toLowerCase(), question);
     }
     return map;

@@ -17,11 +17,13 @@ async function getQuestionOptions() {
           .select("db_column, question_text")
           .order("db_column", { ascending: true })
           .limit(300);
-        return fallback.data || [];
+        return (fallback.data || []).filter(
+          (row) => typeof row.db_column === "string" && row.db_column.trim()
+        );
       }
       return [];
     }
-    return data || [];
+    return (data || []).filter((row) => typeof row.db_column === "string" && row.db_column.trim());
   } catch {
     return [];
   }

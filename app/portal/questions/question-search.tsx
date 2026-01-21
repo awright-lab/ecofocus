@@ -14,6 +14,7 @@ const PIPE_REGEX = /\[pipe:\s*([A-Za-z0-9_]+)\]/g;
 
 const isInternalQuestion = (row?: QuestionRow | null) => {
   if (!row) return false;
+  if (!row.db_column) return false;
   const column = row.db_column.toLowerCase();
   const text = row.question_text.toLowerCase();
   if (column.includes("hidden")) return true;
@@ -84,6 +85,7 @@ export default function QuestionSearch() {
   const rowMap = useMemo(() => {
     const map = new Map<string, QuestionRow>();
     for (const row of rows) {
+      if (!row.db_column) continue;
       map.set(row.db_column.toLowerCase(), row);
     }
     return map;
@@ -98,8 +100,9 @@ export default function QuestionSearch() {
   };
 
   const visibleRows = useMemo(() => {
-    if (showInternal) return rows;
-    return rows.filter((row) => !isInternalQuestion(row));
+    const filtered = rows.filter((row) => Boolean(row.db_column));
+    if (showInternal) return filtered;
+    return filtered.filter((row) => !isInternalQuestion(row));
   }, [rows, showInternal]);
 
   const summary = useMemo(() => {
