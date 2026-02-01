@@ -14,6 +14,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
 export const dynamicParams = true
+const SITE_URL = "https://ecofocusresearch.com"
 
 export async function generateMetadata({
   params,
@@ -26,16 +27,36 @@ export async function generateMetadata({
   const sp = (await searchParams) || {}
   const preview = Array.isArray(sp.preview) ? sp.preview[0] : (sp.preview as string | undefined)
   const post = await getPostBySlug(slug, preview)
+  const canonical = `/blog/${slug}`
+  const isPreview = Boolean(preview)
+  const coverUrl = post?.coverImage?.url
+  const imageUrl = coverUrl
+    ? coverUrl.startsWith("http")
+      ? coverUrl
+      : `${SITE_URL}${coverUrl}`
+    : undefined
+
   return {
     title: post ? `${post.title} | EcoFocus Blog` : 'EcoFocus Blog',
     description: post?.excerpt || 'EcoFocus insights on sustainability and growth.',
+    alternates: { canonical },
     openGraph: post
       ? {
           title: post.title,
           description: post.excerpt || '',
-          images: post.coverImage?.url ? [{ url: post.coverImage.url }] : undefined,
+          url: `${SITE_URL}${canonical}`,
+          images: imageUrl ? [{ url: imageUrl }] : undefined,
         }
       : undefined,
+    twitter: post
+      ? {
+          card: "summary_large_image",
+          title: post.title,
+          description: post.excerpt || "",
+          images: imageUrl ? [imageUrl] : undefined,
+        }
+      : undefined,
+    robots: isPreview ? { index: false, follow: false } : { index: true, follow: true },
   }
 }
 
@@ -290,7 +311,6 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
-
 
 
 
