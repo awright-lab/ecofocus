@@ -181,11 +181,23 @@ function ChartBlock({ chart }: { chart: ChartData }) {
         ) : null}
       </div>
 
+      <div className="flex flex-wrap gap-3">
+        {chart.rows.map((row, idx) => (
+          <div key={`${row}-${idx}`} className="flex items-center gap-2 text-[11px] text-gray-600">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ backgroundColor: palette[idx % palette.length] }}
+            />
+            <span>{row}</span>
+          </div>
+        ))}
+      </div>
+
       <div className="space-y-3">
         {chart.cols.map((col, colIdx) => (
           <div key={`${col}-${colIdx}`} className="space-y-1">
             <div className="text-xs font-semibold text-gray-700">{col}</div>
-            <div className="flex h-6 w-full overflow-hidden rounded-full bg-gray-100">
+            <div className="flex h-7 w-full overflow-hidden rounded-full bg-gray-100">
               {chart.rows.map((row, rowIdx) => {
                 const cell = cellMap.get(`${row}|||${col}`);
                 const total = colTotals.get(col) || 0;
@@ -200,27 +212,18 @@ function ChartBlock({ chart }: { chart: ChartData }) {
                 return (
                   <div
                     key={`${row}-${col}-${rowIdx}`}
+                    className="relative flex items-center justify-center text-[10px] font-semibold text-white"
                     style={{
                       width: `${widthPct}%`,
                       backgroundColor: palette[rowIdx % palette.length],
                     }}
                     title={`${row}: ${widthPct}% (${cell?.count || 0})`}
-                  />
+                  >
+                    {widthPct >= 8 ? `${widthPct}%` : null}
+                  </div>
                 );
               })}
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        {chart.rows.map((row, idx) => (
-          <div key={`${row}-${idx}`} className="flex items-center gap-2 text-[11px] text-gray-600">
-            <span
-              className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: palette[idx % palette.length] }}
-            />
-            <span>{row}</span>
           </div>
         ))}
       </div>
