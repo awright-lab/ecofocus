@@ -124,10 +124,16 @@ function validateToolCall(call: ToolCall): string | null {
   return null;
 }
 
+type SearchGroups = {
+  questions: Array<Record<string, any>>;
+  related: Array<Record<string, any>>;
+  technical: Array<Record<string, any>>;
+};
+
 async function fetchSearch(
   req: NextRequest,
   query: string
-): Promise<Array<{ db_column: string; question_text: string; topic?: string }>> {
+): Promise<{ groups: SearchGroups; suggestions?: string[] }> {
   const url = new URL(`/api/portal/questions/search?q=${encodeURIComponent(query)}`, req.nextUrl.origin);
   const res = await fetch(url, {
     headers: { cookie: req.headers.get("cookie") || "" },
@@ -137,7 +143,10 @@ async function fetchSearch(
   if (!res.ok) {
     throw new Error(data?.error || "Question search failed.");
   }
-  return data?.data || [];
+  return {
+    groups: data?.groups || { questions: [], related: [], technical: [] },
+    suggestions: data?.suggestions || [],
+  };
 }
 
 async function fetchCrosstab(
@@ -232,22 +241,30 @@ export async function POST(req: NextRequest) {
     cells: Array<{ row: string; col: string; count: number; colPct?: number }>;
     base: number;
   } = null;
+  let groups: SearchGroups | null = null;
 
   try {
     if (toolCall.tool === "searchQuestions") {
       const q = toolCall.args.q.trim();
       variablesUsed = { q };
       const results = await fetchSearch(req, q);
-      if (!results.length) {
+      groups = results.groups;
+      const questions = results.groups.questions || [];
+      const related = results.groups.related || [];
+      const suggestions = results.suggestions || [];
+      if (!questions.length && !related.length) {
         responseText = `No questions found for "${q}". Try a different keyword.`;
+        if (suggestions.length) {
+          responseText += `\nSuggestions: ${suggestions.slice(0, 6).join(", ")}`;
+        }
       } else {
-        const items = results.slice(0, 8);
+        const items = questions.slice(0, 8);
         responseText = [
           `Top matches for "${q}":`,
-          ...items.map(
-            (item) =>
-              `- ${item.db_column}: ${item.question_text || "Question text unavailable."}`
-          ),
+          ...items.map((item) => {
+            const label = item.display_text || item.question_text || item.source_header || item.question_code || item.db_column;
+            return `- ${item.question_code || item.db_column}: ${label}`;
+          }),
         ].join("\n");
       }
     } else if (toolCall.tool === "runCrosstab") {
@@ -263,8 +280,12 @@ export async function POST(req: NextRequest) {
       ) as string[];
       const rowMeta = await fetchSearch(req, rowVar);
       const colMeta = await fetchSearch(req, colVar);
-      const rowQuestion = rowMeta.find((item) => item.db_column === rowVar)?.question_text;
-      const colQuestion = colMeta.find((item) => item.db_column === colVar)?.question_text;
+      const rowCandidates = [...rowMeta.groups.questions, ...rowMeta.groups.related];
+      const colCandidates = [...colMeta.groups.questions, ...colMeta.groups.related];
+      const rowMatch = rowCandidates.find((item) => item.db_column === rowVar);
+      const colMatch = colCandidates.find((item) => item.db_column === colVar);
+      const rowQuestion = rowMatch?.display_text || rowMatch?.question_text || rowMatch?.source_header;
+      const colQuestion = colMatch?.display_text || colMatch?.question_text || colMatch?.source_header;
 
       responseText = [
         `Crosstab results`,
@@ -297,13 +318,16 @@ export async function POST(req: NextRequest) {
       const invalid = messageText.split(":").pop()?.trim();
       if (invalid) {
         const matches = await fetchSearch(req, invalid);
-        if (matches.length) {
+        groups = matches.groups;
+        const list = [...matches.groups.questions, ...matches.groups.related];
+        if (list.length) {
           responseText = [
             `Invalid column: ${invalid}`,
             "Did you mean:",
-            ...matches.slice(0, 6).map(
-              (item) => `- ${item.db_column}: ${item.question_text || "Question text unavailable."}`
-            ),
+            ...list.slice(0, 6).map((item) => {
+              const label = item.display_text || item.question_text || item.source_header || item.question_code || item.db_column;
+              return `- ${item.db_column || item.question_code}: ${label}`;
+            }),
           ].join("\n");
         } else {
           responseText = `${messageText}\nTry searching in /portal/questions.`;
@@ -330,5 +354,6 @@ export async function POST(req: NextRequest) {
     variablesUsed,
     success,
     chart,
+    groups,
   });
 }

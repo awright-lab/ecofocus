@@ -21,10 +21,26 @@ type ChartData = {
   base: number;
 };
 
+type SearchResult = {
+  db_column?: string;
+  question_code?: string;
+  question_text?: string;
+  source_header?: string;
+  topic?: string;
+  display_text?: string;
+};
+
+type SearchGroups = {
+  questions: SearchResult[];
+  related: SearchResult[];
+  technical: SearchResult[];
+};
+
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   chart?: ChartData | null;
+  groups?: SearchGroups | null;
 };
 
 export default function PortalChatPage() {
@@ -67,9 +83,10 @@ export default function PortalChatPage() {
           ? String(data.message)
           : String(data?.error || "Something went wrong. Please try again.");
       const chart = data?.chart || null;
+      const groups = data?.groups || null;
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: reply, chart },
+        { role: "assistant", content: reply, chart, groups },
       ]);
     } catch {
       setMessages((prev) => [
@@ -112,6 +129,11 @@ export default function PortalChatPage() {
             {msg.role === "assistant" && msg.chart ? (
               <div className="mt-4 rounded-xl border border-gray-200 bg-white p-3 text-xs text-gray-700">
                 <ChartBlock chart={msg.chart} />
+              </div>
+            ) : null}
+            {msg.role === "assistant" && msg.groups ? (
+              <div className="mt-4 rounded-xl border border-gray-200 bg-white p-3 text-xs text-gray-700">
+                <SearchResults groups={msg.groups} />
               </div>
             ) : null}
           </div>
@@ -238,6 +260,78 @@ function ChartBlock({ chart }: { chart: ChartData }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SearchResults({ groups }: { groups: SearchGroups }) {
+  const [showRelated, setShowRelated] = useState(false);
+  const [showTechnical, setShowTechnical] = useState(false);
+
+  const renderItem = (item: SearchResult) => {
+    const title =
+      item.display_text ||
+      item.question_text ||
+      item.source_header ||
+      item.question_code ||
+      item.db_column ||
+      "Untitled";
+    const meta = [item.question_code, item.topic].filter(Boolean).join(" • ");
+    return (
+      <div key={`${item.db_column || item.question_code}-${title}`} className="rounded-lg border border-gray-100 bg-white p-2">
+        <div className="text-sm font-semibold text-gray-900">{title}</div>
+        <div className="text-[11px] text-gray-500">{meta}</div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+          Survey questions
+        </div>
+        <div className="mt-2 space-y-2">
+          {(groups.questions || []).slice(0, 8).map(renderItem)}
+          {!groups.questions?.length ? (
+            <div className="text-xs text-gray-500">No survey questions found.</div>
+          ) : null}
+        </div>
+      </div>
+
+      {groups.related?.length ? (
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowRelated((prev) => !prev)}
+            className="text-xs font-semibold text-emerald-700"
+          >
+            {showRelated ? "Hide related results" : "Show related results"}
+          </button>
+          {showRelated ? (
+            <div className="mt-2 space-y-2">
+              {groups.related.slice(0, 8).map(renderItem)}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      {groups.technical?.length ? (
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowTechnical((prev) => !prev)}
+            className="text-xs font-semibold text-gray-500"
+          >
+            {showTechnical ? "Hide advanced" : "Advanced"}
+          </button>
+          {showTechnical ? (
+            <div className="mt-2 space-y-2">
+              {groups.technical.slice(0, 8).map(renderItem)}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
