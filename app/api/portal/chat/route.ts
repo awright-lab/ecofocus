@@ -269,8 +269,12 @@ export async function POST(req: NextRequest) {
       variablesUsed = { rowVar, colVar, filters: filters || null };
 
       const data = await fetchCrosstab(req, toolCall.args);
-      const rows = Array.from(new Set((data.cells || []).map((cell: any) => String(cell.row))));
-      const cols = Array.from(new Set((data.cells || []).map((cell: any) => String(cell.col))));
+      const rows = Array.from(
+        new Set((data.cells || []).map((cell: any) => String(cell.row)))
+      ) as string[];
+      const cols = Array.from(
+        new Set((data.cells || []).map((cell: any) => String(cell.col)))
+      ) as string[];
       const cellMap = new Map<string, number>();
       for (const cell of data.cells || []) {
         cellMap.set(`${cell.row}|||${cell.col}`, cell.count || 0);
