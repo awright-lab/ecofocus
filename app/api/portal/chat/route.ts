@@ -16,13 +16,14 @@ const HELP_MESSAGE = [
   "- Crosstabs: \"run q20br13 by age_group\"",
   "",
   "Tip: Use database column codes (e.g., q20br13, age_group).",
+  "You can browse the full list in /portal/questions.",
 ].join("\n");
 
 function asJsonResponse(body: Record<string, any>, status = 200) {
   return NextResponse.json(body, { status, headers: NOINDEX_HEADERS });
 }
 
-async function assertAuthed(req: NextRequest) {
+async function assertAuthed() {
   const supabase = await getServerSupabase();
   const { data, error } = await supabase.auth.getSession();
   if (error || !data?.session) {
@@ -70,6 +71,9 @@ function extractQuery(message: string) {
 
 function inferTool(message: string): ToolCall {
   const lower = message.toLowerCase();
+  if (/\bvalid columns\b|\blist columns\b|\bshow columns\b|\bcolumn list\b/.test(lower)) {
+    return { tool: "help" };
+  }
   if (/\bhelp\b|\bwhat can you do\b|\bhow do i\b/.test(lower)) {
     return { tool: "help" };
   }
@@ -92,6 +96,11 @@ function inferTool(message: string): ToolCall {
 
   if (/\bfind\b|\bsearch\b|\bquestion\b|\bquestions\b/.test(lower)) {
     return { tool: "searchQuestions", args: { q: extractQuery(message) } };
+  }
+
+  const trimmed = message.trim();
+  if (/^[a-z][a-z0-9_]+$/i.test(trimmed)) {
+    return { tool: "searchQuestions", args: { q: trimmed } };
   }
 
   return { tool: "help" };
@@ -212,7 +221,7 @@ async function logChat({
 }
 
 export async function POST(req: NextRequest) {
-  const session = await assertAuthed(req);
+  const session = await assertAuthed();
   if (!session) {
     return asJsonResponse({ error: "Unauthorized" }, 401);
   }
@@ -299,7 +308,28 @@ export async function POST(req: NextRequest) {
     }
   } catch (err: any) {
     success = false;
-    responseText = String(err?.message || "Something went wrong.");
+    const messageText = String(err?.message || "Something went wrong.");
+    if (toolCall.tool === "runCrosstab" && messageText.toLowerCase().includes("invalid column")) {
+      const invalid = messageText.split(":").pop()?.trim();
+      if (invalid) {
+        const matches = await fetchSearch(req, invalid);
+        if (matches.length) {
+          responseText = [
+            `Invalid column: ${invalid}`,
+            "Did you mean:",
+            ...matches.slice(0, 6).map(
+              (item) => `- ${item.db_column}: ${item.question_text || "Question text unavailable."}`
+            ),
+          ].join("\n");
+        } else {
+          responseText = `${messageText}\nTry searching in /portal/questions.`;
+        }
+      } else {
+        responseText = `${messageText}\nTry searching in /portal/questions.`;
+      }
+    } else {
+      responseText = messageText;
+    }
   }
 
   await logChat({

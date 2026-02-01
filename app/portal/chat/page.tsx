@@ -48,7 +48,7 @@ export default function PortalChatPage() {
           ? String(data.message)
           : String(data?.error || "Something went wrong. Please try again.");
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
-    } catch (err: any) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
