@@ -3,9 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 
+type ChartCell = {
+  row: string;
+  col: string;
+  count: number;
+  colPct?: number;
+};
+
+type ChartData = {
+  rowVar: string;
+  colVar: string;
+  rowQuestion?: string;
+  colQuestion?: string;
+  rows: string[];
+  cols: string[];
+  cells: ChartCell[];
+  base: number;
+};
+
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
+  chart?: ChartData | null;
 };
 
 export default function PortalChatPage() {
@@ -47,7 +66,11 @@ export default function PortalChatPage() {
         res.ok && data?.message
           ? String(data.message)
           : String(data?.error || "Something went wrong. Please try again.");
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      const chart = data?.chart || null;
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: reply, chart },
+      ]);
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -86,6 +109,11 @@ export default function PortalChatPage() {
             }`}
           >
             <div className="whitespace-pre-wrap">{msg.content}</div>
+            {msg.role === "assistant" && msg.chart ? (
+              <div className="mt-4 rounded-xl border border-gray-200 bg-white p-3 text-xs text-gray-700">
+                <ChartBlock chart={msg.chart} />
+              </div>
+            ) : null}
           </div>
         ))}
         {loading ? (
@@ -111,6 +139,91 @@ export default function PortalChatPage() {
           Send
         </button>
       </form>
+    </div>
+  );
+}
+
+function ChartBlock({ chart }: { chart: ChartData }) {
+  const palette = [
+    "#10b981",
+    "#3b82f6",
+    "#f59e0b",
+    "#8b5cf6",
+    "#ef4444",
+    "#14b8a6",
+    "#6366f1",
+    "#f97316",
+  ];
+
+  const cellMap = new Map<string, ChartCell>();
+  const colTotals = new Map<string, number>();
+
+  for (const cell of chart.cells) {
+    cellMap.set(`${cell.row}|||${cell.col}`, cell);
+    colTotals.set(cell.col, (colTotals.get(cell.col) || 0) + cell.count);
+  }
+
+  if (!chart.cols.length || !chart.rows.length) {
+    return <div>No chart data available.</div>;
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <div className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
+          Crosstab chart
+        </div>
+        <div className="text-sm font-semibold text-gray-900">
+          {chart.rowVar} by {chart.colVar}
+        </div>
+        {chart.base ? (
+          <div className="text-xs text-gray-500">Base n: {chart.base}</div>
+        ) : null}
+      </div>
+
+      <div className="space-y-3">
+        {chart.cols.map((col, colIdx) => (
+          <div key={`${col}-${colIdx}`} className="space-y-1">
+            <div className="text-xs font-semibold text-gray-700">{col}</div>
+            <div className="flex h-6 w-full overflow-hidden rounded-full bg-gray-100">
+              {chart.rows.map((row, rowIdx) => {
+                const cell = cellMap.get(`${row}|||${col}`);
+                const total = colTotals.get(col) || 0;
+                const pct =
+                  cell?.colPct != null
+                    ? cell.colPct
+                    : total
+                    ? (cell?.count || 0) / total
+                    : 0;
+                const widthPct = Math.max(0, Math.round(pct * 1000) / 10);
+                if (!widthPct) return null;
+                return (
+                  <div
+                    key={`${row}-${col}-${rowIdx}`}
+                    style={{
+                      width: `${widthPct}%`,
+                      backgroundColor: palette[rowIdx % palette.length],
+                    }}
+                    title={`${row}: ${widthPct}% (${cell?.count || 0})`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        {chart.rows.map((row, idx) => (
+          <div key={`${row}-${idx}`} className="flex items-center gap-2 text-[11px] text-gray-600">
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ backgroundColor: palette[idx % palette.length] }}
+            />
+            <span>{row}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

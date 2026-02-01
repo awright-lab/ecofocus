@@ -160,39 +160,6 @@ async function fetchCrosstab(
   return data;
 }
 
-function formatTable(
-  rows: string[],
-  cols: string[],
-  cellMap: Map<string, number>
-) {
-  const header = ["Row \\ Col", ...cols];
-  const widths = header.map((value) => value.length);
-  for (const row of rows) {
-    widths[0] = Math.max(widths[0], row.length);
-  }
-  cols.forEach((col, idx) => {
-    widths[idx + 1] = Math.max(widths[idx + 1], col.length);
-  });
-
-  const lines: string[] = [];
-  const formatRow = (values: string[]) =>
-    values.map((val, idx) => val.padEnd(widths[idx])).join(" | ");
-
-  lines.push(formatRow(header));
-  lines.push(widths.map((w) => "-".repeat(w)).join("-|-"));
-
-  for (const row of rows) {
-    const rowValues = [row];
-    for (const col of cols) {
-      const key = `${row}|||${col}`;
-      rowValues.push(String(cellMap.get(key) || 0));
-    }
-    lines.push(formatRow(rowValues));
-  }
-
-  return lines.join("\n");
-}
-
 async function logChat({
   userId,
   message,
@@ -255,6 +222,16 @@ export async function POST(req: NextRequest) {
   let responseText = HELP_MESSAGE;
   let success = true;
   let variablesUsed: Record<string, any> | null = null;
+  let chart: null | {
+    rowVar: string;
+    colVar: string;
+    rowQuestion?: string;
+    colQuestion?: string;
+    rows: string[];
+    cols: string[];
+    cells: Array<{ row: string; col: string; count: number; colPct?: number }>;
+    base: number;
+  } = null;
 
   try {
     if (toolCall.tool === "searchQuestions") {
@@ -284,25 +261,32 @@ export async function POST(req: NextRequest) {
       const cols = Array.from(
         new Set((data.cells || []).map((cell: any) => String(cell.col)))
       ) as string[];
-      const cellMap = new Map<string, number>();
-      for (const cell of data.cells || []) {
-        cellMap.set(`${cell.row}|||${cell.col}`, cell.count || 0);
-      }
-
       const rowMeta = await fetchSearch(req, rowVar);
       const colMeta = await fetchSearch(req, colVar);
       const rowQuestion = rowMeta.find((item) => item.db_column === rowVar)?.question_text;
       const colQuestion = colMeta.find((item) => item.db_column === colVar)?.question_text;
 
-      const table = formatTable(rows, cols, cellMap);
       responseText = [
         `Crosstab results`,
         `Row: ${rowVar}${rowQuestion ? ` — ${rowQuestion}` : ""}`,
         `Column: ${colVar}${colQuestion ? ` — ${colQuestion}` : ""}`,
         `Base n: ${data.totals?.overall ?? 0}`,
-        "",
-        table || "No cells returned.",
       ].join("\n");
+      chart = {
+        rowVar,
+        colVar,
+        rowQuestion,
+        colQuestion,
+        rows,
+        cols,
+        cells: (data.cells || []).map((cell: any) => ({
+          row: String(cell.row),
+          col: String(cell.col),
+          count: Number(cell.count || 0),
+          colPct: typeof cell.colPct === "number" ? cell.colPct : undefined,
+        })),
+        base: Number(data.totals?.overall ?? 0),
+      };
     } else {
       responseText = HELP_MESSAGE;
     }
@@ -345,5 +329,6 @@ export async function POST(req: NextRequest) {
     toolUsed: toolCall.tool,
     variablesUsed,
     success,
+    chart,
   });
 }
