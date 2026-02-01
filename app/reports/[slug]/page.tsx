@@ -13,10 +13,11 @@ const SITE_URL = "https://ecofocusresearch.com";
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const report = await getReportBySlug(params.slug);
-  const canonical = `/reports/${params.slug}`;
+  const { slug } = await params;
+  const report = await getReportBySlug(slug);
+  const canonical = `/reports/${slug}`;
 
   if (!report) {
     return {
