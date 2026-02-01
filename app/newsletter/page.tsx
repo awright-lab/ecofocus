@@ -5,10 +5,36 @@ import Footer from "@/components/Footer";
 import SubscribeStrip from "@/components/blog/SubscribeStrip";
 import Image from "next/image";
 
+const SITE_URL = "https://ecofocusresearch.com";
+
 export const metadata: Metadata = {
   title: "Newsletter — EcoFocus Insights",
   description:
     "Twice-monthly, fast reads for brand, strategy, and media teams. Data-backed trends, proof points, and creative springboards from EcoFocus.",
+  alternates: { canonical: "/newsletter" },
+  openGraph: {
+    title: "Newsletter — EcoFocus Insights",
+    description:
+      "Twice-monthly, fast reads for brand, strategy, and media teams. Data-backed trends, proof points, and creative springboards from EcoFocus.",
+    url: `${SITE_URL}/newsletter`,
+    type: "website",
+    siteName: "EcoFocus Research",
+    images: [
+      {
+        url: `${SITE_URL}/images/og/og-default.png`,
+        width: 1200,
+        height: 630,
+        alt: "EcoFocus Research Newsletter",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Newsletter — EcoFocus Insights",
+    description:
+      "Twice-monthly, fast reads for brand, strategy, and media teams. Data-backed trends, proof points, and creative springboards from EcoFocus.",
+    images: [`${SITE_URL}/images/og/og-default.png`],
+  },
 };
 
 export default function NewsletterPage() {

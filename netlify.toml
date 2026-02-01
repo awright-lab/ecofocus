@@ -5,6 +5,23 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Redirect old domain to primary (page-to-page)
+[[redirects]]
+  from = "https://ecofocusworldwide.com/*"
+  to = "https://ecofocusresearch.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.ecofocusworldwide.com/*"
+  to = "https://ecofocusresearch.com/:splat"
+  status = 301
+  force = true
+
+# Verification checklist:
+# - curl -I https://ecofocusworldwide.com/newsletter
+# - Expect: 301 + Location: https://ecofocusresearch.com/newsletter
+
 [[redirects]]
   from = "/_next/*"
   to = "/_next/:splat"

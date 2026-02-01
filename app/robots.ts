@@ -2,7 +2,7 @@
 import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = "https://www.ecofocusworldwide.com"; // <-- UPDATE
+  const base = "https://ecofocusresearch.com";
   return {
     rules: {
       userAgent: "*",

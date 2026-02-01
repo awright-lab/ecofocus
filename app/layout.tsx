@@ -9,7 +9,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 // 2) Site constants
-const SITE_URL = "https://ecofocusresearch.netlify.app";
+const SITE_URL = "https://ecofocusresearch.com";
 const SITE_NAME = "EcoFocus Research";
 const SITE_DESC =
   "EcoFocus provides sustainability research, custom studies, and actionable insights to help businesses make informed decisions.";
@@ -34,7 +34,6 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESC,
-  alternates: { canonical: "/" },
   robots: { index: true, follow: true },
   openGraph: {
     type: "website",
@@ -198,7 +197,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
 
 

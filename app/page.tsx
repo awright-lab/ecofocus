@@ -16,7 +16,7 @@ import QuickStats from "./home/QuickStats";
 import SayDoGapSection from "./home/SayDoGapSection";
 import InteractiveDashboardShowcase from "./home/InteractiveDashboardShowcase";
 
-const SITE_URL = "https://ecofocusresearch.netlify.app";
+const SITE_URL = "https://ecofocusresearch.com";
 
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
@@ -99,7 +99,6 @@ export default function HomePage() {
     </>
   );
 }
-
 
 
 
