@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
  *  CONFIG — your video is set here
  * ================================
  */
-const SITE_URL = "https://ecofocusresearch.netlify.app";
+const SITE_URL = "https://ecofocusresearch.com";
 const PAGE_PATH = "/demo";
 
 const PAGE_TITLE = "EcoFocus Demo";

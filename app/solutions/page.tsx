@@ -16,7 +16,7 @@ import DashboardIntro from "./DashboardIntro";
 
 export const dynamic = "force-dynamic";
 
-const SITE_URL = "https://ecofocusresearch.netlify.app";
+const SITE_URL = "https://ecofocusresearch.com";
 
 /* -------------------- SEO -------------------- */
 export const metadata: Metadata = {
@@ -143,7 +143,6 @@ export default function SolutionsPage() {
     </>
   );
 }
-
 
 
 

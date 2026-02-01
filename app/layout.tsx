@@ -99,6 +99,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     ],
   };
 
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    url: SITE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${SITE_URL}/reports?query={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <html
       lang="en"
@@ -112,6 +124,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           type="application/ld+json"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <Script
+          id="website-jsonld"
+          type="application/ld+json"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
 
         {/* Pre-config HubSpot queue so Collected Forms ignores our custom forms */}
@@ -197,7 +215,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
 
 

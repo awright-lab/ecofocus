@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import ContactForm from "@/components/contact/ContactForm";
 import ContactHero from "./ContactHero";
 
-const SITE_URL = "https://ecofocusresearch.netlify.app";
+const SITE_URL = "https://ecofocusresearch.com";
 
 /* ---------------- SEO ---------------- */
 export const metadata: Metadata = {
@@ -220,7 +220,6 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
     </details>
   );
 }
-
 
 
 

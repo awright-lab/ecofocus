@@ -8,17 +8,28 @@ import { BrandsByVertical } from "./BrandsByVertical";
 import { PricingTable } from "./PricingTable";
 import { GetResultsCard, MethodsSnapshotCard } from "./Callouts";
 
+const SITE_URL = "https://ecofocusresearch.com";
+
 export const metadata: Metadata = {
   title:
     "Decoding the Purpose-Driven Shopper: 2025 Brand Benchmark | EcoFocus Research",
   description:
     "Awareness • Purchase Behavior • Eco-Friendly Perception across 41 brands in 4 verticals. Explore packages, pricing, and methods (N=4,000 balanced to US Census).",
+  alternates: { canonical: "/brands" },
   openGraph: {
     title: "Decoding the Purpose-Driven Shopper: 2025 Brand Benchmark",
     description:
       "Awareness • Purchase Behavior • Eco-Friendly Perception. N=4,000 balanced to US Census across CPG, Soft Goods, Homeowners, and Pets.",
-    images: ["/og/brand-benchmark-2025.png"],
+    url: `${SITE_URL}/brands`,
+    images: [`${SITE_URL}/og/brand-benchmark-2025.png`],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Decoding the Purpose-Driven Shopper: 2025 Brand Benchmark",
+    description:
+      "Awareness • Purchase Behavior • Eco-Friendly Perception. N=4,000 balanced to US Census across CPG, Soft Goods, Homeowners, and Pets.",
+    images: [`${SITE_URL}/og/brand-benchmark-2025.png`],
   },
 };
 

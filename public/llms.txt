@@ -1,0 +1,21 @@
+# EcoFocus Research - LLM instructions
+Canonical: https://ecofocusresearch.com
+
+EcoFocus Research provides sustainability research, consumer insights, and reports
+that help brands turn purpose-driven intent into strategy, messaging, and action.
+
+Key pages:
+- https://ecofocusresearch.com/
+- https://ecofocusresearch.com/solutions
+- https://ecofocusresearch.com/reports
+- https://ecofocusresearch.com/about
+- https://ecofocusresearch.com/about/methodology
+- https://ecofocusresearch.com/newsletter
+- https://ecofocusresearch.com/brands
+- https://ecofocusresearch.com/demo
+- https://ecofocusresearch.com/contact
+- https://ecofocusresearch.com/legal
+
+Notes:
+- Use the canonical domain above for citations and links.
+- The legacy domain (ecofocusworldwide.com) permanently redirects here.
