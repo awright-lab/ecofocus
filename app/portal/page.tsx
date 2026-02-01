@@ -5,6 +5,7 @@ export default function PortalHomePage() {
     { href: "/portal/dashboard", title: "Dashboard", desc: "Saved views, recent crosstabs, segments." },
     { href: "/portal/questions", title: "Question Explorer", desc: "Search question text and variable names." },
     { href: "/portal/crosstabs", title: "Crosstabs", desc: "Pick row/column variables and get counts & percents." },
+    { href: "/portal/chat", title: "Chat", desc: "Ask about questions or run quick crosstabs." },
   ];
 
   return (

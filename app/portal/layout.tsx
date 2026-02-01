@@ -35,6 +35,7 @@ export default async function PortalLayout({
     { href: "/portal/dashboard", label: "Dashboard" },
     { href: "/portal/questions", label: "Questions" },
     { href: "/portal/crosstabs", label: "Crosstabs" },
+    { href: "/portal/chat", label: "Chat" },
   ];
 
   return (
