@@ -84,17 +84,6 @@ export default function PortalChatPage() {
     }
   }
 
-  const sortedRows = [...chart.rows].sort((a, b) => {
-    const aNum = Number(a);
-    const bNum = Number(b);
-    const aValid = Number.isFinite(aNum);
-    const bValid = Number.isFinite(bNum);
-    if (aValid && bValid) return aNum - bNum;
-    if (aValid) return -1;
-    if (bValid) return 1;
-    return a.localeCompare(b);
-  });
-
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
@@ -173,6 +162,17 @@ function ChartBlock({ chart }: { chart: ChartData }) {
     cellMap.set(`${cell.row}|||${cell.col}`, cell);
     colTotals.set(cell.col, (colTotals.get(cell.col) || 0) + cell.count);
   }
+
+  const sortedRows = [...chart.rows].sort((a, b) => {
+    const aNum = Number(a);
+    const bNum = Number(b);
+    const aValid = Number.isFinite(aNum);
+    const bValid = Number.isFinite(bNum);
+    if (aValid && bValid) return aNum - bNum;
+    if (aValid) return -1;
+    if (bValid) return 1;
+    return a.localeCompare(b);
+  });
 
   if (!chart.cols.length || !chart.rows.length) {
     return <div>No chart data available.</div>;
