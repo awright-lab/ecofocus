@@ -18,6 +18,7 @@ const FALLBACK_TABLES = [
 ];
 
 const MAX_ROWS = 5000;
+const PAGE_SIZE = 1000;
 const UUID_CHUNK = 500;
 const QUESTION_LOOKUP_TABLES = ["responses_2025_question_lookup"];
 
@@ -91,34 +92,50 @@ async function queryFromView(
   colVar: string,
   filters: CrosstabBody["filters"]
 ) {
-  const query = applyFiltersToQuery(
-    admin.from("responses_2025_all").select(`${rowVar}, ${colVar}`).limit(MAX_ROWS),
-    filters
-  );
-  const { data, error } = await query;
-  if (error) {
-    if (isMissingRelationError(error)) {
-      return { kind: "missing_view" as const };
+  const rows: Array<Record<string, any>> = [];
+  for (let from = 0; from < MAX_ROWS; from += PAGE_SIZE) {
+    const query = applyFiltersToQuery(
+      admin
+        .from("responses_2025_all")
+        .select(`${rowVar}, ${colVar}`)
+        .range(from, from + PAGE_SIZE - 1),
+      filters
+    );
+    const { data, error } = await query;
+    if (error) {
+      if (isMissingRelationError(error)) {
+        return { kind: "missing_view" as const };
+      }
+      if (isMissingColumnError(error, rowVar) || isMissingColumnError(error, colVar)) {
+        throw new Error(`Invalid column: ${isMissingColumnError(error, rowVar) ? rowVar : colVar}`);
+      }
+      throw new Error(error.message || "Query failed");
     }
-    if (isMissingColumnError(error, rowVar) || isMissingColumnError(error, colVar)) {
-      throw new Error(`Invalid column: ${isMissingColumnError(error, rowVar) ? rowVar : colVar}`);
-    }
-    throw new Error(error.message || "Query failed");
+    rows.push(...(data || []));
+    if (!data || data.length < PAGE_SIZE) break;
   }
-  return { kind: "ok" as const, data: data || [] };
+  return { kind: "ok" as const, data: rows };
 }
 
 async function fetchUuids(admin: ReturnType<typeof getServiceSupabase>) {
-  const { data, error } = await admin.from("responses_2025_core").select("uuid").limit(MAX_ROWS);
-  if (error) {
-    if (isMissingRelationError(error)) {
-      throw new Error(
-        "Missing table/view: responses_2025_core. Create responses_2025_all or ensure core+p01..p06 exist."
-      );
+  const uuids: string[] = [];
+  for (let from = 0; from < MAX_ROWS; from += PAGE_SIZE) {
+    const { data, error } = await admin
+      .from("responses_2025_core")
+      .select("uuid")
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) {
+      if (isMissingRelationError(error)) {
+        throw new Error(
+          "Missing table/view: responses_2025_core. Create responses_2025_all or ensure core+p01..p06 exist."
+        );
+      }
+      throw new Error(error.message || "Failed to load core UUIDs");
     }
-    throw new Error(error.message || "Failed to load core UUIDs");
+    uuids.push(...(data || []).map((row) => (row as any).uuid).filter(Boolean));
+    if (!data || data.length < PAGE_SIZE) break;
   }
-  return (data || []).map((row) => (row as any).uuid).filter(Boolean);
+  return uuids;
 }
 
 async function findTableForColumn(
