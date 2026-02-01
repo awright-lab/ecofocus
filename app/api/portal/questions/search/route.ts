@@ -122,6 +122,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message || "Query failed" }, { status: 500 });
     }
 
+    const aliasOr = buildTokenOr(tokens, ["keyword", "db_column", "question_code"]);
     let aliasData: Array<{ keyword: string; db_column?: string; question_code?: string }> = [];
     if (aliasOr) {
       const aliasRows = await admin
