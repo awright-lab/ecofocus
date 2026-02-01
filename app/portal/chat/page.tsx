@@ -84,6 +84,17 @@ export default function PortalChatPage() {
     }
   }
 
+  const sortedRows = [...chart.rows].sort((a, b) => {
+    const aNum = Number(a);
+    const bNum = Number(b);
+    const aValid = Number.isFinite(aNum);
+    const bValid = Number.isFinite(bNum);
+    if (aValid && bValid) return aNum - bNum;
+    if (aValid) return -1;
+    if (bValid) return 1;
+    return a.localeCompare(b);
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
@@ -182,7 +193,7 @@ function ChartBlock({ chart }: { chart: ChartData }) {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        {chart.rows.map((row, idx) => (
+        {sortedRows.map((row, idx) => (
           <div key={`${row}-${idx}`} className="flex items-center gap-2 text-[11px] text-gray-600">
             <span
               className="inline-block h-2 w-2 rounded-full"
@@ -198,7 +209,7 @@ function ChartBlock({ chart }: { chart: ChartData }) {
           <div key={`${col}-${colIdx}`} className="space-y-1">
             <div className="text-xs font-semibold text-gray-700">{col}</div>
             <div className="flex h-7 w-full overflow-hidden rounded-full bg-gray-100">
-              {chart.rows.map((row, rowIdx) => {
+              {sortedRows.map((row, rowIdx) => {
                 const cell = cellMap.get(`${row}|||${col}`);
                 const total = colTotals.get(col) || 0;
                 const pct =
