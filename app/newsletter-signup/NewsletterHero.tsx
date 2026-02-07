@@ -2,18 +2,18 @@
 
 import Hero from '@/components/Hero';
 
-export default function ContactHero() {
+export default function NewsletterHero() {
   return (
     <div className="relative">
       <Hero
         variant="solutions"
         size="normal"
-        badge="Get in Touch"
+        badge="Newsletter"
         headline={
           <>
-            Let’s Start a{' '}
+            Get EcoFocus{' '}
             <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-              Conversation
+              Insights
             </span>
           </>
         }
@@ -22,9 +22,7 @@ export default function ContactHero() {
         overlay="dense"
       />
 
-      {/* Thin brand accent (keeps parity with About) */}
       <div className="absolute -bottom-px left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
-      {/* Little marigold pop in the corner */}
       <span
         aria-hidden
         className="pointer-events-none absolute -top-6 -right-6 h-14 w-14 rounded-full bg-[#EF9601]/20 blur-xl"

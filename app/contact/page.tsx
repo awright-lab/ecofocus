@@ -104,13 +104,6 @@ export default function ContactPage() {
                   <div className="mt-6">
                     <ContactForm />
                   </div>
-                  <p className="mt-3 text-xs text-gray-500">
-                    We’ll only use your info to respond to your inquiry. See our{" "}
-                    <a href="/legal#privacy" className="underline">
-                      Privacy Policy
-                    </a>
-                    .
-                  </p>
                 </div>
               </div>
 
@@ -220,7 +213,6 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
     </details>
   );
 }
-
 
 
 

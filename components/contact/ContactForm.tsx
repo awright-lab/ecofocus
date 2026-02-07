@@ -217,7 +217,9 @@ export default function ContactForm({ className = '' }: { className?: string }) 
           </div>
 
           <div>
-            <label className="block text-sm text-gray-700">Message</label>
+            <label className="block text-sm text-gray-700">
+              Message <span className="text-gray-400">(Optional)</span>
+            </label>
             <textarea
               rows={5}
               value={message}
@@ -242,6 +244,10 @@ export default function ContactForm({ className = '' }: { className?: string }) 
               <span className="text-red-600"> *</span>
             </span>
           </label>
+          <p className="mt-1 text-xs text-gray-500">
+            We’ll only use your info to respond to your inquiry. See our{' '}
+            <a href="/legal#privacy" className="underline">Privacy Policy</a>.
+          </p>
 
           {/* Optional Turnstile */}
           {TURNSTILE_SITE_KEY && (
@@ -272,5 +278,3 @@ export default function ContactForm({ className = '' }: { className?: string }) 
     </>
   );
 }
-
-
