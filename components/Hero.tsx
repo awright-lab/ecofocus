@@ -55,6 +55,7 @@ export default function Hero({
               muted
               playsInline
               preload="metadata"
+              poster={posterSrc}
               className="h-full w-full object-cover brightness-[0.80] motion-reduce:hidden"
             >
               <source src={videoSrc} type="video/mp4" />
