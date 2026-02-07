@@ -56,19 +56,10 @@ export default function Hero({
               playsInline
               preload="metadata"
               poster={posterSrc}
-              className="h-full w-full object-cover brightness-[0.80] motion-reduce:hidden"
+              className="h-full w-full object-cover brightness-[0.80]"
             >
               <source src={videoSrc} type="video/mp4" />
             </video>
-            {posterSrc && (
-              <Image
-                src={posterSrc}
-                alt=""
-                fill
-                priority={variant === "home"}
-                className="hidden object-cover brightness-[0.40] motion-reduce:block"
-              />
-            )}
           </>
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-emerald-900 to-blue-900" />
