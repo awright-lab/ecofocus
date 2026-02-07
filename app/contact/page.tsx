@@ -95,12 +95,24 @@ export default function ContactPage() {
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
               <div className="lg:col-span-7">
                 <div className="rounded-2xl bg-white ring-1 ring-black/5 shadow-sm p-6 sm:p-8">
-                  <h2 className="text-2xl font-semibold text-gray-900">
-                    Send a Message
-                  </h2>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Share a few details and we’ll follow up shortly.
-                  </p>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-gray-900">
+                        Send a Message
+                      </h2>
+                      <p className="mt-1 text-sm text-gray-600">
+                        Share a few details and we’ll follow up shortly.
+                      </p>
+                    </div>
+                    <a
+                      href="https://meetings.hubspot.com/michaelcroft/michael-croft-meeting-link"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                    >
+                      Book a Call
+                    </a>
+                  </div>
                   <div className="mt-6">
                     <ContactForm />
                   </div>
@@ -213,6 +225,4 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
     </details>
   );
 }
-
-
 
