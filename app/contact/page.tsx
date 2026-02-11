@@ -95,24 +95,12 @@ export default function ContactPage() {
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
               <div className="lg:col-span-7">
                 <div className="rounded-2xl bg-white ring-1 ring-black/5 shadow-sm p-6 sm:p-8">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <h2 className="text-2xl font-semibold text-gray-900">
-                        Send a Message
-                      </h2>
-                      <p className="mt-1 text-sm text-gray-600">
-                        Share a few details and we’ll follow up shortly.
-                      </p>
-                    </div>
-                    <a
-                      href="https://meetings.hubspot.com/michaelcroft/michael-croft-meeting-link"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-                    >
-                      Book a Call
-                    </a>
-                  </div>
+                  <h2 className="text-2xl font-semibold text-gray-900">
+                    Send a Message
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Share a few details and we’ll follow up shortly.
+                  </p>
                   <div className="mt-6">
                     <ContactForm />
                   </div>
@@ -120,33 +108,54 @@ export default function ContactPage() {
               </div>
 
               <div className="lg:col-span-5">
-                <div className="rounded-2xl bg-gray-50 ring-1 ring-black/5 p-6 sm:p-7">
-                  <h3 className="text-base font-semibold text-gray-900">
-                    How We Work With You
-                  </h3>
+                <div className="space-y-4">
+                  <div className="rounded-2xl bg-gray-50 ring-1 ring-black/5 p-6 sm:p-7">
+                    <h3 className="text-base font-semibold text-gray-900">
+                      How We Work With You
+                    </h3>
 
-                  <ul className="mt-3 space-y-3 text-sm text-gray-700">
-                    <Li>A human reply within one business day.</Li>
-                    <Li>No sales spam—real guidance and next steps.</Li>
-                    <Li>Optional NDA before sharing sensitive details.</Li>
-                  </ul>
+                    <ul className="mt-3 space-y-3 text-sm text-gray-700">
+                      <Li>A human reply within one business day.</Li>
+                      <Li>No sales spam—real guidance and next steps.</Li>
+                      <Li>Optional NDA before sharing sensitive details.</Li>
+                    </ul>
 
-                  <div className="mt-6 grid grid-cols-1 gap-3">
-                    <InfoRow
-                      label="Response time"
-                      value="Mon–Fri, 9–5 CST, < 1 business day"
-                    />
-                    <InfoRow
-                      label="Email"
-                      value={
-                        <a
-                          href="mailto:mcroft@ecofocusworldwide.com"
-                          className="underline"
-                        >
-                          mcroft@ecofocusworldwide.com
-                        </a>
-                      }
-                    />
+                    <div className="mt-6 grid grid-cols-1 gap-3">
+                      <InfoRow
+                        label="Response time"
+                        value="Mon–Fri, 9–5 CST, < 1 business day"
+                      />
+                      <InfoRow
+                        label="Email"
+                        value={
+                          <a
+                            href="mailto:mcroft@ecofocusworldwide.com"
+                            className="underline"
+                          >
+                            mcroft@ecofocusworldwide.com
+                          </a>
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl bg-emerald-50 ring-1 ring-emerald-100 p-6 sm:p-7">
+                    <h3 className="text-base font-semibold text-gray-900">
+                      Schedule a Call
+                    </h3>
+                    <p className="mt-2 text-sm text-gray-700">
+                      Prefer to talk live? Book time directly with our team for
+                      a focused conversation about your goals, timelines, and
+                      next steps.
+                    </p>
+                    <a
+                      href="https://meetings.hubspot.com/michaelcroft/michael-croft-meeting-link"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-4 inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                    >
+                      Book a Call
+                    </a>
                   </div>
                 </div>
               </div>
@@ -225,4 +234,3 @@ function FaqItem({ q, a }: { q: string; a: React.ReactNode }) {
     </details>
   );
 }
-
