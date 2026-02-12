@@ -23,6 +23,8 @@ function originAllowed(origin?: string | null) {
 // HubSpot property names (create these in HubSpot; override via env if different)
 const FORM_SOURCE_PROPERTY =
   process.env.HUBSPOT_FORM_SOURCE_PROPERTY || 'ef_form_source';
+const CONTEXT_PAGE_HOST_OVERRIDE =
+  (process.env.HUBSPOT_CONTEXT_PAGE_HOST_OVERRIDE || '').trim().toLowerCase();
 
 // Regexes / validators
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
@@ -35,6 +37,20 @@ const TEXT_CLEAN = (s?: string) =>
     .replace(/\u0000/g, '')                // strip nulls
     .trim()
     .slice(0, 4000);                       // cap length to a safe size
+
+function withContextHostOverride(pageUri?: string): string | undefined {
+  if (!pageUri) return undefined;
+  if (!CONTEXT_PAGE_HOST_OVERRIDE) return pageUri;
+
+  try {
+    const u = new URL(pageUri);
+    u.hostname = CONTEXT_PAGE_HOST_OVERRIDE;
+    if (!u.protocol) u.protocol = 'https:';
+    return u.toString();
+  } catch {
+    return pageUri;
+  }
+}
 
 // In-memory naive rate limiter
 const ipHits = new Map<string, RateEntry>();
@@ -174,7 +190,8 @@ export async function POST(req: Request) {
 
     // Context (include hutk only if present to avoid INVALID_HUTK)
     const context: Record<string, string> = {};
-    if (pageUri)  context.pageUri = String(pageUri);
+    const contextPageUri = withContextHostOverride(pageUri);
+    if (contextPageUri) context.pageUri = contextPageUri;
     if (pageName) context.pageName = String(pageName);
     if (ip && ip !== '0.0.0.0') context.ipAddress = ip;
     if (typeof hutk === 'string' && hutk.trim()) context.hutk = hutk.trim();
@@ -201,4 +218,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
-
