@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -195,60 +193,21 @@ const FAQ_ITEMS = [
   },
 ] as const;
 
-const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif']);
-
-async function getSlideImages() {
-  const publicDir = path.join(process.cwd(), 'public');
-  const candidateDirs = [
-    'images/agencies',
-    'images/agency',
-    'images/slides/agencies',
-    'images/slides',
-  ];
-
-  const results: string[] = [];
-
-  for (const relativeDir of candidateDirs) {
-    const fullDir = path.join(publicDir, relativeDir);
-    try {
-      const entries = await fs.readdir(fullDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (!entry.isFile()) continue;
-        const ext = path.extname(entry.name).toLowerCase();
-        if (!IMAGE_EXTENSIONS.has(ext)) continue;
-        results.push(`/${relativeDir}/${entry.name}`);
-        if (results.length >= 6) return results;
-      }
-    } catch {
-      // Directory may not exist.
-    }
-  }
-
-  if (results.length) return results;
-
-  try {
-    const topLevel = await fs.readdir(path.join(publicDir, 'images'), { withFileTypes: true });
-    for (const entry of topLevel) {
-      if (!entry.isFile()) continue;
-      const ext = path.extname(entry.name).toLowerCase();
-      if (!IMAGE_EXTENSIONS.has(ext)) continue;
-      if (!/(slide|agency)/i.test(entry.name)) continue;
-      results.push(`/images/${entry.name}`);
-      if (results.length >= 6) break;
-    }
-  } catch {
-    // Ignore filesystem read errors and fall back to placeholders.
-  }
-
-  return results;
+function getConfiguredSlideImages() {
+  const configured = process.env.NEXT_PUBLIC_AGENCY_SLIDES ?? '';
+  return configured
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 6);
 }
 
 function sectionClassName(id: string) {
   return `scroll-mt-28 px-6 py-14 sm:px-8 lg:px-12 ${id === 'overview' ? 'pt-16' : ''}`;
 }
 
-export default async function AgenciesPage() {
-  const slideImages = await getSlideImages();
+export default function AgenciesPage() {
+  const slideImages = getConfiguredSlideImages();
 
   return (
     <>
