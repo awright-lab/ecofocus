@@ -371,7 +371,7 @@ export default function AgenciesPage() {
                     src="/images/purpose-driven.png"
                     alt="Purpose-driven generation visual"
                     fill
-                    className="object-cover object-[62%_center] -scale-x-100"
+                    className="object-cover object-[72%_center] -scale-x-100"
                     priority
                   />
                 </div>

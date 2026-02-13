@@ -36,11 +36,7 @@ function DataWaves({
 }) {
   const colorAt = (i: number) => colors[i % colors.length];
 
-  const prefersReduced =
-    typeof window !== 'undefined' &&
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-  const effectiveDuration = (duration * speedMultiplier) * (prefersReduced ? 1.5 : 1);
+  const effectiveDuration = duration * speedMultiplier;
 
   return (
     <div
@@ -116,10 +112,6 @@ function DataWaves({
           0%   { transform: translateX(0)              translateY(2px) scaleY(0.02); }
           45%  { transform: translateX(0)              translateY(0)    scaleY(1.0); }
           100% { transform: translateX(var(--spacing)) translateY(2px) scaleY(0.02); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .bar { animation: none; transform: translateX(0) translateY(1px) scaleY(0.5); }
         }
 
         @media (max-width: 480px) {
@@ -222,7 +214,6 @@ export default function AboutWhoWeAre() {
     </section>
   );
 }
-
 
 
 

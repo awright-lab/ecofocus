@@ -28,9 +28,7 @@ function DataWaves({
 }) {
   const colorAt = (i: number) => colors[i % colors.length];
 
-  // Respect prefers-reduced-motion by stretching duration even more
-  const prefersReduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const effectiveDuration = (duration * speedMultiplier) * (prefersReduced ? 1.5 : 1); // 50% slower if user prefers less motion
+  const effectiveDuration = duration * speedMultiplier;
 
   return (
     <div
@@ -108,9 +106,6 @@ function DataWaves({
           100% { transform: translateX(var(--spacing)) translateY(2px) scaleY(0.02); }
         }
 
-        @media (prefers-reduced-motion: reduce) {
-          .bar { animation: none; transform: translateX(0) translateY(1px) scaleY(0.5); }
-        }
         @media (max-width: 480px) {
           .row { height: calc(var(--barH) + 16px); }
         }
@@ -199,7 +194,6 @@ export default function IntroSection() {
     </section>
   );
 }
-
 
 
 
