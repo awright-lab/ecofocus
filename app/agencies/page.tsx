@@ -915,19 +915,62 @@ export default function AgenciesPage() {
         </section>
 
         <section id="contact" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 text-center shadow-sm">
-            <h2 className="text-3xl font-semibold text-gray-900">Ready to win your next pitch with defensible data?</h2>
-            <p className="mx-auto mt-4 max-w-3xl text-gray-700">
-              Let’s walk through the Portal, show relevant modules for your category, and map insights to your upcoming
-              opportunities.
-            </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <Link href="/demo" className="btn-primary-emerald">
-                Schedule a Demo
-              </Link>
-              <Link href="/contact" className="btn-secondary-light">
-                Contact Us
-              </Link>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white px-6 py-10 shadow-[0_24px_70px_-28px_rgba(2,12,27,.28)] sm:px-8 md:py-12">
+              <div
+                className="pointer-events-none absolute -top-20 -left-24 h-56 w-56 rounded-full bg-emerald-100 blur-3xl opacity-30"
+                aria-hidden="true"
+              />
+              <div
+                className="pointer-events-none absolute -bottom-24 -right-28 h-60 w-60 rounded-full bg-blue-100 blur-3xl opacity-30"
+                aria-hidden="true"
+              />
+
+              <div className="relative grid grid-cols-1 items-start gap-8 md:grid-cols-12">
+                <div className="md:col-span-7 text-center md:text-left">
+                  <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                    <span className="text-black/60">Contact</span>
+                  </div>
+                  <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+                    Ready to win your next pitch with{' '}
+                    <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                      defensible data?
+                    </span>
+                  </h2>
+                  <p className="mx-auto mt-4 max-w-prose text-sm leading-relaxed text-slate-600 md:mx-0 sm:text-base">
+                    Let’s walk through the Portal, show relevant modules for your category, and map insights to your
+                    upcoming opportunities.
+                  </p>
+                </div>
+
+                <aside className="md:col-span-5 md:mt-8 lg:mt-10">
+                  <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-gray-200 md:p-7">
+                    <h3 className="text-lg font-semibold text-gray-900">Book your walkthrough</h3>
+                    <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                      <li className="relative pl-5">
+                        <span aria-hidden className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500" />
+                        Review the most relevant modules for your team
+                      </li>
+                      <li className="relative pl-5">
+                        <span aria-hidden className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500" />
+                        Map insights to active pitches and client priorities
+                      </li>
+                      <li className="relative pl-5">
+                        <span aria-hidden className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500" />
+                        Clarify seat licensing and onboarding options
+                      </li>
+                    </ul>
+                    <Link
+                      href="/contact"
+                      className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-emerald-700"
+                    >
+                      Book a discovery call
+                    </Link>
+                    <p className="mt-3 text-center text-xs text-gray-500">Avg response &lt; 1 business day · No obligation</p>
+                  </div>
+                </aside>
+              </div>
             </div>
           </FadeUp>
         </section>
