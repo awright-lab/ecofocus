@@ -516,28 +516,55 @@ export default function AgenciesPage() {
 
         <section id="data-breadth" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-6xl">
-            <h2 className="text-3xl font-semibold text-gray-900">What You Can Answer (Breadth of the Data)</h2>
-            <p className="mt-4 text-gray-700">
-              Our annual trend survey provides comprehensive data across consumer sustainability, health, packaging,
-              workplace practices, category behavior, brand perceptions, and messaging, segmented by key demographics
-              for targeted insights.
-            </p>
-            <div className="mt-6">
-              <Accordion
-                allowMultiple
-                defaultOpenIds={[DATA_BREADTH_ITEMS[0].id]}
-                items={DATA_BREADTH_ITEMS.map((item) => ({
-                  id: item.id,
-                  title: item.title,
-                  content: (
-                    <ul className="list-disc space-y-2 pl-5 text-sm text-gray-700">
-                      {item.bullets.map((bullet) => (
-                        <li key={bullet}>{bullet}</li>
-                      ))}
-                    </ul>
-                  ),
-                }))}
-              />
+            <div className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/30 to-blue-50/30 p-6 shadow-sm md:p-8">
+              <div className="grid gap-8 lg:grid-cols-12">
+                <div className="lg:col-span-4">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+                    <span className="text-black/60">Data Breadth</span>
+                  </div>
+                  <h2 className="mt-4 text-[clamp(1.6rem,4vw,2.2rem)] font-bold leading-tight text-slate-900">
+                    What You Can Answer{' '}
+                    <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                      With Confidence
+                    </span>
+                  </h2>
+                  <p className="mt-4 text-sm leading-relaxed text-slate-700">
+                    Our annual trend survey provides comprehensive data across consumer sustainability, health,
+                    packaging, workplace practices, category behavior, brand perceptions, and messaging segmented by
+                    key demographics for targeted insights.
+                  </p>
+
+                  <div className="mt-5 space-y-3">
+                    <div className="rounded-xl border border-emerald-200/70 bg-white/80 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Coverage</p>
+                      <p className="mt-1 text-sm text-slate-700">8 research domains from consciousness to segmentation.</p>
+                    </div>
+                    <div className="rounded-xl border border-emerald-200/70 bg-white/80 p-3">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Activation</p>
+                      <p className="mt-1 text-sm text-slate-700">Built for strategy, messaging, innovation, and planning.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-8">
+                  <Accordion
+                    allowMultiple
+                    defaultOpenIds={[DATA_BREADTH_ITEMS[0].id]}
+                    items={DATA_BREADTH_ITEMS.map((item) => ({
+                      id: item.id,
+                      title: item.title,
+                      content: (
+                        <ul className="list-disc space-y-2 pl-5 text-sm text-gray-700">
+                          {item.bullets.map((bullet) => (
+                            <li key={bullet}>{bullet}</li>
+                          ))}
+                        </ul>
+                      ),
+                    }))}
+                  />
+                </div>
+              </div>
             </div>
             <p className="mt-6 text-gray-700">
               Why This Matters: Whether you’re launching a sustainable product line, redesigning packaging,
