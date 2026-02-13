@@ -258,14 +258,31 @@ export default function AgenciesPage() {
         <StickySectionNav items={[...SECTION_ITEMS]} mobileLabel="Jump to section" />
 
         <section id="why-now" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-5xl">
-            <div className="rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
-              <h2 className="text-3xl font-semibold text-gray-900">So Why Now?</h2>
-              <p className="mt-4 text-lg italic text-gray-700">
-                2030 is right around the corner. The time for companies to prepare for this huge shift in consumer
-                purchasing power is NOW.
-              </p>
-              <p className="mt-4 text-2xl font-extrabold text-emerald-700">Be Early or Be Late</p>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
+              <div className="md:col-span-5">
+                <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                  <span className="text-black/60">So Why Now?</span>
+                </span>
+                <h2 className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-slate-900">
+                  2030 Is Closer Than It Looks.
+                  <br />
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    Be Early or Be Late
+                  </span>
+                </h2>
+              </div>
+              <div className="md:col-span-7">
+                <div className="rounded-3xl bg-white/5 p-2 ring-1 ring-slate-100 shadow-2xl">
+                  <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-8">
+                    <p className="text-base italic leading-relaxed text-slate-700">
+                      2030 is right around the corner. The time for companies to prepare for this huge shift in
+                      consumer purchasing power is NOW.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </FadeUp>
         </section>
