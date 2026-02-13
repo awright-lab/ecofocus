@@ -659,36 +659,39 @@ export default function AgenciesPage() {
         </section>
 
         <section id="roi" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-6xl">
-            <h2 className="text-3xl font-semibold text-gray-900">Purpose Generation: Client ROI</h2>
-            <div className="mt-6 grid gap-5 lg:grid-cols-3">
-              <article className="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm">
-                <h3 className="text-xl font-semibold text-gray-900">Reduce Customer Churn</h3>
-                <p className="mt-3 text-sm text-gray-700">
-                  Consumers are 4x more likely to purchase from a brand they believe has a strong purpose. EcoFocus
-                  data helps you sharpen your message that can build lasting emotional connections. When consumers
-                  believe a brand has a strong purpose, they’re 6x more likely to continue supporting it in a
-                  challenging moment, helping reduce churn risk.*
-                </p>
-                <p className="mt-3 text-xs text-gray-500">*Zeno Group, 2020 Strength of Purpose Study</p>
-              </article>
-              <article className="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm">
-                <h3 className="text-xl font-semibold text-gray-900">Drive Incremental Growth</h3>
-                <p className="mt-3 text-sm text-gray-700">
-                  Sustainable values aren’t fringe anymore, they’re mainstream. Our data shows that
-                  sustainability-conscious shoppers aren’t just young, coastal elites. They’re parents in suburbia.
-                  They’re rural shoppers. And they’re looking for brands to trust.
-                </p>
-              </article>
-              <article className="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm">
-                <h3 className="text-xl font-semibold text-gray-900">De-Risk The Messaging</h3>
-                <p className="mt-3 text-sm text-gray-700">
-                  EcoFocus can help companies avoid vague claims that trigger skepticism. We can test what resonates,
-                  like “Plastic-Free Packaging” vs. “Certified Carbon Neutral”, so you can communicate with
-                  confidence.
-                </p>
-              </article>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Client ROI</span>
             </div>
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Purpose Generation:{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Client ROI
+              </span>
+            </h2>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              <MeasureCard
+                tone="teal"
+                title="Reduce Customer Churn"
+                desc="Consumers are 4x more likely to purchase from a brand they believe has a strong purpose. When consumers believe a brand has a strong purpose, they’re 6x more likely to continue supporting it in a challenging moment—helping reduce churn risk.*"
+                icon="checklist"
+              />
+              <MeasureCard
+                tone="slate"
+                title="Drive Incremental Growth"
+                desc="Sustainable values aren’t fringe anymore—they’re mainstream. Our data shows sustainability-conscious shoppers include parents in suburbia and rural shoppers who are actively looking for brands they can trust."
+                icon="gauge"
+              />
+              <MeasureCard
+                tone="amber"
+                title="De-Risk The Messaging"
+                desc="EcoFocus helps companies avoid vague claims that trigger skepticism. Test what resonates—like 'Plastic-Free Packaging' vs. 'Certified Carbon Neutral'—and communicate with confidence."
+                icon="dots"
+              />
+            </div>
+            <p className="mt-4 text-xs text-slate-500">*Zeno Group, 2020 Strength of Purpose Study</p>
           </FadeUp>
         </section>
 
