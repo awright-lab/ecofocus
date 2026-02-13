@@ -914,16 +914,7 @@ export default function AgenciesPage() {
 
         <section id="contact" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-7xl">
-            <div className="relative overflow-hidden px-2 py-2 md:py-4">
-              <div
-                className="pointer-events-none absolute -top-20 -left-24 h-56 w-56 rounded-full bg-emerald-100 blur-3xl opacity-30"
-                aria-hidden="true"
-              />
-              <div
-                className="pointer-events-none absolute -bottom-24 -right-28 h-60 w-60 rounded-full bg-blue-100 blur-3xl opacity-30"
-                aria-hidden="true"
-              />
-
+            <div className="px-2 py-2 md:py-4">
               <div className="relative grid grid-cols-1 items-start gap-8 md:grid-cols-12">
                 <div className="md:col-span-7 text-center md:text-left">
                   <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
