@@ -365,8 +365,8 @@ export default function AgenciesPage() {
             </h2>
 
             <div className="mt-8 grid grid-cols-1 items-stretch gap-8 md:grid-cols-12">
-              <div className="relative md:col-span-6">
-                <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[22rem]">
+              <div className="relative md:col-span-6 md:pl-4 lg:pl-6">
+                <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:ml-auto md:h-[20rem] md:w-[96%]">
                   <Image
                     src="/images/purpose-driven.png"
                     alt="Purpose-driven generation visual"
@@ -377,8 +377,8 @@ export default function AgenciesPage() {
                   />
                 </div>
 
-                <div className="absolute left-3 top-3 w-[88%] md:-left-8 md:-top-6 md:w-[62%]">
-                  <div className="rounded-2xl bg-white/95 p-5 shadow-xl ring-1 ring-slate-200 backdrop-blur-[2px] md:p-6">
+                <div className="absolute left-3 top-3 w-[84%] md:left-8 md:top-5 md:w-[54%]">
+                  <div className="rounded-2xl bg-white/95 p-4 shadow-xl ring-1 ring-slate-200 backdrop-blur-[2px] md:p-5">
                     <p className="text-base italic leading-relaxed text-slate-700">
                       Millennials and Gen Z will make up 65% of purchasing power by 2030*
                     </p>
