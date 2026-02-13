@@ -695,24 +695,50 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section id="portal" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
-            <h2 className="text-3xl font-semibold text-gray-900">Data Now—When You Need It</h2>
-            <p className="mt-4 text-gray-700">
-              Our Portal’s fast filters and export-ready visuals let strategists and creators work without research
-              bottlenecks, while rigorous research data helps teams craft credible sustainability messaging and defend
-              recommendations with confidence.
-            </p>
-            <p className="mt-3 text-gray-700">
-              In short: EcoFocus turns sustainability from a fuzzy talking point into a measurable, actionable growth
-              strategy your clients can execute immediately.
-            </p>
-            <div className="mt-6">
-              <AgencyVideoPlayer
-                src="/video/agency-overview-placeholder.mp4"
-                poster="/video/agency-overview-poster.jpg"
-                chapters={[...CHAPTERS]}
-              />
+        <section id="portal" className="relative section-slab-deep scroll-mt-28">
+          <FadeUp className="mx-auto max-w-7xl px-6 py-12 sm:py-14 md:py-16">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:items-center">
+              <div className="md:col-span-5">
+                <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                  <span className="text-emerald-300">Delivery & Access</span>
+                </span>
+                <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-white">
+                  Data Now—When You Need It.{' '}
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    All in One Place.
+                  </span>
+                </h2>
+                <p className="mt-3 text-sm text-white/85 sm:text-base">
+                  Our Portal’s fast filters and export-ready visuals let strategists and creators work without research
+                  bottlenecks, while rigorous research data helps teams craft credible sustainability messaging and
+                  defend recommendations with confidence.
+                </p>
+                <ul className="mt-4 space-y-2.5 text-sm text-white/90">
+                  {[
+                    'Fast filtering by audience and behavior segments',
+                    'Export-ready charts and visuals for decks and briefs',
+                    'Credible, defensible recommendations for client teams',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-400" aria-hidden="true" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 text-sm text-white/85">
+                  In short: EcoFocus turns sustainability from a fuzzy talking point into a measurable, actionable
+                  growth strategy your clients can execute immediately.
+                </p>
+              </div>
+
+              <div className="md:col-span-7">
+                <AgencyVideoPlayer
+                  src="/video/agency-overview-placeholder.mp4"
+                  poster="/video/agency-overview-poster.jpg"
+                  chapters={[...CHAPTERS]}
+                />
+              </div>
             </div>
           </FadeUp>
         </section>
