@@ -305,25 +305,57 @@ export default function AgenciesPage() {
         </section>
 
         <section id="purpose-generation" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-5xl">
-            <h2 className="text-3xl font-semibold text-gray-900">The Purpose-Driven Generation</h2>
-            <p className="mt-4 text-lg font-medium text-emerald-800">
-              Millennials and Gen Z will make up 65% of purchasing power by 2030*
-            </p>
-            <ul className="mt-6 list-disc space-y-2 pl-6 text-gray-700">
-              <li>The Purpose-Driven Generation is reshaping the consumer landscape.</li>
-              <li>
-                These are individuals, largely Gen Z, Millennials, and increasingly younger Gen Xers, whose values
-                directly influence how they shop,
-              </li>
-              <li>What they advocate for, and which brands they trust.</li>
-              <li>They care about ethical sourcing, environmental impact, and corporate transparency.</li>
-            </ul>
-            <p className="mt-6 text-gray-700">
-              They prioritize sustainability, health, and ethics, not just in what they buy, but in who they buy from.
-              Purpose isn’t just a value proposition. It’s the new margin-friendly differentiation and growth driver.
-            </p>
-            <p className="mt-4 text-sm text-gray-500">*Source: NielsenIQ/tPX White Paper</p>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Purpose Generation</span>
+            </div>
+            <h2 className="text-[clamp(1.6rem,5.2vw,2.4rem)] font-bold leading-tight text-slate-900 md:text-[clamp(2rem,3.6vw,2.75rem)]">
+              The Purpose-Driven{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Generation
+              </span>
+            </h2>
+
+            <div className="mt-8 grid grid-cols-1 items-stretch gap-8 md:grid-cols-12">
+              <div className="relative md:col-span-6">
+                <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[22rem]">
+                  <Image
+                    src="/images/purpose-driven.png"
+                    alt="Purpose-driven generation visual"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+
+                <div className="absolute left-3 top-3 w-[88%] md:-left-8 md:-top-6 md:w-[62%]">
+                  <div className="rounded-2xl bg-white/95 p-5 shadow-xl ring-1 ring-slate-200 backdrop-blur-[2px] md:p-6">
+                    <p className="text-[15px] font-medium leading-relaxed text-emerald-800 md:text-base">
+                      Millennials and Gen Z will make up 65% of purchasing power by 2030*
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="md:col-span-6">
+                <ul className="list-disc space-y-2 pl-6 text-gray-700">
+                  <li>The Purpose-Driven Generation is reshaping the consumer landscape.</li>
+                  <li>
+                    These are individuals, largely Gen Z, Millennials, and increasingly younger Gen Xers, whose values
+                    directly influence how they shop,
+                  </li>
+                  <li>What they advocate for, and which brands they trust.</li>
+                  <li>They care about ethical sourcing, environmental impact, and corporate transparency.</li>
+                </ul>
+                <p className="mt-6 text-gray-700">
+                  They prioritize sustainability, health, and ethics, not just in what they buy, but in who they buy
+                  from. Purpose isn’t just a value proposition. It’s the new margin-friendly differentiation and growth
+                  driver.
+                </p>
+                <p className="mt-4 text-sm text-gray-500">*Source: NielsenIQ/tPX White Paper</p>
+              </div>
+            </div>
           </FadeUp>
         </section>
 
