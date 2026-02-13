@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from 'framer-motion';
 import NewsletterForm from '@/components/newsletter/NewsletterForm'; // ← import it
 
 export default function Footer() {
@@ -30,13 +30,7 @@ export default function Footer() {
 
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 md:gap-12 md:py-16 relative z-10">
         {/* Brand / About */}
-        <motion.section
-          aria-label="About EcoFocus"
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6 }}
-        >
+        <section aria-label="About EcoFocus">
           <Image
             src="/images/ef-logo-2.png"
             alt="EcoFocus Research"
@@ -62,16 +56,10 @@ export default function Footer() {
               <i className="ri-linkedin-fill text-lg text-white" aria-hidden="true" />
             </a>
           </div>
-        </motion.section>
+        </section>
 
         {/* Quick Links */}
-        <motion.nav
-          aria-label="Quick links"
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
+        <nav aria-label="Quick links">
           <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
           <ul className="space-y-3 text-sm">
             {[
@@ -90,23 +78,17 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-        </motion.nav>
+        </nav>
 
         {/* Newsletter — now using shared component */}
-        <motion.section
-          aria-label="Newsletter signup"
-          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
+        <section aria-label="Newsletter signup">
           <h3 className="mb-4 text-lg font-semibold">Stay Updated</h3>
           <p className="mb-4 text-sm text-gray-400">
             Get the latest sustainability insights delivered to your inbox.
           </p>
 
           <NewsletterForm theme="dark" className="space-y-3" />
-        </motion.section>
+        </section>
       </div>
 
       {/* Bottom bar */}
@@ -140,7 +122,6 @@ export default function Footer() {
     </footer>
   );
 }
-
 
 
 
