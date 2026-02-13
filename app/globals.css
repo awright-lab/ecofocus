@@ -12,6 +12,15 @@
     scroll-snap-align: start;
 }
 
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 @keyframes gradientMove {
     0% {
         background-position: 0% 50%;

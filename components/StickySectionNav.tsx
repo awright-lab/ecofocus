@@ -67,10 +67,10 @@ export default function StickySectionNav({
   };
 
   return (
-    <div className="sticky top-[64px] z-30 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <div className="sticky top-14 z-30 border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 md:top-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <nav aria-label="Section navigation" className="py-2">
-          <div className="hidden gap-4 overflow-x-auto md:flex">
+          <div className="hide-scrollbar hidden gap-4 overflow-x-auto md:flex">
             {items.map(({ id, label }) => {
               const isActive = active === id;
               return (
