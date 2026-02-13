@@ -150,44 +150,48 @@ export default function AgencyVideoPlayer({ src, poster, chapters }: AgencyVideo
   };
 
   return (
-    <div className="grid gap-6 rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm lg:grid-cols-5">
-      <div className="lg:col-span-3">
-        {videoUnavailable ? (
-          <div className="flex aspect-video items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50/60 p-6 text-center">
-            <div>
-              {poster ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={poster} alt="Video poster" className="mx-auto mb-4 max-h-56 rounded-lg object-cover" />
-              ) : null}
-              <p className="text-sm font-semibold text-gray-900">Video placeholder (coming soon)</p>
-            </div>
+    <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
+      <div className="lg:col-span-8">
+        <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/15 shadow-2xl">
+          <div className="relative overflow-hidden rounded-2xl ring-1 ring-white/20">
+            {videoUnavailable ? (
+              <div className="flex aspect-video items-center justify-center bg-black/35 p-6 text-center">
+                <div>
+                  {poster ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={poster} alt="Video poster" className="mx-auto mb-4 max-h-56 rounded-lg object-cover" />
+                  ) : null}
+                  <p className="text-sm font-semibold text-white">Video placeholder (coming soon)</p>
+                </div>
+              </div>
+            ) : (
+              <video
+                ref={videoRef}
+                src={src}
+                poster={poster}
+                preload="metadata"
+                className="aspect-video w-full bg-black"
+                onLoadedMetadata={handleLoadedMetadata}
+                onTimeUpdate={() => {
+                  const video = videoRef.current;
+                  if (!video) return;
+                  setCurrentTime(video.currentTime);
+                }}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onError={() => setVideoUnavailable(true)}
+              />
+            )}
           </div>
-        ) : (
-          <video
-            ref={videoRef}
-            src={src}
-            poster={poster}
-            preload="metadata"
-            className="aspect-video w-full rounded-xl bg-black"
-            onLoadedMetadata={handleLoadedMetadata}
-            onTimeUpdate={() => {
-              const video = videoRef.current;
-              if (!video) return;
-              setCurrentTime(video.currentTime);
-            }}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onError={() => setVideoUnavailable(true)}
-          />
-        )}
+        </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-3 rounded-xl border border-white/20 bg-white/10 p-3">
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={togglePlay}
               disabled={videoUnavailable}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-white/20"
             >
               {isPlaying ? 'Pause' : 'Play'}
             </button>
@@ -195,11 +199,11 @@ export default function AgencyVideoPlayer({ src, poster, chapters }: AgencyVideo
               type="button"
               onClick={toggleMute}
               disabled={videoUnavailable}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-900 disabled:cursor-not-allowed disabled:text-gray-400"
+              className="rounded-lg border border-white/35 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
             >
               {isMuted ? 'Unmute' : 'Mute'}
             </button>
-            <p className="text-sm text-gray-700" aria-live="polite">
+            <p className="text-sm text-white/85" aria-live="polite">
               {formatTime(currentTime)} / {formatTime(duration)}
             </p>
           </div>
@@ -216,15 +220,15 @@ export default function AgencyVideoPlayer({ src, poster, chapters }: AgencyVideo
             value={Math.min(currentTime, duration || 1)}
             onChange={(event) => trySeek(Number(event.target.value))}
             disabled={videoUnavailable}
-            className="w-full accent-emerald-600"
+            className="w-full accent-emerald-400"
           />
         </div>
       </div>
 
-      <div className="lg:col-span-2">
+      <div className="rounded-2xl border border-white/20 bg-white/10 p-4 lg:col-span-4">
         <div className="mb-3 flex items-center justify-between gap-4">
-          <h3 className="text-lg font-semibold text-gray-900">Video Chapters</h3>
-          <span className="text-xs text-emerald-700" aria-live="polite">
+          <h3 className="text-lg font-semibold text-white">Video Chapters</h3>
+          <span className="text-xs text-emerald-300" aria-live="polite">
             {copyState || (activeChapter ? `Now: ${activeChapter}` : '')}
           </span>
         </div>
@@ -236,7 +240,7 @@ export default function AgencyVideoPlayer({ src, poster, chapters }: AgencyVideo
               <li
                 key={chapter.label}
                 className={`rounded-lg border p-3 ${
-                  selected ? 'border-emerald-400 bg-emerald-50' : 'border-gray-200 bg-white'
+                  selected ? 'border-emerald-300 bg-emerald-400/10' : 'border-white/20 bg-black/10'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
@@ -245,14 +249,14 @@ export default function AgencyVideoPlayer({ src, poster, chapters }: AgencyVideo
                     onClick={() => handleChapterSeek(chapter.time)}
                     className="text-left"
                   >
-                    <p className="text-xs font-semibold text-emerald-700">{formatTime(chapter.time)}</p>
-                    <p className="text-sm font-medium text-gray-900">{chapter.label}</p>
+                    <p className="text-xs font-semibold text-emerald-300">{formatTime(chapter.time)}</p>
+                    <p className="text-sm font-medium text-white">{chapter.label}</p>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => copyChapterLink(chapter.time)}
-                    className="rounded-md border border-gray-300 px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                    className="rounded-md border border-white/35 px-2 py-1 text-xs font-semibold text-white/85 hover:bg-white/10"
                   >
                     Copy link
                   </button>
