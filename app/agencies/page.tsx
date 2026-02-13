@@ -772,49 +772,95 @@ export default function AgenciesPage() {
         </section>
 
         <section id="pricing" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-6xl">
-            <h2 className="text-3xl font-semibold text-gray-900">Seat License Rate Card</h2>
-            <div className="mt-6 grid gap-5 lg:grid-cols-3">
-              <article className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900">Under $2M in annual revenue</h3>
-                <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-gray-700">
-                  <li>All dashboard modules</li>
-                  <li>Two onboarding sessions</li>
-                  <li>Up to two hours of consultations per quarter</li>
-                  <li>Includes 2 seat licenses</li>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Pricing</span>
+            </div>
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Seat License{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Rate Card
+              </span>
+            </h2>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              <article className="relative overflow-hidden rounded-2xl bg-teal-600 p-6 text-white ring-1 ring-teal-500/20 shadow-[0_14px_48px_-18px_rgba(2,12,27,.22)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_72px_-22px_rgba(2,12,27,.28)]">
+                <h3 className="text-lg font-semibold">Under $2M in annual revenue</h3>
+                <ul className="mt-4 space-y-2 text-sm/6 text-white/95">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>All dashboard modules</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>Two onboarding sessions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>Up to two hours of consultations per quarter</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>Includes 2 seat licenses</span>
+                  </li>
                 </ul>
-                <p className="mt-5 text-sm font-semibold text-emerald-800">
+                <p className="mt-5 border-t border-white/20 pt-4 text-sm font-semibold text-white">
                   $2,600 per month OR $29,500 if paid annually
                 </p>
               </article>
 
-              <article className="rounded-2xl border border-emerald-300 bg-emerald-50/50 p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900">Between $2M & $10M in annual revenue</h3>
-                <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-gray-700">
-                  <li>All dashboard modules</li>
-                  <li>Two onboarding sessions</li>
-                  <li>Up to two hours of consultations per quarter</li>
-                  <li>Includes 3 seat licenses</li>
+              <article className="relative overflow-hidden rounded-2xl bg-slate-900 p-6 text-white ring-1 ring-slate-800/40 shadow-[0_14px_48px_-18px_rgba(2,12,27,.22)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_72px_-22px_rgba(2,12,27,.28)]">
+                <h3 className="text-lg font-semibold">Between $2M & $10M in annual revenue</h3>
+                <ul className="mt-4 space-y-2 text-sm/6 text-white/95">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>All dashboard modules</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>Two onboarding sessions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>Up to two hours of consultations per quarter</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300" aria-hidden="true" />
+                    <span>Includes 3 seat licenses</span>
+                  </li>
                 </ul>
-                <p className="mt-5 text-sm font-semibold text-emerald-800">
+                <p className="mt-5 border-t border-white/20 pt-4 text-sm font-semibold text-white">
                   $4,150 per month OR $47,500 if paid annually
                 </p>
               </article>
 
-              <article className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900">Over $10M in annual revenue</h3>
-                <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-gray-700">
-                  <li>All dashboard modules</li>
-                  <li>Two onboarding sessions</li>
-                  <li>Up to two hours of consultations per quarter</li>
-                  <li>Includes 5 seat licenses</li>
+              <article className="relative overflow-hidden rounded-2xl bg-amber-400 p-6 text-slate-900 ring-1 ring-amber-300/40 shadow-[0_14px_48px_-18px_rgba(2,12,27,.22)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_72px_-22px_rgba(2,12,27,.28)]">
+                <h3 className="text-lg font-semibold">Over $10M in annual revenue</h3>
+                <ul className="mt-4 space-y-2 text-sm/6 text-slate-800">
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-900/70" aria-hidden="true" />
+                    <span>All dashboard modules</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-900/70" aria-hidden="true" />
+                    <span>Two onboarding sessions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-900/70" aria-hidden="true" />
+                    <span>Up to two hours of consultations per quarter</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-900/70" aria-hidden="true" />
+                    <span>Includes 5 seat licenses</span>
+                  </li>
                 </ul>
-                <p className="mt-5 text-sm font-semibold text-emerald-800">
+                <p className="mt-5 border-t border-slate-900/20 pt-4 text-sm font-semibold text-slate-900">
                   $6,200 per month OR $71,000 if paid annually
                 </p>
               </article>
             </div>
-            <p className="mt-4 text-sm text-gray-600">Qualified Not-for-Profit — 20% Discount</p>
+            <p className="mt-4 text-sm text-slate-600">Qualified Not-for-Profit — 20% Discount</p>
           </FadeUp>
         </section>
 
