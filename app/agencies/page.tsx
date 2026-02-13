@@ -27,7 +27,7 @@ const SECTION_ITEMS = [
   { id: 'overview', label: 'Overview' },
   { id: 'why-now', label: 'Why Now' },
   { id: 'purpose-generation', label: 'Purpose Generation' },
-  { id: 'agency-advantage', label: 'Elevator Pitch' },
+  { id: 'agency-advantage', label: 'Agency Advantage' },
   { id: 'winning', label: 'Winning' },
   { id: 'data-breadth', label: 'Data Breadth' },
   { id: 'defensible', label: 'Defensible Data' },
@@ -198,6 +198,42 @@ const FAQ_ITEMS = [
   },
 ] as const;
 
+const AGENCY_ADVANTAGE_CARDS = [
+  {
+    title: 'Win More Competitive RFPs',
+    kicker: 'Pitch engine for strategy teams',
+    description:
+      'Bring category-specific sustainability evidence directly into your pitch narrative to show exactly how values correlate with behavior in your client’s market.',
+    bullets: [
+      'Translate cultural signals into commercial opportunity framing',
+      'Differentiate your point of view with national consumer evidence',
+      'Strengthen procurement confidence with defensible strategy logic',
+    ],
+  },
+  {
+    title: 'De-Risk Client Messaging',
+    kicker: 'Message clarity before campaigns launch',
+    description:
+      'Use EcoFocus to prioritize claims and themes most likely to resonate, helping teams avoid vague language that triggers skepticism or delays approvals.',
+    bullets: [
+      'Pressure-test claim directions before creative finalization',
+      'Align messaging with audience trust drivers and proof needs',
+      'Reduce revision cycles caused by subjective stakeholder debate',
+    ],
+  },
+  {
+    title: 'Scale Always-On Thought Leadership',
+    kicker: 'Delivery engine for ongoing work',
+    description:
+      'Keep PR, social, and comms content grounded in current data so teams can publish credible points of view continuously, not just during campaign peaks.',
+    bullets: [
+      'Create recurring POV content from fresh consumer trend signals',
+      'Support earned media and social narratives with data citations',
+      'Equip account teams with reusable insight-led story angles',
+    ],
+  },
+] as const;
+
 function getConfiguredSlideImages() {
   const configured = process.env.NEXT_PUBLIC_AGENCY_SLIDES ?? '';
   return configured
@@ -339,14 +375,38 @@ export default function AgenciesPage() {
               </div>
 
               <div className="md:col-span-6">
-                <ul className="list-disc space-y-2 pl-6 text-gray-700">
-                  <li>The Purpose-Driven Generation is reshaping the consumer landscape.</li>
-                  <li>
-                    These are individuals, largely Gen Z, Millennials, and increasingly younger Gen Xers, whose values
-                    directly influence how they shop,
+                <ul className="grid gap-2">
+                  <li className="relative pl-5 text-sm text-slate-600">
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                    />
+                    <span>The Purpose-Driven Generation is reshaping the consumer landscape.</span>
                   </li>
-                  <li>What they advocate for, and which brands they trust.</li>
-                  <li>They care about ethical sourcing, environmental impact, and corporate transparency.</li>
+                  <li className="relative pl-5 text-sm text-slate-600">
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                    />
+                    <span>
+                      These are individuals, largely Gen Z, Millennials, and increasingly younger Gen Xers, whose
+                      values directly influence how they shop,
+                    </span>
+                  </li>
+                  <li className="relative pl-5 text-sm text-slate-600">
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                    />
+                    <span>What they advocate for, and which brands they trust.</span>
+                  </li>
+                  <li className="relative pl-5 text-sm text-slate-600">
+                    <span
+                      aria-hidden
+                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                    />
+                    <span>They care about ethical sourcing, environmental impact, and corporate transparency.</span>
+                  </li>
                 </ul>
                 <p className="mt-6 text-gray-700">
                   They prioritize sustainability, health, and ethics, not just in what they buy, but in who they buy
@@ -360,25 +420,64 @@ export default function AgenciesPage() {
         </section>
 
         <section id="agency-advantage" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-5xl">
-            <h2 className="text-3xl font-semibold text-gray-900">Elevator Pitch</h2>
-            <p className="mt-4 text-gray-700">
-              For advertising, marketing, PR and Comms firms, EcoFocus becomes both a pitch engine and a delivery
-              engine. Use our data to:
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Agency Advantage</span>
+            </div>
+
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Turn EcoFocus Into Your{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Agency Advantage
+              </span>
+            </h2>
+
+            <p className="mt-4 max-w-4xl text-base md:text-lg text-slate-600">
+              For advertising, marketing, PR and comms firms, EcoFocus becomes both a pitch engine and a delivery
+              engine. Use our data to win opportunities, reduce risk, and keep high-credibility strategy in market.
             </p>
-            <ul className="mt-5 list-disc space-y-2 pl-6 text-gray-700">
-              <li>
-                Win RFPs with category-specific insights showing how sustainability attitudes correlate with consumer
-                behaviors,
-              </li>
-              <li>
-                De-risk messaging by prioritizing the claims that resonate most strongly with target audiences, and
-              </li>
-              <li>
-                Produce always-on POV (thought-leadership, earned stories, social) grounded in the latest nationally
-                representative consumer research.
-              </li>
-            </ul>
+
+            <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+              {AGENCY_ADVANTAGE_CARDS.map((card, i) => (
+                <div
+                  key={card.title}
+                  className="relative rounded-[1.05rem] bg-[linear-gradient(135deg,rgba(16,185,129,0.35),rgba(59,130,246,0.25),transparent)] p-[1px]"
+                >
+                  <article className="flex h-full flex-col rounded-[1rem] bg-white ring-1 ring-gray-100 shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)] transition hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)]">
+                    <div className="px-6 pt-6 pb-4">
+                      <div className="mb-2 flex items-center">
+                        <span className="inline-flex items-center justify-center rounded-full bg-[#ef9601] px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                      </div>
+                      <h3 className="text-[22px] font-semibold leading-snug tracking-tight text-slate-900">
+                        {card.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-snug text-emerald-600">{card.kicker}</p>
+                    </div>
+
+                    <div className="px-6 pb-2">
+                      <p className="text-[15px] leading-relaxed text-slate-700">{card.description}</p>
+                    </div>
+
+                    <div className="px-6 pt-2 pb-6">
+                      <ul className="grid gap-1.5">
+                        {card.bullets.map((bullet) => (
+                          <li key={bullet} className="relative pl-5 text-sm text-slate-600">
+                            <span
+                              aria-hidden
+                              className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                            />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </article>
+                </div>
+              ))}
+            </div>
           </FadeUp>
         </section>
 
