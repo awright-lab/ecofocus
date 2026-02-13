@@ -7,6 +7,8 @@ import Hero from '@/components/Hero';
 import StickySectionNav from '@/components/StickySectionNav';
 import Accordion from '@/components/Accordion';
 import AgencyVideoPlayer from '@/components/AgencyVideoPlayer';
+import SoftDivider from '@/components/SoftDivider';
+import { FadeUp } from '@/components/ui/Reveal';
 
 export const metadata: Metadata = {
   title: {
@@ -214,7 +216,7 @@ export default function AgenciesPage() {
     <>
       <Header />
 
-      <main className="bg-gradient-to-b from-white via-emerald-50/30 to-white text-gray-900">
+      <main id="main" className="bg-white text-gray-900">
         <div id="overview" className="scroll-mt-28">
           <Hero
             variant="report"
@@ -230,32 +232,37 @@ export default function AgenciesPage() {
           />
         </div>
 
-        <section className="px-6 py-12 sm:px-8 lg:px-12">
-          <div className="mx-auto max-w-7xl rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900">Elevator Snapshot</h2>
-            <ul className="mt-4 space-y-2 text-sm text-gray-700">
-              <li>Win RFPs with category-specific, behavior-linked sustainability insights.</li>
-              <li>De-risk messaging with claims prioritization grounded in national data.</li>
-              <li>Publish always-on POV content anchored in current consumer evidence.</li>
-            </ul>
-          </div>
+        <section className="bg-brand-tint-blue px-6 py-12 sm:px-8 lg:px-12">
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+              <h2 className="text-xl font-semibold text-gray-900">Elevator Snapshot</h2>
+              <ul className="mt-4 space-y-2 text-sm text-gray-700">
+                <li>Win RFPs with category-specific, behavior-linked sustainability insights.</li>
+                <li>De-risk messaging with claims prioritization grounded in national data.</li>
+                <li>Publish always-on POV content anchored in current consumer evidence.</li>
+              </ul>
+            </div>
+          </FadeUp>
         </section>
 
         <StickySectionNav items={[...SECTION_ITEMS]} mobileLabel="Jump to section" />
+        <SoftDivider />
 
-        <section id="why-now" className={sectionClassName()}>
-          <div className="mx-auto max-w-5xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
-            <h2 className="text-3xl font-semibold text-gray-900">So Why Now?</h2>
-            <p className="mt-4 text-lg italic text-gray-700">
-              2030 is right around the corner. The time for companies to prepare for this huge shift in consumer
-              purchasing power is NOW.
-            </p>
-            <p className="mt-4 text-2xl font-extrabold text-emerald-700">Be Early or Be Late</p>
-          </div>
+        <section id="why-now" className={`bg-brand-tint-emerald ${sectionClassName()}`}>
+          <FadeUp className="mx-auto max-w-5xl">
+            <div className="rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
+              <h2 className="text-3xl font-semibold text-gray-900">So Why Now?</h2>
+              <p className="mt-4 text-lg italic text-gray-700">
+                2030 is right around the corner. The time for companies to prepare for this huge shift in consumer
+                purchasing power is NOW.
+              </p>
+              <p className="mt-4 text-2xl font-extrabold text-emerald-700">Be Early or Be Late</p>
+            </div>
+          </FadeUp>
         </section>
 
         <section id="purpose-generation" className={sectionClassName()}>
-          <div className="mx-auto max-w-5xl">
+          <FadeUp className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">The Purpose-Driven Generation</h2>
             <p className="mt-4 text-lg font-medium text-emerald-800">
               Millennials and Gen Z will make up 65% of purchasing power by 2030*
@@ -274,11 +281,11 @@ export default function AgenciesPage() {
               Purpose isn’t just a value proposition. It’s the new margin-friendly differentiation and growth driver.
             </p>
             <p className="mt-4 text-sm text-gray-500">*Source: NielsenIQ/tPX White Paper</p>
-          </div>
+          </FadeUp>
         </section>
 
-        <section id="agency-advantage" className={sectionClassName()}>
-          <div className="mx-auto max-w-5xl">
+        <section id="agency-advantage" className={`bg-brand-tint-blue ${sectionClassName()}`}>
+          <FadeUp className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">Elevator Pitch</h2>
             <p className="mt-4 text-gray-700">
               For advertising, marketing, PR and Comms firms, EcoFocus becomes both a pitch engine and a delivery
@@ -297,11 +304,11 @@ export default function AgenciesPage() {
                 representative consumer research.
               </li>
             </ul>
-          </div>
+          </FadeUp>
         </section>
 
         <section id="winning" className={sectionClassName()}>
-          <div className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
+          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
             <h2 className="text-3xl font-semibold text-gray-900">Winning</h2>
             <p className="mt-4 text-gray-700">
               Agencies win when they can turn cultural signals into commercial outcomes, and that’s exactly what
@@ -345,11 +352,12 @@ export default function AgenciesPage() {
                     ))}
               </div>
             </div>
-          </div>
+          </FadeUp>
         </section>
+        <SoftDivider />
 
-        <section id="data-breadth" className={sectionClassName()}>
-          <div className="mx-auto max-w-6xl">
+        <section id="data-breadth" className={`bg-brand-tint-emerald ${sectionClassName()}`}>
+          <FadeUp className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">What You Can Answer (Breadth of the Data)</h2>
             <p className="mt-4 text-gray-700">
               Our annual trend survey provides comprehensive data across consumer sustainability, health, packaging,
@@ -378,11 +386,11 @@ export default function AgenciesPage() {
               communicating environmental commitments, building workplace programs, or benchmarking your brand’s
               eco-reputation, our data reveals what consumers believe, trust, and purchase.
             </p>
-          </div>
+          </FadeUp>
         </section>
 
         <section id="defensible" className={sectionClassName()}>
-          <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
+          <FadeUp className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
             <article className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
               <h2 className="text-2xl font-semibold text-gray-900">Act on Facts</h2>
               <p className="mt-4 text-gray-700">
@@ -409,11 +417,11 @@ export default function AgenciesPage() {
                 highly reliable margin of error of just 1.55%.
               </p>
             </article>
-          </div>
+          </FadeUp>
         </section>
 
-        <section id="roi" className={sectionClassName()}>
-          <div className="mx-auto max-w-6xl">
+        <section id="roi" className={`bg-brand-tint-blue ${sectionClassName()}`}>
+          <FadeUp className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">Purpose Generation: Client ROI</h2>
             <div className="mt-6 grid gap-5 lg:grid-cols-3">
               <article className="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm">
@@ -443,18 +451,18 @@ export default function AgenciesPage() {
                 </p>
               </article>
             </div>
-          </div>
+          </FadeUp>
         </section>
 
-        <section id="portal" className={sectionClassName()}>
-          <div className="mx-auto max-w-6xl">
-            <h2 className="text-3xl font-semibold text-gray-900">Data Now—When You Need It</h2>
-            <p className="mt-4 text-gray-700">
+        <section id="portal" className={`section-slab-deep ${sectionClassName()}`}>
+          <FadeUp className="mx-auto max-w-6xl">
+            <h2 className="text-3xl font-semibold text-white">Data Now—When You Need It</h2>
+            <p className="mt-4 text-slate-200">
               Our Portal’s fast filters and export-ready visuals let strategists and creators work without research
               bottlenecks, while rigorous research data helps teams craft credible sustainability messaging and defend
               recommendations with confidence.
             </p>
-            <p className="mt-3 text-gray-700">
+            <p className="mt-3 text-slate-200">
               In short: EcoFocus turns sustainability from a fuzzy talking point into a measurable, actionable growth
               strategy your clients can execute immediately.
             </p>
@@ -465,11 +473,11 @@ export default function AgenciesPage() {
                 chapters={[...CHAPTERS]}
               />
             </div>
-          </div>
+          </FadeUp>
         </section>
 
         <section id="modules" className={sectionClassName()}>
-          <div className="mx-auto max-w-5xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
+          <FadeUp className="mx-auto max-w-5xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
             <h2 className="text-3xl font-semibold text-gray-900">Key Data Portal Modules</h2>
             <ul className="mt-6 grid gap-3 text-gray-700 sm:grid-cols-2 lg:grid-cols-3">
               <li className="rounded-lg bg-emerald-50 p-3">Demographics</li>
@@ -482,11 +490,12 @@ export default function AgenciesPage() {
               <li className="rounded-lg bg-emerald-50 p-3">EPR (Extended Producer Responsibility)</li>
             </ul>
             <p className="mt-4 text-sm italic text-gray-500">See an expanded version in Appendix</p>
-          </div>
+          </FadeUp>
         </section>
+        <SoftDivider />
 
-        <section id="pricing" className={sectionClassName()}>
-          <div className="mx-auto max-w-6xl">
+        <section id="pricing" className={`bg-brand-tint-emerald ${sectionClassName()}`}>
+          <FadeUp className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">Seat License Rate Card</h2>
             <div className="mt-6 grid gap-5 lg:grid-cols-3">
               <article className="rounded-2xl border border-emerald-200 bg-white p-6 shadow-sm">
@@ -529,11 +538,11 @@ export default function AgenciesPage() {
               </article>
             </div>
             <p className="mt-4 text-sm text-gray-600">Qualified Not-for-Profit — 20% Discount</p>
-          </div>
+          </FadeUp>
         </section>
 
         <section id="guarantee" className={sectionClassName()}>
-          <div className="mx-auto max-w-6xl rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-700 to-emerald-900 p-8 text-white shadow-sm">
+          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-700 to-emerald-900 p-8 text-white shadow-sm">
             <h2 className="text-3xl font-semibold">The EcoFocus® Portal: Launch Program Guarantee</h2>
             <p className="mt-3 text-emerald-100">
               If you don’t get value from EcoFocus in your first year, we’ll make it right.
@@ -549,11 +558,11 @@ export default function AgenciesPage() {
               client.
             </p>
             <p className="mt-4 text-xs text-emerald-200">Full terms available in Appendix</p>
-          </div>
+          </FadeUp>
         </section>
 
-        <section id="faq" className={sectionClassName()}>
-          <div className="mx-auto max-w-5xl">
+        <section id="faq" className={`bg-brand-tint-blue ${sectionClassName()}`}>
+          <FadeUp className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">FAQ</h2>
             <div className="mt-6">
               <Accordion
@@ -565,11 +574,11 @@ export default function AgenciesPage() {
                 defaultOpenIds={[FAQ_ITEMS[0].id]}
               />
             </div>
-          </div>
+          </FadeUp>
         </section>
 
         <section id="contact" className={sectionClassName()}>
-          <div className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 text-center shadow-sm">
+          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 text-center shadow-sm">
             <h2 className="text-3xl font-semibold text-gray-900">Ready to win your next pitch with defensible data?</h2>
             <p className="mx-auto mt-4 max-w-3xl text-gray-700">
               Let’s walk through the Portal, show relevant modules for your category, and map insights to your upcoming
@@ -583,7 +592,7 @@ export default function AgenciesPage() {
                 Contact Us
               </Link>
             </div>
-          </div>
+          </FadeUp>
         </section>
       </main>
 
