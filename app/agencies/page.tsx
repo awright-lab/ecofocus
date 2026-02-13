@@ -234,22 +234,11 @@ const AGENCY_ADVANTAGE_CARDS = [
   },
 ] as const;
 
-function getConfiguredSlideImages() {
-  const configured = process.env.NEXT_PUBLIC_AGENCY_SLIDES ?? '';
-  return configured
-    .split(',')
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .slice(0, 6);
-}
-
 function sectionClassName() {
   return 'scroll-mt-28 container mx-auto px-6 py-14';
 }
 
 export default function AgenciesPage() {
-  const slideImages = getConfiguredSlideImages();
-
   return (
     <>
       <Header />
@@ -481,50 +470,46 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section id="winning" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
-            <h2 className="text-3xl font-semibold text-gray-900">Winning</h2>
-            <p className="mt-4 text-gray-700">
+        <section
+          id="winning"
+          className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white"
+        >
+          <FadeUp className="mx-auto max-w-7xl px-6 py-14">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+              <span className="text-emerald-300">Winning</span>
+            </div>
+            <h2 className="mt-4 text-[clamp(1.8rem,4.5vw,2.6rem)] font-bold leading-tight">
+              Winning With{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Defensible Insight
+              </span>
+            </h2>
+            <p className="mt-4 max-w-4xl text-white/85">
               Agencies win when they can turn cultural signals into commercial outcomes, and that’s exactly what
               EcoFocus delivers. Our Portal gives you interactive, self-serve access to nationally representative
               insights on the purpose-driven generation (Gen Z & Millennials) and how they differ from older
               consumers.
             </p>
-            <ul className="mt-5 grid gap-3 text-gray-700 sm:grid-cols-2">
-              <li className="rounded-lg bg-emerald-50 p-3">Which sustainability certifications and messages resonate</li>
-              <li className="rounded-lg bg-emerald-50 p-3">Which fail to drive behavior</li>
-              <li className="rounded-lg bg-emerald-50 p-3">What builds trust in environmental claims</li>
-              <li className="rounded-lg bg-emerald-50 p-3">
+
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                Which sustainability certifications and messages resonate
+              </div>
+              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                Which fail to drive behavior
+              </div>
+              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
+                What builds trust in environmental claims
+              </div>
+              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
                 How environmental values correlate with purchasing patterns across categories
-              </li>
-            </ul>
-            <p className="mt-6 text-sm text-gray-600">
+              </div>
+            </div>
+
+            <div className="mt-6 rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
               For example: 80% of respondents say they are aware of the USDA Organic certification, but only 41% are
               aware of the USDA Bio-based Product seal.
-            </p>
-
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-900">Slide Strip</h3>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {slideImages.length > 0
-                  ? slideImages.map((src) => (
-                      <div
-                        key={src}
-                        className="relative overflow-hidden rounded-xl border border-gray-200 bg-white"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt="Agency slide" className="h-44 w-full object-cover" />
-                      </div>
-                    ))
-                  : Array.from({ length: 6 }).map((_, index) => (
-                      <div
-                        key={`placeholder-${index}`}
-                        className="flex h-44 items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 text-sm font-medium text-gray-500"
-                      >
-                        Slide image placeholder
-                      </div>
-                    ))}
-              </div>
             </div>
           </FadeUp>
         </section>
