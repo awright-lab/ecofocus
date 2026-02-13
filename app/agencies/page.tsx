@@ -9,6 +9,7 @@ import Accordion from '@/components/Accordion';
 import AgencyVideoPlayer from '@/components/AgencyVideoPlayer';
 import { FadeUp } from '@/components/ui/Reveal';
 import { MeasureCard } from '../brands/MeasureCard';
+import WhyNowWaves from './WhyNowWaves';
 
 export const metadata: Metadata = {
   title: {
@@ -207,28 +208,6 @@ function getConfiguredSlideImages() {
 
 function sectionClassName() {
   return 'scroll-mt-28 container mx-auto px-6 py-14';
-}
-
-function WhyNowWaves() {
-  return (
-    <div className="mt-5 max-w-[460px]" aria-hidden="true">
-      <div className="relative h-24 overflow-hidden">
-        <div className="absolute left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 bg-[#213F97]/90" />
-        {Array.from({ length: 12 }).map((_, i) => (
-          <span
-            key={`wave-${i}`}
-            className="absolute bottom-1/2 w-[8px] rounded-full bg-gradient-to-t from-emerald-500 via-teal-400 to-blue-500"
-            style={{
-              left: `${20 + i * 34}px`,
-              height: '52px',
-              transformOrigin: 'bottom',
-              animation: `pulse 2.4s ease-in-out ${i * 0.12}s infinite`,
-            }}
-          />
-        ))}
-      </div>
-    </div>
-  );
 }
 
 export default function AgenciesPage() {
