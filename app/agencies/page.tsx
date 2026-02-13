@@ -234,6 +234,30 @@ const AGENCY_ADVANTAGE_CARDS = [
   },
 ] as const;
 
+const DEFENSIBLE_DATA_CARDS: Array<{
+  title: string;
+  kicker: string;
+  description: string;
+  bullets: string[];
+  footnote?: string;
+}> = [
+  {
+    title: 'Act on Facts',
+    kicker: 'Third-party principles reinforce this approach',
+    description:
+      'We are not alone in our belief in the importance of good data. The AMEC, Barcelona Principles 3 report states that robust data and solid insights should underpin communications planning, grounded in clear goals and supported by both qualitative and quantitative evidence.*',
+    bullets: ['Stronger briefs', 'Faster approvals', 'Defensible recommendations'],
+    footnote: '*Source: AMEC, Barcelona Principles 3. (2020)',
+  },
+  {
+    title: 'Nationally Representative, Longitudinal Data You Can Defend',
+    kicker: 'Built for confidence in strategic recommendations',
+    description:
+      'At EcoFocus, we bring 15 years of rigorous syndicated research on US consumers’ sustainability attitudes and behaviors. Our extensive study is carefully designed to be representative of the US adult population based on key census characteristics and boasts a robust sample of 4,000 respondents and a highly reliable margin of error of just 1.55%.',
+    bullets: ['15 years of longitudinal trend data', '4,000-respondent US sample', 'Margin of error of 1.55%'],
+  },
+] as const;
+
 function sectionClassName() {
   return 'scroll-mt-28 container mx-auto px-6 py-14';
 }
@@ -575,33 +599,62 @@ export default function AgenciesPage() {
         </section>
 
         <section id="defensible" className={sectionClassName()}>
-          <FadeUp className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
-            <article className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
-              <h2 className="text-2xl font-semibold text-gray-900">Act on Facts</h2>
-              <p className="mt-4 text-gray-700">
-                We are not alone in our belief in the importance of good data. The AMEC, Barcelona Principles 3 report
-                states that robust data and solid insights should underpin communications planning, grounded in clear
-                goals and supported by both qualitative and quantitative evidence.*
-              </p>
-              <ul className="mt-4 list-disc space-y-2 pl-6 text-gray-700">
-                <li>Stronger briefs</li>
-                <li>Faster approvals</li>
-                <li>Defensible recommendations</li>
-              </ul>
-              <p className="mt-4 text-sm text-gray-500">*Source: AMEC, Barcelona Principles 3. (2020)</p>
-            </article>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Defensible Data</span>
+            </div>
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Nationally Representative Data You Can{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Defend
+              </span>
+            </h2>
 
-            <article className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
-              <h2 className="text-2xl font-semibold text-gray-900">
-                Nationally Representative, Longitudinal Data You Can Defend
-              </h2>
-              <p className="mt-4 text-gray-700">
-                At EcoFocus, we bring 15 years of rigorous syndicated research on US consumers’ sustainability
-                attitudes and behaviors. Our extensive study is carefully designed to be representative of the US adult
-                population based on key census characteristics and boasts a robust sample of 4,000 respondents and a
-                highly reliable margin of error of just 1.55%.
-              </p>
-            </article>
+            <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">
+              {DEFENSIBLE_DATA_CARDS.map((card, i) => (
+                <div
+                  key={card.title}
+                  className="relative rounded-[1.05rem] bg-[linear-gradient(135deg,rgba(16,185,129,0.35),rgba(59,130,246,0.25),transparent)] p-[1px]"
+                >
+                  <article className="flex h-full flex-col rounded-[1rem] bg-white ring-1 ring-gray-100 shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)] transition hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)]">
+                    <div className="px-6 pt-6 pb-4">
+                      <div className="mb-2 flex items-center">
+                        <span className="inline-flex items-center justify-center rounded-full bg-[#ef9601] px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                      </div>
+                      <h3 className="text-[22px] font-semibold leading-snug tracking-tight text-slate-900">
+                        {card.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-snug text-emerald-600">{card.kicker}</p>
+                    </div>
+
+                    <div className="px-6 pb-2">
+                      <p className="text-[15px] leading-relaxed text-slate-700">{card.description}</p>
+                    </div>
+
+                    <div className="px-6 pt-2 pb-4">
+                      <ul className="grid gap-1.5">
+                        {card.bullets.map((bullet) => (
+                          <li key={bullet} className="relative pl-5 text-sm text-slate-600">
+                            <span
+                              aria-hidden
+                              className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                            />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {card.footnote ? (
+                      <p className="px-6 pb-6 text-xs text-slate-500">{card.footnote}</p>
+                    ) : null}
+                  </article>
+                </div>
+              ))}
+            </div>
           </FadeUp>
         </section>
 
