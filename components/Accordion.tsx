@@ -12,7 +12,7 @@ type AccordionProps = {
   items: AccordionItem[];
   allowMultiple?: boolean;
   defaultOpenIds?: string[];
-  tone?: 'default' | 'marigold' | 'modules';
+  tone?: 'default' | 'marigold' | 'modules' | 'solidGreen';
 };
 
 export default function Accordion({
@@ -41,6 +41,7 @@ export default function Accordion({
         const buttonId = `${accordionId}-${item.id}-button`;
         const isMarigold = tone === 'marigold';
         const isModules = tone === 'modules';
+        const isSolidGreen = tone === 'solidGreen';
 
         return (
           <div
@@ -74,6 +75,8 @@ export default function Accordion({
                     className={
                       isModules
                         ? 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ef9601] bg-[#ef9601] text-white'
+                        : isSolidGreen
+                        ? 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-white'
                         : isMarigold
                         ? 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-700'
                         : 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-300 text-emerald-700'

@@ -53,8 +53,6 @@ function DataWaves({
         ['--spacing' as any]: `${spacing}px`,
         ['--barW' as any]: `${barWidth}px`,
         ['--barH' as any]: `${barHeight}px`,
-        ['--dur' as any]: `${effectiveDuration}s`,
-        ['--delayStep' as any]: `${delayStep}s`,
         ['--reflOpacity' as any]: reflectionOpacity,
         ['--reflBlur' as any]: `${reflectionBlurPx}px`,
       }}
@@ -66,7 +64,8 @@ function DataWaves({
             className="bar"
             style={{
               left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
-              animationDelay: `calc(${i + 1} * var(--delayStep))`,
+              animationDelay: `${(i + 1) * delayStep}s`,
+              animationDuration: `${effectiveDuration}s`,
               background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.18) 100%)`,
               boxShadow: `0 6px 18px -8px ${colorAt(i)}33`,
             }}
@@ -83,7 +82,8 @@ function DataWaves({
             className="bar"
             style={{
               left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
-              animationDelay: `calc(${i + 1} * var(--delayStep))`,
+              animationDelay: `${(i + 1) * delayStep}s`,
+              animationDuration: `${effectiveDuration}s`,
               background: `linear-gradient(180deg, ${colorAt(i)} 0%, ${colorAt(i)} 70%, rgba(255,255,255,0.18) 100%)`,
               boxShadow: `0 6px 18px -8px ${colorAt(i)}33`,
             }}
@@ -106,7 +106,6 @@ function DataWaves({
           transform-origin: bottom;
           transform: translateX(0) translateY(2px) scaleY(0);
           animation-name: waveMotion;
-          animation-duration: var(--dur);
           animation-timing-function: cubic-bezier(0.33, 0.0, 0.23, 1);
           animation-iteration-count: infinite;
           will-change: transform;
@@ -223,7 +222,6 @@ export default function AboutWhoWeAre() {
     </section>
   );
 }
-
 
 
 

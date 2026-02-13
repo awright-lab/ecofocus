@@ -275,8 +275,6 @@ export default function AgenciesPage() {
             badge="EcoFocus for Agencies"
             headline={<>Turn Sustainability Into an RFP Advantage</>}
             subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams—giving you self-serve access to nationally representative insights on the purpose-driven generation and how sustainability values translate into real purchasing behavior."
-            ctaPrimary={{ label: 'Schedule a Demo', href: '/demo' }}
-            ctaSecondary={{ label: 'Explore Data Breadth', href: '#data-breadth' }}
             videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
             posterSrc="/images/hero/leaf-neural.jpg"
             overlay="dense"
@@ -373,7 +371,7 @@ export default function AgenciesPage() {
                     src="/images/purpose-driven.png"
                     alt="Purpose-driven generation visual"
                     fill
-                    className="object-cover"
+                    className="object-cover -scale-x-100"
                     priority
                   />
                 </div>
@@ -573,6 +571,7 @@ export default function AgenciesPage() {
 
                 <div className="lg:col-span-8">
                   <Accordion
+                    tone="solidGreen"
                     allowMultiple
                     defaultOpenIds={[DATA_BREADTH_ITEMS[0].id]}
                     items={DATA_BREADTH_ITEMS.map((item) => ({
@@ -702,7 +701,10 @@ export default function AgenciesPage() {
               <span className="text-emerald-300">Portal</span>
             </span>
             <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-white">
-              Data Now—When You Need It
+              Data Now—When You{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Need It
+              </span>
             </h2>
             <p className="mt-3 max-w-4xl text-sm text-white/85 sm:text-base">
               Our Portal’s fast filters and export-ready visuals let strategists and creators work without research
@@ -765,9 +767,6 @@ export default function AgenciesPage() {
               ))}
             </div>
 
-            <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
-              <p className="text-sm italic text-emerald-800">See an expanded version in Appendix</p>
-            </div>
           </FadeUp>
         </section>
 
@@ -880,7 +879,6 @@ export default function AgenciesPage() {
               POVs, pitches, recommendations, or renewal planning, whether or not the data is shared directly with a
               client.
             </p>
-            <p className="mt-4 text-xs text-emerald-200">Full terms available in Appendix</p>
           </FadeUp>
         </section>
 
@@ -916,7 +914,7 @@ export default function AgenciesPage() {
 
         <section id="contact" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-7xl">
-            <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-white px-6 py-10 shadow-[0_24px_70px_-28px_rgba(2,12,27,.28)] sm:px-8 md:py-12">
+            <div className="relative overflow-hidden px-2 py-2 md:py-4">
               <div
                 className="pointer-events-none absolute -top-20 -left-24 h-56 w-56 rounded-full bg-emerald-100 blur-3xl opacity-30"
                 aria-hidden="true"
