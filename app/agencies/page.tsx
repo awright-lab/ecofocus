@@ -7,8 +7,8 @@ import Hero from '@/components/Hero';
 import StickySectionNav from '@/components/StickySectionNav';
 import Accordion from '@/components/Accordion';
 import AgencyVideoPlayer from '@/components/AgencyVideoPlayer';
-import SoftDivider from '@/components/SoftDivider';
 import { FadeUp } from '@/components/ui/Reveal';
+import { MeasureCard } from '../brands/MeasureCard';
 
 export const metadata: Metadata = {
   title: {
@@ -206,7 +206,7 @@ function getConfiguredSlideImages() {
 }
 
 function sectionClassName() {
-  return `scroll-mt-28 px-6 py-14 sm:px-8 lg:px-12`;
+  return 'scroll-mt-28 container mx-auto px-6 py-14';
 }
 
 export default function AgenciesPage() {
@@ -216,7 +216,7 @@ export default function AgenciesPage() {
     <>
       <Header />
 
-      <main id="main" className="bg-white text-gray-900">
+      <main id="main" className="min-h-screen bg-white text-gray-900">
         <div id="overview" className="scroll-mt-28">
           <Hero
             variant="report"
@@ -232,23 +232,32 @@ export default function AgenciesPage() {
           />
         </div>
 
-        <section className="bg-brand-tint-blue px-6 py-12 sm:px-8 lg:px-12">
-          <FadeUp className="mx-auto max-w-7xl">
-            <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-900">Elevator Snapshot</h2>
-              <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                <li>Win RFPs with category-specific, behavior-linked sustainability insights.</li>
-                <li>De-risk messaging with claims prioritization grounded in national data.</li>
-                <li>Publish always-on POV content anchored in current consumer evidence.</li>
-              </ul>
-            </div>
+        <section className="container mx-auto px-6 py-16">
+          <FadeUp className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <MeasureCard
+              tone="teal"
+              title="Win More RFPs"
+              desc="Category-specific, behavior-linked sustainability insights that sharpen your pitch story."
+              icon="dots"
+            />
+            <MeasureCard
+              tone="slate"
+              title="De-Risk Messaging"
+              desc="Prioritize claims that resonate and reduce exposure to vague or weak sustainability language."
+              icon="checklist"
+            />
+            <MeasureCard
+              tone="amber"
+              title="Build Always-On POV"
+              desc="Ground thought leadership, earned stories, and social narratives in current national data."
+              icon="gauge"
+            />
           </FadeUp>
         </section>
 
         <StickySectionNav items={[...SECTION_ITEMS]} mobileLabel="Jump to section" />
-        <SoftDivider />
 
-        <section id="why-now" className={`bg-brand-tint-emerald ${sectionClassName()}`}>
+        <section id="why-now" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-5xl">
             <div className="rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
               <h2 className="text-3xl font-semibold text-gray-900">So Why Now?</h2>
@@ -284,7 +293,7 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section id="agency-advantage" className={`bg-brand-tint-blue ${sectionClassName()}`}>
+        <section id="agency-advantage" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">Elevator Pitch</h2>
             <p className="mt-4 text-gray-700">
@@ -354,9 +363,8 @@ export default function AgenciesPage() {
             </div>
           </FadeUp>
         </section>
-        <SoftDivider />
 
-        <section id="data-breadth" className={`bg-brand-tint-emerald ${sectionClassName()}`}>
+        <section id="data-breadth" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">What You Can Answer (Breadth of the Data)</h2>
             <p className="mt-4 text-gray-700">
@@ -420,7 +428,7 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section id="roi" className={`bg-brand-tint-blue ${sectionClassName()}`}>
+        <section id="roi" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">Purpose Generation: Client ROI</h2>
             <div className="mt-6 grid gap-5 lg:grid-cols-3">
@@ -454,15 +462,15 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section id="portal" className={`section-slab-deep ${sectionClassName()}`}>
-          <FadeUp className="mx-auto max-w-6xl">
-            <h2 className="text-3xl font-semibold text-white">Data Now—When You Need It</h2>
-            <p className="mt-4 text-slate-200">
+        <section id="portal" className={sectionClassName()}>
+          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
+            <h2 className="text-3xl font-semibold text-gray-900">Data Now—When You Need It</h2>
+            <p className="mt-4 text-gray-700">
               Our Portal’s fast filters and export-ready visuals let strategists and creators work without research
               bottlenecks, while rigorous research data helps teams craft credible sustainability messaging and defend
               recommendations with confidence.
             </p>
-            <p className="mt-3 text-slate-200">
+            <p className="mt-3 text-gray-700">
               In short: EcoFocus turns sustainability from a fuzzy talking point into a measurable, actionable growth
               strategy your clients can execute immediately.
             </p>
@@ -492,9 +500,8 @@ export default function AgenciesPage() {
             <p className="mt-4 text-sm italic text-gray-500">See an expanded version in Appendix</p>
           </FadeUp>
         </section>
-        <SoftDivider />
 
-        <section id="pricing" className={`bg-brand-tint-emerald ${sectionClassName()}`}>
+        <section id="pricing" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">Seat License Rate Card</h2>
             <div className="mt-6 grid gap-5 lg:grid-cols-3">
@@ -561,7 +568,7 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section id="faq" className={`bg-brand-tint-blue ${sectionClassName()}`}>
+        <section id="faq" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">FAQ</h2>
             <div className="mt-6">
