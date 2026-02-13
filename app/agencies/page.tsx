@@ -885,9 +885,22 @@ export default function AgenciesPage() {
         </section>
 
         <section id="faq" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-5xl">
-            <h2 className="text-3xl font-semibold text-gray-900">FAQ</h2>
-            <div className="mt-6">
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-amber-500" aria-hidden="true" />
+              <span className="text-black/60">FAQ</span>
+            </div>
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Frequently Asked{' '}
+              <span className="bg-gradient-to-r from-amber-500 via-[#ef9601] to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Questions
+              </span>
+            </h2>
+            <p className="mt-4 max-w-3xl text-base text-slate-600">
+              Quick answers for agency teams evaluating seat licenses, support, and how to apply EcoFocus data in live
+              pitch and client workflows.
+            </p>
+            <div className="mt-7 rounded-2xl border border-amber-200/80 bg-[linear-gradient(135deg,rgba(245,158,11,0.1),rgba(255,255,255,0.8),rgba(16,185,129,0.08))] p-4 sm:p-5">
               <Accordion
                 items={FAQ_ITEMS.map((item) => ({
                   id: item.id,
@@ -895,6 +908,7 @@ export default function AgenciesPage() {
                   content: <p className="text-sm text-gray-700">{item.content}</p>,
                 }))}
                 defaultOpenIds={[FAQ_ITEMS[0].id]}
+                tone="marigold"
               />
             </div>
           </FadeUp>
