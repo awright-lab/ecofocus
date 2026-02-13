@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Hero from '@/components/Hero';
 import StickySectionNav from '@/components/StickySectionNav';
 import Accordion from '@/components/Accordion';
 import AgencyVideoPlayer from '@/components/AgencyVideoPlayer';
@@ -202,8 +203,8 @@ function getConfiguredSlideImages() {
     .slice(0, 6);
 }
 
-function sectionClassName(id: string) {
-  return `scroll-mt-28 px-6 py-14 sm:px-8 lg:px-12 ${id === 'overview' ? 'pt-16' : ''}`;
+function sectionClassName() {
+  return `scroll-mt-28 px-6 py-14 sm:px-8 lg:px-12`;
 }
 
 export default function AgenciesPage() {
@@ -214,43 +215,35 @@ export default function AgenciesPage() {
       <Header />
 
       <main className="bg-gradient-to-b from-white via-emerald-50/30 to-white text-gray-900">
-        <section id="overview" className={sectionClassName('overview')}>
-          <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.35fr,1fr] lg:items-end">
-            <div>
-              <p className="mb-4 inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
-                Agencies
-              </p>
-              <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
-                Turn Sustainability Into an RFP Advantage
-              </h1>
-              <p className="mt-6 max-w-3xl text-lg text-gray-700">
-                EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms
-                teams, giving you self-serve access to nationally representative insights on the purpose-driven
-                generation and how sustainability values translate into real purchasing behavior.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/demo" className="btn-primary-emerald">
-                  Schedule a Demo
-                </Link>
-                <a href="#data-breadth" className="btn-secondary-light">
-                  Explore Data Breadth
-                </a>
-              </div>
-            </div>
-            <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-900">Elevator Snapshot</h2>
-              <ul className="mt-4 space-y-2 text-sm text-gray-700">
-                <li>Win RFPs with category-specific, behavior-linked sustainability insights.</li>
-                <li>De-risk messaging with claims prioritization grounded in national data.</li>
-                <li>Publish always-on POV content anchored in current consumer evidence.</li>
-              </ul>
-            </div>
+        <div id="overview" className="scroll-mt-28">
+          <Hero
+            variant="report"
+            size="normal"
+            badge="EcoFocus for Agencies"
+            headline={<>Turn Sustainability Into an RFP Advantage</>}
+            subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams—giving you self-serve access to nationally representative insights on the purpose-driven generation and how sustainability values translate into real purchasing behavior."
+            ctaPrimary={{ label: 'Schedule a Demo', href: '/demo' }}
+            ctaSecondary={{ label: 'Explore Data Breadth', href: '#data-breadth' }}
+            videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
+            posterSrc="/images/hero/leaf-neural.jpg"
+            overlay="dense"
+          />
+        </div>
+
+        <section className="px-6 py-12 sm:px-8 lg:px-12">
+          <div className="mx-auto max-w-7xl rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-900">Elevator Snapshot</h2>
+            <ul className="mt-4 space-y-2 text-sm text-gray-700">
+              <li>Win RFPs with category-specific, behavior-linked sustainability insights.</li>
+              <li>De-risk messaging with claims prioritization grounded in national data.</li>
+              <li>Publish always-on POV content anchored in current consumer evidence.</li>
+            </ul>
           </div>
         </section>
 
         <StickySectionNav items={[...SECTION_ITEMS]} mobileLabel="Jump to section" />
 
-        <section id="why-now" className={sectionClassName('why-now')}>
+        <section id="why-now" className={sectionClassName()}>
           <div className="mx-auto max-w-5xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
             <h2 className="text-3xl font-semibold text-gray-900">So Why Now?</h2>
             <p className="mt-4 text-lg italic text-gray-700">
@@ -261,7 +254,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="purpose-generation" className={sectionClassName('purpose-generation')}>
+        <section id="purpose-generation" className={sectionClassName()}>
           <div className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">The Purpose-Driven Generation</h2>
             <p className="mt-4 text-lg font-medium text-emerald-800">
@@ -284,7 +277,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="agency-advantage" className={sectionClassName('agency-advantage')}>
+        <section id="agency-advantage" className={sectionClassName()}>
           <div className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">Elevator Pitch</h2>
             <p className="mt-4 text-gray-700">
@@ -307,7 +300,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="winning" className={sectionClassName('winning')}>
+        <section id="winning" className={sectionClassName()}>
           <div className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
             <h2 className="text-3xl font-semibold text-gray-900">Winning</h2>
             <p className="mt-4 text-gray-700">
@@ -355,7 +348,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="data-breadth" className={sectionClassName('data-breadth')}>
+        <section id="data-breadth" className={sectionClassName()}>
           <div className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">What You Can Answer (Breadth of the Data)</h2>
             <p className="mt-4 text-gray-700">
@@ -388,7 +381,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="defensible" className={sectionClassName('defensible')}>
+        <section id="defensible" className={sectionClassName()}>
           <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
             <article className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
               <h2 className="text-2xl font-semibold text-gray-900">Act on Facts</h2>
@@ -419,7 +412,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="roi" className={sectionClassName('roi')}>
+        <section id="roi" className={sectionClassName()}>
           <div className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">Purpose Generation: Client ROI</h2>
             <div className="mt-6 grid gap-5 lg:grid-cols-3">
@@ -453,7 +446,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="portal" className={sectionClassName('portal')}>
+        <section id="portal" className={sectionClassName()}>
           <div className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">Data Now—When You Need It</h2>
             <p className="mt-4 text-gray-700">
@@ -475,7 +468,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="modules" className={sectionClassName('modules')}>
+        <section id="modules" className={sectionClassName()}>
           <div className="mx-auto max-w-5xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
             <h2 className="text-3xl font-semibold text-gray-900">Key Data Portal Modules</h2>
             <ul className="mt-6 grid gap-3 text-gray-700 sm:grid-cols-2 lg:grid-cols-3">
@@ -492,7 +485,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="pricing" className={sectionClassName('pricing')}>
+        <section id="pricing" className={sectionClassName()}>
           <div className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-semibold text-gray-900">Seat License Rate Card</h2>
             <div className="mt-6 grid gap-5 lg:grid-cols-3">
@@ -539,7 +532,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="guarantee" className={sectionClassName('guarantee')}>
+        <section id="guarantee" className={sectionClassName()}>
           <div className="mx-auto max-w-6xl rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-700 to-emerald-900 p-8 text-white shadow-sm">
             <h2 className="text-3xl font-semibold">The EcoFocus® Portal: Launch Program Guarantee</h2>
             <p className="mt-3 text-emerald-100">
@@ -559,7 +552,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="faq" className={sectionClassName('faq')}>
+        <section id="faq" className={sectionClassName()}>
           <div className="mx-auto max-w-5xl">
             <h2 className="text-3xl font-semibold text-gray-900">FAQ</h2>
             <div className="mt-6">
@@ -575,7 +568,7 @@ export default function AgenciesPage() {
           </div>
         </section>
 
-        <section id="contact" className={sectionClassName('contact')}>
+        <section id="contact" className={sectionClassName()}>
           <div className="mx-auto max-w-6xl rounded-2xl border border-emerald-100 bg-white p-8 text-center shadow-sm">
             <h2 className="text-3xl font-semibold text-gray-900">Ready to win your next pitch with defensible data?</h2>
             <p className="mx-auto mt-4 max-w-3xl text-gray-700">
