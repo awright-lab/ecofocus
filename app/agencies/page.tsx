@@ -744,19 +744,53 @@ export default function AgenciesPage() {
         </section>
 
         <section id="modules" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-5xl rounded-2xl border border-emerald-100 bg-white p-8 shadow-sm">
-            <h2 className="text-3xl font-semibold text-gray-900">Key Data Portal Modules</h2>
-            <ul className="mt-6 grid gap-3 text-gray-700 sm:grid-cols-2 lg:grid-cols-3">
-              <li className="rounded-lg bg-emerald-50 p-3">Demographics</li>
-              <li className="rounded-lg bg-emerald-50 p-3">Concerns and Awareness</li>
-              <li className="rounded-lg bg-emerald-50 p-3">Shopping Attitudes and Priorities</li>
-              <li className="rounded-lg bg-emerald-50 p-3">Brand Expectations and Messaging</li>
-              <li className="rounded-lg bg-emerald-50 p-3">Employment</li>
-              <li className="rounded-lg bg-emerald-50 p-3">Packaging</li>
-              <li className="rounded-lg bg-emerald-50 p-3">Certifications and Labels</li>
-              <li className="rounded-lg bg-emerald-50 p-3">EPR (Extended Producer Responsibility)</li>
-            </ul>
-            <p className="mt-4 text-sm italic text-gray-500">See an expanded version in Appendix</p>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Portal Modules</span>
+            </div>
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Key Data Portal{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Modules
+              </span>
+            </h2>
+            <p className="mt-4 max-w-4xl text-base md:text-lg text-slate-600">
+              Built for strategists, planners, creatives, and client leads who need defensible answers quickly across
+              the full sustainability decision journey.
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                ['Demographics', 'Audience baselines'],
+                ['Concerns and Awareness', 'Issue prioritization'],
+                ['Shopping Attitudes and Priorities', 'Behavior intent signals'],
+                ['Brand Expectations and Messaging', 'Claim/message fit'],
+                ['Employment', 'Workplace lens'],
+                ['Packaging', 'Material + format insights'],
+                ['Certifications and Labels', 'Seal recognition + trust'],
+                ['EPR (Extended Producer Responsibility)', 'Policy + purchase impact'],
+              ].map(([title, meta], i) => (
+                <div
+                  key={title}
+                  className="relative rounded-[1.05rem] bg-[linear-gradient(135deg,rgba(16,185,129,0.35),rgba(59,130,246,0.25),transparent)] p-[1px]"
+                >
+                  <article className="h-full rounded-[1rem] bg-white p-4 ring-1 ring-gray-100 shadow-[0_8px_28px_-6px_rgba(0,0,0,0.08)] transition hover:shadow-[0_14px_44px_-10px_rgba(0,0,0,0.12)]">
+                    <div className="mb-2 flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center justify-center rounded-full bg-[#ef9601] px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-emerald-600">{meta}</span>
+                    </div>
+                    <h3 className="text-[16px] font-semibold leading-snug text-slate-900">{title}</h3>
+                  </article>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+              <p className="text-sm italic text-emerald-800">See an expanded version in Appendix</p>
+            </div>
           </FadeUp>
         </section>
 
