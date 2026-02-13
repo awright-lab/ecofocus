@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -276,12 +277,26 @@ export default function AgenciesPage() {
                 <WhyNowWaves />
               </div>
               <div className="md:col-span-7">
-                <div className="rounded-3xl bg-white/5 p-2 ring-1 ring-slate-100 shadow-2xl">
-                  <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-8">
-                    <p className="text-base italic leading-relaxed text-slate-700">
-                      2030 is right around the corner. The time for companies to prepare for this huge shift in
-                      consumer purchasing power is NOW.
-                    </p>
+                <div className="relative md:min-h-[26rem]">
+                  <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+                    <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[26rem]">
+                      <Image
+                        src="/images/agencies/why-now-bg.png"
+                        alt="Time and market transition visual"
+                        fill
+                        className="object-cover"
+                        sizes="(min-width: 768px) 55vw, 100vw"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 w-[92%] md:absolute md:-left-10 md:bottom-0 md:mt-0 md:w-[70%] md:translate-y-1/4">
+                    <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-8">
+                      <p className="text-base italic leading-relaxed text-slate-700">
+                        2030 is right around the corner. The time for companies to prepare for this huge shift in
+                        consumer purchasing power is NOW.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
