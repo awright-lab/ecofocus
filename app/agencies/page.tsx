@@ -377,7 +377,7 @@ export default function AgenciesPage() {
                   />
                 </div>
 
-                <div className="absolute left-3 top-3 w-[84%] md:left-2 md:top-5 md:w-[54%]">
+                <div className="absolute left-3 top-3 w-[84%] md:-left-8 md:top-6 md:w-[46%]">
                   <div className="rounded-2xl bg-white/95 p-4 shadow-xl ring-1 ring-slate-200 backdrop-blur-[2px] md:p-5">
                     <p className="text-base italic leading-relaxed text-slate-700">
                       Millennials and Gen Z will make up 65% of purchasing power by 2030*
