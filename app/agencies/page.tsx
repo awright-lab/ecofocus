@@ -296,25 +296,69 @@ export default function AgenciesPage() {
 
         <section id="purpose-generation" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-7xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
-              <span className="text-black/60">Purpose Generation</span>
-            </div>
-            <h2 className="text-[clamp(1.6rem,5.2vw,2.4rem)] font-bold leading-tight text-slate-900 md:text-[clamp(2rem,3.6vw,2.75rem)]">
-              Millennials and Gen Z will make up{' '}
-              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                65%
-              </span>{' '}
-              of purchasing power by{' '}
-              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                2030
-              </span>
-              *
-            </h2>
+            <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-12 md:gap-10">
+              <div className="md:relative md:z-20 md:col-span-5 md:-mr-16 lg:-mr-20">
+                <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-7">
+                  <ul className="grid gap-2">
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>The Purpose-Driven Generation is reshaping the consumer landscape.</span>
+                    </li>
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>
+                        These are individuals, largely Gen Z, Millennials, and increasingly younger Gen Xers, whose
+                        values directly influence how they shop,
+                      </span>
+                    </li>
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>What they advocate for, and which brands they trust.</span>
+                    </li>
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>They care about ethical sourcing, environmental impact, and corporate transparency.</span>
+                    </li>
+                  </ul>
+                  <p className="mt-6 text-gray-700">
+                    They prioritize sustainability, health, and ethics, not just in what they buy, but in who they buy
+                    from. Purpose isn’t just a value proposition. It’s the new margin-friendly differentiation and growth
+                    driver.
+                  </p>
+                  <p className="mt-4 text-sm text-gray-500">*Source: NielsenIQ/tPX White Paper</p>
+                </div>
+              </div>
 
-            <div className="mt-8 grid grid-cols-1 items-stretch gap-8 md:grid-cols-12">
-              <div className="relative md:col-span-6 md:pl-4 lg:pl-6">
-                <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:ml-auto md:h-[20rem] md:w-[96%]">
+              <div className="md:col-span-7">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+                  <span className="text-black/60">Purpose Generation</span>
+                </div>
+                <h2 className="text-[clamp(1.6rem,5.2vw,2.4rem)] font-bold leading-tight text-slate-900 md:text-[clamp(2rem,3.6vw,2.75rem)]">
+                  Millennials and Gen Z will make up{' '}
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    65%
+                  </span>{' '}
+                  of purchasing power by{' '}
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    2030
+                  </span>
+                  *
+                </h2>
+
+                <div className="relative mt-6 h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[24rem]">
                   <Image
                     src="/images/purpose-driven.png"
                     alt="Purpose-driven generation visual"
@@ -324,48 +368,6 @@ export default function AgenciesPage() {
                     priority
                   />
                 </div>
-              </div>
-
-              <div className="md:col-span-6">
-                <ul className="grid gap-2">
-                  <li className="relative pl-5 text-sm text-slate-600">
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
-                    />
-                    <span>The Purpose-Driven Generation is reshaping the consumer landscape.</span>
-                  </li>
-                  <li className="relative pl-5 text-sm text-slate-600">
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
-                    />
-                    <span>
-                      These are individuals, largely Gen Z, Millennials, and increasingly younger Gen Xers, whose
-                      values directly influence how they shop,
-                    </span>
-                  </li>
-                  <li className="relative pl-5 text-sm text-slate-600">
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
-                    />
-                    <span>What they advocate for, and which brands they trust.</span>
-                  </li>
-                  <li className="relative pl-5 text-sm text-slate-600">
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
-                    />
-                    <span>They care about ethical sourcing, environmental impact, and corporate transparency.</span>
-                  </li>
-                </ul>
-                <p className="mt-6 text-gray-700">
-                  They prioritize sustainability, health, and ethics, not just in what they buy, but in who they buy
-                  from. Purpose isn’t just a value proposition. It’s the new margin-friendly differentiation and growth
-                  driver.
-                </p>
-                <p className="mt-4 text-sm text-gray-500">*Source: NielsenIQ/tPX White Paper</p>
               </div>
             </div>
           </FadeUp>
