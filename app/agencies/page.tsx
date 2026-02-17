@@ -328,7 +328,7 @@ export default function AgenciesPage() {
                 </div>
               </div>
 
-              <div className="md:col-start-8 md:col-span-5 md:mt-40 lg:mt-44">
+              <div className="md:col-start-7 md:col-span-6 md:mt-44 lg:mt-48">
                 <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-7">
                   <ul className="grid gap-2">
                     <li className="relative pl-5 text-sm text-slate-600">
