@@ -328,7 +328,7 @@ export default function AgenciesPage() {
                 </div>
               </div>
 
-              <div className="relative z-20 mt-5 md:col-start-7 md:col-span-6 md:mt-0 md:-mt-28 lg:-mt-32">
+              <div className="relative z-20 mt-5 md:row-start-1 md:col-start-7 md:col-span-6 md:mt-40 lg:mt-44">
                 <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-7">
                   <ul className="grid gap-2">
                     <li className="relative pl-5 text-sm text-slate-600">
@@ -482,46 +482,78 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section
-          id="winning"
-          className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-slate-900 to-emerald-900 text-white"
-        >
+        <section id="winning" className="scroll-mt-28 bg-slate-50/80">
           <FadeUp className="mx-auto max-w-7xl px-6 py-14">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-              <span className="text-emerald-300">Winning</span>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Winning</span>
             </div>
-            <h2 className="mt-4 text-[clamp(1.8rem,4.5vw,2.6rem)] font-bold leading-tight">
+            <h2 className="max-w-5xl text-[clamp(1.8rem,4.5vw,2.6rem)] font-bold leading-tight text-slate-900">
               Winning With{' '}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 Defensible Insight
               </span>
             </h2>
-            <p className="mt-4 max-w-4xl text-white/85">
-              Agencies win when they can turn cultural signals into commercial outcomes, and that’s exactly what
-              EcoFocus delivers. Our Portal gives you interactive, expert-supported access to nationally representative
-              insights on the purpose-driven generation (Gen Z & Millennials) and how they differ from older
-              consumers.
-            </p>
 
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-                Which sustainability certifications and messages resonate
+            <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-12">
+              <div className="relative z-0 md:col-span-7">
+                <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+                  <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[24rem]">
+                    <Image
+                      src="/images/winning.png"
+                      alt="Agency winning insights visual"
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 768px) 55vw, 100vw"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-                Which fail to drive behavior
-              </div>
-              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-                What builds trust in environmental claims
-              </div>
-              <div className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-                How environmental values correlate with purchasing patterns across categories
-              </div>
-            </div>
 
-            <div className="mt-6 rounded-xl border border-emerald-300/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
-              For example: 80% of respondents say they are aware of the USDA Organic certification, but only 41% are
-              aware of the USDA Bio-based Product seal.
+              <div className="relative z-20 mt-5 md:row-start-1 md:col-start-7 md:col-span-6 md:mt-40 lg:mt-44">
+                <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-7">
+                  <p className="text-slate-700">
+                    Agencies win when they can turn cultural signals into commercial outcomes, and that’s exactly what
+                    EcoFocus delivers. Our Portal gives you interactive, expert-supported access to nationally
+                    representative insights on the purpose-driven generation (Gen Z & Millennials) and how they differ
+                    from older consumers.
+                  </p>
+                  <ul className="mt-5 grid gap-2">
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>Which sustainability certifications and messages resonate</span>
+                    </li>
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>Which fail to drive behavior</span>
+                    </li>
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>What builds trust in environmental claims</span>
+                    </li>
+                    <li className="relative pl-5 text-sm text-slate-600">
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-2 inline-block size-1.5 rounded-full bg-emerald-500"
+                      />
+                      <span>How environmental values correlate with purchasing patterns across categories</span>
+                    </li>
+                  </ul>
+                  <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-slate-700">
+                    For example: 80% of respondents say they are aware of the USDA Organic certification, but only 41%
+                    are aware of the USDA Bio-based Product seal.
+                  </div>
+                </div>
+              </div>
             </div>
           </FadeUp>
         </section>
