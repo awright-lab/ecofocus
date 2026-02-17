@@ -9,7 +9,6 @@ import StickySectionNav from '@/components/StickySectionNav';
 import Accordion from '@/components/Accordion';
 import AgencyVideoPlayer from '@/components/AgencyVideoPlayer';
 import { FadeUp } from '@/components/ui/Reveal';
-import { MeasureCard } from '../brands/MeasureCard';
 import WhyNowWaves from './WhyNowWaves';
 
 export const metadata: Metadata = {
@@ -17,7 +16,7 @@ export const metadata: Metadata = {
     absolute: 'EcoFocus for Agencies | Win RFPs + De-Risk Sustainability Messaging',
   },
   description:
-    'EcoFocus gives agencies nationally representative sustainability insights to win RFPs, de-risk claims, and deliver defensible strategy—fast.',
+    'EcoFocus gives agencies nationally representative sustainability insights to win RFPs, de-risk claims, and deliver defensible strategy, fast.',
   alternates: {
     canonical: '/agencies',
   },
@@ -25,8 +24,8 @@ export const metadata: Metadata = {
 
 const SECTION_ITEMS = [
   { id: 'overview', label: 'Overview' },
-  { id: 'why-now', label: 'Why Now' },
   { id: 'purpose-generation', label: 'Purpose Generation' },
+  { id: 'why-now', label: 'Why Now' },
   { id: 'agency-advantage', label: 'Agency Advantage' },
   { id: 'winning', label: 'Winning' },
   { id: 'data-breadth', label: 'Data Breadth' },
@@ -56,7 +55,7 @@ const DATA_BREADTH_ITEMS = [
     title: 'Environmental and Health Consciousness',
     bullets: [
       'Environmental, health, and economic decision-making factors (Q3)',
-      'Climate change attitudes (Q9B2, QInformed) and chemical anxieties—PFAS, microplastics, BPA, phthalates, lead, formaldehyde, heavy metals (Q9A)',
+      'Climate change attitudes (Q9B2, QInformed) and chemical anxieties: PFAS, microplastics, BPA, phthalates, lead, formaldehyde, heavy metals (Q9A)',
       'Information sources for chemical safety (T1) and trust in environmental claims (QTrust, T3)',
       'Learning interests across environmental and health topics (Q11c)',
       'Personal activism and engagement behaviors (QActivism)',
@@ -136,7 +135,7 @@ const DATA_BREADTH_ITEMS = [
       'What makes social media eco-info trustworthy (QINFO2)',
       'Social media influence on eco-purchasing decisions (QINFO3)',
       'Which platforms consumers trust for different environmental info (QINFO4)',
-      'Trust in sources—scientists, government, organizations, corporations, influencers (QTrust)',
+      'Trust in sources, including scientists, government, organizations, corporations, and influencers (QTrust)',
       'Preferred channels for brands’ environmental practices (T5)',
       'Messaging effectiveness testing (QMessaging1-5): personal vs. planetary; general vs. specific; material vs. moral; climate vs. biodiversity; organic vs. regenerative',
     ],
@@ -273,83 +272,26 @@ export default function AgenciesPage() {
             variant="report"
             size="normal"
             badge="EcoFocus for Agencies"
-            headline={<>Turn Sustainability Into an RFP Advantage</>}
-            subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams—giving you self-serve access to nationally representative insights on the purpose-driven generation and how sustainability values translate into real purchasing behavior."
+            headline={
+              <>
+                <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                  WIN
+                </span>{' '}
+                new business and{' '}
+                <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                  GROW
+                </span>{' '}
+                existing business with actionable purpose driven insights
+              </>
+            }
+            subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams, giving you expert-supported access to nationally representative insights on the purpose-driven generation and how sustainability values translate into real purchasing behavior."
             videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
             posterSrc="/images/hero/leaf-neural.jpg"
             overlay="dense"
           />
         </div>
 
-        <section className="container mx-auto px-6 py-16">
-          <FadeUp className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <MeasureCard
-              tone="teal"
-              title="Win More RFPs"
-              desc="Category-specific, behavior-linked sustainability insights that sharpen your pitch story."
-              icon="dots"
-            />
-            <MeasureCard
-              tone="slate"
-              title="De-Risk Messaging"
-              desc="Prioritize claims that resonate and reduce exposure to vague or weak sustainability language."
-              icon="checklist"
-            />
-            <MeasureCard
-              tone="amber"
-              title="Build Always-On POV"
-              desc="Ground thought leadership, earned stories, and social narratives in current national data."
-              icon="gauge"
-            />
-          </FadeUp>
-        </section>
-
         <StickySectionNav items={[...SECTION_ITEMS]} mobileLabel="Jump to section" />
-
-        <section id="why-now" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
-              <div className="md:col-span-5">
-                <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-                  <span className="text-black/60">So Why Now?</span>
-                </span>
-                <h2 className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-slate-900">
-                  2030 Is Closer Than It Looks.
-                  <br />
-                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                    Be Early or Be Late
-                  </span>
-                </h2>
-                <WhyNowWaves />
-              </div>
-              <div className="md:col-span-7">
-                <div className="relative md:min-h-[26rem]">
-                  <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
-                    <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[26rem]">
-                      <Image
-                        src="/images/agencies/why-now-bg.png"
-                        alt="Time and market transition visual"
-                        fill
-                        className="object-cover"
-                        sizes="(min-width: 768px) 55vw, 100vw"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-6 w-[92%] md:absolute md:-left-10 md:bottom-0 md:mt-0 md:w-[70%] md:translate-y-1/4">
-                    <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-8">
-                      <p className="text-base italic leading-relaxed text-slate-700">
-                        2030 is right around the corner. The time for companies to prepare for this huge shift in
-                        consumer purchasing power is NOW.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </FadeUp>
-        </section>
 
         <section id="purpose-generation" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-7xl">
@@ -426,6 +368,51 @@ export default function AgenciesPage() {
                   driver.
                 </p>
                 <p className="mt-4 text-sm text-gray-500">*Source: NielsenIQ/tPX White Paper</p>
+              </div>
+            </div>
+          </FadeUp>
+        </section>
+
+        <section id="why-now" className={sectionClassName()}>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
+              <div className="md:col-span-5">
+                <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                  <span className="text-black/60">So Why Now?</span>
+                </span>
+                <h2 className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-slate-900">
+                  2030 Is Closer Than It Looks.
+                  <br />
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    Be Early or Be Late
+                  </span>
+                </h2>
+                <WhyNowWaves />
+              </div>
+              <div className="md:col-span-7">
+                <div className="relative md:min-h-[26rem]">
+                  <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+                    <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[26rem]">
+                      <Image
+                        src="/images/agencies/why-now-bg.png"
+                        alt="Time and market transition visual"
+                        fill
+                        className="object-cover"
+                        sizes="(min-width: 768px) 55vw, 100vw"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 w-[92%] md:absolute md:-left-10 md:bottom-0 md:mt-0 md:w-[70%] md:translate-y-1/4">
+                    <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-8">
+                      <p className="text-base italic leading-relaxed text-slate-700">
+                        2030 is right around the corner. The time for companies to prepare for this huge shift in
+                        consumer purchasing power is NOW.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </FadeUp>
@@ -510,7 +497,7 @@ export default function AgenciesPage() {
             </h2>
             <p className="mt-4 max-w-4xl text-white/85">
               Agencies win when they can turn cultural signals into commercial outcomes, and that’s exactly what
-              EcoFocus delivers. Our Portal gives you interactive, self-serve access to nationally representative
+              EcoFocus delivers. Our Portal gives you interactive, expert-supported access to nationally representative
               insights on the purpose-driven generation (Gen Z & Millennials) and how they differ from older
               consumers.
             </p>
@@ -675,19 +662,19 @@ export default function AgenciesPage() {
               <MeasureCard
                 tone="teal"
                 title="Reduce Customer Churn"
-                desc="Consumers are 4x more likely to purchase from a brand they believe has a strong purpose. When consumers believe a brand has a strong purpose, they’re 6x more likely to continue supporting it in a challenging moment—helping reduce churn risk.*"
+                desc="Consumers are 4x more likely to purchase from a brand they believe has a strong purpose. When consumers believe a brand has a strong purpose, they’re 6x more likely to continue supporting it in a challenging moment, helping reduce churn risk.*"
                 icon="checklist"
               />
               <MeasureCard
                 tone="slate"
                 title="Drive Incremental Growth"
-                desc="Sustainable values aren’t fringe anymore—they’re mainstream. Our data shows sustainability-conscious shoppers include parents in suburbia and rural shoppers who are actively looking for brands they can trust."
+                desc="Sustainable values aren’t fringe anymore. They’re mainstream. Our data shows sustainability-conscious shoppers include parents in suburbia and rural shoppers who are actively looking for brands they can trust."
                 icon="gauge"
               />
               <MeasureCard
                 tone="amber"
                 title="De-Risk The Messaging"
-                desc="EcoFocus helps companies avoid vague claims that trigger skepticism. Test what resonates—like 'Plastic-Free Packaging' vs. 'Certified Carbon Neutral'—and communicate with confidence."
+                desc="EcoFocus helps companies avoid vague claims that trigger skepticism. Test what resonates, like 'Plastic-Free Packaging' vs. 'Certified Carbon Neutral', and communicate with confidence."
                 icon="dots"
               />
             </div>
@@ -702,7 +689,7 @@ export default function AgenciesPage() {
               <span className="text-emerald-300">Portal</span>
             </span>
             <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-white">
-              Data Now—When You{' '}
+              Data Now: When You{' '}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 Need It
               </span>
@@ -860,7 +847,7 @@ export default function AgenciesPage() {
                 </p>
               </article>
             </div>
-            <p className="mt-4 text-sm text-slate-600">Qualified Not-for-Profit — 20% Discount</p>
+            <p className="mt-4 text-sm text-slate-600">Qualified Not-for-Profit: 20% Discount</p>
           </FadeUp>
         </section>
 
