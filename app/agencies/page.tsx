@@ -9,6 +9,7 @@ import StickySectionNav from '@/components/StickySectionNav';
 import Accordion from '@/components/Accordion';
 import AgencyVideoPlayer from '@/components/AgencyVideoPlayer';
 import { FadeUp } from '@/components/ui/Reveal';
+import { MeasureCard } from '../brands/MeasureCard';
 import WhyNowWaves from './WhyNowWaves';
 
 export const metadata: Metadata = {
