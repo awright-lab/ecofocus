@@ -301,11 +301,29 @@ export default function AgenciesPage() {
               <span className="text-black/60">Purpose Generation</span>
             </div>
             <h2 className="text-[clamp(1.6rem,5.2vw,2.4rem)] font-bold leading-tight text-slate-900 md:text-[clamp(2rem,3.6vw,2.75rem)]">
-              The Purpose-Driven{' '}
+              Millennials and Gen Z will make up{' '}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                Generation
+                65%
+              </span>{' '}
+              of purchasing power by{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                2030
               </span>
+              *
             </h2>
+            <p className="mt-3 text-sm font-semibold uppercase tracking-wide text-emerald-700">The Purpose-Driven Generation</p>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-amber-800">
+                <span className="h-2 w-2 rounded-full bg-[#ef9601]" aria-hidden="true" />
+                Critical Signal
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                <p className="text-2xl font-bold leading-none text-slate-900 md:text-3xl">65% by 2030</p>
+                <p className="mt-1 text-xs font-medium uppercase tracking-wide text-slate-600">
+                  Millennial + Gen Z purchasing power
+                </p>
+              </div>
+            </div>
 
             <div className="mt-8 grid grid-cols-1 items-stretch gap-8 md:grid-cols-12">
               <div className="relative md:col-span-6 md:pl-4 lg:pl-6">
@@ -318,14 +336,6 @@ export default function AgenciesPage() {
                     style={{ objectPosition: '78% center', transform: 'scaleX(-1) scale(1.24)' }}
                     priority
                   />
-                </div>
-
-                <div className="absolute left-3 top-3 w-[84%] md:-left-8 md:top-6 md:w-[46%]">
-                  <div className="rounded-2xl bg-white/95 p-4 shadow-xl ring-1 ring-slate-200 backdrop-blur-[2px] md:p-5">
-                    <p className="text-base italic leading-relaxed text-slate-700">
-                      Millennials and Gen Z will make up 65% of purchasing power by 2030*
-                    </p>
-                  </div>
                 </div>
               </div>
 
