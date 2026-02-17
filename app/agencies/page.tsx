@@ -313,7 +313,7 @@ export default function AgenciesPage() {
             </h2>
 
             <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-12">
-              <div className="md:col-span-7">
+              <div className="relative z-0 md:col-span-7">
                 <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
                   <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[24rem]">
                     <Image
@@ -328,7 +328,7 @@ export default function AgenciesPage() {
                 </div>
               </div>
 
-              <div className="mt-5 md:col-start-7 md:col-span-6 md:mt-0 md:-mt-24 lg:-mt-28">
+              <div className="relative z-20 mt-5 md:col-start-7 md:col-span-6 md:mt-0 md:-mt-28 lg:-mt-32">
                 <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-7">
                   <ul className="grid gap-2">
                     <li className="relative pl-5 text-sm text-slate-600">
