@@ -312,21 +312,23 @@ export default function AgenciesPage() {
               *
             </h2>
 
-            <div className="relative mt-8 md:pb-32">
-              <div className="relative max-w-[56rem] rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
-                <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[24rem]">
-                  <Image
-                    src="/images/purpose-driven.png"
-                    alt="Purpose-driven generation visual"
-                    fill
-                    className="object-cover"
-                    style={{ objectPosition: '78% center', transform: 'scaleX(-1) scale(1.24)' }}
-                    priority
-                  />
+            <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-12">
+              <div className="md:col-span-7">
+                <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+                  <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[24rem]">
+                    <Image
+                      src="/images/purpose-driven.png"
+                      alt="Purpose-driven generation visual"
+                      fill
+                      className="object-cover"
+                      style={{ objectPosition: '78% center', transform: 'scaleX(-1) scale(1.24)' }}
+                      priority
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-5 md:absolute md:bottom-0 md:left-0 md:right-0 md:mt-0 md:translate-y-[38%]">
+              <div className="md:col-start-8 md:col-span-5 md:-mt-36">
                 <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-7">
                   <ul className="grid gap-2">
                     <li className="relative pl-5 text-sm text-slate-600">
