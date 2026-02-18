@@ -904,6 +904,7 @@ export default function AgenciesPage() {
                         alt="Launch program guarantee visual"
                         fill
                         className="object-cover"
+                        style={{ objectPosition: 'center 62%' }}
                         sizes="(min-width: 768px) 55vw, 100vw"
                       />
                     </div>
