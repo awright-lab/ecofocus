@@ -24,14 +24,13 @@ export const metadata: Metadata = {
 };
 
 const SECTION_ITEMS = [
-  { id: 'overview', label: 'Overview' },
+  { id: 'defensible', label: 'Defensible Data' },
   { id: 'purpose-generation', label: 'Purpose Generation' },
   { id: 'why-now', label: 'Why Now' },
   { id: 'agency-advantage', label: 'Agency Advantage' },
   { id: 'winning', label: 'Winning' },
-  { id: 'data-breadth', label: 'Data Breadth' },
-  { id: 'defensible', label: 'Defensible Data' },
   { id: 'roi', label: 'Client ROI' },
+  { id: 'data-breadth', label: 'Data Breadth' },
   { id: 'portal', label: 'Portal' },
   { id: 'modules', label: 'Modules' },
   { id: 'pricing', label: 'Pricing' },
