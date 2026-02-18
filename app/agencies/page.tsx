@@ -309,7 +309,6 @@ export default function AgenciesPage() {
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 2030
               </span>
-              *
             </h2>
 
             <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-12">
@@ -877,21 +876,57 @@ export default function AgenciesPage() {
         </section>
 
         <section id="guarantee" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-6xl rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-700 to-emerald-900 p-8 text-white shadow-sm">
-            <h2 className="text-3xl font-semibold">The EcoFocus® Portal: Launch Program Guarantee</h2>
-            <p className="mt-3 text-emerald-100">
-              If you don’t get value from EcoFocus in your first year, we’ll make it right.
-            </p>
-            <p className="mt-5 text-sm text-emerald-50">
-              We’re confident EcoFocus® Portal insights will show up in your work, either in client deliverables or
-              internal planning. If your team doesn’t use the Portal or doesn’t find it valuable during your first 12
-              months, tell us and we’ll make it right. This is a limited offer as part of the Portal Launch Program.
-            </p>
-            <p className="mt-5 rounded-lg bg-white/10 p-4 text-sm text-emerald-50">
-              Value can include using EcoFocus insights to inform strategy, messaging, audience segmentation, briefs,
-              POVs, pitches, recommendations, or renewal planning, whether or not the data is shared directly with a
-              client.
-            </p>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-12 md:gap-10">
+              <div className="md:col-span-5">
+                <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                  <span className="text-black/60">Guarantee</span>
+                </span>
+                <h2 className="mt-4 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-slate-900">
+                  The EcoFocus® Portal:
+                  <br />
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    Launch Program Guarantee
+                  </span>
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-slate-600">
+                  If you don’t get value from EcoFocus in your first year, we’ll make it right.
+                </p>
+              </div>
+
+              <div className="md:col-span-7">
+                <div className="relative md:min-h-[26rem]">
+                  <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+                    <div className="relative h-72 w-full overflow-hidden rounded-2xl shadow-lg md:h-[26rem]">
+                      <Image
+                        src="/images/guarantee.png"
+                        alt="Launch program guarantee visual"
+                        fill
+                        className="object-cover"
+                        sizes="(min-width: 768px) 55vw, 100vw"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 w-[92%] md:absolute md:-left-10 md:bottom-0 md:mt-0 md:w-[78%] md:translate-y-1/4">
+                    <div className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-slate-200 md:p-8">
+                      <p className="text-sm leading-relaxed text-slate-700">
+                        We’re confident EcoFocus® Portal insights will show up in your work, either in client
+                        deliverables or internal planning. If your team doesn’t use the Portal or doesn’t find it
+                        valuable during your first 12 months, tell us and we’ll make it right. This is a limited offer
+                        as part of the Portal Launch Program.
+                      </p>
+                      <p className="mt-4 text-sm leading-relaxed text-slate-700">
+                        Value can include using EcoFocus insights to inform strategy, messaging, audience segmentation,
+                        briefs, POVs, pitches, recommendations, or renewal planning, whether or not the data is shared
+                        directly with a client.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </FadeUp>
         </section>
 
