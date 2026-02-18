@@ -74,12 +74,12 @@ export default function Accordion({
                   <span
                     className={
                       isModules
-                        ? 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#ef9601] bg-[#ef9601] text-white'
+                        ? 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#ef9601] bg-[#ef9601] text-white'
                         : isSolidGreen
-                        ? 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-white'
+                        ? 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-600 bg-emerald-600 text-white'
                         : isMarigold
-                        ? 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-700'
-                        : 'inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-300 text-emerald-700'
+                        ? 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-amber-300 bg-amber-50 text-amber-700'
+                        : 'inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-300 text-emerald-700'
                     }
                     aria-hidden="true"
                   >
