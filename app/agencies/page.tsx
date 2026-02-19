@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 const SECTION_ITEMS = [
   { id: 'agency-advantage', label: 'Agency Advantage' },
   { id: 'defensible', label: 'Defensible Data' },
-  { id: 'purpose-generation', label: 'Purpose Generation' },
+  { id: 'purpose-generation', label: 'Purpose Market' },
   { id: 'why-now', label: 'Why Now' },
   { id: 'winning', label: 'Winning' },
   { id: 'roi', label: 'Client ROI' },
@@ -252,8 +252,8 @@ const DEFENSIBLE_DATA_CARDS: Array<{
     title: 'Nationally Representative, Longitudinal Data You Can Defend',
     kicker: 'Built for confidence in strategic recommendations',
     description:
-      'At EcoFocus, we bring 15 years of rigorous syndicated research on US consumers’ sustainability attitudes and behaviors. Our extensive study is carefully designed to be representative of the US adult population based on key census characteristics and boasts a robust sample of 4,000 respondents and a highly reliable margin of error of just 1.55%.',
-    bullets: ['15 years of longitudinal trend data', '4,000-respondent US sample', 'Margin of error of 1.55%'],
+      'At EcoFocus, we bring 16 years of rigorous syndicated research on US consumers’ sustainability attitudes and behaviors. Our extensive study is carefully designed to be representative of the US adult population based on key census characteristics and boasts a robust sample of 4,000 respondents and a highly reliable margin of error of just 1.55%.',
+    bullets: ['16 years of longitudinal trend data', '4,000-respondent US sample', 'Margin of error of 1.55%'],
   },
 ] as const;
 
@@ -422,7 +422,7 @@ export default function AgenciesPage() {
               <span className="text-black/60">Purpose Generation</span>
             </div>
             <h2 className="max-w-5xl text-[clamp(1.6rem,5.2vw,2.4rem)] font-bold leading-tight text-slate-900 md:text-[clamp(2rem,3.6vw,2.75rem)]">
-              Millennials and Gen Z will make up{' '}
+              Forecast: Millennials and Gen Z will make up{' '}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
                 65%
               </span>{' '}
@@ -620,12 +620,12 @@ export default function AgenciesPage() {
           <FadeUp className="mx-auto max-w-7xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
               <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-              <span className="text-black/60">Client ROI</span>
+              <span className="text-black/60">How Clients Win</span>
             </div>
             <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
               Purpose Generation:{' '}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                Client ROI
+                How Clients Win
               </span>
             </h2>
 
