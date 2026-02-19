@@ -285,7 +285,7 @@ export default function AgenciesPage() {
                 existing business with actionable purpose driven insights
               </>
             }
-            subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams, giving you expert-supported access to nationally representative insights on the purpose-driven generation and how sustainability values translate into real purchasing behavior."
+            subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams, giving you expert-supported access to nationally representative insights on the purpose market and how sustainability values translate into real purchasing behavior."
             videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
             posterSrc="/images/hero/leaf-neural.jpg"
             overlay="dense"
@@ -738,7 +738,7 @@ export default function AgenciesPage() {
                 <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_28px_-10px_rgba(0,0,0,0.12)]">
                   <div className="relative h-56 w-full bg-slate-100 sm:h-64">
                     <Image
-                      src="/images/dashboard-card.png"
+                      src="/images/laptop5.png"
                       alt="Interactive dashboard access view"
                       fill
                       className="object-cover"
@@ -756,7 +756,7 @@ export default function AgenciesPage() {
                 <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_28px_-10px_rgba(0,0,0,0.12)]">
                   <div className="relative h-56 w-full bg-slate-100 sm:h-64">
                     <Image
-                      src="/images/crosstab-card.png"
+                      src="/images/laptop6.png"
                       alt="Export-ready charting and filtering workflows"
                       fill
                       className="object-cover"
@@ -771,6 +771,18 @@ export default function AgenciesPage() {
                     </p>
                   </div>
                 </article>
+              </div>
+
+              <div className="mt-7 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm md:p-6">
+                <p className="text-base leading-relaxed text-slate-700 md:text-lg">
+                  Our Portal&apos;s fast filters and export-ready visuals let strategists and creators work without
+                  research bottlenecks, while rigorous research data help teams craft credible sustainability messaging
+                  and defend recommendations with confidence.
+                </p>
+                <p className="mt-4 text-base leading-relaxed text-slate-700 md:text-lg">
+                  In short: EcoFocus turns sustainability from a fuzzy talking point into a measurable, actionable
+                  growth strategy your clients can execute immediately.
+                </p>
               </div>
             </div>
           </FadeUp>
