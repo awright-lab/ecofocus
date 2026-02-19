@@ -7,7 +7,6 @@ import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import StickySectionNav from '@/components/StickySectionNav';
 import Accordion from '@/components/Accordion';
-import AgencyVideoPlayer from '@/components/AgencyVideoPlayer';
 import { FadeUp } from '@/components/ui/Reveal';
 import { MeasureCard } from '../brands/MeasureCard';
 import WhyNowWaves from './WhyNowWaves';
@@ -32,22 +31,11 @@ const SECTION_ITEMS = [
   { id: 'roi', label: 'Client ROI' },
   { id: 'data-breadth', label: 'Data Breadth' },
   { id: 'instant-access', label: 'Instant Access' },
-  { id: 'portal', label: 'Portal' },
   { id: 'modules', label: 'Modules' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'guarantee', label: 'Guarantee' },
   { id: 'faq', label: 'FAQ' },
   { id: 'contact', label: 'Contact' },
-] as const;
-
-const CHAPTERS = [
-  { time: 0, label: 'Why agencies care' },
-  { time: 100, label: 'The purpose-driven generation' },
-  { time: 200, label: 'What’s inside the data' },
-  { time: 340, label: 'How agencies win RFPs' },
-  { time: 470, label: 'Portal walkthrough' },
-  { time: 585, label: 'Pricing & seats' },
-  { time: 645, label: 'Guarantee & next steps' },
 ] as const;
 
 const DATA_BREADTH_ITEMS = [
@@ -788,33 +776,7 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
-        <section id="portal" className="relative section-slab-deep scroll-mt-28">
-          <FadeUp className="mx-auto max-w-7xl px-6 py-12 sm:py-14 md:py-16">
-            <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-[10px] tracking-wide">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-              <span className="text-emerald-300">Portal</span>
-            </span>
-            <h2 className="mt-3 text-[clamp(1.8rem,4vw,2.6rem)] font-bold leading-tight text-white">
-              Data Now: When You{' '}
-              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                Need It
-              </span>
-            </h2>
-            <p className="mt-3 max-w-4xl text-sm text-white/85 sm:text-base">
-              Our Portal’s fast filters and export-ready visuals let strategists and creators work without research
-              bottlenecks, while rigorous research data helps teams craft credible sustainability messaging and defend
-              recommendations with confidence.
-            </p>
-
-            <div className="mt-8">
-              <AgencyVideoPlayer
-                src="/video/agency-overview-placeholder.mp4"
-                poster="/video/agency-overview-poster.jpg"
-                chapters={[...CHAPTERS]}
-              />
-            </div>
-          </FadeUp>
-        </section>
+        {/* Portal section temporarily hidden until final video is ready. */}
 
         <section id="modules" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-7xl">
