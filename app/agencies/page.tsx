@@ -31,6 +31,7 @@ const SECTION_ITEMS = [
   { id: 'winning', label: 'Winning' },
   { id: 'roi', label: 'Client ROI' },
   { id: 'data-breadth', label: 'Data Breadth' },
+  { id: 'instant-access', label: 'Instant Access' },
   { id: 'portal', label: 'Portal' },
   { id: 'modules', label: 'Modules' },
   { id: 'pricing', label: 'Pricing' },
@@ -711,6 +712,67 @@ export default function AgenciesPage() {
               communicating environmental commitments, building workplace programs, or benchmarking your brand’s
               eco-reputation, our data reveals what consumers believe, trust, and purchase.
             </p>
+          </FadeUp>
+        </section>
+
+        <section id="instant-access" className={sectionClassName()}>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-slate-50 to-blue-50/60 p-6 shadow-sm md:p-8">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
+                <span className="text-black/60">Instant Access</span>
+              </div>
+
+              <h2 className="text-[clamp(1.8rem,4.2vw,2.7rem)] font-bold leading-tight text-slate-900">
+                Instant Access:{' '}
+                <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                  Critical Data at Your Fingertips
+                </span>
+              </h2>
+              <p className="mt-4 max-w-5xl text-base leading-relaxed text-slate-700 md:text-lg">
+                Our syndicated data is available to you with an annual license fee for you to access 24/7/365 via our
+                Interactive Dashboard.
+              </p>
+
+              <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2">
+                <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_28px_-10px_rgba(0,0,0,0.12)]">
+                  <div className="relative h-56 w-full bg-slate-100 sm:h-64">
+                    <Image
+                      src="/images/dashboard-card.png"
+                      alt="Interactive dashboard access view"
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                    />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-xl font-semibold text-slate-900">Interactive Dashboard: Crosstab Functionality</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                      Crosstabs and filters let you tailor proof to each client audience in minutes.
+                    </p>
+                  </div>
+                </article>
+
+                <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_28px_-10px_rgba(0,0,0,0.12)]">
+                  <div className="relative h-56 w-full bg-slate-100 sm:h-64">
+                    <Image
+                      src="/images/crosstab-card.png"
+                      alt="Export-ready charting and filtering workflows"
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 768px) 50vw, 100vw"
+                    />
+                  </div>
+                  <div className="p-5">
+                    <h3 className="text-xl font-semibold text-slate-900">Built for Fast Team Activation</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                      Move from insight to recommendation quickly with export-ready visuals, reusable cuts, and proof
+                      that adapts to category, audience, and pitch context.
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </div>
           </FadeUp>
         </section>
 
