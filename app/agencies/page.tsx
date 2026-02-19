@@ -738,10 +738,10 @@ export default function AgenciesPage() {
                 <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_28px_-10px_rgba(0,0,0,0.12)]">
                   <div className="relative h-56 w-full bg-slate-100 sm:h-64">
                     <Image
-                      src="/images/laptop5.png"
+                      src="/images/laptop6.png"
                       alt="Interactive dashboard access view"
                       fill
-                      className="object-cover"
+                      className="object-contain bg-slate-50 p-2"
                       sizes="(min-width: 768px) 50vw, 100vw"
                     />
                   </div>
@@ -756,10 +756,10 @@ export default function AgenciesPage() {
                 <article className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_8px_28px_-10px_rgba(0,0,0,0.12)]">
                   <div className="relative h-56 w-full bg-slate-100 sm:h-64">
                     <Image
-                      src="/images/laptop6.png"
+                      src="/images/laptop5.png"
                       alt="Export-ready charting and filtering workflows"
                       fill
-                      className="object-cover"
+                      className="object-contain bg-slate-50 p-2"
                       sizes="(min-width: 768px) 50vw, 100vw"
                     />
                   </div>
