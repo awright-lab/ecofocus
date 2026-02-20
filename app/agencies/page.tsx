@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import Script from 'next/script';
 
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -11,6 +12,8 @@ import { FadeUp } from '@/components/ui/Reveal';
 import { MeasureCard } from '../brands/MeasureCard';
 import WhyNowWaves from './WhyNowWaves';
 
+const SITE_URL = 'https://ecofocusresearch.com';
+
 export const metadata: Metadata = {
   title: {
     absolute: 'EcoFocus for Agencies | Win RFPs + De-Risk Sustainability Messaging',
@@ -19,6 +22,30 @@ export const metadata: Metadata = {
     'EcoFocus gives agencies nationally representative sustainability insights to win RFPs, de-risk claims, and deliver defensible strategy, fast.',
   alternates: {
     canonical: '/agencies',
+  },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: 'EcoFocus for Agencies | Win RFPs + De-Risk Sustainability Messaging',
+    description:
+      'EcoFocus helps agency teams win new business, strengthen messaging, and deliver defensible sustainability strategy with nationally representative insights.',
+    url: `${SITE_URL}/agencies`,
+    type: 'website',
+    siteName: 'EcoFocus Research',
+    images: [
+      {
+        url: `${SITE_URL}/images/og/og-default.png`,
+        width: 1200,
+        height: 630,
+        alt: 'EcoFocus for Agencies',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'EcoFocus for Agencies | Win RFPs + De-Risk Sustainability Messaging',
+    description:
+      'Purpose-market insights for agencies to win pitches, de-risk sustainability claims, and speed confident strategy.',
+    images: [`${SITE_URL}/images/og/og-default.png`],
   },
 };
 
@@ -251,8 +278,52 @@ function sectionClassName() {
 }
 
 export default function AgenciesPage() {
+  const pageUrl = `${SITE_URL}/agencies`;
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        name: 'EcoFocus for Agencies',
+        url: pageUrl,
+        description:
+          'EcoFocus gives agencies nationally representative sustainability insights to win RFPs, de-risk claims, and deliver defensible strategy, fast.',
+        isPartOf: {
+          '@type': 'WebSite',
+          name: 'EcoFocus Research',
+          url: SITE_URL,
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: 'Agencies', item: pageUrl },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: FAQ_ITEMS.map((item) => ({
+          '@type': 'Question',
+          name: item.title,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.content,
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <>
+      <Script
+        id="agencies-jsonld"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+      />
+
       <Header />
 
       <main id="main" className="min-h-screen bg-white text-gray-900">

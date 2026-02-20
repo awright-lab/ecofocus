@@ -76,6 +76,7 @@ export default function Header() {
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Brands', href: '/brands' },
+    { name: 'Agencies', href: '/agencies' },
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -251,7 +252,6 @@ export default function Header() {
     </>
   );
 }
-
 
 
 
