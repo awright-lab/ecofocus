@@ -273,7 +273,7 @@ export default function AgenciesPage() {
                 existing business with actionable purpose driven insights
               </>
             }
-            subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams, giving you expert-supported access to nationally representative insights on the purpose market and how sustainability values translate into real purchasing behavior."
+            subhead="EcoFocus becomes both a pitch engine and a delivery engine for advertising, marketing, PR and comms teams, giving you expert-supported access to nationally representative insights on the purpose-driven market and how sustainability values translate into real purchasing behavior."
             videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
             posterSrc="/images/hero/leaf-neural.jpg"
             overlay="dense"
@@ -538,7 +538,7 @@ export default function AgenciesPage() {
             <h2 className="max-w-5xl text-[clamp(1.8rem,4.5vw,2.6rem)] font-bold leading-tight text-slate-900">
               Winning With{' '}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                Defensible Insight
+                Defensible Insights
               </span>
             </h2>
 
