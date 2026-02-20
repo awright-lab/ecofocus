@@ -689,6 +689,10 @@ export default function AgenciesPage() {
                             <li key={bullet}>
                               {bullet
                                 .replace(/\s*\((?=[^)]*\d)[^)]+\)/g, '')
+                                .replace(/\bQ[A-Z0-9_]+\b/g, '')
+                                .replace(/\s+,/g, ',')
+                                .replace(/\s+;/g, ';')
+                                .replace(/\s+:/g, ':')
                                 .replace(/\s{2,}/g, ' ')
                                 .trim()}
                             </li>
