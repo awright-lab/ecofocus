@@ -609,12 +609,12 @@ export default function AgenciesPage() {
           <FadeUp className="mx-auto max-w-7xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
               <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-              <span className="text-black/60">How Clients Win</span>
+              <span className="text-black/60">How Your Clients Win</span>
             </div>
             <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
               Purpose Generation:{' '}
               <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                How Clients Win
+                How Your Clients Win
               </span>
             </h2>
 
