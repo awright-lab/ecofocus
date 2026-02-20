@@ -686,7 +686,12 @@ export default function AgenciesPage() {
                       content: (
                         <ul className="list-disc space-y-2 pl-5 text-sm text-gray-700">
                           {item.bullets.map((bullet) => (
-                            <li key={bullet}>{bullet}</li>
+                            <li key={bullet}>
+                              {bullet
+                                .replace(/\s*\((?=[^)]*\d)[^)]+\)/g, '')
+                                .replace(/\s{2,}/g, ' ')
+                                .trim()}
+                            </li>
                           ))}
                         </ul>
                       ),
