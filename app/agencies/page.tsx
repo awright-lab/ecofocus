@@ -323,6 +323,24 @@ export default function AgenciesPage() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
+      <Script
+        id="agencies-newsletter-popup-config"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            delayMs: 1200,
+            showOnScrollPercent: 25,
+          }).replace(
+            /^/,
+            'window.EcoFocusNewsletterPopupConfig = '
+          ) + ';',
+        }}
+      />
+      <Script
+        id="agencies-newsletter-popup-script"
+        src="/scripts/eco-newsletter-popup.js"
+        strategy="afterInteractive"
+      />
 
       <Header />
 
