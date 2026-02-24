@@ -23,6 +23,8 @@ function originAllowed(origin?: string | null) {
 // HubSpot property names (create these in HubSpot; override via env if different)
 const FORM_SOURCE_PROPERTY =
   process.env.HUBSPOT_FORM_SOURCE_PROPERTY || 'ef_form_source';
+const CONTACT_REASON_PROPERTY =
+  process.env.HUBSPOT_CONTACT_REASON_PROPERTY || 'contact_reason';
 const CONTEXT_PAGE_HOST_OVERRIDE =
   (process.env.HUBSPOT_CONTEXT_PAGE_HOST_OVERRIDE || '').trim().toLowerCase();
 
@@ -73,6 +75,7 @@ type ContactBody = {
   lastname?: string;
   company?: string;
   role?: string;                // FE sends "role"; mapped to jobtitle by default
+  reason?: string;
   message?: string;
   consent?: boolean;
   hutk?: string;
@@ -113,6 +116,7 @@ export async function POST(req: Request) {
       lastname: rawLast,
       company: rawCompany,
       role: rawRole,
+      reason: rawReason,
       message: rawMessage,
       consent,
       hutk,
@@ -129,6 +133,7 @@ export async function POST(req: Request) {
     const lastname  = (rawLast || '').trim();
     const company   = (rawCompany || '').trim();
     const role      = (rawRole || '').trim();
+    const reason    = TEXT_CLEAN(rawReason).slice(0, 120);
     const message   = TEXT_CLEAN(rawMessage);
 
     // Honeypot / time trap
@@ -153,7 +158,7 @@ export async function POST(req: Request) {
     }
 
     // Required + spam checks
-    if (!email || !firstname || !lastname || !company || !role || !consent) {
+    if (!email || !firstname || !lastname || !message || !consent) {
       return NextResponse.json({ ok: false, error: 'Missing required fields' }, { status: 400 });
     }
     if (!EMAIL_RE.test(email) || DISPOSABLE_RE.test(email)) {
@@ -175,9 +180,10 @@ export async function POST(req: Request) {
       { name: 'email', value: email },
       { name: 'firstname', value: firstname },
       { name: 'lastname', value: lastname },
-      { name: 'company', value: company },
-      { name: 'jobtitle', value: role },                 // ← change to 'role' if that’s your internal name
-      ...(message ? [{ name: 'message', value: message }] : []), // ensure "message" property exists (text/long text)
+      ...(company ? [{ name: 'company', value: company }] : []),
+      ...(role ? [{ name: 'jobtitle', value: role }] : []), // ← change to 'role' if that’s your internal name
+      { name: 'message', value: message }, // ensure "message" property exists (text/long text)
+      ...(reason ? [{ name: CONTACT_REASON_PROPERTY, value: reason }] : []),
       { name: 'contact_consent', value: consent ? 'true' : 'false' }, // optional custom checkbox/text
       // UTMs (create text props if desired)
       ...(utm?.source   ? [{ name: 'utm_source',   value: String(utm.source)   }] : []),

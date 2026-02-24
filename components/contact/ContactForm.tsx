@@ -4,6 +4,14 @@ import { useMemo, useRef, useState } from 'react';
 import Script from 'next/script';
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+const REASON_OPTIONS = [
+  'Agency support',
+  'Custom study',
+  'Speaking / Podcast',
+  'Partnership',
+  'Press',
+  'Other',
+] as const;
 
 function getHutk() {
   if (typeof document === 'undefined') return '';
@@ -17,6 +25,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
   const [lastname, setLastname] = useState('');
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');      // If your HubSpot property is `jobtitle`, we’ll map it in the API
+  const [reason, setReason] = useState<(typeof REASON_OPTIONS)[number] | ''>('');
   const [message, setMessage] = useState('');
   const [consent, setConsent] = useState(false); // “Okay to contact me about this inquiry” (not marketing)
   const [hp, setHp] = useState(''); // honeypot
@@ -57,8 +66,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
     if (!firstname.trim()) return bail('Please enter your first name.');
     if (!lastname.trim()) return bail('Please enter your last name.');
     if (!email.trim()) return bail('Please enter your email.');
-    if (!company.trim()) return bail('Please enter your company.');
-    if (!role.trim()) return bail('Please enter your role/title.');
+    if (!message.trim()) return bail('Please share a quick note about what you need.');
     if (!consent) return bail('Please agree to be contacted.');
 
     try {
@@ -71,6 +79,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
           lastname,
           company,
           role,
+          reason,
           message,
           consent,
           hutk,
@@ -189,12 +198,11 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm text-gray-700">
-                Company <span className="text-red-600">*</span>
+                  <label className="block text-sm text-gray-700">
+                Company <span className="text-gray-400">(Optional)</span>
               </label>
               <input
                 type="text"
-                required
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -202,12 +210,11 @@ export default function ContactForm({ className = '' }: { className?: string }) 
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-700">
-                Role / Title <span className="text-red-600">*</span>
+                  <label className="block text-sm text-gray-700">
+                Role / Title <span className="text-gray-400">(Optional)</span>
               </label>
               <input
                 type="text"
-                required
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -217,8 +224,32 @@ export default function ContactForm({ className = '' }: { className?: string }) 
           </div>
 
           <div>
+            <p className="block text-sm text-gray-700">Reason for reaching out <span className="text-gray-400">(Optional)</span></p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {REASON_OPTIONS.map((option) => {
+                const selected = reason === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setReason(selected ? '' : option)}
+                    className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                      selected
+                        ? 'border-emerald-600 bg-emerald-50 text-emerald-800'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-emerald-400'
+                    }`}
+                    aria-pressed={selected}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
             <label className="block text-sm text-gray-700">
-              Message <span className="text-gray-400">(Optional)</span>
+              Message <span className="text-red-600">*</span>
             </label>
             <textarea
               rows={5}
@@ -272,6 +303,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
             {submitting ? 'Sending…' : 'Send message'}
           </button>
 
+          <p className="text-xs text-gray-500">Typical reply: within 1 business day.</p>
           <p className="mt-2 text-xs text-gray-500">Fields marked with <span className="text-red-600">*</span> are required.</p>
         </div>
       </div>

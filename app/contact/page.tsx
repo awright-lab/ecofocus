@@ -96,14 +96,17 @@ export default function ContactPage() {
               <div className="lg:col-span-7">
                 <div className="rounded-2xl bg-white ring-1 ring-black/5 shadow-sm p-6 sm:p-8">
                   <h2 className="text-2xl font-semibold text-gray-900">
-                    Send a Message
+                    Tell Us About Your Project
                   </h2>
                   <p className="mt-1 text-sm text-gray-600">
-                    Share a few details and we’ll follow up shortly.
+                    Tell us what you’re working on, and we’ll recommend the fastest path to the insight you need.
                   </p>
                   <div className="mt-6">
                     <ContactForm />
                   </div>
+                  <p className="mt-5 text-xs text-gray-500">
+                    Trusted by brand and agency teams across CPG, retail, and media.
+                  </p>
                 </div>
               </div>
 
@@ -111,14 +114,22 @@ export default function ContactPage() {
                 <div className="space-y-4">
                   <div className="rounded-2xl bg-gray-50 ring-1 ring-black/5 p-6 sm:p-7">
                     <h3 className="text-base font-semibold text-gray-900">
-                      How We Work With You
+                      What Happens Next
                     </h3>
-
-                    <ul className="mt-3 space-y-3 text-sm text-gray-700">
-                      <Li>A human reply within one business day.</Li>
-                      <Li>No sales spam—real guidance and next steps.</Li>
-                      <Li>Optional NDA before sharing sensitive details.</Li>
-                    </ul>
+                    <ol className="mt-3 space-y-3 text-sm text-gray-700">
+                      <li>
+                        <p className="font-semibold text-gray-900">1. Discovery call (30 minutes)</p>
+                        <p>We align on goals, audience, timing, and what success looks like.</p>
+                      </li>
+                      <li>
+                        <p className="font-semibold text-gray-900">2. Right-fit recommendation</p>
+                        <p>We outline high-level options, then go deeper on what best fits your needs.</p>
+                      </li>
+                      <li>
+                        <p className="font-semibold text-gray-900">3. Proposal and next steps</p>
+                        <p>We share scope, timeline, and a clear path to get started.</p>
+                      </li>
+                    </ol>
 
                     <div className="mt-6 grid grid-cols-1 gap-3">
                       <InfoRow
@@ -195,18 +206,6 @@ export default function ContactPage() {
 
       <Footer />
     </>
-  );
-}
-
-/* ---------- Small UI bits ---------- */
-function Li({ children }: { children: React.ReactNode }) {
-  return (
-    <li className="flex gap-3">
-      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
-        ✓
-      </span>
-      <span>{children}</span>
-    </li>
   );
 }
 
