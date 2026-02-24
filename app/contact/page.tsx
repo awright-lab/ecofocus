@@ -91,20 +91,24 @@ export default function ContactPage() {
 
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 sm:pt-12">
-            <div className="mx-auto max-w-5xl text-center">
+            <div className="max-w-4xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
                 <span className="text-black/60">Connect With Us</span>
               </span>
-              <p className="mt-4 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]">
-                We’re eager to connect about how EcoFocus can help your brand{' '}
+
+              <h2 className="mt-4 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]">
+                Start the conversation with{' '}
                 <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                  turn sustainability insight into confident strategy and action.
+                  sustainable insights
                 </span>
-              </p>
-              <p className="mt-3 text-base text-slate-600 sm:text-lg">
+              </h2>
+
+              <p className="mt-4 max-w-3xl text-base text-slate-600 sm:text-lg">
                 Share a few details below, and we’ll be in touch soon.
               </p>
+
+              <ContactWaveBars />
             </div>
             <div className="mt-10 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
           </div>
@@ -235,6 +239,41 @@ function Li({ title, children }: { title: string; children: React.ReactNode }) {
         {children}
       </span>
     </li>
+  );
+}
+
+function ContactWaveBars() {
+  const colors = ['#1E3A8A', '#10B981', '#F59E0B'];
+  const heights = [8, 12, 16, 22, 30, 40, 52, 64, 52, 40, 30, 22];
+
+  return (
+    <div className="mt-6 max-w-lg" aria-hidden>
+      <div className="flex items-end gap-2">
+        {heights.map((h, i) => (
+          <span
+            key={`bar-${h}-${i}`}
+            className="w-2.5 rounded-full"
+            style={{
+              height: `${h}px`,
+              background: colors[i % colors.length],
+            }}
+          />
+        ))}
+      </div>
+      <div className="mt-4 h-[2px] w-full bg-[#213F97]" />
+      <div className="mt-3 flex items-end gap-2 opacity-40 blur-[1px] [transform:rotate(180deg)]">
+        {heights.map((h, i) => (
+          <span
+            key={`bar-reflect-${h}-${i}`}
+            className="w-2.5 rounded-full"
+            style={{
+              height: `${Math.max(6, Math.floor(h * 0.65))}px`,
+              background: colors[i % colors.length],
+            }}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
