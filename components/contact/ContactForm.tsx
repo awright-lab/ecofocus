@@ -1,9 +1,44 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
-import Script from 'next/script';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+let turnstileScriptPromise: Promise<void> | null = null;
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (container: string | HTMLElement, options: Record<string, unknown>) => string;
+      remove?: (widgetId: string) => void;
+      getResponse?: (widgetId: string) => string;
+    };
+  }
+}
+
+function ensureTurnstileScript() {
+  if (window.turnstile) return Promise.resolve();
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+
+  turnstileScriptPromise = new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector('script[data-ef-turnstile="1"]') as HTMLScriptElement | null;
+    if (existing) {
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => reject(new Error('Failed to load Turnstile.')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.defer = true;
+    script.dataset.efTurnstile = '1';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Turnstile.'));
+    document.head.appendChild(script);
+  });
+
+  return turnstileScriptPromise;
+}
 const REASON_OPTIONS = [
   'Agency support',
   'Custom study',
@@ -35,8 +70,11 @@ export default function ContactForm({ className = '' }: { className?: string }) 
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState('');
 
   const startRef = useRef<number>(Date.now());
+  const turnstileElRef = useRef<HTMLDivElement | null>(null);
+  const turnstileWidgetIdRef = useRef<string | null>(null);
 
   const hutk = useMemo(() => getHutk(), []);
   const pageUri = typeof window !== 'undefined' ? window.location.href : '';
@@ -51,6 +89,35 @@ export default function ContactForm({ className = '' }: { className?: string }) 
     };
   }, []);
 
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileElRef.current) return;
+
+    let cancelled = false;
+    ensureTurnstileScript()
+      .then(() => {
+        if (cancelled || !turnstileElRef.current || !window.turnstile || turnstileWidgetIdRef.current) return;
+        turnstileWidgetIdRef.current = window.turnstile.render(turnstileElRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          size: 'flexible',
+          callback: (token: string) => setTurnstileToken(token || ''),
+          'expired-callback': () => setTurnstileToken(''),
+          'error-callback': () => setTurnstileToken(''),
+        });
+      })
+      .catch(() => {
+        setError('Verification failed to load. Please refresh and try again.');
+      });
+
+    return () => {
+      cancelled = true;
+      const widgetId = turnstileWidgetIdRef.current;
+      if (widgetId && window.turnstile?.remove) {
+        window.turnstile.remove(widgetId);
+      }
+      turnstileWidgetIdRef.current = null;
+    };
+  }, []);
+
   async function onSubmit() {
     if (submitting) return;
     setSubmitting(true);
@@ -58,12 +125,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
     const elapsedMs = Date.now() - startRef.current;
 
-    // Optional Turnstile token
-    let turnstileToken = '';
-    if (TURNSTILE_SITE_KEY) {
-      const input = document.querySelector('input[name="cf-turnstile-response"]') as HTMLInputElement | null;
-      turnstileToken = input?.value || '';
-    }
+    if (TURNSTILE_SITE_KEY && !turnstileToken) return bail('Please verify that you are human.');
 
     // Client-side validation
     if (!firstname.trim()) return bail('Please enter your first name.');
@@ -285,10 +347,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
           {/* Optional Turnstile */}
           {TURNSTILE_SITE_KEY && (
-            <>
-              <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-              <div className="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-size="flexible" />
-            </>
+            <div ref={turnstileElRef} className="min-h-[65px]" />
           )}
 
           {error && (
