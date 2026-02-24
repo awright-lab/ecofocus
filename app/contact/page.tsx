@@ -90,6 +90,16 @@ export default function ContactPage() {
         <ContactHero />
 
         <section className="bg-white">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 sm:pt-12">
+            <p className="text-center text-[clamp(1.1rem,2.2vw,2rem)] leading-relaxed text-gray-900">
+              We’re eager to connect about how EcoFocus can help your brand turn sustainability
+              insight into confident strategy and action. Share a few details below, and we’ll be
+              in touch soon.
+            </p>
+          </div>
+        </section>
+
+        <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16">
             {/* FORM + DETAILS */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
@@ -116,20 +126,17 @@ export default function ContactPage() {
                     <h3 className="text-base font-semibold text-gray-900">
                       What Happens Next
                     </h3>
-                    <ol className="mt-3 space-y-3 text-sm text-gray-700">
-                      <li>
-                        <p className="font-semibold text-gray-900">1. Discovery call (30 minutes)</p>
-                        <p>We align on goals, audience, timing, and what success looks like.</p>
-                      </li>
-                      <li>
-                        <p className="font-semibold text-gray-900">2. Right-fit recommendation</p>
-                        <p>We outline high-level options, then go deeper on what best fits your needs.</p>
-                      </li>
-                      <li>
-                        <p className="font-semibold text-gray-900">3. Proposal and next steps</p>
-                        <p>We share scope, timeline, and a clear path to get started.</p>
-                      </li>
-                    </ol>
+                    <ul className="mt-3 space-y-3 text-sm text-gray-700">
+                      <Li title="Discovery call (30 minutes)">
+                        We align on goals, audience, timing, and what success looks like.
+                      </Li>
+                      <Li title="Right-fit recommendation">
+                        We outline high-level options, then go deeper on what best fits your needs.
+                      </Li>
+                      <Li title="Proposal and next steps">
+                        We share scope, timeline, and a clear path to get started.
+                      </Li>
+                    </ul>
 
                     <div className="mt-6 grid grid-cols-1 gap-3">
                       <InfoRow
@@ -206,6 +213,20 @@ export default function ContactPage() {
 
       <Footer />
     </>
+  );
+}
+
+function Li({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <li className="flex gap-3">
+      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200">
+        ✓
+      </span>
+      <span>
+        <span className="font-semibold text-gray-900">{title}: </span>
+        {children}
+      </span>
+    </li>
   );
 }
 
