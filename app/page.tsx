@@ -78,6 +78,11 @@ export default function HomePage() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
+      <Script
+        id="home-newsletter-popup-script"
+        src="/scripts/eco-newsletter-popup.js"
+        strategy="afterInteractive"
+      />
       {/* Move the header OUTSIDE <main> so fixed positioning is reliable */}
       <Header />
 
@@ -99,7 +104,6 @@ export default function HomePage() {
     </>
   );
 }
-
 
 
 
