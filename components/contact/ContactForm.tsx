@@ -365,7 +365,6 @@ export default function ContactForm({ className = '' }: { className?: string }) 
             {submitting ? 'Sending…' : 'Send message'}
           </button>
 
-          <p className="text-xs text-gray-500">Typical reply: within 1 business day.</p>
           <p className="mt-2 text-xs text-gray-500">Fields marked with <span className="text-red-600">*</span> are required.</p>
         </div>
       </div>

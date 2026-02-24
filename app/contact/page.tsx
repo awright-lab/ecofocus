@@ -125,9 +125,6 @@ export default function ContactPage() {
                   <div className="mt-6">
                     <ContactForm />
                   </div>
-                  <p className="mt-5 text-xs text-gray-500">
-                    Trusted by brand and agency teams across CPG, retail, and media.
-                  </p>
                 </div>
               </div>
 
