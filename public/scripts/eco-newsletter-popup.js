@@ -113,14 +113,8 @@
       ' 72%);color:#fff;padding:28px;position:relative;isolation:isolate}' +
       '.efnp-pill{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:7px 10px;border-radius:999px;background:rgba(20,184,166,.18);color:#6ee7d8;border:1px solid rgba(45,212,191,.3)}' +
       '.efnp-title{margin:14px 0 8px;font-size:34px;line-height:1.08;font-weight:800}' +
-      '.efnp-title span{background:linear-gradient(90deg,' +
-      config.accentB +
-      ',' +
-      config.accentA +
-      ');-webkit-background-clip:text;background-clip:text;color:transparent}' +
+      '.efnp-title .efnp-highlight{background-image:linear-gradient(90deg,#3b82f6,#2dd4bf,#10b981);background-size:200% 200%;background-position:0% 50%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:efnpGradient 8s linear infinite}' +
       '.efnp-sub{margin:0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.88)}' +
-      '.efnp-preview{margin-top:20px;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.25);height:150px;background:#0b1f30}' +
-      '.efnp-preview img{display:block;width:100%;height:100%;object-fit:cover}' +
       '.efnp-form{padding:24px;position:relative}' +
       '.efnp-close{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:999px;border:0;background:#f0f4f8;color:#0f172a;font-size:18px;cursor:pointer}' +
       '.efnp-label{display:block;font-size:12px;font-weight:700;color:#334155;margin-bottom:6px}' +
@@ -134,19 +128,18 @@
       '.efnp-consent input{margin-top:2px}' +
       '.efnp-consent a{color:#0f766e;text-decoration:underline}' +
       '.efnp-error{font-size:12px;color:#dc2626;margin:8px 0 0}' +
-      '.efnp-submit{margin-top:12px;width:100%;border:0;border-radius:999px;padding:12px 18px;background:linear-gradient(90deg,' +
-      config.accentA +
-      ',' +
-      config.accentB +
-      ');color:#fff;font-weight:700;cursor:pointer}' +
+      '.efnp-submit{margin-top:12px;width:100%;border:0;border-radius:999px;padding:12px 18px;background:#059669;color:#fff;font-weight:600;cursor:pointer;transition:background-color .2s ease}' +
+      '.efnp-submit:hover{background:#047857}' +
+      '.efnp-submit:focus-visible{outline:2px solid rgba(16,185,129,.35);outline-offset:2px}' +
       '.efnp-submit[disabled]{opacity:.7;cursor:not-allowed}' +
       '.efnp-note{font-size:11px;color:#64748b;margin:8px 0 0}' +
       '.efnp-success{display:none;padding:30px 24px}' +
       '.efnp-success[data-open="1"]{display:block}' +
       '.efnp-success h3{margin:0 0 8px;font-size:22px;color:#0f172a}' +
       '.efnp-success p{margin:0;color:#334155;font-size:14px;line-height:1.5}' +
-      '@media (max-width:760px){.efnp-backdrop{align-items:flex-end;padding:0}.efnp-modal{border-radius:20px 20px 0 0;max-height:92vh;overflow:auto}.efnp-shell{grid-template-columns:1fr}.efnp-title{font-size:28px}.efnp-preview{height:130px}.efnp-grid{grid-template-columns:1fr}}' +
-      '@keyframes efnpFade{from{opacity:0}to{opacity:1}}';
+      '@media (max-width:760px){.efnp-backdrop{align-items:flex-end;padding:0}.efnp-modal{border-radius:20px 20px 0 0;max-height:92vh;overflow:auto}.efnp-shell{grid-template-columns:1fr}.efnp-title{font-size:28px}.efnp-grid{grid-template-columns:1fr}}' +
+      '@keyframes efnpFade{from{opacity:0}to{opacity:1}}' +
+      '@keyframes efnpGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}';
 
     document.head.appendChild(style);
   }
@@ -163,14 +156,11 @@
       '    <section class="efnp-panel">' +
       '      <span class="efnp-pill">EcoNuggets Newsletter</span>' +
       '      <h2 class="efnp-title">' +
-      config.heading.replace('Weekly', '<span>Weekly</span>') +
+      config.heading.replace(/weekly/i, '<span class="efnp-highlight">$&</span>') +
       '</h2>' +
       '      <p class="efnp-sub">' +
       config.subheading +
       '</p>' +
-      '      <div class="efnp-preview"><img src="' +
-      config.imageUrl +
-      '" alt="EcoNuggets preview"></div>' +
       '    </section>' +
       '    <section class="efnp-form">' +
       '      <button type="button" class="efnp-close" aria-label="Close popup">&times;</button>' +
