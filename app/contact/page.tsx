@@ -1,6 +1,7 @@
 // app/contact/page.tsx
 import type { Metadata } from "next";
 import Script from "next/script";
+import Image from "next/image";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -91,24 +92,49 @@ export default function ContactPage() {
 
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 sm:pt-12">
-            <div className="max-w-4xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
-                <span className="text-black/60">Connect With Us</span>
-              </span>
-
-              <h2 className="mt-4 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]">
-                Start the conversation with{' '}
-                <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                  sustainable insights
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-stretch">
+              <div className="md:col-span-5 flex flex-col justify-center">
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                  <span className="text-black/60">Connect With Us</span>
                 </span>
-              </h2>
 
-              <p className="mt-4 max-w-3xl text-base text-slate-600 sm:text-lg">
-                Share a few details below, and we’ll be in touch soon.
-              </p>
+                <h2 className="mt-4 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]">
+                  Start the conversation with{' '}
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    sustainable insights
+                  </span>
+                </h2>
 
-              <ContactWaveBars />
+                <p className="mt-4 max-w-3xl text-base text-slate-600 sm:text-lg">
+                  Share a few details below, and we’ll be in touch soon.
+                </p>
+
+                <ContactWaveBars />
+              </div>
+
+              <div className="md:col-span-7 relative md:min-h-[26rem]">
+                <div className="relative rounded-3xl bg-white/5 p-2 ring-1 ring-white/10 shadow-2xl">
+                  <div className="relative h-72 md:h-[26rem] w-full rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src="/images/about-bg.png"
+                      alt="EcoFocus sustainability research"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 w-[92%] mx-auto md:mt-0 md:absolute md:bottom-0 md:-left-12 md:translate-y-1/4 md:w-[70%]">
+                  <div className="rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 p-6 md:p-8">
+                    <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
+                      We’re eager to connect about how EcoFocus can help your brand turn sustainability
+                      insight into confident strategy and action. Submit the form below, and we’ll be in touch soon.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="mt-10 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
           </div>
