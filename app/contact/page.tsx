@@ -270,35 +270,75 @@ function Li({ title, children }: { title: string; children: React.ReactNode }) {
 
 function ContactWaveBars() {
   const colors = ['#1E3A8A', '#10B981', '#F59E0B'];
-  const heights = [8, 12, 16, 22, 30, 40, 52, 64, 52, 40, 30, 22];
+  const bars = 12;
 
   return (
-    <div className="mt-6 max-w-lg" aria-hidden>
-      <div className="flex items-end gap-2">
-        {heights.map((h, i) => (
+    <div
+      className="mt-6 max-w-lg"
+      aria-hidden
+      style={
+        {
+          ['--gutter' as string]: '8px',
+          ['--spacing' as string]: '18px',
+          ['--barW' as string]: '10px',
+          ['--barH' as string]: '56px',
+        } as React.CSSProperties
+      }
+    >
+      <div className="relative h-[78px] w-full">
+        {Array.from({ length: bars }).map((_, i) => (
           <span
-            key={`bar-${h}-${i}`}
-            className="w-2.5 rounded-full"
+            key={`top-${i}`}
+            className="cw-bar"
             style={{
-              height: `${h}px`,
+              left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
               background: colors[i % colors.length],
+              animationDelay: `${(i + 1) * 0.2}s`,
             }}
           />
         ))}
       </div>
-      <div className="mt-4 h-[2px] w-full bg-[#213F97]" />
-      <div className="mt-3 flex items-end gap-2 opacity-40 blur-[1px] [transform:rotate(180deg)]">
-        {heights.map((h, i) => (
+      <div className="h-[2px] w-full bg-[#213F97]" />
+      <div className="relative mt-2 h-[62px] w-full opacity-40 blur-[1px] [transform:rotate(180deg)]">
+        {Array.from({ length: bars }).map((_, i) => (
           <span
-            key={`bar-reflect-${h}-${i}`}
-            className="w-2.5 rounded-full"
+            key={`bottom-${i}`}
+            className="cw-bar"
             style={{
-              height: `${Math.max(6, Math.floor(h * 0.65))}px`,
+              left: `calc(var(--gutter) + ${(i + 1)} * var(--spacing))`,
               background: colors[i % colors.length],
+              animationDelay: `${(i + 1) * 0.2}s`,
             }}
           />
         ))}
       </div>
+
+      <style jsx>{`
+        .cw-bar {
+          position: absolute;
+          bottom: 10px;
+          width: var(--barW);
+          height: var(--barH);
+          border-radius: 999px;
+          transform-origin: bottom;
+          transform: translateX(0) translateY(2px) scaleY(0.02);
+          animation: cwWave 5.8s cubic-bezier(0.33, 0, 0.23, 1) infinite;
+          will-change: transform;
+          box-shadow: 0 6px 18px -8px rgba(15, 23, 42, 0.25);
+        }
+
+        @keyframes cwWave {
+          0% {
+            transform: translateX(0) translateY(2px) scaleY(0.02);
+          }
+          45% {
+            transform: translateX(0) translateY(0) scaleY(1);
+          }
+          100% {
+            transform: translateX(var(--spacing)) translateY(2px) scaleY(0.02);
+          }
+        }
+      `}</style>
     </div>
   );
 }
