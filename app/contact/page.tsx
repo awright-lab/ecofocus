@@ -91,11 +91,22 @@ export default function ContactPage() {
 
         <section className="bg-white">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 sm:pt-12">
-            <p className="text-center text-[clamp(1.1rem,2.2vw,2rem)] leading-relaxed text-gray-900">
-              We’re eager to connect about how EcoFocus can help your brand turn sustainability
-              insight into confident strategy and action. Share a few details below, and we’ll be
-              in touch soon.
-            </p>
+            <div className="mx-auto max-w-5xl text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                <span className="text-black/60">Connect With Us</span>
+              </span>
+              <p className="mt-4 font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4vw,2.6rem)]">
+                We’re eager to connect about how EcoFocus can help your brand{' '}
+                <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                  turn sustainability insight into confident strategy and action.
+                </span>
+              </p>
+              <p className="mt-3 text-base text-slate-600 sm:text-lg">
+                Share a few details below, and we’ll be in touch soon.
+              </p>
+            </div>
+            <div className="mt-10 h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
           </div>
         </section>
 
