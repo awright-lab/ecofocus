@@ -7,7 +7,10 @@ const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
 const REASON_OPTIONS = [
   'Agency support',
   'Custom study',
-  'Speaking / Podcast',
+  'Newsletter / Podcast',
+  'Trending Data',
+  'Upcoming Study',
+  'Consultative Services',
   'Partnership',
   'Press',
   'Other',
