@@ -63,7 +63,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
   const [lastname, setLastname] = useState('');
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');      // If your HubSpot property is `jobtitle`, we’ll map it in the API
-  const [reason, setReason] = useState<(typeof REASON_OPTIONS)[number] | ''>('');
+  const [reasons, setReasons] = useState<Array<(typeof REASON_OPTIONS)[number]>>([]);
   const [message, setMessage] = useState('');
   const [consent, setConsent] = useState(false); // “Okay to contact me about this inquiry” (not marketing)
   const [hp, setHp] = useState(''); // honeypot
@@ -144,7 +144,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
           lastname,
           company,
           role,
-          reason,
+          reason: reasons,
           message,
           consent,
           hutk,
@@ -292,12 +292,16 @@ export default function ContactForm({ className = '' }: { className?: string }) 
             <p className="block text-sm text-gray-700">Reason for reaching out <span className="text-gray-400">(Optional)</span></p>
             <div className="mt-2 flex flex-wrap gap-2">
               {REASON_OPTIONS.map((option) => {
-                const selected = reason === option;
+                const selected = reasons.includes(option);
                 return (
                   <button
                     key={option}
                     type="button"
-                    onClick={() => setReason(selected ? '' : option)}
+                    onClick={() =>
+                      setReasons((prev) =>
+                        selected ? prev.filter((item) => item !== option) : [...prev, option]
+                      )
+                    }
                     className={`rounded-full border px-3 py-1.5 text-sm transition ${
                       selected
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-800'

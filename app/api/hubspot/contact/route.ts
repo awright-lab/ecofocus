@@ -75,7 +75,7 @@ type ContactBody = {
   lastname?: string;
   company?: string;
   role?: string;                // FE sends "role"; mapped to jobtitle by default
-  reason?: string;
+  reason?: string | string[];
   message?: string;
   consent?: boolean;
   hutk?: string;
@@ -133,7 +133,15 @@ export async function POST(req: Request) {
     const lastname  = (rawLast || '').trim();
     const company   = (rawCompany || '').trim();
     const role      = (rawRole || '').trim();
-    const reason    = TEXT_CLEAN(rawReason).slice(0, 120);
+    const reasons =
+      Array.isArray(rawReason)
+        ? rawReason
+            .map((item) => TEXT_CLEAN(String(item)).slice(0, 120))
+            .filter(Boolean)
+        : TEXT_CLEAN(rawReason).slice(0, 120)
+          ? [TEXT_CLEAN(rawReason).slice(0, 120)]
+          : [];
+    const reasonValue = reasons.join(';');
     const message   = TEXT_CLEAN(rawMessage);
 
     // Honeypot / time trap
@@ -183,7 +191,7 @@ export async function POST(req: Request) {
       ...(company ? [{ name: 'company', value: company }] : []),
       ...(role ? [{ name: 'jobtitle', value: role }] : []), // ← change to 'role' if that’s your internal name
       { name: 'message', value: message }, // ensure "message" property exists (text/long text)
-      ...(reason ? [{ name: CONTACT_REASON_PROPERTY, value: reason }] : []),
+      ...(reasonValue ? [{ name: CONTACT_REASON_PROPERTY, value: reasonValue }] : []),
       { name: 'contact_consent', value: consent ? 'true' : 'false' }, // optional custom checkbox/text
       // UTMs (create text props if desired)
       ...(utm?.source   ? [{ name: 'utm_source',   value: String(utm.source)   }] : []),
