@@ -27,7 +27,7 @@
   };
 
   var storageKeys = {
-    dismissedUntil: 'ef_newsletter_dismissed_until'
+    dismissedUntil: 'ef_newsletter_dismissed_until_v2'
   };
 
   var state = {

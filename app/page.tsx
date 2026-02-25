@@ -79,6 +79,14 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
       />
       <Script
+        id="home-newsletter-popup-config"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html:
+            'window.EcoFocusNewsletterPopupConfig = { delayMs: 1200, showOnScrollPercent: 25 };',
+        }}
+      />
+      <Script
         id="home-newsletter-popup-script"
         src="/scripts/eco-newsletter-popup.js"
         strategy="afterInteractive"
@@ -104,6 +112,5 @@ export default function HomePage() {
     </>
   );
 }
-
 
 
