@@ -27,7 +27,6 @@
   };
 
   var storageKeys = {
-    subscribed: 'ef_newsletter_subscribed',
     dismissedUntil: 'ef_newsletter_dismissed_until'
   };
 
@@ -80,16 +79,7 @@
     localStorage.setItem(storageKeys.dismissedUntil, String(until));
   }
 
-  function markSubscribed() {
-    localStorage.setItem(storageKeys.subscribed, '1');
-  }
-
-  function hasSubscribed() {
-    return localStorage.getItem(storageKeys.subscribed) === '1';
-  }
-
   function shouldShow() {
-    if (hasSubscribed()) return false;
     return Date.now() > getDismissedUntil();
   }
 
@@ -169,7 +159,7 @@
       '          <div class="efnp-row"><label class="efnp-label" for="efnp-firstname">First name</label><input class="efnp-input" id="efnp-firstname" name="firstname" autocomplete="given-name"></div>' +
       '          <div class="efnp-row"><label class="efnp-label" for="efnp-lastname">Last name</label><input class="efnp-input" id="efnp-lastname" name="lastname" autocomplete="family-name"></div>' +
       '        </div>' +
-      '        <div class="efnp-row"><label class="efnp-label" for="efnp-email">Work email <span aria-hidden="true">*</span></label><input class="efnp-input" id="efnp-email" name="email" type="email" required autocomplete="email" inputmode="email"></div>' +
+      '        <div class="efnp-row"><label class="efnp-label" for="efnp-email">Email <span aria-hidden="true">*</span></label><input class="efnp-input" id="efnp-email" name="email" type="email" required autocomplete="email" inputmode="email"></div>' +
       '        <label class="efnp-consent"><input name="consent" type="checkbox" required><span>I agree to receive EcoNuggets. See our <a href="' +
       config.privacyUrl +
       '" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span></label>' +
@@ -293,8 +283,7 @@
         throw new Error(payload.error || 'Unable to subscribe right now.');
       }
 
-      markSubscribed();
-      setDismissed(3650);
+      setDismissed(state.config.frequencyDays);
 
       if (shell && success) {
         shell.style.display = 'none';
