@@ -313,32 +313,6 @@ function ContactWaveBars() {
         ))}
       </div>
 
-      <style jsx>{`
-        .cw-bar {
-          position: absolute;
-          bottom: 10px;
-          width: var(--barW);
-          height: var(--barH);
-          border-radius: 999px;
-          transform-origin: bottom;
-          transform: translateX(0) translateY(2px) scaleY(0.02);
-          animation: cwWave 5.8s cubic-bezier(0.33, 0, 0.23, 1) infinite;
-          will-change: transform;
-          box-shadow: 0 6px 18px -8px rgba(15, 23, 42, 0.25);
-        }
-
-        @keyframes cwWave {
-          0% {
-            transform: translateX(0) translateY(2px) scaleY(0.02);
-          }
-          45% {
-            transform: translateX(0) translateY(0) scaleY(1);
-          }
-          100% {
-            transform: translateX(var(--spacing)) translateY(2px) scaleY(0.02);
-          }
-        }
-      `}</style>
     </div>
   );
 }
