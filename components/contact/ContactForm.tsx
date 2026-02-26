@@ -96,6 +96,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
     ensureTurnstileScript()
       .then(() => {
         if (cancelled || !turnstileElRef.current || !window.turnstile || turnstileWidgetIdRef.current) return;
+        turnstileElRef.current.innerHTML = '';
         turnstileWidgetIdRef.current = window.turnstile.render(turnstileElRef.current, {
           sitekey: TURNSTILE_SITE_KEY,
           size: 'flexible',

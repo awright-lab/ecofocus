@@ -5,11 +5,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useReducedMotion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 import NewsletterForm from '@/components/newsletter/NewsletterForm'; // ← import it
 
 export default function Footer() {
   const [showTop, setShowTop] = useState(false);
   const reduceMotion = useReducedMotion();
+  const pathname = usePathname();
+  const isContactPage = pathname === '/contact' || pathname.startsWith('/contact/');
   const year = new Date().getFullYear();
 
   function scrollToTop() {
@@ -83,11 +86,24 @@ export default function Footer() {
         {/* Newsletter — now using shared component */}
         <section aria-label="Newsletter signup">
           <h3 className="mb-4 text-lg font-semibold">Stay Updated</h3>
-          <p className="mb-4 text-sm text-gray-400">
-            Get the latest sustainability insights delivered to your inbox.
-          </p>
-
-          <NewsletterForm theme="dark" className="space-y-3" />
+          {isContactPage ? (
+            <p className="text-sm text-gray-400">
+              Subscribe on our dedicated
+              {' '}
+              <Link href="/newsletter-signup" className="underline hover:text-emerald-400">
+                newsletter page
+              </Link>
+              {' '}
+              to avoid multiple verification prompts while contacting us.
+            </p>
+          ) : (
+            <>
+              <p className="mb-4 text-sm text-gray-400">
+                Get the latest sustainability insights delivered to your inbox.
+              </p>
+              <NewsletterForm theme="dark" className="space-y-3" />
+            </>
+          )}
         </section>
       </div>
 
@@ -122,6 +138,5 @@ export default function Footer() {
     </footer>
   );
 }
-
 
 
