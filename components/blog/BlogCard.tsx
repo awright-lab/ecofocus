@@ -30,7 +30,7 @@ export default function BlogCard({ post }: { post: Post }) {
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <div className="mb-3 flex min-h-[3rem] max-h-[3rem] flex-wrap content-start gap-2 overflow-hidden">
+        <div className="mb-3 flex min-h-[3.5rem] max-h-[3.5rem] flex-wrap content-start gap-2 overflow-hidden">
           {(post.categories || []).map((cat) => (
             <span
               key={cat.id}
