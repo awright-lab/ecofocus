@@ -166,7 +166,7 @@ export async function POST(req: Request) {
     }
 
     // Required + spam checks
-    if (!email || !firstname || !lastname || !message || !consent) {
+    if (!email || !firstname || !lastname || !consent) {
       return NextResponse.json({ ok: false, error: 'Missing required fields' }, { status: 400 });
     }
     if (!EMAIL_RE.test(email) || DISPOSABLE_RE.test(email)) {
@@ -190,7 +190,8 @@ export async function POST(req: Request) {
       { name: 'lastname', value: lastname },
       ...(company ? [{ name: 'company', value: company }] : []),
       ...(role ? [{ name: 'jobtitle', value: role }] : []), // ← change to 'role' if that’s your internal name
-      { name: 'message', value: message }, // ensure "message" property exists (text/long text)
+      // Keep message populated for HubSpot forms that may still expect this field.
+      { name: 'message', value: message || 'No message provided.' },
       ...(reasonValue ? [{ name: CONTACT_REASON_PROPERTY, value: reasonValue }] : []),
       { name: 'contact_consent', value: consent ? 'true' : 'false' }, // optional custom checkbox/text
       // UTMs (create text props if desired)

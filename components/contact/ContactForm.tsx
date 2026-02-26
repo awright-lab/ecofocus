@@ -132,7 +132,6 @@ export default function ContactForm({ className = '' }: { className?: string }) 
     if (!firstname.trim()) return bail('Please enter your first name.');
     if (!lastname.trim()) return bail('Please enter your last name.');
     if (!email.trim()) return bail('Please enter your email.');
-    if (!message.trim()) return bail('Please share a quick note about what you need.');
     if (!consent) return bail('Please agree to be contacted.');
 
     try {
@@ -319,7 +318,7 @@ export default function ContactForm({ className = '' }: { className?: string }) 
 
           <div>
             <label className="block text-sm text-gray-700">
-              Message <span className="text-red-600">*</span>
+              Message <span className="text-gray-400">(Optional)</span>
             </label>
             <textarea
               rows={5}
