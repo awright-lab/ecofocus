@@ -10,7 +10,8 @@ export default function BlogCardCompact({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="flex gap-3 rounded-2xl bg-white ring-1 ring-black/5 shadow-sm p-3 hover:shadow-md transition"
+      aria-label={`Read: ${post.title}`}
+      className="flex gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-black/5 transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
     >
       {post.coverImage?.url ? (
         <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-lg">

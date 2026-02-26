@@ -229,16 +229,6 @@ export default async function ArticlePage({
               <NewsletterBox />
               {/* Related Articles */}
               <RelatedList currentSlug={slug} topicSlug={post?.categories?.[0]?.slug} />
-              <div className="rounded-2xl bg-white p-5 ring-1 ring-black/5 shadow-sm">
-                <h3 className="text-base font-semibold text-gray-900">Explore Our Reports</h3>
-                <p className="mt-2 text-sm text-gray-600">Dive deeper into our latest research and insights.</p>
-                <Link
-                  href="/reports"
-                  className="mt-3 inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-                >
-                  Browse reports
-                </Link>
-              </div>
             </aside>
           </div>
         </section>
@@ -311,7 +301,6 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
-
 
 
 

@@ -6,10 +6,14 @@ import { cx, formatDate } from '@/lib/utils'
 import type { Post } from '@/lib/cms'
 
 export default function BlogCard({ post }: { post: Post }) {
+  const excerpt = typeof post.excerpt === 'string' ? post.excerpt.trim() : ''
+
   return (
-    <article
+    <Link
+      href={`/blog/${post.slug}`}
+      aria-label={`Read: ${post.title}`}
       className={cx(
-        'group relative overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 hover:shadow-lg transition-shadow',
+        'group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600',
         post.featured && 'ring-2 ring-emerald-600 shadow-md'
       )}
     >
@@ -25,8 +29,8 @@ export default function BlogCard({ post }: { post: Post }) {
         )}
       </div>
 
-      <div className="p-5">
-        <div className="flex flex-wrap gap-2 mb-3">
+      <div className="flex flex-1 flex-col p-5">
+        <div className="mb-3 flex min-h-[3rem] max-h-[3rem] flex-wrap content-start gap-2 overflow-hidden">
           {(post.categories || []).map((cat) => (
             <span
               key={cat.id}
@@ -37,20 +41,17 @@ export default function BlogCard({ post }: { post: Post }) {
           ))}
         </div>
 
-        <h3 className="text-lg font-semibold text-gray-900 leading-snug">
-          <Link
-            href={`/blog/${post.slug}`}
-            className="hover:underline decoration-emerald-500/40"
-          >
+        <h3 className="min-h-[3.5rem] text-lg font-semibold leading-snug text-gray-900">
+          <span className="line-clamp-2 group-hover:underline decoration-emerald-500/40">
             {post.title}
-          </Link>
+          </span>
         </h3>
 
-        {typeof post.excerpt === 'string' && post.excerpt && (
-          <p className="mt-2 text-sm text-gray-600 line-clamp-3">{post.excerpt}</p>
-        )}
+        <div className="mt-2 min-h-[4.5rem]">
+          {excerpt ? <p className="text-sm text-gray-600 line-clamp-3">{excerpt}</p> : null}
+        </div>
 
-        <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+        <div className="mt-auto pt-4 flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1">
               <CalendarDays className="h-4 w-4" />
@@ -61,14 +62,11 @@ export default function BlogCard({ post }: { post: Post }) {
               {post.readTime || 4} min
             </span>
           </div>
-          <Link
-            href={`/blog/${post.slug}`}
-            className="inline-flex items-center gap-1 text-emerald-700 font-medium group-hover:gap-1.5"
-          >
+          <span className="inline-flex items-center gap-1 font-medium text-emerald-700 group-hover:gap-1.5">
             Read <ArrowRight className="h-4 w-4" />
-          </Link>
+          </span>
         </div>
       </div>
-    </article>
+    </Link>
   )
 }
