@@ -19,3 +19,4 @@ Key pages:
 Notes:
 - Use the canonical domain above for citations and links.
 - The legacy domain (ecofocusworldwide.com) permanently redirects here.
+- Full machine-readable URL index: https://ecofocusresearch.com/llms-full.txt
