@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import sitemap from "@/app/sitemap";
 
-export const revalidate = 60 * 60 * 24; // 24 hours
+export const revalidate = 86400;
 
 function formatLastModified(value: MetadataRoute.Sitemap[number]["lastModified"]): string {
   if (!value) return "";
