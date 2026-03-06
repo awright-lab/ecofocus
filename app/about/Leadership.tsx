@@ -22,9 +22,9 @@ export default function Leadership() {
       title: 'Chief Executive Officer',
       img: '/images/team/jerry.jpg',
       blurb:
-        'Guides EcoFocus’ vision and agency partnerships, ensuring insights translate into meaningful campaigns and client growth.',
+        'Guides EcoFocus vision and agency partnerships, ensuring insights translate into meaningful campaigns and client growth.',
       details:
-        "Jerry Croft offers more than 20 years of media executive experience. His tenure at Metropolis honed his digital transformation skills, particularly towards sustainability. Jerry's leadership in organizing eco-centric events highlights his commitment to a sustainable future. His acumen in research-driven strategy led to EcoFocus's acquisition, aiming to enhance sustainability practices with consumer insights. Jerry also merges his professional expertise with personal passions, developing a religious content streaming platform with his wife, Jennifer.",
+        "Jerry Croft offers more than 20 years of media executive experience including having been a minority owner of Inside Sports Magazine, President of multiple divisions of Publications International, a large book and magazine publisher and Chief Strategy Officer at Metropolis Media. His tenure at Metropolis included pivoting Metropolis to focus on sustainability making Metropolis the clear leader in the field. Jerry's leadership in organizing eco-centric events highlights his commitment to a sustainable future. His acumen in research-driven strategy led to EcoFocus's acquisition, aiming to enhance sustainability practices with consumer insights.",
       focal: '50% 35%',
     },
     {
@@ -34,7 +34,7 @@ export default function Leadership() {
       blurb:
         'Connects agencies with EcoFocus data, helping them win pitches and deliver strategies rooted in sustainability insights.',
       details:
-        "Michael Croft's psychology background and sales experience make him invaluable for EcoFocus' consumer sustainability research. His work at SANDOW Design Group in New York, where he collaborated with firms passionate about sustainability, gives him deep insights into eco-friendly practices in architecture and design industries. Michael's understanding of consumer behavior enriches EcoFocus' efforts in exploring sustainable choices.",
+        "Michael Croft was most recently a Business Development manager at SANDOW Media in New York City where he collaborated with advertising agencies and firms passionate about sustainability giving him deep insights into eco-friendly practices in architecture and design industries. Michael's college background includes the study of psychology giving him an understanding of consumer behavior that enriches EcoFocus' efforts in exploring sustainable choices.",
       focal: '50% 42%',
     },
     {
@@ -54,17 +54,27 @@ export default function Leadership() {
       blurb:
         'Transforms data into narratives agencies can use directly in briefs, decks, and campaigns.',
       details:
-        "Allison Duncan's diverse background in media and marketing research, from Beta Research to Erdos & Morgan and Ipsos, provides her with a unique perspective on B-to-B research initiatives. Her experience on both client and vendor sides, coupled with comprehensive project management skills, makes her an asset in various sectors like CPG and Pharma. Outside of work, Allison enjoys baseball, cooking, reading, and quality time with her loved ones.",
+        "Allison Duncan's diverse background in media and marketing research, from Erdos & Morgan, Ipsos and Beta Research, provides her with years of experience working with large companies on major research projects in both consumer facing and B2B. Her experience on both client and vendor sides, coupled with comprehensive project management skills, makes her an asset in various sectors like CPG and Pharma. Outside of work, Allison enjoys baseball, cooking, reading, and quality time with her loved ones.",
       focal: '50% 45%',
     },
     {
-      name: 'Arif Wright',
+      name: 'Craig Miller',
+      title: 'Agency Specialist',
+      img: '/images/team/Craig.jpeg',
+      blurb:
+        'Brings agency and client-side media expertise grounded in purpose-driven consumer strategy.',
+      details:
+        'Craig Miller is an experienced media executive that understands the needs of both agency and client and the importance of creating messaging based on solid data. He was formerly the head of Western sales for MRI-Simmons and SRDS and by virtue of his years in the business knows how to navigate complex media industry shifts that have led him to understanding the importance of the Purpose Driven Consumer. Craig has successfully represented premier media brands such as Inc., Forbes, and Investor’s Business Daily and holds a degree from UCLA.',
+      focal: '50% 38%',
+    },
+    {
+      name: 'Mike Wright',
       title: 'Director, Business Intelligence & Design',
       img: '/images/team/arif.jpg',
       blurb:
-        'Shapes EcoFocus dashboards and design outputs, making insights accessible, visual, and client-ready.',
+        'Leads data access and dashboard delivery, connecting EcoFocus insights to Snowflake users.',
       details:
-        "Arif Wright is a dynamic professional with a unique blend of technology and creative graphic design skills. A Web Development and Computer Engineering graduate, he has excelled in roles such as a Data Market Analyst at AMI Corp, where he showcased his analytical and strategic talents. Passionate about sustainable agriculture, particularly hydroponic farming, Arif's environmental advocacy complements his professional pursuits. An avid hiker, his adventurous spirit mirrors his dynamic approach to technology and creativity. Arif is recognized as a versatile, committed professional in his field.",
+        "Mike Wright is a dynamic professional with a unique blend of technology and creative graphic design skills and is leading up the Snowflake team working to make EcoFocus data available to Snowflake users. A Web Development and Computer Engineering graduate, he has excelled in roles such as a Data Market Analyst at AMI Corp, where he showcased his analytical and strategic talents. Passionate about sustainable agriculture, particularly hydroponic farming, Mike's environmental advocacy complements his professional pursuits. An avid hiker, his adventurous spirit mirrors his dynamic approach to technology and creativity.",
       focal: '50% 38%',
     },
     {
@@ -74,7 +84,7 @@ export default function Leadership() {
       blurb:
         'Leads technology and AI integration, ensuring agencies can leverage cutting-edge tools for faster, smarter research.',
       details:
-        "Alex Murrey is a seasoned technology leader with over seven years of experience in product management, strategic leadership, and research & development. Having worked with companies like Twilio, Launch Consulting, and TangoTeams, Alex has a proven track record in driving product strategy, fostering cross-functional collaborations, and leading high-stakes projects in dynamic environments. With expertise in areas such as AI leadership, cloud transformation, and user experience, Alex has successfully led teams to innovate and deliver customer-centric solutions.",
+        'Alex Murrey is a seasoned technology leader with over seven years of experience in product management, strategic leadership, and research & development. Having worked with companies like Twilio, Launch Consulting, and TangoTeams, with expertise in areas such as AI leadership, cloud transformation, and user experience, Alex has successfully led teams to innovate and deliver customer-centric solutions and has been instrumental in advancing the use of AI at EcoFocus. Alex has a proven track record in driving product strategy, fostering cross-functional collaborations, and leading high-stakes projects in dynamic environments.',
       focal: '50% 40%',
     },
   ];
@@ -254,7 +264,6 @@ export default function Leadership() {
     </section>
   );
 }
-
 
 
 
