@@ -11,7 +11,6 @@ type Person = {
   blurb: string;
   details?: string;
   focal?: string; // e.g. '50% 40%'
-  zoom?: number;
 };
 
 export default function Leadership() {
@@ -66,8 +65,7 @@ export default function Leadership() {
         'Brings agency and client-side media expertise grounded in purpose-driven consumer strategy.',
       details:
         'Craig Miller is an experienced media executive that understands the needs of both agency and client and the importance of creating messaging based on solid data. He was formerly the head of Western sales for MRI-Simmons and SRDS and by virtue of his years in the business knows how to navigate complex media industry shifts that have led him to understanding the importance of the Purpose Driven Consumer. Craig has successfully represented premier media brands such as Inc., Forbes, and Investor’s Business Daily and holds a degree from UCLA.',
-      focal: '50% 14%',
-      zoom: 1.4,
+      focal: '50% 38%',
     },
     {
       name: 'Mike Wright',
@@ -148,11 +146,7 @@ export default function Leadership() {
                     fill
                     sizes="(min-width:1024px) 30vw, (min-width:640px) 45vw, 92vw"
                     className="object-cover"
-                    style={{
-                      objectPosition: p.focal ?? defaultFocal,
-                      transform: p.zoom ? `scale(${p.zoom})` : undefined,
-                      transformOrigin: p.zoom ? 'center top' : undefined,
-                    }}
+                    style={{ objectPosition: p.focal ?? defaultFocal }}
                     priority={i < 3}
                   />
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent" />
@@ -233,11 +227,7 @@ export default function Leadership() {
                                     width={48}
                                     height={48}
                                     className="h-12 w-12 object-cover"
-                                    style={{
-                                      objectPosition: p.focal ?? defaultFocal,
-                                      transform: p.zoom ? `scale(${p.zoom})` : undefined,
-                                      transformOrigin: p.zoom ? 'center top' : undefined,
-                                    }}
+                                    style={{ objectPosition: p.focal ?? defaultFocal }}
                                   />
                                 </div>
                                 <div>
@@ -274,6 +264,7 @@ export default function Leadership() {
     </section>
   );
 }
+
 
 
 
