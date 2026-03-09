@@ -60,7 +60,7 @@ export default function Leadership() {
     {
       name: 'Craig Miller',
       title: 'Agency Specialist',
-      img: '/images/team/Craig.jpeg',
+      img: '/images/team/craig.png',
       blurb:
         'Brings agency and client-side media expertise grounded in purpose-driven consumer strategy.',
       details:
@@ -264,7 +264,6 @@ export default function Leadership() {
     </section>
   );
 }
-
 
 
 
