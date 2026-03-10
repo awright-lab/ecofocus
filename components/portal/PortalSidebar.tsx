@@ -19,7 +19,7 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-full lg:w-72">
+    <aside className="w-full xl:w-64 2xl:w-72">
       <div className="sticky top-6 space-y-4">
         <div className="rounded-[28px] border border-emerald-100 bg-white/90 p-4 shadow-[0_18px_60px_-35px_rgba(6,95,70,0.45)] backdrop-blur">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">

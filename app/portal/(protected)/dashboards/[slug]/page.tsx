@@ -54,7 +54,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_340px] xl:items-start">
+      <section className="grid gap-6 2xl:grid-cols-[minmax(0,1.7fr)_320px] 2xl:items-start">
         <DisplayrEmbedFrame
           dashboard={dashboard}
           iframeUrl={embedState.iframeUrl}
@@ -63,7 +63,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
           envKey={embedEnvKey}
         />
 
-        <div className="space-y-6 xl:sticky xl:top-6">
+        <div className="grid gap-6 md:grid-cols-3 2xl:sticky 2xl:top-6 2xl:block">
           <div className="rounded-[28px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">How to use this dashboard</h3>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
@@ -73,7 +73,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             </ul>
           </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 md:col-span-2 2xl:col-span-1">
             <h3 className="text-lg font-semibold text-slate-950">Related help articles</h3>
             <div className="mt-4 space-y-3">
               {relatedArticles.map((article) => (
@@ -86,7 +86,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             </div>
           </div>
 
-          <div className="rounded-[28px] border border-slate-200 bg-white p-6">
+          <div className="rounded-[28px] border border-slate-200 bg-white p-6 md:col-span-3 2xl:col-span-1">
             <h3 className="text-lg font-semibold text-slate-950">Subscription and access</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">
               Access tag: <span className="font-semibold text-slate-900">{dashboard.accessTag}</span>. This shell is prepared for seat-level

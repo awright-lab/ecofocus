@@ -15,7 +15,7 @@ export function PortalShell({
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
         <header className="rounded-[32px] border border-white/70 bg-[radial-gradient(circle_at_top_left,#0f766e_0%,#064e3b_44%,#0f172a_100%)] px-6 py-6 text-white shadow-[0_24px_80px_-40px_rgba(2,44,34,0.65)]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -77,7 +77,7 @@ export function PortalShell({
           </div>
         </header>
 
-        <div className="mt-6 flex flex-col gap-6 lg:flex-row">
+        <div className="mt-6 flex flex-col gap-5 xl:flex-row">
           <PortalSidebar role={access.user.role} />
           <main className="min-w-0 flex-1">{children}</main>
         </div>
