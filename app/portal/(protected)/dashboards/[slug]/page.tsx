@@ -70,8 +70,8 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               </div>
             </div>
             <p className="mt-4 text-sm leading-6 text-amber-900">
-              Access can be restored by increasing the allowance, resetting the usage period, or reconciling the tracked hours with your
-              real Displayr account usage policy.
+              Access can be restored by purchasing an allowance increase, purchasing a usage-period reset, or contacting EcoFocus Support if
+              you believe the tracked usage is incorrect and needs review against your account activity logs.
             </p>
           </div>
         ) : (

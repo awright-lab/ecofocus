@@ -107,7 +107,7 @@ export default async function AccountPage() {
             <div className={`h-full rounded-full ${usage.isLocked ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${usage.utilizationPct}%` }} />
           </div>
           <p className="mt-3 text-xs text-slate-500">
-            TODO: replace mock hour tracking with persisted usage records and reconciliation against Displayr account/server usage.
+            TODO: replace mock hour tracking with persisted EcoFocus usage logs, purchasable allowance changes, and support review workflows.
           </p>
         </section>
       ) : null}

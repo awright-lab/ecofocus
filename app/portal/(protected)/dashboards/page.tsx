@@ -41,7 +41,7 @@ export default async function PortalDashboardsPage() {
               <div className={`h-full rounded-full ${usage.isLocked ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${usage.utilizationPct}%` }} />
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              TODO: reconcile this portal-side allowance against actual Displayr account usage and reset rules.
+              TODO: replace mock allowance tracking with persisted EcoFocus usage logs, purchasable resets, and support review workflows.
             </p>
           </div>
         ) : null}
