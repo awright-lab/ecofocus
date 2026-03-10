@@ -5,6 +5,7 @@ import { REPORTS } from "./reports/[slug]/data";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = "https://ecofocusresearch.com";
 
+  // Private portal routes are intentionally omitted from the sitemap.
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
     { url: `${base}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },

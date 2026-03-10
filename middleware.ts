@@ -3,7 +3,6 @@ import { createServerClient } from '@supabase/ssr';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
-const LOGIN_PATH = '/login';
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
@@ -31,10 +30,11 @@ export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
   const isPortal = pathname.startsWith('/portal');
   const isPortalApi = pathname.startsWith('/api/portal');
+  const isPortalLogin = pathname === '/portal/login';
 
-  if ((isPortal || isPortalApi) && !session) {
+  if ((isPortal || isPortalApi) && !isPortalLogin && !session) {
     const redirectUrl = req.nextUrl.clone();
-    redirectUrl.pathname = LOGIN_PATH;
+    redirectUrl.pathname = '/portal/login';
     redirectUrl.searchParams.set('redirect', pathname + req.nextUrl.search);
     return NextResponse.redirect(redirectUrl);
   }
