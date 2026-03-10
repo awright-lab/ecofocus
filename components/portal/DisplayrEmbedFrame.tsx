@@ -1,17 +1,15 @@
-import { ExternalLink, LockKeyhole, MonitorPlay } from "lucide-react";
+import { MonitorPlay } from "lucide-react";
 import type { PortalDashboard } from "@/lib/portal/types";
 
 export function DisplayrEmbedFrame({
   dashboard,
   iframeUrl,
   isConfigured,
-  requiresDisplayrLogin,
   envKey,
 }: {
   dashboard: PortalDashboard;
   iframeUrl: string | null;
   isConfigured: boolean;
-  requiresDisplayrLogin: boolean;
   envKey: string;
 }) {
   if (!isConfigured || !iframeUrl) {
@@ -40,31 +38,14 @@ export function DisplayrEmbedFrame({
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-950 px-4 py-3 text-sm text-white">
         <div className="flex items-center gap-3">
           <span>Displayr embed</span>
-          {requiresDisplayrLogin ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs text-slate-200">
-              <LockKeyhole className="h-3.5 w-3.5" />
-              Displayr login required
-            </span>
-          ) : (
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-200">Anyone with link</span>
-          )}
+          <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-200">Portal-controlled access</span>
         </div>
-        <a
-          href={iframeUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 text-xs font-medium text-slate-200 hover:text-white"
-        >
-          <span>Open in new tab</span>
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
+        <span className="text-xs text-slate-300">Published Displayr document rendered inside the private portal</span>
       </div>
 
-      {requiresDisplayrLogin ? (
-        <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-          This dashboard is configured for Displayr-managed private access. Users may be prompted to log in to Displayr and allow embedded access in their browser.
-        </div>
-      ) : null}
+      <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        Access to this published dashboard is controlled by EcoFocus portal authentication and entitlement checks before the iframe is rendered.
+      </div>
 
       <div className="h-[460px] overflow-hidden rounded-[24px] border border-slate-200 bg-slate-100 xl:h-[560px]">
         <iframe

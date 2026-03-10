@@ -59,7 +59,6 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
           dashboard={dashboard}
           iframeUrl={embedState.iframeUrl}
           isConfigured={embedState.isConfigured}
-          requiresDisplayrLogin={embedState.requiresDisplayrLogin}
           envKey={embedEnvKey}
         />
 
@@ -99,7 +98,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 font-medium text-amber-700">
                 <FileWarning className="h-4 w-4" />
-                {embedState.requiresDisplayrLogin ? "Displayr-managed login flow" : "Direct public link embed"}
+                {embedState.requiresDisplayrLogin ? "Displayr-managed login flow" : "Portal-gated public link embed"}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-2 font-medium text-sky-700">
                 <LifeBuoy className="h-4 w-4" />

@@ -84,7 +84,7 @@ export const portalDashboards: PortalDashboard[] = [
     description: "Interactive Displayr dashboard for the 2024 study with page-level navigation, segment analysis, and export-ready views.",
     accessTag: "2024 Study",
     embedUrl: null,
-    embedAccess: "displayr_login_required",
+    embedAccess: "public_link",
   },
   {
     id: "dashboard-export",
