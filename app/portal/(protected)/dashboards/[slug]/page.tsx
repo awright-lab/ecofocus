@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileWarning, LifeBuoy } from "lucide-react";
 import { DisplayrEmbedPlaceholder } from "@/components/portal/DisplayrEmbedPlaceholder";
-import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalArticles, getPortalDashboardForUser } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
@@ -26,36 +25,36 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
   return (
     <div className="space-y-6">
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
-        <SectionHeader
-          eyebrow="Dashboard Viewer"
-          title={dashboard.name}
-          description={dashboard.description}
-          actions={
-            <>
-              <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-                <span className="inline-flex items-center gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back to Dashboards
-                </span>
-              </Link>
-              <Link href={`/portal/support?dashboard=${encodeURIComponent(dashboard.name)}`} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-                Need Help
-              </Link>
-              <Link href={`/portal/support/new?dashboard=${encodeURIComponent(dashboard.name)}&issueType=${encodeURIComponent("Possible Bug")}`} className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-                Report an Issue
-              </Link>
-              <span className="rounded-xl border border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-500">
-                Export Tips
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Dashboard Viewer</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-950 sm:text-3xl">{dashboard.name}</h2>
+            <p className="mt-3 text-sm leading-7 text-slate-600">{dashboard.description}</p>
+          </div>
+          <div className="flex max-w-xl flex-wrap gap-3 xl:justify-end">
+            <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+              <span className="inline-flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboards
               </span>
-            </>
-          }
-        />
+            </Link>
+            <Link href={`/portal/support?dashboard=${encodeURIComponent(dashboard.name)}`} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+              Need Help
+            </Link>
+            <Link href={`/portal/support/new?dashboard=${encodeURIComponent(dashboard.name)}&issueType=${encodeURIComponent("Possible Bug")}`} className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+              Report an Issue
+            </Link>
+            <span className="rounded-xl border border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-500">
+              Export Tips
+            </span>
+          </div>
+        </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_340px] xl:items-start">
         <DisplayrEmbedPlaceholder dashboard={dashboard} />
 
-        <div className="space-y-6">
+        <div className="space-y-6 xl:sticky xl:top-6">
           <div className="rounded-[28px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">How to use this dashboard</h3>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
