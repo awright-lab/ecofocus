@@ -6,6 +6,18 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  const pathname = req.nextUrl.pathname;
+  const isPortal = pathname.startsWith('/portal');
+  const isPortalApi = pathname.startsWith('/api/portal');
+  const isPortalLogin = pathname === '/portal/login';
+
+  if (isPortal || isPortalApi) {
+    res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+  }
+
+  if (isPortalLogin) {
+    return res;
+  }
 
   const safeEnv = SUPABASE_URL && SUPABASE_ANON_KEY;
   const supabase = safeEnv
@@ -24,23 +36,24 @@ export async function middleware(req: NextRequest) {
       })
     : null;
 
-  const { data: sessionData } = supabase ? await supabase.auth.getSession() : { data: null };
-  const session = sessionData?.session;
-
-  const pathname = req.nextUrl.pathname;
-  const isPortal = pathname.startsWith('/portal');
-  const isPortalApi = pathname.startsWith('/api/portal');
-  const isPortalLogin = pathname === '/portal/login';
+  let session = null;
+  if (supabase) {
+    try {
+      const { data } = await supabase.auth.getSession();
+      session = data.session;
+    } catch (error) {
+      console.warn('[middleware] Supabase session lookup failed; treating request as unauthenticated.', {
+        pathname,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 
   if ((isPortal || isPortalApi) && !isPortalLogin && !session) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = '/portal/login';
     redirectUrl.searchParams.set('redirect', pathname + req.nextUrl.search);
     return NextResponse.redirect(redirectUrl);
-  }
-
-  if (isPortal || isPortalApi) {
-    res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 
   return res;
