@@ -78,6 +78,15 @@ export const portalDashboards: PortalDashboard[] = [
     embedAccess: "displayr_login_required",
   },
   {
+    id: "dashboard-2024-interactive",
+    slug: "interactive-dashboard-2024",
+    name: "2024 Interactive Dashboard",
+    description: "Interactive Displayr dashboard for the 2024 study with page-level navigation, segment analysis, and export-ready views.",
+    accessTag: "2024 Study",
+    embedUrl: null,
+    embedAccess: "displayr_login_required",
+  },
+  {
     id: "dashboard-export",
     slug: "export-readiness",
     name: "Export Readiness",
@@ -100,10 +109,12 @@ export const portalDashboards: PortalDashboard[] = [
 export const portalDashboardEntitlements: PortalDashboardEntitlement[] = [
   { companyId: "company-greenloop", dashboardId: "dashboard-eco-iq" },
   { companyId: "company-greenloop", dashboardId: "dashboard-category" },
+  { companyId: "company-greenloop", dashboardId: "dashboard-2024-interactive" },
   { userId: "user-maya", dashboardId: "dashboard-export" },
   { userId: "user-maya", dashboardId: "dashboard-custom" },
   { companyId: "company-ecofocus", dashboardId: "dashboard-eco-iq" },
   { companyId: "company-ecofocus", dashboardId: "dashboard-category" },
+  { companyId: "company-ecofocus", dashboardId: "dashboard-2024-interactive" },
   { companyId: "company-ecofocus", dashboardId: "dashboard-export" },
   { companyId: "company-ecofocus", dashboardId: "dashboard-custom" },
 ];
