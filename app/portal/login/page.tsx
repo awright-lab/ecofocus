@@ -48,7 +48,13 @@ export default async function PortalLoginPage({
 
         <section className="rounded-[32px] border border-white/70 bg-white/95 p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
           <LoginHandler code={code} redirect={redirect} />
-          <LoginForm redirect={redirect} loginPath="/portal/login" />
+          <LoginForm redirect={redirect} />
+          {params.error === "auth_callback_failed" ? (
+            <div className="px-4 pb-4 text-sm text-rose-600 sm:px-0">
+              The magic-link callback could not be completed. If this persists, update the Supabase email template to use
+              the token-hash SSR flow and ensure the callback opens in the same browser session.
+            </div>
+          ) : null}
           <div className="px-4 pb-4 text-xs text-slate-500 sm:px-0">
             TODO: replace email-link-only access with production auth policy, role claims, and tenant mapping.
           </div>

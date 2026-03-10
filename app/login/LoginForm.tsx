@@ -5,10 +5,10 @@ import { getBrowserSupabase } from "@/lib/supabase/client";
 
 export default function LoginForm({
   redirect,
-  loginPath = "/login",
+  callbackPath = "/auth/confirm",
 }: {
   redirect: string;
-  loginPath?: string;
+  callbackPath?: string;
 }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -23,12 +23,12 @@ export default function LoginForm({
       // Use the exact origin the user is on to avoid PKCE domain mismatches (www vs apex).
       const siteUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || "";
       const redirectTarget = redirect || "/portal";
-      // Send user back to the current login entry so the code arrives with redirect preserved.
-      const emailRedirectTo = `${siteUrl}${loginPath}?redirect=${encodeURIComponent(redirectTarget)}`;
+      const callbackUrl = new URL(callbackPath, siteUrl);
+      callbackUrl.searchParams.set("next", redirectTarget);
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo,
+          emailRedirectTo: callbackUrl.toString(),
         },
       });
       if (authError) throw authError;
