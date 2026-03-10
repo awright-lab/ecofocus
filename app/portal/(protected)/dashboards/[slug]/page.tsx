@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, FileWarning, LifeBuoy } from "lucide-react";
-import { DisplayrEmbedPlaceholder } from "@/components/portal/DisplayrEmbedPlaceholder";
+import { DisplayrEmbedFrame } from "@/components/portal/DisplayrEmbedFrame";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalArticles, getPortalDashboardForUser } from "@/lib/portal/data";
+import { getDisplayrEmbedEnvKey, getDisplayrEmbedState } from "@/lib/portal/displayr";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -19,6 +20,8 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
   const dashboard = getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
+  const embedState = getDisplayrEmbedState(dashboard);
+  const embedEnvKey = getDisplayrEmbedEnvKey(dashboard.slug);
 
   const relatedArticles = getPortalArticles().slice(0, 3);
 
@@ -52,7 +55,13 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_340px] xl:items-start">
-        <DisplayrEmbedPlaceholder dashboard={dashboard} />
+        <DisplayrEmbedFrame
+          dashboard={dashboard}
+          iframeUrl={embedState.iframeUrl}
+          isConfigured={embedState.isConfigured}
+          requiresDisplayrLogin={embedState.requiresDisplayrLogin}
+          envKey={embedEnvKey}
+        />
 
         <div className="space-y-6 xl:sticky xl:top-6">
           <div className="rounded-[28px] border border-slate-200 bg-white p-6">
@@ -86,16 +95,19 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             <div className="mt-4 flex flex-wrap gap-3 text-sm">
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 font-medium text-emerald-700">
                 <ExternalLink className="h-4 w-4" />
-                Embed URL field modeled
+                {embedState.isConfigured ? "Embed URL configured" : "Embed URL ready to configure"}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 font-medium text-amber-700">
                 <FileWarning className="h-4 w-4" />
-                TODO: production iframe auth
+                {embedState.requiresDisplayrLogin ? "Displayr-managed login flow" : "Direct public link embed"}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-2 font-medium text-sky-700">
                 <LifeBuoy className="h-4 w-4" />
                 Dashboard-aware support actions
               </span>
+            </div>
+            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
+              Env key for this dashboard: <code className="font-semibold text-slate-900">{embedEnvKey}</code>
             </div>
           </div>
         </div>

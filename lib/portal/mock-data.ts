@@ -66,6 +66,7 @@ export const portalDashboards: PortalDashboard[] = [
     description: "Topline sustainability perception trends, brand positioning, and audience shifts.",
     accessTag: "Included",
     embedUrl: null,
+    embedAccess: "public_link",
   },
   {
     id: "dashboard-category",
@@ -74,6 +75,7 @@ export const portalDashboards: PortalDashboard[] = [
     description: "Track category-level movement, segment filters, and quarterly benchmark changes.",
     accessTag: "Licensed",
     embedUrl: null,
+    embedAccess: "displayr_login_required",
   },
   {
     id: "dashboard-export",
@@ -82,6 +84,7 @@ export const portalDashboards: PortalDashboard[] = [
     description: "Download-oriented dashboard shell for chart and table extraction workflows.",
     accessTag: "Advanced",
     embedUrl: null,
+    embedAccess: "displayr_login_required",
   },
   {
     id: "dashboard-custom",
@@ -90,6 +93,7 @@ export const portalDashboards: PortalDashboard[] = [
     description: "Reserved for project-specific Displayr embeds and custom stakeholder views.",
     accessTag: "Project",
     embedUrl: null,
+    embedAccess: "displayr_login_required",
   },
 ];
 
