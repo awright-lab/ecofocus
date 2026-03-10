@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 
-export default function LoginForm({ redirect }: { redirect: string }) {
+export default function LoginForm({
+  redirect,
+  loginPath = "/login",
+}: {
+  redirect: string;
+  loginPath?: string;
+}) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -17,8 +23,8 @@ export default function LoginForm({ redirect }: { redirect: string }) {
       // Use the exact origin the user is on to avoid PKCE domain mismatches (www vs apex).
       const siteUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || "";
       const redirectTarget = redirect || "/portal";
-      // Send user back to login with redirect preserved, so the code arrives at /login?code=...&redirect=/portal
-      const emailRedirectTo = `${siteUrl}/login?redirect=${encodeURIComponent(redirectTarget)}`;
+      // Send user back to the current login entry so the code arrives with redirect preserved.
+      const emailRedirectTo = `${siteUrl}${loginPath}?redirect=${encodeURIComponent(redirectTarget)}`;
       const { error: authError } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -28,7 +34,11 @@ export default function LoginForm({ redirect }: { redirect: string }) {
       if (authError) throw authError;
       setStatus("sent");
     } catch (err: any) {
-      setError(err.message || "Sign-in failed");
+      const message =
+        err?.message === "Failed to fetch"
+          ? "Unable to reach the authentication service. Check the deployed Supabase URL/DNS configuration."
+          : err?.message || "Sign-in failed";
+      setError(message);
       setStatus("error");
     }
   };
