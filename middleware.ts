@@ -3,6 +3,8 @@ import { createServerClient } from '@supabase/ssr';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
+const PORTAL_DEV_COOKIE = 'ecofocus_portal_dev_user';
+const PORTAL_DEV_BYPASS = process.env.PORTAL_DEV_BYPASS === 'true';
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
@@ -10,12 +12,17 @@ export async function middleware(req: NextRequest) {
   const isPortal = pathname.startsWith('/portal');
   const isPortalApi = pathname.startsWith('/api/portal');
   const isPortalLogin = pathname === '/portal/login';
+  const hasDevPortalSession = PORTAL_DEV_BYPASS && Boolean(req.cookies.get(PORTAL_DEV_COOKIE)?.value);
 
   if (isPortal || isPortalApi) {
     res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 
-  if (isPortalLogin) {
+  if (isPortalLogin || pathname === '/portal/dev-login' || pathname === '/portal/dev-logout') {
+    return res;
+  }
+
+  if ((isPortal || isPortalApi) && hasDevPortalSession) {
     return res;
   }
 

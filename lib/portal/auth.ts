@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { getPortalCompany, getPortalSubscription, getPortalUserByEmail, normalizePortalRole, hasRequiredRole } from "@/lib/portal/data";
+import { getPortalDevUserFromCookies } from "@/lib/portal/dev-auth";
 import type { PortalRole, PortalUser } from "@/lib/portal/types";
 
 export type PortalAccessContext = {
@@ -27,6 +28,20 @@ function fallbackPortalUser(session: NonNullable<Awaited<ReturnType<typeof getSe
 }
 
 export async function getPortalAccessContext(): Promise<PortalAccessContext | null> {
+  const devUser = await getPortalDevUserFromCookies();
+  if (devUser) {
+    const company = getPortalCompany(devUser);
+    const subscription = getPortalSubscription(devUser);
+    if (!company || !subscription) return null;
+
+    return {
+      session: null,
+      user: devUser,
+      company,
+      subscription,
+    };
+  }
+
   const session = await getSession().catch(() => null);
   if (!session?.user) return null;
 

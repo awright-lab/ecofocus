@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Building2, LogOut, Shield } from "lucide-react";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import type { PortalAccessContext } from "@/lib/portal/auth";
+import { isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
 
 export function PortalShell({
   access,
@@ -10,6 +11,8 @@ export function PortalShell({
   access: PortalAccessContext;
   children: React.ReactNode;
 }) {
+  const showDevBypass = isPortalDevBypassEnabled() && !access.session;
+
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -48,6 +51,11 @@ export function PortalShell({
           <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-emerald-50/80">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Noindex / Nofollow</span>
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Authenticated product workspace</span>
+            {showDevBypass ? (
+              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
+                Dev bypass session
+              </span>
+            ) : null}
             <Link
               href="/login"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
@@ -55,6 +63,17 @@ export function PortalShell({
               <LogOut className="h-3.5 w-3.5" />
               <span>Primary login</span>
             </Link>
+            {showDevBypass ? (
+              <form action="/portal/dev-logout" method="post">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>End dev session</span>
+                </button>
+              </form>
+            ) : null}
           </div>
         </header>
 

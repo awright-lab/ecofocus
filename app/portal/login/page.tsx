@@ -1,5 +1,6 @@
 import LoginForm from "@/app/login/LoginForm";
 import LoginHandler from "@/app/login/LoginHandler";
+import { isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export const metadata = buildPortalMetadata(
@@ -17,6 +18,7 @@ export default async function PortalLoginPage({
   const redirect = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam || "/portal/home";
   const codeParam = params.code;
   const code = Array.isArray(codeParam) ? codeParam[0] : codeParam;
+  const showDevBypass = isPortalDevBypassEnabled();
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#effcf6_0%,#eef5ff_100%)] px-4 py-10 sm:px-6">
@@ -49,10 +51,45 @@ export default async function PortalLoginPage({
         <section className="rounded-[32px] border border-white/70 bg-white/95 p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
           <LoginHandler code={code} redirect={redirect} />
           <LoginForm redirect={redirect} />
+          {showDevBypass ? (
+            <div className="mx-auto mt-6 max-w-xl border-t border-slate-200 px-4 pt-6 sm:px-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-700">Dev Bypass</p>
+              <h2 className="mt-2 text-lg font-semibold text-slate-900">Test portal roles without email auth</h2>
+              <p className="mt-2 text-sm text-slate-600">
+                Enabled by `PORTAL_DEV_BYPASS=true`. This is for non-production testing only.
+              </p>
+              <form action="/portal/dev-login" method="post" className="mt-4 space-y-3">
+                <input type="hidden" name="redirect" value={redirect} />
+                <div className="grid gap-3">
+                  {[
+                    ["client_user", "Client User"],
+                    ["client_admin", "Client Admin"],
+                    ["support_admin", "Support Admin"],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="submit"
+                      name="role"
+                      value={value}
+                      className="flex items-center justify-between rounded-2xl border border-slate-300 px-4 py-3 text-left text-sm font-medium text-slate-800 transition hover:border-emerald-400 hover:bg-emerald-50"
+                    >
+                      <span>{label}</span>
+                      <span className="text-xs uppercase tracking-[0.18em] text-slate-500">{value}</span>
+                    </button>
+                  ))}
+                </div>
+              </form>
+            </div>
+          ) : null}
           {params.error === "auth_callback_failed" ? (
             <div className="px-4 pb-4 text-sm text-rose-600 sm:px-0">
               The magic-link callback could not be completed. If this persists, update the Supabase email template to use
               the token-hash SSR flow and ensure the callback opens in the same browser session.
+            </div>
+          ) : null}
+          {params.error === "invalid_dev_role" ? (
+            <div className="px-4 pb-4 text-sm text-rose-600 sm:px-0">
+              Invalid dev bypass role selection.
             </div>
           ) : null}
           <div className="px-4 pb-4 text-xs text-slate-500 sm:px-0">
