@@ -8,6 +8,7 @@ import type {
   PortalTicket,
   PortalTicketMessage,
   PortalUsageAllowance,
+  PortalUsageLog,
   PortalUser,
 } from "@/lib/portal/types";
 
@@ -134,6 +135,57 @@ export const portalUsageAllowances: PortalUsageAllowance[] = [
     hoursUsed: 18,
     periodStart: "2026-01-01",
     periodEnd: "2026-12-31",
+  },
+];
+
+export const portalUsageLogs: PortalUsageLog[] = [
+  {
+    id: "usage-1",
+    userId: "user-maya",
+    companyId: "company-greenloop",
+    dashboardId: "dashboard-eco-iq",
+    dashboardName: "Eco IQ Overview",
+    eventType: "viewer_opened",
+    eventAt: "2026-03-08T15:10:00Z",
+    minutesTracked: 32,
+    source: "mock",
+    notes: "Quarterly leadership review session.",
+  },
+  {
+    id: "usage-2",
+    userId: "user-maya",
+    companyId: "company-greenloop",
+    dashboardId: "dashboard-2024-interactive",
+    dashboardName: "2024 Interactive Dashboard",
+    eventType: "viewer_opened",
+    eventAt: "2026-03-09T13:45:00Z",
+    minutesTracked: 48,
+    source: "mock",
+    notes: "Interactive segment analysis review.",
+  },
+  {
+    id: "usage-3",
+    userId: "user-elliot",
+    companyId: "company-greenloop",
+    dashboardId: "dashboard-2024-interactive",
+    dashboardName: "2024 Interactive Dashboard",
+    eventType: "viewer_opened",
+    eventAt: "2026-03-09T17:20:00Z",
+    minutesTracked: 18,
+    source: "mock",
+    notes: "Client prep session.",
+  },
+  {
+    id: "usage-4",
+    userId: "user-elliot",
+    companyId: "company-greenloop",
+    dashboardId: "dashboard-2024-interactive",
+    dashboardName: "2024 Interactive Dashboard",
+    eventType: "allowance_override",
+    eventAt: "2026-03-10T09:00:00Z",
+    minutesTracked: 0,
+    source: "mock",
+    notes: "Temporary manual allowance adjustment recorded for review.",
   },
 ];
 

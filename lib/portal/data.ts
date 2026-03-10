@@ -8,6 +8,7 @@ import {
   portalTicketMessages,
   portalTickets,
   portalUsageAllowances,
+  portalUsageLogs,
   portalUsers,
 } from "@/lib/portal/mock-data";
 import { getPortalDevUsageOverrideFromCookies } from "@/lib/portal/dev-auth";
@@ -18,6 +19,7 @@ import type {
   PortalTicket,
   PortalTicketMessage,
   PortalUsageAllowance,
+  PortalUsageLog,
   PortalUser,
 } from "@/lib/portal/types";
 
@@ -97,6 +99,16 @@ export async function getPortalUsageStatus(user: PortalUser) {
     isLocked: overriddenHoursUsed >= allowance.annualHoursLimit,
     devOverride,
   };
+}
+
+export function getPortalUsageLogsForUser(user: PortalUser): PortalUsageLog[] {
+  if (user.role === "support_admin") {
+    return [...portalUsageLogs].sort((a, b) => b.eventAt.localeCompare(a.eventAt));
+  }
+
+  return portalUsageLogs
+    .filter((log) => log.userId === user.id)
+    .sort((a, b) => b.eventAt.localeCompare(a.eventAt));
 }
 
 export function getPortalCompany(user: PortalUser) {

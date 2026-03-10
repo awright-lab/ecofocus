@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock3, ExternalLink, FileWarning, LifeBuoy } from "lucide-react";
+import { DashboardUsageTracker } from "@/components/portal/DashboardUsageTracker";
 import { DisplayrEmbedFrame } from "@/components/portal/DisplayrEmbedFrame";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalArticles, getPortalDashboardForUser, getPortalUsageStatus } from "@/lib/portal/data";
@@ -75,12 +76,19 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             </p>
           </div>
         ) : (
-          <DisplayrEmbedFrame
-            dashboard={dashboard}
-            iframeUrl={embedState.iframeUrl}
-            isConfigured={embedState.isConfigured}
-            envKey={embedEnvKey}
-          />
+          <>
+            <DashboardUsageTracker
+              dashboardId={dashboard.id}
+              dashboardName={dashboard.name}
+              enabled={embedState.isConfigured}
+            />
+            <DisplayrEmbedFrame
+              dashboard={dashboard}
+              iframeUrl={embedState.iframeUrl}
+              isConfigured={embedState.isConfigured}
+              envKey={embedEnvKey}
+            />
+          </>
         )}
 
         <div className="grid gap-6 xl:grid-cols-3">

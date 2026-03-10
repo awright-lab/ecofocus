@@ -47,6 +47,25 @@ export type PortalUsageAllowance = {
   periodEnd: string;
 };
 
+export type PortalUsageLogEvent =
+  | "viewer_opened"
+  | "allowance_exhausted"
+  | "allowance_override"
+  | "support_review_requested";
+
+export type PortalUsageLog = {
+  id: string;
+  userId: string;
+  companyId: string;
+  dashboardId: string;
+  dashboardName: string;
+  eventType: PortalUsageLogEvent;
+  eventAt: string;
+  minutesTracked: number;
+  source: "mock" | "portal_runtime";
+  notes?: string;
+};
+
 export type PortalTicket = {
   id: string;
   subject: string;

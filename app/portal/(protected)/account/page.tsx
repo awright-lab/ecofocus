@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Clock3, CreditCard, LayoutDashboard, Users } from "lucide-react";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalDashboardsForUser, getPortalTeamMembers, getPortalUsageStatus } from "@/lib/portal/data";
+import { getPortalDashboardsForUser, getPortalTeamMembers, getPortalUsageLogsForUser, getPortalUsageStatus } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate } from "@/lib/utils";
 
@@ -16,6 +16,7 @@ export default async function AccountPage() {
   const dashboards = getPortalDashboardsForUser(access.user);
   const teamMembers = getPortalTeamMembers(access.user);
   const usage = await getPortalUsageStatus(access.user);
+  const usageLogs = getPortalUsageLogsForUser(access.user).slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -141,6 +142,29 @@ export default async function AccountPage() {
           <div className="mt-6 text-sm text-slate-600">
             <span className="font-semibold text-slate-900">{teamMembers.length}</span> team members are currently modeled for this account.
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+        <h3 className="text-lg font-semibold text-slate-950">Usage activity log</h3>
+        <p className="mt-2 text-sm text-slate-600">
+          Recent account-level usage events that support reviews and allowance disputes can be checked against.
+        </p>
+        <div className="mt-5 space-y-3">
+          {usageLogs.map((log) => (
+            <div key={log.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.1fr_0.75fr_0.5fr_0.85fr] md:items-center">
+              <div>
+                <p className="font-semibold text-slate-900">{log.dashboardName}</p>
+                <p className="mt-1 text-sm text-slate-600">{log.notes || log.eventType}</p>
+              </div>
+              <div className="text-sm font-medium capitalize text-slate-700">{log.eventType.replaceAll("_", " ")}</div>
+              <div className="text-sm text-slate-700">{log.minutesTracked} min</div>
+              <div className="text-sm text-slate-500">{formatDate(log.eventAt)}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-xs text-slate-600">
+          TODO: persist `portal_usage_logs` in the database and expose internal support tooling for full log review and export.
         </div>
       </section>
     </div>
