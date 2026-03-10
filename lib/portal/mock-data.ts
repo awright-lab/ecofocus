@@ -7,6 +7,7 @@ import type {
   PortalTeamMember,
   PortalTicket,
   PortalTicketMessage,
+  PortalUsageAllowance,
   PortalUser,
 } from "@/lib/portal/types";
 
@@ -117,6 +118,23 @@ export const portalDashboardEntitlements: PortalDashboardEntitlement[] = [
   { companyId: "company-ecofocus", dashboardId: "dashboard-2024-interactive" },
   { companyId: "company-ecofocus", dashboardId: "dashboard-export" },
   { companyId: "company-ecofocus", dashboardId: "dashboard-custom" },
+];
+
+export const portalUsageAllowances: PortalUsageAllowance[] = [
+  {
+    userId: "user-maya",
+    annualHoursLimit: 120,
+    hoursUsed: 74,
+    periodStart: "2026-01-01",
+    periodEnd: "2026-12-31",
+  },
+  {
+    userId: "user-elliot",
+    annualHoursLimit: 60,
+    hoursUsed: 18,
+    periodStart: "2026-01-01",
+    periodEnd: "2026-12-31",
+  },
 ];
 
 export const portalTickets: PortalTicket[] = [

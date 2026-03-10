@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { CreditCard, LayoutDashboard, Users } from "lucide-react";
+import { Clock3, CreditCard, LayoutDashboard, Users } from "lucide-react";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalDashboardsForUser, getPortalTeamMembers } from "@/lib/portal/data";
+import { getPortalDashboardsForUser, getPortalTeamMembers, getPortalUsageStatus } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ export default async function AccountPage() {
   const access = await requirePortalAccess("/portal/account");
   const dashboards = getPortalDashboardsForUser(access.user);
   const teamMembers = getPortalTeamMembers(access.user);
+  const usage = getPortalUsageStatus(access.user);
 
   return (
     <div className="space-y-6">
@@ -85,6 +86,31 @@ export default async function AccountPage() {
           </Link>
         </div>
       </section>
+
+      {usage.annualHoursLimit ? (
+        <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
+                <Clock3 className="h-5 w-5 text-emerald-700" />
+                Portal dashboard hour allowance
+              </div>
+              <p className="mt-3 text-sm text-slate-600">
+                {usage.hoursUsed} of {usage.annualHoursLimit} annual hours have been allocated to this user for embedded dashboard access.
+              </p>
+            </div>
+            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${usage.isLocked ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
+              {usage.isLocked ? "Allowance exhausted" : `${usage.hoursRemaining} hours remaining`}
+            </span>
+          </div>
+          <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-200">
+            <div className={`h-full rounded-full ${usage.isLocked ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${usage.utilizationPct}%` }} />
+          </div>
+          <p className="mt-3 text-xs text-slate-500">
+            TODO: replace mock hour tracking with persisted usage records and reconciliation against Displayr account/server usage.
+          </p>
+        </section>
+      ) : null}
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">

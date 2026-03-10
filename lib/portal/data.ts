@@ -7,6 +7,7 @@ import {
   portalTeamMembers,
   portalTicketMessages,
   portalTickets,
+  portalUsageAllowances,
   portalUsers,
 } from "@/lib/portal/mock-data";
 import type {
@@ -15,6 +16,7 @@ import type {
   PortalRole,
   PortalTicket,
   PortalTicketMessage,
+  PortalUsageAllowance,
   PortalUser,
 } from "@/lib/portal/types";
 
@@ -52,6 +54,39 @@ export function getPortalDashboardsForUser(user: PortalUser): PortalDashboard[] 
 
 export function getPortalDashboardForUser(user: PortalUser, slug: string) {
   return getPortalDashboardsForUser(user).find((dashboard) => dashboard.slug === slug) ?? null;
+}
+
+export function getPortalUsageAllowance(user: PortalUser): PortalUsageAllowance | null {
+  if (user.role === "support_admin") return null;
+  return portalUsageAllowances.find((allowance) => allowance.userId === user.id) ?? null;
+}
+
+export function getPortalUsageStatus(user: PortalUser) {
+  const allowance = getPortalUsageAllowance(user);
+  if (!allowance) {
+    return {
+      allowance: null,
+      hoursUsed: 0,
+      annualHoursLimit: null,
+      hoursRemaining: null,
+      utilizationPct: 0,
+      isLocked: false,
+    };
+  }
+
+  const hoursRemaining = Math.max(0, allowance.annualHoursLimit - allowance.hoursUsed);
+  const utilizationPct = allowance.annualHoursLimit
+    ? Math.min(100, Math.round((allowance.hoursUsed / allowance.annualHoursLimit) * 100))
+    : 0;
+
+  return {
+    allowance,
+    hoursUsed: allowance.hoursUsed,
+    annualHoursLimit: allowance.annualHoursLimit,
+    hoursRemaining,
+    utilizationPct,
+    isLocked: allowance.hoursUsed >= allowance.annualHoursLimit,
+  };
 }
 
 export function getPortalCompany(user: PortalUser) {

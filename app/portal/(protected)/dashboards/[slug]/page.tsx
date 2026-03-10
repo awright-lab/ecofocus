@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, FileWarning, LifeBuoy } from "lucide-react";
+import { ArrowLeft, Clock3, ExternalLink, FileWarning, LifeBuoy } from "lucide-react";
 import { DisplayrEmbedFrame } from "@/components/portal/DisplayrEmbedFrame";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalArticles, getPortalDashboardForUser } from "@/lib/portal/data";
+import { getPortalArticles, getPortalDashboardForUser, getPortalUsageStatus } from "@/lib/portal/data";
 import { getDisplayrEmbedEnvKey, getDisplayrEmbedState } from "@/lib/portal/displayr";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
@@ -20,6 +20,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
   const dashboard = getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
+  const usage = getPortalUsageStatus(access.user);
   const embedState = getDisplayrEmbedState(dashboard);
   const embedEnvKey = getDisplayrEmbedEnvKey(dashboard.slug);
 
@@ -55,12 +56,32 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
       </section>
 
       <section className="space-y-6">
-        <DisplayrEmbedFrame
-          dashboard={dashboard}
-          iframeUrl={embedState.iframeUrl}
-          isConfigured={embedState.isConfigured}
-          envKey={embedEnvKey}
-        />
+        {usage.isLocked ? (
+          <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-8">
+            <div className="flex items-center gap-3 text-amber-900">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white">
+                <Clock3 className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Dashboard access paused</h3>
+                <p className="mt-1 text-sm text-amber-800">
+                  This user has reached the annual portal usage allowance of {usage.annualHoursLimit} hours.
+                </p>
+              </div>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-amber-900">
+              Access can be restored by increasing the allowance, resetting the usage period, or reconciling the tracked hours with your
+              real Displayr account usage policy.
+            </p>
+          </div>
+        ) : (
+          <DisplayrEmbedFrame
+            dashboard={dashboard}
+            iframeUrl={embedState.iframeUrl}
+            isConfigured={embedState.isConfigured}
+            envKey={embedEnvKey}
+          />
+        )}
 
         <div className="grid gap-6 xl:grid-cols-3">
           <div className="rounded-[28px] border border-slate-200 bg-white p-6">
@@ -92,6 +113,12 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               grants, embed token exchange, and dashboard-specific support context.
             </p>
             <div className="mt-4 flex flex-wrap gap-3 text-sm">
+              {usage.annualHoursLimit ? (
+                <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 font-medium text-slate-700">
+                  <Clock3 className="h-4 w-4" />
+                  {usage.hoursUsed}/{usage.annualHoursLimit} annual hours used
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 font-medium text-emerald-700">
                 <ExternalLink className="h-4 w-4" />
                 {embedState.isConfigured ? "Embed URL configured" : "Embed URL ready to configure"}

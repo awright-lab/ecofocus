@@ -39,6 +39,14 @@ export type PortalDashboardEntitlement = {
   dashboardId: string;
 };
 
+export type PortalUsageAllowance = {
+  userId: string;
+  annualHoursLimit: number;
+  hoursUsed: number;
+  periodStart: string;
+  periodEnd: string;
+};
+
 export type PortalTicket = {
   id: string;
   subject: string;
