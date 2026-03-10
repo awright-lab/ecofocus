@@ -18,7 +18,7 @@ export async function middleware(req: NextRequest) {
     res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
   }
 
-  if (isPortalLogin || pathname === '/portal/dev-login' || pathname === '/portal/dev-logout') {
+  if (isPortalLogin || pathname === '/portal/dev-login' || pathname === '/portal/dev-logout' || pathname === '/portal/dev-usage') {
     return res;
   }
 

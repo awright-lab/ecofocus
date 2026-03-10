@@ -20,7 +20,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
   const dashboard = getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
-  const usage = getPortalUsageStatus(access.user);
+  const usage = await getPortalUsageStatus(access.user);
   const embedState = getDisplayrEmbedState(dashboard);
   const embedEnvKey = getDisplayrEmbedEnvKey(dashboard.slug);
 

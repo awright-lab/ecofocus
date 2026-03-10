@@ -15,7 +15,7 @@ export default async function AccountPage() {
   const access = await requirePortalAccess("/portal/account");
   const dashboards = getPortalDashboardsForUser(access.user);
   const teamMembers = getPortalTeamMembers(access.user);
-  const usage = getPortalUsageStatus(access.user);
+  const usage = await getPortalUsageStatus(access.user);
 
   return (
     <div className="space-y-6">

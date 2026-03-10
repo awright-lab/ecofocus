@@ -10,6 +10,7 @@ import {
   portalUsageAllowances,
   portalUsers,
 } from "@/lib/portal/mock-data";
+import { getPortalDevUsageOverrideFromCookies } from "@/lib/portal/dev-auth";
 import type {
   PortalDashboard,
   PortalHelpArticle,
@@ -61,7 +62,7 @@ export function getPortalUsageAllowance(user: PortalUser): PortalUsageAllowance 
   return portalUsageAllowances.find((allowance) => allowance.userId === user.id) ?? null;
 }
 
-export function getPortalUsageStatus(user: PortalUser) {
+export async function getPortalUsageStatus(user: PortalUser) {
   const allowance = getPortalUsageAllowance(user);
   if (!allowance) {
     return {
@@ -74,18 +75,27 @@ export function getPortalUsageStatus(user: PortalUser) {
     };
   }
 
-  const hoursRemaining = Math.max(0, allowance.annualHoursLimit - allowance.hoursUsed);
+  const devOverride = await getPortalDevUsageOverrideFromCookies();
+  const overriddenHoursUsed =
+    devOverride === "available"
+      ? Math.min(allowance.hoursUsed, Math.max(0, allowance.annualHoursLimit - 1))
+      : devOverride === "exhausted"
+        ? allowance.annualHoursLimit
+        : allowance.hoursUsed;
+
+  const hoursRemaining = Math.max(0, allowance.annualHoursLimit - overriddenHoursUsed);
   const utilizationPct = allowance.annualHoursLimit
-    ? Math.min(100, Math.round((allowance.hoursUsed / allowance.annualHoursLimit) * 100))
+    ? Math.min(100, Math.round((overriddenHoursUsed / allowance.annualHoursLimit) * 100))
     : 0;
 
   return {
     allowance,
-    hoursUsed: allowance.hoursUsed,
+    hoursUsed: overriddenHoursUsed,
     annualHoursLimit: allowance.annualHoursLimit,
     hoursRemaining,
     utilizationPct,
-    isLocked: allowance.hoursUsed >= allowance.annualHoursLimit,
+    isLocked: overriddenHoursUsed >= allowance.annualHoursLimit,
+    devOverride,
   };
 }
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Building2, LogOut, Shield } from "lucide-react";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import type { PortalAccessContext } from "@/lib/portal/auth";
-import { isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
+import { getPortalDevUsageOverrideFromCookies, isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
 
 export function PortalShell({
   access,
@@ -11,7 +11,18 @@ export function PortalShell({
   access: PortalAccessContext;
   children: React.ReactNode;
 }) {
+  return <PortalShellInner access={access}>{children}</PortalShellInner>;
+}
+
+async function PortalShellInner({
+  access,
+  children,
+}: {
+  access: PortalAccessContext;
+  children: React.ReactNode;
+}) {
   const showDevBypass = isPortalDevBypassEnabled() && !access.session;
+  const usageOverride = showDevBypass ? await getPortalDevUsageOverrideFromCookies() : null;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
@@ -56,6 +67,11 @@ export function PortalShell({
                 Dev bypass session
               </span>
             ) : null}
+            {showDevBypass && usageOverride ? (
+              <span className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sky-100">
+                Usage override: {usageOverride}
+              </span>
+            ) : null}
             <Link
               href="/login"
               className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
@@ -71,6 +87,32 @@ export function PortalShell({
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span>End dev session</span>
+                </button>
+              </form>
+            ) : null}
+            {showDevBypass ? (
+              <form action="/portal/dev-usage" method="post" className="inline-flex">
+                <input type="hidden" name="redirect" value="/portal/home" />
+                <button
+                  type="submit"
+                  name="mode"
+                  value="available"
+                  className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
+                >
+                  Hours available
+                </button>
+              </form>
+            ) : null}
+            {showDevBypass ? (
+              <form action="/portal/dev-usage" method="post" className="inline-flex">
+                <input type="hidden" name="redirect" value="/portal/home" />
+                <button
+                  type="submit"
+                  name="mode"
+                  value="exhausted"
+                  className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
+                >
+                  Hours exhausted
                 </button>
               </form>
             ) : null}
