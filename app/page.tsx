@@ -1,6 +1,7 @@
 // app/page.tsx
 import type { Metadata } from "next";
 import Script from "next/script";
+import { redirect } from "next/navigation";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -53,7 +54,21 @@ export const metadata: Metadata = {
 };
 
 /* -------------------- PAGE -------------------- */
-export default function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = (await searchParams) || {};
+  const codeParam = params.code;
+  const code = Array.isArray(codeParam) ? codeParam[0] : codeParam;
+  const redirectParam = params.redirect;
+  const redirectTarget = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam || "/portal/home";
+
+  if (code) {
+    redirect(`/portal/login?code=${encodeURIComponent(code)}&redirect=${encodeURIComponent(redirectTarget)}`);
+  }
+
   // JSON-LD for Organization + Website + Breadcrumb
   const ld = {
     "@context": "https://schema.org",
@@ -112,5 +127,4 @@ export default function HomePage() {
     </>
   );
 }
-
 
