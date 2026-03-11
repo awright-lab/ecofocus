@@ -17,6 +17,23 @@ export default async function AccountPage() {
   const teamMembers = await getPortalTeamMembers(access.user);
   const usage = await getPortalUsageStatus(access.user);
   const usageLogs = (await getPortalUsageLogsForUser(access.user)).slice(0, 5);
+  const teamMembersById = new Map(teamMembers.map((member) => [member.id, member]));
+
+  function getUsageActor(userId: string) {
+    const actor = teamMembersById.get(userId);
+    if (actor) return `${actor.name} (${actor.email})`;
+    if (userId === access.user.id) return `${access.user.name} (${access.user.email})`;
+    return "EcoFocus portal user";
+  }
+
+  function getUsageEventLabel(eventType: string) {
+    if (eventType === "viewer_session") return "Dashboard session";
+    if (eventType === "viewer_opened") return "Dashboard opened";
+    if (eventType === "allowance_override") return "Allowance override";
+    if (eventType === "support_review_requested") return "Support review";
+    if (eventType === "allowance_exhausted") return "Allowance exhausted";
+    return eventType.replaceAll("_", " ");
+  }
 
   return (
     <div className="space-y-6">
@@ -171,12 +188,15 @@ export default async function AccountPage() {
         </div>
         <div className="mt-5 space-y-3">
           {usageLogs.map((log) => (
-            <div key={log.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.1fr_0.75fr_0.5fr_0.85fr] md:items-center">
+            <div key={log.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.15fr_1fr_0.6fr_0.9fr] md:items-center">
               <div>
                 <p className="font-semibold text-slate-900">{log.dashboardName}</p>
                 <p className="mt-1 text-sm text-slate-600">{log.notes || log.eventType}</p>
               </div>
-              <div className="text-sm font-medium capitalize text-slate-700">{log.eventType.replaceAll("_", " ")}</div>
+              <div>
+                <p className="text-sm font-medium text-slate-900">{getUsageActor(log.userId)}</p>
+                <p className="mt-1 text-sm text-slate-600">{getUsageEventLabel(log.eventType)}</p>
+              </div>
               <div className="text-sm text-slate-700">{log.minutesTracked} min</div>
               <div className="text-sm text-slate-500">{formatDateTime(log.eventAt)}</div>
             </div>
