@@ -1,7 +1,9 @@
 // app/page.tsx
 import type { Metadata } from "next";
 import Script from "next/script";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { isPortalHost } from "@/lib/portal/host";
 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -59,11 +61,17 @@ export default async function HomePage({
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  const headerList = await headers();
+  const host = headerList.get("host");
   const params = (await searchParams) || {};
   const codeParam = params.code;
   const code = Array.isArray(codeParam) ? codeParam[0] : codeParam;
   const redirectParam = params.redirect;
   const redirectTarget = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam || "/portal/home";
+
+  if (isPortalHost(host)) {
+    redirect("/portal/login");
+  }
 
   if (code) {
     redirect(`/portal/login?code=${encodeURIComponent(code)}&redirect=${encodeURIComponent(redirectTarget)}`);
@@ -127,4 +135,3 @@ export default async function HomePage({
     </>
   );
 }
-
