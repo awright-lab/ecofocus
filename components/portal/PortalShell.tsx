@@ -63,17 +63,17 @@ async function PortalShellInner({
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Private client workspace</span>
             {devToolsEnabled ? (
               <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
-                Dev tools enabled
+                Testing mode
               </span>
             ) : null}
             {showDevBypassSession ? (
               <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
-                Dev bypass session
+                Test sign-in session
               </span>
             ) : null}
             {devToolsEnabled && usageOverride ? (
               <span className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sky-100">
-                Usage override: {usageOverride}
+                {usageOverride === "available" ? "Hours set to available" : "Hours set to exhausted"}
               </span>
             ) : null}
             {showDevBypassSession ? (
@@ -83,7 +83,7 @@ async function PortalShellInner({
                   className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
                 >
                   <LogOut className="h-3.5 w-3.5" />
-                  <span>End dev session</span>
+                  <span>End test session</span>
                 </button>
               </form>
             ) : null}
@@ -96,7 +96,7 @@ async function PortalShellInner({
                   value="available"
                   className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
                 >
-                  Hours available
+                  Set hours available
                 </button>
               </form>
             ) : null}
@@ -109,7 +109,7 @@ async function PortalShellInner({
                   value="exhausted"
                   className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
                 >
-                  Hours exhausted
+                  Set hours exhausted
                 </button>
               </form>
             ) : null}

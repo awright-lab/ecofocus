@@ -22,7 +22,7 @@ export default async function PortalDashboardsPage() {
         <SectionHeader
           eyebrow="My Dashboards"
           title="Licensed dashboard access"
-          description="This MVP uses mock entitlement data shaped for future company-level licensing, user-level seat grants, and dashboard embed configuration."
+          description="Open the dashboards available to your company and track shared usage for the current access period."
         />
         {usage.annualHoursLimit ? (
           <div className="mt-6 rounded-[24px] bg-slate-50 p-5">
@@ -41,7 +41,7 @@ export default async function PortalDashboardsPage() {
               <div className={`h-full rounded-full ${usage.isLocked ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${usage.utilizationPct}%` }} />
             </div>
             <p className="mt-3 text-xs text-slate-500">
-              TODO: replace mock allowance tracking with persisted EcoFocus usage logs, purchasable resets, and support review workflows.
+              Usage is tracked at the company level. If you need additional hours or believe the total is incorrect, contact EcoFocus Support for review.
             </p>
           </div>
         ) : null}
