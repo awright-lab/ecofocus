@@ -21,8 +21,9 @@ async function PortalShellInner({
   access: PortalAccessContext;
   children: React.ReactNode;
 }) {
-  const showDevBypass = isPortalDevBypassEnabled() && !access.session;
-  const usageOverride = showDevBypass ? await getPortalDevUsageOverrideFromCookies() : null;
+  const devToolsEnabled = isPortalDevBypassEnabled();
+  const showDevBypassSession = devToolsEnabled && !access.session;
+  const usageOverride = devToolsEnabled ? await getPortalDevUsageOverrideFromCookies() : null;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
@@ -62,12 +63,17 @@ async function PortalShellInner({
           <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-emerald-50/80">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Noindex / Nofollow</span>
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Authenticated product workspace</span>
-            {showDevBypass ? (
+            {devToolsEnabled ? (
+              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
+                Dev tools enabled
+              </span>
+            ) : null}
+            {showDevBypassSession ? (
               <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
                 Dev bypass session
               </span>
             ) : null}
-            {showDevBypass && usageOverride ? (
+            {devToolsEnabled && usageOverride ? (
               <span className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sky-100">
                 Usage override: {usageOverride}
               </span>
@@ -79,7 +85,7 @@ async function PortalShellInner({
               <LogOut className="h-3.5 w-3.5" />
               <span>Primary login</span>
             </Link>
-            {showDevBypass ? (
+            {showDevBypassSession ? (
               <form action="/portal/dev-logout" method="post">
                 <button
                   type="submit"
@@ -90,7 +96,7 @@ async function PortalShellInner({
                 </button>
               </form>
             ) : null}
-            {showDevBypass ? (
+            {devToolsEnabled ? (
               <form action="/portal/dev-usage" method="post" className="inline-flex">
                 <input type="hidden" name="redirect" value="/portal/home" />
                 <button
@@ -103,7 +109,7 @@ async function PortalShellInner({
                 </button>
               </form>
             ) : null}
-            {showDevBypass ? (
+            {devToolsEnabled ? (
               <form action="/portal/dev-usage" method="post" className="inline-flex">
                 <input type="hidden" name="redirect" value="/portal/home" />
                 <button
