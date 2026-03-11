@@ -26,3 +26,9 @@
 ## Data tables
 - Uses `question_lookup` for variable allowlists and search.
 - Prefers `responses_2025_all`; falls back to `responses_2025_core` if the view/table is missing.
+- `portal_usage_logs` stores portal-side dashboard usage events for allowance reviews and audit history.
+
+## SQL artifacts
+- `docs/portal_chat_logs.sql`
+- `docs/portal_question_search.sql`
+- `docs/portal_usage_logs.sql`
