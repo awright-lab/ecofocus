@@ -22,12 +22,12 @@ export default async function PortalSupportPage() {
         <SectionHeader
           eyebrow="Support Center"
           title="Help, tickets, and escalation guidance"
-          description="Start with knowledge base content when possible, then move into ticket creation and ticket tracking when a workflow, access, or export issue needs intervention."
+          description="Start with help articles for common questions, then submit or track support requests when access, export, or interpretation issues need direct assistance."
         />
         <div className="mt-6 rounded-[28px] bg-[linear-gradient(135deg,#0f172a_0%,#0f766e_100%)] p-6 text-white">
           <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
             <Search className="h-4 w-4" />
-            <span className="text-sm text-white/85">Search prompt placeholder: describe the issue, dashboard, or export problem.</span>
+            <span className="text-sm text-white/85">Search help articles by topic, dashboard name, export type, or common issue.</span>
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link href="/portal/support/new" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">
@@ -80,7 +80,7 @@ export default async function PortalSupportPage() {
             ))}
           </div>
           <div className="mt-6 rounded-[24px] border border-dashed border-slate-300 p-4 text-sm text-slate-600">
-            Ticket routing scaffold supports future database persistence, assignment logic, CRM/email integration, and SLAs.
+            Support requests are reviewed by the EcoFocus team and routed based on the issue type, urgency, and dashboard context you provide.
             <Ticket className="ml-2 inline h-4 w-4" />
           </div>
         </div>
