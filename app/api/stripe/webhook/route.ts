@@ -1,6 +1,7 @@
 // app/api/stripe/webhook/route.ts
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { getPortalProvisioningMetadata, upsertPortalDashboardConfig } from "@/lib/portal/provisioning";
 import { getStripeServer } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -11,7 +12,14 @@ async function handleCheckoutCompleted(s: Stripe.Checkout.Session) {
   const id = s.id;
   const reportId = s.metadata?.reportId;
   void id; void reportId;
-  // TODO: fulfill order / unlock report access / send receipt
+
+  const provisioning = getPortalProvisioningMetadata(s);
+  if (!provisioning) {
+    return;
+  }
+
+  await upsertPortalDashboardConfig(provisioning);
+  // TODO: wire full company, user, seat, and subscription provisioning here.
 }
 
 async function handlePaymentSucceeded(p: Stripe.PaymentIntent) {
@@ -64,7 +72,6 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ received: true });
 }
-
 
 
 

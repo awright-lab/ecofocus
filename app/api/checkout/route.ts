@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const { items, successUrl, cancelUrl } = await req.json();
+  const { items, successUrl, cancelUrl, metadata, customerEmail, clientReferenceId } = await req.json();
 
   try {
     const stripe = getStripeServer();
@@ -16,8 +16,9 @@ export async function POST(req: Request) {
       line_items: items, // [{ price, quantity }]
       success_url: successUrl,
       cancel_url: cancelUrl,
-      // Optionally attach metadata to unlock reports later:
-      // metadata: { reportId: "abc123" },
+      metadata: metadata && typeof metadata === "object" ? metadata : undefined,
+      customer_email: typeof customerEmail === "string" ? customerEmail : undefined,
+      client_reference_id: typeof clientReferenceId === "string" ? clientReferenceId : undefined,
     });
     return NextResponse.json({ url: session.url });
   } catch (e: any) {
@@ -26,6 +27,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
-
 
 

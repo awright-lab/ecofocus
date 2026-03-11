@@ -17,17 +17,31 @@
 - `GET /api/portal/questions/search?q=` → searches `question_lookup.question_text` (top 50).
 - `POST /api/portal/crosstabs` → body `{ rowVar, colVar, filters? }`; validates vars against `question_lookup.db_column`, queries `responses_2025_all` (or falls back to `responses_2025_core`), returns counts + percents.
 - Both APIs require auth and never interpolate raw column names; only allowlisted columns are used.
+- `POST /api/checkout` forwards optional Stripe metadata, `customerEmail`, and `clientReferenceId` so portal provisioning can happen after successful payment.
+- `POST /api/stripe/webhook` can upsert `portal_dashboard_configs` from checkout metadata after `checkout.session.completed`.
 
 ## Env vars (required)
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY` (used server-side for data queries; still requires user session)
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
 
 ## Data tables
 - Uses `question_lookup` for variable allowlists and search.
 - Prefers `responses_2025_all`; falls back to `responses_2025_core` if the view/table is missing.
 - `portal_usage_logs` stores portal-side dashboard usage events for allowance reviews and audit history.
 - `portal_dashboard_configs` stores private company-scoped dashboard embed URLs for runtime provisioning without redeploys.
+
+## Provisioning metadata
+- To auto-provision a dashboard mapping from Stripe checkout, send metadata keys such as:
+  - `portalCompanyId`
+  - `portalCompanyName`
+  - `portalAdminEmail`
+  - `portalDashboardSlug`
+  - `displayrEmbedUrl`
+- On `checkout.session.completed`, the webhook upserts `portal_dashboard_configs`.
+- Full company/user/subscription provisioning is still a TODO; the current automation only provisions the dashboard config mapping.
 
 ## SQL artifacts
 - `docs/portal_chat_logs.sql`
