@@ -13,3 +13,18 @@ export function isPortalHost(host?: string | null) {
   if (!normalized) return false;
   return normalized === getPortalHostname();
 }
+
+export function toInternalPortalPath(pathname: string) {
+  if (pathname === "/") return "/portal";
+  if (pathname === "/portal" || pathname.startsWith("/portal/")) return pathname;
+  return `/portal${pathname}`;
+}
+
+export function toExternalPortalPath(pathname: string) {
+  if (pathname === "/portal") return "/";
+  if (pathname.startsWith("/portal/")) {
+    const trimmed = pathname.slice("/portal".length);
+    return trimmed || "/";
+  }
+  return pathname;
+}

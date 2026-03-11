@@ -70,11 +70,11 @@ export default async function HomePage({
   const redirectTarget = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam || "/portal/home";
 
   if (isPortalHost(host)) {
-    redirect("/portal/login");
+    redirect("/login");
   }
 
   if (code) {
-    redirect(`/portal/login?code=${encodeURIComponent(code)}&redirect=${encodeURIComponent(redirectTarget)}`);
+    redirect(`/login?code=${encodeURIComponent(code)}&redirect=${encodeURIComponent(redirectTarget)}`);
   }
 
   // JSON-LD for Organization + Website + Breadcrumb
