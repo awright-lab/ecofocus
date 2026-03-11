@@ -16,7 +16,7 @@ export default async function AccountPage() {
   const dashboards = await getPortalDashboardsForUser(access.user);
   const teamMembers = await getPortalTeamMembers(access.user);
   const usage = await getPortalUsageStatus(access.user);
-  const usageLogs = getPortalUsageLogsForUser(access.user).slice(0, 5);
+  const usageLogs = (await getPortalUsageLogsForUser(access.user)).slice(0, 5);
 
   return (
     <div className="space-y-6">
@@ -24,7 +24,7 @@ export default async function AccountPage() {
         <SectionHeader
           eyebrow="Account"
           title="Account and subscription"
-          description="This account view is shaped for future billing, renewal management, seat controls, and dashboard entitlement synchronization."
+          description="Review your account details, company plan, seat usage, dashboard access, and recent activity in one place."
         />
       </section>
 
@@ -83,7 +83,7 @@ export default async function AccountPage() {
           <p className="mt-4 text-4xl font-semibold">{access.subscription.seatsUsed}<span className="text-lg text-slate-400">/{access.subscription.seatsPurchased}</span></p>
           <p className="mt-2 text-sm text-slate-300">Seats used versus seats purchased across the organization.</p>
           <Link href="/portal/team" className="mt-5 inline-flex rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">
-            Manage team scaffold
+            Manage team access
           </Link>
         </div>
       </section>
@@ -107,9 +107,14 @@ export default async function AccountPage() {
           <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-200">
             <div className={`h-full rounded-full ${usage.isLocked ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${usage.utilizationPct}%` }} />
           </div>
-          <p className="mt-3 text-xs text-slate-500">
-            TODO: replace mock hour tracking with persisted EcoFocus usage logs, purchasable allowance changes, and support review workflows.
-          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+              Request additional hours
+            </Link>
+            <Link href="/portal/support" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+              Review support options
+            </Link>
+          </div>
         </section>
       ) : null}
 
@@ -133,11 +138,18 @@ export default async function AccountPage() {
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-950">Billing management</h3>
           <p className="mt-4 text-sm leading-6 text-slate-600">
-            Payment processing is intentionally not implemented in this MVP. Use this area for future billing portal access, invoice
-            retrieval, plan changes, renewal workflows, and subscription governance.
+            Use this area to keep your plan details visible and route billing-related requests to the EcoFocus team.
           </p>
-          <div className="mt-6 rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600">
-            TODO: connect subscription records to the billing provider, renewal reminders, entitlements, and audit logs.
+          <div className="mt-6 rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
+            Renewal date, plan status, and seat usage shown above reflect the current account record on file for your company.
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+              Contact billing support
+            </Link>
+            <Link href="/portal/team" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+              Review team access
+            </Link>
           </div>
           <div className="mt-6 text-sm text-slate-600">
             <span className="font-semibold text-slate-900">{teamMembers.length}</span> team members are currently modeled for this account.
@@ -146,10 +158,17 @@ export default async function AccountPage() {
       </section>
 
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
-        <h3 className="text-lg font-semibold text-slate-950">Usage activity log</h3>
-        <p className="mt-2 text-sm text-slate-600">
-          Recent company-level usage events that support reviews and allowance disputes can be checked against.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-950">Usage activity log</h3>
+            <p className="mt-2 text-sm text-slate-600">
+              Recent company-level usage events that support reviews and allowance disputes can be checked against.
+            </p>
+          </div>
+          <Link href="/api/portal/usage/export" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+            Download CSV
+          </Link>
+        </div>
         <div className="mt-5 space-y-3">
           {usageLogs.map((log) => (
             <div key={log.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.1fr_0.75fr_0.5fr_0.85fr] md:items-center">
@@ -163,8 +182,8 @@ export default async function AccountPage() {
             </div>
           ))}
         </div>
-        <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-xs text-slate-600">
-          TODO: persist `portal_usage_logs` in the database and expose internal support tooling for full log review and export.
+        <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
+          Need a usage review? Export the log above or contact EcoFocus Support with the dates, dashboards, and activity you want reviewed.
         </div>
       </section>
     </div>

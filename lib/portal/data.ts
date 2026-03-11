@@ -198,6 +198,42 @@ async function queryCompanyDashboards(companyId: string): Promise<PortalDashboar
   }
 }
 
+async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_usage_logs")
+      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes")
+      .eq("company_id", companyId)
+      .order("event_at", { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.warn("[portal/data] portal_usage_logs lookup failed.", { companyId, error: error.message });
+      return [];
+    }
+
+    return (data || []).map((log) => ({
+      id: String(log.id),
+      userId: String(log.user_id),
+      companyId: String(log.company_id),
+      dashboardId: String(log.dashboard_id),
+      dashboardName: String(log.dashboard_name),
+      eventType: log.event_type,
+      eventAt: String(log.event_at),
+      minutesTracked: Number(log.minutes_tracked || 0),
+      source: log.source === "portal_runtime" ? "portal_runtime" : "mock",
+      notes: log.notes || undefined,
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_usage_logs storage unavailable.", {
+      companyId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return [];
+  }
+}
+
 export async function getPortalUserByEmail(email?: string | null): Promise<PortalUser | null> {
   const runtimeUser = await queryPortalUserByEmail(email);
   if (runtimeUser) return runtimeUser;
@@ -264,7 +300,15 @@ export async function getPortalUsageStatus(user: PortalUser) {
   };
 }
 
-export function getPortalUsageLogsForUser(user: PortalUser): PortalUsageLog[] {
+export async function getPortalUsageLogsForUser(user: PortalUser): Promise<PortalUsageLog[]> {
+  const runtimeLogs = await queryPortalUsageLogs(user.companyId);
+  if (runtimeLogs.length) {
+    if (user.role === "support_admin") {
+      return runtimeLogs;
+    }
+    return runtimeLogs.filter((log) => log.companyId === user.companyId);
+  }
+
   if (user.role === "support_admin") {
     return [...portalUsageLogs].sort((a, b) => b.eventAt.localeCompare(a.eventAt));
   }
