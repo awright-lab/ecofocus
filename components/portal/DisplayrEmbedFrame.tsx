@@ -5,19 +5,17 @@ export function DisplayrEmbedFrame({
   dashboard,
   iframeUrl,
   isConfigured,
-  envKey,
 }: {
   dashboard: PortalDashboard;
   iframeUrl: string | null;
   isConfigured: boolean;
-  envKey: string;
 }) {
   if (!isConfigured || !iframeUrl) {
     return (
       <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_16px_50px_-40px_rgba(15,23,42,0.45)]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-950 px-4 py-3 text-sm text-white">
           <span>Viewer shell</span>
-          <span className="text-xs text-slate-300">Displayr URL not configured yet</span>
+          <span className="text-xs text-slate-300">Dashboard configuration not assigned yet</span>
         </div>
         <div className="flex min-h-[420px] flex-col items-center justify-center rounded-[24px] border border-dashed border-slate-300 bg-[linear-gradient(135deg,#f8fafc_0%,#ecfeff_50%,#f0fdf4_100%)] p-8 text-center xl:min-h-[560px]">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-950 text-white">
@@ -25,9 +23,11 @@ export function DisplayrEmbedFrame({
           </div>
           <h3 className="mt-5 text-xl font-semibold text-slate-900">Displayr dashboard embed area</h3>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-            Add the published dashboard URL to the environment variable below and redeploy. Route-level access control is already enforced by the portal.
+            A private dashboard URL has not been assigned to this company for the selected portal dashboard yet. Route-level access control is already enforced by the portal.
           </p>
-          <code className="mt-4 rounded-2xl bg-white px-4 py-3 text-xs font-semibold text-slate-700 shadow-sm">{envKey}</code>
+          <p className="mt-4 max-w-xl text-sm text-slate-500">
+            Configure the company-scoped dashboard mapping in portal dashboard settings or seed `portal_dashboard_configs` in Supabase.
+          </p>
         </div>
       </div>
     );

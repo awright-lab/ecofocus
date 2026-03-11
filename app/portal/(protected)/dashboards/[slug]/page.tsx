@@ -5,7 +5,7 @@ import { DashboardUsageTracker } from "@/components/portal/DashboardUsageTracker
 import { DisplayrEmbedFrame } from "@/components/portal/DisplayrEmbedFrame";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalArticles, getPortalDashboardForUser, getPortalUsageStatus } from "@/lib/portal/data";
-import { getDisplayrEmbedEnvKey, getDisplayrEmbedState } from "@/lib/portal/displayr";
+import { getDisplayrEmbedState } from "@/lib/portal/displayr";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -22,8 +22,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
   const dashboard = getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
   const usage = await getPortalUsageStatus(access.user);
-  const embedState = getDisplayrEmbedState(dashboard);
-  const embedEnvKey = getDisplayrEmbedEnvKey(dashboard.slug);
+  const embedState = await getDisplayrEmbedState(dashboard, access.company.id);
 
   const relatedArticles = getPortalArticles().slice(0, 3);
 
@@ -86,7 +85,6 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               dashboard={dashboard}
               iframeUrl={embedState.iframeUrl}
               isConfigured={embedState.isConfigured}
-              envKey={embedEnvKey}
             />
           </>
         )}
@@ -129,7 +127,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               ) : null}
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 font-medium text-emerald-700">
                 <ExternalLink className="h-4 w-4" />
-                {embedState.isConfigured ? "Embed URL configured" : "Embed URL ready to configure"}
+                {embedState.isConfigured ? "Dashboard mapping configured" : "Dashboard mapping required"}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 font-medium text-amber-700">
                 <FileWarning className="h-4 w-4" />
@@ -141,7 +139,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               </span>
             </div>
             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
-              Env key for this dashboard: <code className="font-semibold text-slate-900">{embedEnvKey}</code>
+              Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. Company-specific dashboard URLs should be managed in private portal configuration storage.
             </div>
           </div>
         </div>
