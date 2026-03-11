@@ -123,16 +123,9 @@ export const portalDashboardEntitlements: PortalDashboardEntitlement[] = [
 
 export const portalUsageAllowances: PortalUsageAllowance[] = [
   {
-    userId: "user-maya",
+    companyId: "company-greenloop",
     annualHoursLimit: 120,
-    hoursUsed: 74,
-    periodStart: "2026-01-01",
-    periodEnd: "2026-12-31",
-  },
-  {
-    userId: "user-elliot",
-    annualHoursLimit: 60,
-    hoursUsed: 18,
+    hoursUsed: 92,
     periodStart: "2026-01-01",
     periodEnd: "2026-12-31",
   },

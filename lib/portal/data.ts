@@ -224,7 +224,7 @@ export async function getPortalDashboardForUser(user: PortalUser, slug: string) 
 
 export function getPortalUsageAllowance(user: PortalUser): PortalUsageAllowance | null {
   if (user.role === "support_admin") return null;
-  return portalUsageAllowances.find((allowance) => allowance.userId === user.id) ?? null;
+  return portalUsageAllowances.find((allowance) => allowance.companyId === user.companyId) ?? null;
 }
 
 export async function getPortalUsageStatus(user: PortalUser) {
@@ -270,7 +270,7 @@ export function getPortalUsageLogsForUser(user: PortalUser): PortalUsageLog[] {
   }
 
   return portalUsageLogs
-    .filter((log) => log.userId === user.id)
+    .filter((log) => log.companyId === user.companyId)
     .sort((a, b) => b.eventAt.localeCompare(a.eventAt));
 }
 

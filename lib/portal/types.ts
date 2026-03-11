@@ -40,7 +40,7 @@ export type PortalDashboardEntitlement = {
 };
 
 export type PortalUsageAllowance = {
-  userId: string;
+  companyId: string;
   annualHoursLimit: number;
   hoursUsed: number;
   periodStart: string;

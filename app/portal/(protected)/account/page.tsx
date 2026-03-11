@@ -94,10 +94,10 @@ export default async function AccountPage() {
             <div>
               <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
                 <Clock3 className="h-5 w-5 text-emerald-700" />
-                Portal dashboard hour allowance
+                Company dashboard hour allowance
               </div>
               <p className="mt-3 text-sm text-slate-600">
-                {usage.hoursUsed} of {usage.annualHoursLimit} annual hours have been allocated to this user for embedded dashboard access.
+                {usage.hoursUsed} of {usage.annualHoursLimit} annual hours have been used across this company for embedded dashboard access.
               </p>
             </div>
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${usage.isLocked ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
@@ -148,7 +148,7 @@ export default async function AccountPage() {
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <h3 className="text-lg font-semibold text-slate-950">Usage activity log</h3>
         <p className="mt-2 text-sm text-slate-600">
-          Recent account-level usage events that support reviews and allowance disputes can be checked against.
+          Recent company-level usage events that support reviews and allowance disputes can be checked against.
         </p>
         <div className="mt-5 space-y-3">
           {usageLogs.map((log) => (

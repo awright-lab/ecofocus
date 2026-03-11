@@ -65,7 +65,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               <div>
                 <h3 className="text-xl font-semibold">Dashboard access paused</h3>
                 <p className="mt-1 text-sm text-amber-800">
-                  This user has reached the annual portal usage allowance of {usage.annualHoursLimit} hours.
+                  This company has reached the annual portal usage allowance of {usage.annualHoursLimit} hours.
                 </p>
               </div>
             </div>
