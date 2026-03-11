@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Building2, LogOut, Shield } from "lucide-react";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import type { PortalAccessContext } from "@/lib/portal/auth";
@@ -61,8 +60,7 @@ async function PortalShellInner({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-emerald-50/80">
-            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Noindex / Nofollow</span>
-            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Authenticated product workspace</span>
+            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Private client workspace</span>
             {devToolsEnabled ? (
               <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
                 Dev tools enabled
@@ -78,13 +76,6 @@ async function PortalShellInner({
                 Usage override: {usageOverride}
               </span>
             ) : null}
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              <span>Primary login</span>
-            </Link>
             {showDevBypassSession ? (
               <form action="/portal/dev-logout" method="post">
                 <button

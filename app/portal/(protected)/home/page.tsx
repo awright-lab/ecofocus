@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, CircleHelp, CreditCard, LayoutDashboard, LifeBuoy, ReceiptText } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { DashboardCard } from "@/components/portal/DashboardCard";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
@@ -13,14 +13,6 @@ export const metadata = buildPortalMetadata(
   "Portal Home",
   "Private portal landing page for dashboard access, support activity, and account actions.",
 );
-
-const quickActions = [
-  { href: "/portal/dashboards", label: "View Dashboards", icon: LayoutDashboard },
-  { href: "/portal/support/new", label: "Submit Support Request", icon: LifeBuoy },
-  { href: "/portal/support/tickets", label: "View My Tickets", icon: ReceiptText },
-  { href: "/portal/help", label: "Browse Help Articles", icon: BookOpen },
-  { href: "/portal/account", label: "Account & Subscription", icon: CreditCard },
-];
 
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
@@ -36,25 +28,24 @@ export default async function PortalHomePage() {
           title={`Welcome back, ${access.user.name.split(" ")[0]}`}
           description="Use the portal to open licensed dashboards, manage support requests, and keep account access aligned with your organization."
         />
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Link
-                key={action.href}
-                href={action.href}
-                className="rounded-[24px] border border-slate-200 bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50/60"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-emerald-700 shadow-sm">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <h3 className="mt-4 text-sm font-semibold text-slate-900">{action.label}</h3>
-                <span className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-emerald-700">
-                  Open <ArrowRight className="h-4 w-4" />
-                </span>
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+          <div className="rounded-[28px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">What you can do here</p>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">
+              Open licensed dashboards, review support activity, submit new requests, and manage account access from one private workspace.
+            </p>
+          </div>
+          <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick support</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                Submit Request
               </Link>
-            );
-          })}
+              <Link href="/portal/support/tickets" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                View Tickets
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
