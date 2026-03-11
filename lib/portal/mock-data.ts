@@ -280,7 +280,7 @@ export const portalHelpArticles: PortalHelpArticle[] = [
     category: "Access",
     summary: "Use your work email to receive a secure sign-in link and return to your assigned portal workspace.",
     content:
-      "Use your approved work email to request a one-time sign-in link. If your organization uses seat-based access, your dashboard availability depends on the assigned license and company entitlements. Contact your portal administrator if your expected dashboard is missing after login.",
+      "Use your approved work email to sign in to the EcoFocus portal. Access is tied to your company account, seat assignment, and dashboard entitlements.\n\nIf you are a returning user, start from the portal login page and use the same work email your organization registered for portal access. After authentication, you will be returned to your private workspace and will only see dashboards, support tools, and account features available to your role.\n\nIf you do not see the dashboards you expected, first confirm that you are using the correct work email and company account. If access still looks incomplete, contact your internal portal administrator or EcoFocus Support so we can review your account configuration, seat assignment, and dashboard mapping.",
   },
   {
     id: "article-exporting",
@@ -289,7 +289,7 @@ export const portalHelpArticles: PortalHelpArticle[] = [
     category: "Exports",
     summary: "Best practices for PNG, PPT, and table exports from Displayr-based dashboard views.",
     content:
-      "Before exporting, apply the filters you want included in the final output and confirm whether you need presentation-ready charts or raw tables. If exported labels are truncated, capture the dashboard name and the export format used when submitting a support request.",
+      "Before exporting, apply the exact filters and cuts you want reflected in the final output. Exported charts and tables reflect the current view, so it is important to confirm your segment selection, date range, and comparison state before downloading anything.\n\nFor presentation-ready outputs, check the chart title, legend, and axis labels before export. If you are building a leadership deck, capture a screenshot of the configured view so your team can trace the exported output back to the dashboard state used to generate it.\n\nIf labels are truncated or a table export does not match the view on screen, note the dashboard name, page, export type, and the filters in use. Include those details in a support request so EcoFocus can reproduce the issue quickly.",
   },
   {
     id: "article-eco-iq",
@@ -298,7 +298,7 @@ export const portalHelpArticles: PortalHelpArticle[] = [
     category: "Metrics",
     summary: "How to interpret Eco IQ scoring, benchmark ranges, and movement over time.",
     content:
-      "Eco IQ combines key sustainability perception measures into a single directional index. Review the benchmark context and segment filter selections before comparing movement across reporting periods.",
+      "Eco IQ is a directional metric designed to help teams understand how audiences respond to sustainability positioning, trust signals, and related perception indicators over time. It is most useful when viewed alongside the benchmark context and the audience definition behind the score.\n\nWhen comparing Eco IQ across brands, segments, or reporting periods, always confirm that you are working from a comparable base. A movement in score can reflect real audience change, but it can also reflect a different segment mix, a narrower sample, or a different reporting lens.\n\nUse Eco IQ as the starting point for interpretation, not the end point. Once you identify movement, drill into the supporting cuts and related charts to understand which audience groups, themes, or perception drivers are contributing to the change.",
   },
   {
     id: "article-segments",
@@ -307,7 +307,7 @@ export const portalHelpArticles: PortalHelpArticle[] = [
     category: "Analysis",
     summary: "How to use segment filters without introducing conflicting cuts into stakeholder-ready outputs.",
     content:
-      "Start with one primary segment dimension, validate sample sizes, and document any compound filters used in reporting. For custom project dashboards, keep a shared note on which segment definitions your team has standardized.",
+      "Start with one primary segment dimension and confirm the sample before layering in additional cuts. The clearest reporting stories usually come from a well-defined first cut rather than a heavily filtered view that becomes difficult to explain later.\n\nIf you need compound filtering, document it clearly. Teams often lose confidence in exports when the audience definition is not obvious from the chart alone. Keep a short note on the segment logic used for important exports so the same definitions can be reused across stakeholder reviews.\n\nIf you are preparing a client-facing or executive-ready output, validate the filtered view one more time before exporting. This helps avoid situations where a previous exploratory filter is still active and changes the interpretation of the final output.",
   },
   {
     id: "article-downloads",
@@ -316,7 +316,7 @@ export const portalHelpArticles: PortalHelpArticle[] = [
     category: "Exports",
     summary: "Where to find table downloads and how to request a custom extract if the standard export is not sufficient.",
     content:
-      "Use the dashboard utility bar to check available table export options. If the standard table export does not meet your reporting need, submit a support ticket with the dashboard name, target cut, and required output format.",
+      "Use the dashboard utility controls to review the available table download options for the current page or view. Standard table downloads are best for quick reviews, recurring internal reporting, and validation checks against the charts shown in the dashboard.\n\nIf you need a more specific extract, define the exact output before submitting a request. Include the dashboard name, page, target audience cut, fields needed, and the preferred delivery format. The more precise the request, the faster EcoFocus can confirm whether the standard export covers it or whether a custom extract is needed.\n\nWhen requesting a custom table, explain how the output will be used. That helps us determine whether you need a dashboard export, a one-time data pull, or a more structured deliverable.",
   },
 ];
 

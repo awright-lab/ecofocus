@@ -103,11 +103,11 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             <h3 className="text-lg font-semibold text-slate-950">Related help articles</h3>
             <div className="mt-4 space-y-3">
               {relatedArticles.map((article) => (
-                <div key={article.id} className="rounded-2xl bg-slate-50 p-4">
+                <Link key={article.id} href={`/portal/help/${article.slug}`} className="block rounded-2xl bg-slate-50 p-4 transition hover:bg-slate-100">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{article.category}</p>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{article.title}</p>
                   <p className="mt-2 text-sm text-slate-600">{article.summary}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

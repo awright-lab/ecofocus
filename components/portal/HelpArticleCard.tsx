@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { PortalHelpArticle } from "@/lib/portal/types";
 
 export function HelpArticleCard({ article }: { article: PortalHelpArticle }) {
@@ -8,9 +9,9 @@ export function HelpArticleCard({ article }: { article: PortalHelpArticle }) {
       </span>
       <h3 className="mt-3 text-lg font-semibold text-slate-900">{article.title}</h3>
       <p className="mt-2 text-sm leading-6 text-slate-600">{article.summary}</p>
-      <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">
-        {article.content}
-      </div>
+      <Link href={`/portal/help/${article.slug}`} className="mt-4 inline-flex rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+        Read article
+      </Link>
     </article>
   );
 }

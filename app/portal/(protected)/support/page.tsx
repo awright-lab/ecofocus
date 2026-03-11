@@ -69,14 +69,14 @@ export default async function PortalSupportPage() {
           <h3 className="text-lg font-semibold text-slate-950">Helpful articles</h3>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {articles.map((article) => (
-              <div key={article.id} className="rounded-[24px] bg-slate-50 p-4">
+              <Link key={article.id} href={`/portal/help/${article.slug}`} className="rounded-[24px] bg-slate-50 p-4 transition hover:bg-slate-100">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
                   <CircleHelp className="h-3.5 w-3.5" />
                   <span>{article.category}</span>
                 </div>
                 <h4 className="mt-3 text-base font-semibold text-slate-900">{article.title}</h4>
                 <p className="mt-2 text-sm leading-6 text-slate-600">{article.summary}</p>
-              </div>
+              </Link>
             ))}
           </div>
           <div className="mt-6 rounded-[24px] border border-dashed border-slate-300 p-4 text-sm text-slate-600">

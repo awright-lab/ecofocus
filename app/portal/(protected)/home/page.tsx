@@ -77,11 +77,11 @@ export default async function PortalHomePage() {
             />
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {articles.map((article) => (
-                <div key={article.id} className="rounded-[24px] bg-slate-50 p-4">
+                <Link key={article.id} href={`/portal/help/${article.slug}`} className="rounded-[24px] bg-slate-50 p-4 transition hover:bg-slate-100">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">{article.category}</p>
                   <h3 className="mt-2 text-base font-semibold text-slate-900">{article.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{article.summary}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
