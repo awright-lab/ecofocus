@@ -49,6 +49,7 @@ export type PortalUsageAllowance = {
 
 export type PortalUsageLogEvent =
   | "viewer_opened"
+  | "viewer_session"
   | "allowance_exhausted"
   | "allowance_override"
   | "support_review_requested";

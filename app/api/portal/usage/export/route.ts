@@ -22,7 +22,7 @@ export async function GET() {
 
   const logs = await getPortalUsageLogsForUser(access.user);
   const rows = [
-    ["Dashboard", "Notes", "Event", "Minutes", "Date"],
+    ["Dashboard", "Notes", "Event", "Minutes", "Timestamp"],
     ...logs.map((log) => [
       log.dashboardName,
       log.notes || "",

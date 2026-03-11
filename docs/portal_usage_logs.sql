@@ -13,6 +13,7 @@ create table if not exists public.portal_usage_logs (
   event_type text not null check (
     event_type in (
       'viewer_opened',
+      'viewer_session',
       'allowance_exhausted',
       'allowance_override',
       'support_review_requested'

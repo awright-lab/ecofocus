@@ -4,7 +4,7 @@ import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalDashboardsForUser, getPortalTeamMembers, getPortalUsageLogsForUser, getPortalUsageStatus } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
   "Account and Subscription",
@@ -178,7 +178,7 @@ export default async function AccountPage() {
               </div>
               <div className="text-sm font-medium capitalize text-slate-700">{log.eventType.replaceAll("_", " ")}</div>
               <div className="text-sm text-slate-700">{log.minutesTracked} min</div>
-              <div className="text-sm text-slate-500">{formatDate(log.eventAt)}</div>
+              <div className="text-sm text-slate-500">{formatDateTime(log.eventAt)}</div>
             </div>
           ))}
         </div>
