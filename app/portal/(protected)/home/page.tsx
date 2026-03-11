@@ -24,7 +24,7 @@ const quickActions = [
 
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
-  const dashboards = getPortalDashboardsForUser(access.user).slice(0, 3);
+  const dashboards = (await getPortalDashboardsForUser(access.user)).slice(0, 3);
   const tickets = getPortalTicketsForUser(access.user).slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
 

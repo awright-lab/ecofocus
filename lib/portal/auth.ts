@@ -7,8 +7,8 @@ import type { PortalRole, PortalUser } from "@/lib/portal/types";
 export type PortalAccessContext = {
   session: Awaited<ReturnType<typeof getSession>>;
   user: PortalUser;
-  company: NonNullable<ReturnType<typeof getPortalCompany>>;
-  subscription: NonNullable<ReturnType<typeof getPortalSubscription>>;
+  company: NonNullable<Awaited<ReturnType<typeof getPortalCompany>>>;
+  subscription: NonNullable<Awaited<ReturnType<typeof getPortalSubscription>>>;
 };
 
 function fallbackPortalUser(session: NonNullable<Awaited<ReturnType<typeof getSession>>>): PortalUser {
@@ -30,8 +30,8 @@ function fallbackPortalUser(session: NonNullable<Awaited<ReturnType<typeof getSe
 export async function getPortalAccessContext(): Promise<PortalAccessContext | null> {
   const devUser = await getPortalDevUserFromCookies();
   if (devUser) {
-    const company = getPortalCompany(devUser);
-    const subscription = getPortalSubscription(devUser);
+    const company = await getPortalCompany(devUser);
+    const subscription = await getPortalSubscription(devUser);
     if (!company || !subscription) return null;
 
     return {
@@ -45,10 +45,10 @@ export async function getPortalAccessContext(): Promise<PortalAccessContext | nu
   const session = await getSession().catch(() => null);
   if (!session?.user) return null;
 
-  const matchedUser = getPortalUserByEmail(session.user.email);
+  const matchedUser = await getPortalUserByEmail(session.user.email);
   const user = matchedUser ?? fallbackPortalUser(session);
-  const company = getPortalCompany(user);
-  const subscription = getPortalSubscription(user);
+  const company = await getPortalCompany(user);
+  const subscription = await getPortalSubscription(user);
 
   if (!company || !subscription) return null;
 

@@ -10,7 +10,7 @@ export const metadata = buildPortalMetadata(
 
 export default async function TeamPage() {
   const access = await requirePortalAccess("/portal/team");
-  const teamMembers = getPortalTeamMembers(access.user);
+  const teamMembers = await getPortalTeamMembers(access.user);
   const seatsAvailable = access.subscription.seatsPurchased - access.subscription.seatsUsed;
 
   return (

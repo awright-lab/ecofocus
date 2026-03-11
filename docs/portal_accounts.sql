@@ -1,0 +1,137 @@
+-- portal_accounts
+-- Stores private runtime portal accounts, subscriptions, and user membership.
+-- This supports client-admin provisioning after purchase without a redeploy.
+
+create extension if not exists pgcrypto;
+
+create table if not exists public.portal_subscriptions (
+  id text primary key,
+  plan_name text not null,
+  seats_purchased integer not null default 1 check (seats_purchased >= 0),
+  seats_used integer not null default 0 check (seats_used >= 0),
+  renewal_date date not null,
+  status text not null check (status in ('active', 'trialing', 'past_due')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.portal_companies (
+  id text primary key,
+  name text not null,
+  subscription_id text not null references public.portal_subscriptions(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.portal_users (
+  id text primary key,
+  name text not null,
+  email text not null unique,
+  company_id text not null references public.portal_companies(id) on delete cascade,
+  role text not null check (role in ('client_user', 'client_admin', 'support_admin')),
+  status text not null default 'active' check (status in ('active', 'invited', 'inactive')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists portal_users_email_idx
+  on public.portal_users (lower(email));
+
+create index if not exists portal_users_company_idx
+  on public.portal_users (company_id, status);
+
+alter table public.portal_subscriptions enable row level security;
+alter table public.portal_companies enable row level security;
+alter table public.portal_users enable row level security;
+
+comment on table public.portal_subscriptions is
+  'Private EcoFocus portal subscription records used for seat and renewal management.';
+
+comment on table public.portal_companies is
+  'Private EcoFocus portal company/account records.';
+
+comment on table public.portal_users is
+  'Private EcoFocus portal users, including client admins and support admins.';
+
+create or replace function public.set_portal_accounts_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists portal_subscriptions_set_updated_at on public.portal_subscriptions;
+create trigger portal_subscriptions_set_updated_at
+before update on public.portal_subscriptions
+for each row
+execute function public.set_portal_accounts_updated_at();
+
+drop trigger if exists portal_companies_set_updated_at on public.portal_companies;
+create trigger portal_companies_set_updated_at
+before update on public.portal_companies
+for each row
+execute function public.set_portal_accounts_updated_at();
+
+drop trigger if exists portal_users_set_updated_at on public.portal_users;
+create trigger portal_users_set_updated_at
+before update on public.portal_users
+for each row
+execute function public.set_portal_accounts_updated_at();
+
+insert into public.portal_subscriptions (
+  id,
+  plan_name,
+  seats_purchased,
+  seats_used,
+  renewal_date,
+  status
+)
+values
+  ('sub-greenloop', 'Enterprise Insight Suite', 12, 8, '2026-08-15', 'active'),
+  ('sub-ecofocus', 'Internal Support Workspace', 20, 9, '2026-12-31', 'active')
+on conflict (id) do update
+set
+  plan_name = excluded.plan_name,
+  seats_purchased = excluded.seats_purchased,
+  seats_used = excluded.seats_used,
+  renewal_date = excluded.renewal_date,
+  status = excluded.status,
+  updated_at = now();
+
+insert into public.portal_companies (
+  id,
+  name,
+  subscription_id
+)
+values
+  ('company-greenloop', 'GreenLoop Foods', 'sub-greenloop'),
+  ('company-ecofocus', 'EcoFocus Research', 'sub-ecofocus')
+on conflict (id) do update
+set
+  name = excluded.name,
+  subscription_id = excluded.subscription_id,
+  updated_at = now();
+
+insert into public.portal_users (
+  id,
+  name,
+  email,
+  company_id,
+  role,
+  status
+)
+values
+  ('user-maya', 'Maya Hernandez', 'maya@greenloopfoods.com', 'company-greenloop', 'client_admin', 'active'),
+  ('user-elliot', 'Elliot Park', 'elliot@greenloopfoods.com', 'company-greenloop', 'client_user', 'active'),
+  ('user-sam', 'Sam Patel', 'sam@ecofocusresearch.com', 'company-ecofocus', 'support_admin', 'active')
+on conflict (id) do update
+set
+  name = excluded.name,
+  email = excluded.email,
+  company_id = excluded.company_id,
+  role = excluded.role,
+  status = excluded.status,
+  updated_at = now();

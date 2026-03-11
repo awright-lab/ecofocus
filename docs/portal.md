@@ -28,22 +28,28 @@
 - `STRIPE_WEBHOOK_SECRET`
 
 ## Data tables
+- `portal_subscriptions`, `portal_companies`, and `portal_users` store runtime portal account records for provisioning and authenticated access.
 - Uses `question_lookup` for variable allowlists and search.
 - Prefers `responses_2025_all`; falls back to `responses_2025_core` if the view/table is missing.
 - `portal_usage_logs` stores portal-side dashboard usage events for allowance reviews and audit history.
 - `portal_dashboard_configs` stores private company-scoped dashboard embed URLs for runtime provisioning without redeploys.
 
 ## Provisioning metadata
-- To auto-provision a dashboard mapping from Stripe checkout, send metadata keys such as:
+- To auto-provision portal account records and a dashboard mapping from Stripe checkout, send metadata keys such as:
   - `portalCompanyId`
   - `portalCompanyName`
+  - `portalPlanName`
+  - `portalSeatsPurchased`
+  - `portalRenewalDate`
+  - `portalAdminName`
   - `portalAdminEmail`
   - `portalDashboardSlug`
   - `displayrEmbedUrl`
-- On `checkout.session.completed`, the webhook upserts `portal_dashboard_configs`.
-- Full company/user/subscription provisioning is still a TODO; the current automation only provisions the dashboard config mapping.
+- On `checkout.session.completed`, the webhook upserts `portal_subscriptions`, `portal_companies`, `portal_users`, and `portal_dashboard_configs`.
+- User seat assignment, invitations, and richer entitlement rules are still TODOs. The current automation provisions the initial client-admin account and company-scoped dashboard mapping.
 
 ## SQL artifacts
+- `docs/portal_accounts.sql`
 - `docs/portal_chat_logs.sql`
 - `docs/portal_dashboard_configs.sql`
 - `docs/portal_question_search.sql`

@@ -20,7 +20,7 @@ export default async function NewSupportTicketPage({
   const issueTypeParam = params.issueType;
   const defaultDashboard = Array.isArray(dashboardParam) ? dashboardParam[0] : dashboardParam;
   const defaultIssueType = Array.isArray(issueTypeParam) ? issueTypeParam[0] : issueTypeParam;
-  const dashboards = getPortalDashboardsForUser(access.user);
+  const dashboards = await getPortalDashboardsForUser(access.user);
 
   return (
     <div className="space-y-6">

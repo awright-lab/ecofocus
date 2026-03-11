@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function PortalDashboardDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
-  const dashboard = getPortalDashboardForUser(access.user, slug);
+  const dashboard = await getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
   const usage = await getPortalUsageStatus(access.user);
   const embedState = await getDisplayrEmbedState(dashboard, access.company.id);
