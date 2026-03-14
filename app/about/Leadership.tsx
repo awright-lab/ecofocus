@@ -59,7 +59,7 @@ export default function Leadership() {
     },
     {
       name: 'Craig Miller',
-      title: 'Agency Specialist',
+      title: 'Director of Agency Partnerships',
       img: '/images/team/craig.png',
       blurb:
         'Brings agency and client-side media expertise grounded in purpose-driven consumer strategy.',
@@ -274,7 +274,6 @@ export default function Leadership() {
     </section>
   );
 }
-
 
 
 
