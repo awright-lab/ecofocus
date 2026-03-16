@@ -79,6 +79,26 @@ export default function Leadership() {
       focal: '50% 35%',
     },
     {
+      name: 'Mike Wright',
+      title: 'Director, Business Intelligence & Design',
+      img: '/images/team/arif.jpg',
+      blurb:
+        'Leads data access and dashboard delivery, connecting EcoFocus insights to Snowflake users.',
+      details:
+        "Mike Wright is a dynamic professional with a unique blend of technology and creative graphic design skills and is leading up the Snowflake team working to make EcoFocus data available to Snowflake users. A Web Development and Computer Engineering graduate, he has excelled in roles such as a Data Market Analyst at AMI Corp, where he showcased his analytical and strategic talents. Passionate about sustainable agriculture, particularly hydroponic farming, Mike's environmental advocacy complements his professional pursuits. An avid hiker, his adventurous spirit mirrors his dynamic approach to technology and creativity.",
+      focal: '50% 38%',
+    },
+    {
+      name: 'Alex Murrey',
+      title: 'Head, Technology & AI',
+      img: '/images/team/alex.jpg',
+      blurb:
+        'Leads technology and AI integration, ensuring agencies can leverage cutting-edge tools for faster, smarter research.',
+      details:
+        'Alex Murrey is a seasoned technology leader with over seven years of experience in product management, strategic leadership, and research & development. Having worked with companies like Twilio, Launch Consulting, and TangoTeams, with expertise in areas such as AI leadership, cloud transformation, and user experience, Alex has successfully led teams to innovate and deliver customer-centric solutions and has been instrumental in advancing the use of AI at EcoFocus. Alex has a proven track record in driving product strategy, fostering cross-functional collaborations, and leading high-stakes projects in dynamic environments.',
+      focal: '50% 40%',
+    },
+    {
       name: 'Russ Whitman',
       title: 'AI and Growth Strategist',
       img: '/images/team/russ.png',
@@ -99,26 +119,6 @@ export default function Leadership() {
       details:
         'With a background that spans agencies, media research, and marketing support, Paul brings EcoFocus valuable perspective for serving ad, PR, marketing, and communications agencies. He began on the agency side at DDB Needham in media planning before going on to lead custom media research at MRI-Simmons, where he helped media brands use audience data across print, digital, newsletters, social, and events to build stronger sales and marketing narratives. At DJG Marketing, he also directed strategic marketing, research support, and ad sales development for hundreds of media brands. Paul was recently featured in Alliance for Audited Media’s “Media Mavens” blog series, “Paul Sammon on the Power of Innovative Data,” where he explored how trust and confidence shape today’s media marketplace. That focus on trusted, differentiated data is especially relevant to EcoFocus and its unique sustainability intelligence. In addition to advising EcoFocus, Paul is President of All In One Insights focusing on providing high quality full-service research, marketing and ad support for media brands across their full multi-platform footprint.',
       focal: '50% 28%',
-    },
-    {
-      name: 'Alex Murrey',
-      title: 'Head, Technology & AI',
-      img: '/images/team/alex.jpg',
-      blurb:
-        'Leads technology and AI integration, ensuring agencies can leverage cutting-edge tools for faster, smarter research.',
-      details:
-        'Alex Murrey is a seasoned technology leader with over seven years of experience in product management, strategic leadership, and research & development. Having worked with companies like Twilio, Launch Consulting, and TangoTeams, with expertise in areas such as AI leadership, cloud transformation, and user experience, Alex has successfully led teams to innovate and deliver customer-centric solutions and has been instrumental in advancing the use of AI at EcoFocus. Alex has a proven track record in driving product strategy, fostering cross-functional collaborations, and leading high-stakes projects in dynamic environments.',
-      focal: '50% 40%',
-    },
-    {
-      name: 'Mike Wright',
-      title: 'Director, Business Intelligence & Design',
-      img: '/images/team/arif.jpg',
-      blurb:
-        'Leads data access and dashboard delivery, connecting EcoFocus insights to Snowflake users.',
-      details:
-        "Mike Wright is a dynamic professional with a unique blend of technology and creative graphic design skills and is leading up the Snowflake team working to make EcoFocus data available to Snowflake users. A Web Development and Computer Engineering graduate, he has excelled in roles such as a Data Market Analyst at AMI Corp, where he showcased his analytical and strategic talents. Passionate about sustainable agriculture, particularly hydroponic farming, Mike's environmental advocacy complements his professional pursuits. An avid hiker, his adventurous spirit mirrors his dynamic approach to technology and creativity.",
-      focal: '50% 38%',
     },
   ];
 
@@ -311,8 +311,6 @@ export default function Leadership() {
     </section>
   );
 }
-
-
 
 
 
