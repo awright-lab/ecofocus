@@ -11,6 +11,7 @@ type Person = {
   blurb: string;
   details?: string;
   focal?: string; // e.g. '50% 40%'
+  eyebrow?: string;
 };
 
 export default function Leadership() {
@@ -76,6 +77,17 @@ export default function Leadership() {
       details:
         'With decades of client-side executive leadership Jeff has led customer insights research, integrated advertising, and product/service development across companies including The Campbell’s Company, JPMorganChase and Compass RE. Currently, in addition to being the Senior Strategic Advisor for New Business at EcoFocus, Jeff also leads Bridgefield Advisory, a customer-first management consultancy supporting startups and growth-stage organizations. A Wharton MBA, mentor, and School Board President, Jeff is passionate about creating environments where people, purpose and insights drive meaningful performance.',
       focal: '50% 35%',
+    },
+    {
+      name: 'Russ Whitman',
+      title: 'AI and Growth Strategist',
+      img: '/images/team/russ.png',
+      eyebrow: 'Advisory Team',
+      blurb:
+        'Brings AI, commercialization, and growth strategy expertise to help translate emerging technology into business opportunities.',
+      details:
+        'Russ is a seasoned AI and growth strategist whose career has been defined by turning emerging technologies into scalable business opportunities. With more than 25 years of experience spanning digital product development, business, and marketing, he has helped grow AI, SaaS, and cloud-based companies from startups into multimillion-dollar enterprises. He has also taken on public speaking and hosting roles around AI, including at the World AI Cannes Festival. As a member of the EcoFocus Advisory Team, Russ adds an unusually powerful combination of strengths: deep technical fluency alongside real expertise in sales, product marketing, and commercialization. His presence reinforces the forward-looking direction of EcoFocus and reflects the company’s commitment to combining strong sustainability data with emerging technology, innovation, and growth strategy.',
+      focal: '50% 30%',
     },
     {
       name: 'Alex Murrey',
@@ -164,7 +176,14 @@ export default function Leadership() {
 
                 {/* Content (fixed minimum so all cards match) */}
                 <div className="flex-none px-5 pt-5 pb-2 min-h-[150px]">
-                  <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
+                    {p.eyebrow ? (
+                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-800 ring-1 ring-emerald-200">
+                        {p.eyebrow}
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="mt-1 text-sm text-gray-600">{p.title}</p>
                   <p className="mt-3 text-sm text-gray-700" style={clamp3}>
                     {p.blurb}
@@ -241,7 +260,14 @@ export default function Leadership() {
                                   />
                                 </div>
                                 <div>
-                                  <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <h3 className="text-base font-semibold text-gray-900">{p.name}</h3>
+                                    {p.eyebrow ? (
+                                      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-800 ring-1 ring-emerald-200">
+                                        {p.eyebrow}
+                                      </span>
+                                    ) : null}
+                                  </div>
                                   <p className="text-sm text-gray-600">{p.title}</p>
                                 </div>
                               </div>
@@ -274,7 +300,6 @@ export default function Leadership() {
     </section>
   );
 }
-
 
 
 
