@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { getPortalOrigin } from "@/lib/portal/host";
 import { createPortalTeamInvite } from "@/lib/portal/provisioning";
 
 const NOINDEX_HEADERS = {
@@ -46,7 +47,11 @@ export async function POST(req: NextRequest) {
       role,
     });
 
-    return asJson({ ok: true, invitedUserId: result.userId, email: result.email }, 201);
+    const inviteUrl = new URL("/login", getPortalOrigin(req.url));
+    inviteUrl.searchParams.set("email", result.email);
+    inviteUrl.searchParams.set("invite", "1");
+
+    return asJson({ ok: true, invitedUserId: result.userId, email: result.email, inviteUrl: inviteUrl.toString() }, 201);
   } catch (error) {
     return asJson(
       {

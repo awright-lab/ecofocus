@@ -16,6 +16,10 @@ export default async function PortalLoginPage({
   const params = (await searchParams) || {};
   const redirectParam = params.redirect;
   const redirect = Array.isArray(redirectParam) ? redirectParam[0] : redirectParam || "/portal/home";
+  const emailParam = params.email;
+  const email = Array.isArray(emailParam) ? emailParam[0] : emailParam || "";
+  const inviteParam = params.invite;
+  const invite = Array.isArray(inviteParam) ? inviteParam[0] : inviteParam;
   const codeParam = params.code;
   const code = Array.isArray(codeParam) ? codeParam[0] : codeParam;
   const showDevBypass = isPortalDevBypassEnabled();
@@ -50,7 +54,12 @@ export default async function PortalLoginPage({
 
         <section className="rounded-[32px] border border-white/70 bg-white/95 p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
           <LoginHandler code={code} redirect={redirect} />
-          <LoginForm redirect={redirect} />
+          <LoginForm redirect={redirect} initialEmail={email} />
+          {invite === "1" ? (
+            <div className="px-4 pb-4 text-sm text-emerald-700 sm:px-0">
+              Your company has prepared portal access for this email. Sign in with the same work email to activate your account.
+            </div>
+          ) : null}
           {showDevBypass ? (
             <div className="mx-auto mt-6 max-w-xl border-t border-slate-200 px-4 pt-6 sm:px-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-700">Dev Bypass</p>

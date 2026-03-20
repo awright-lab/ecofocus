@@ -6,11 +6,13 @@ import { getBrowserSupabase } from "@/lib/supabase/client";
 export default function LoginForm({
   redirect,
   callbackPath = "/auth/confirm",
+  initialEmail = "",
 }: {
   redirect: string;
   callbackPath?: string;
+  initialEmail?: string;
 }) {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
