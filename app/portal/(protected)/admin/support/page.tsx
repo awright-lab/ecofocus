@@ -10,6 +10,7 @@ import {
   getPortalDashboardCatalog,
   getPortalDashboardConfigsByCompany,
   getPortalTeamMembersByCompany,
+  getPortalTeamInvitesByCompany,
   getPortalTicketsForUser,
   getPortalUsageAllowanceByCompany,
   getPortalUsageLogsForAdmin,
@@ -52,6 +53,7 @@ export default async function AdminSupportPage({
         const selectedCompany = companies.find((company) => company.id === selectedCompanyId) || null;
         const selectedCompanyUsers = selectedCompanyId ? await getPortalTeamMembersByCompany(selectedCompanyId) : [];
         const selectedCompanyDashboardConfigs = selectedCompanyId ? await getPortalDashboardConfigsByCompany(selectedCompanyId) : [];
+        const selectedCompanyInvites = selectedCompanyId ? await getPortalTeamInvitesByCompany(selectedCompanyId) : [];
         const dashboardCatalog = await getPortalDashboardCatalog();
         const usageAllowance = selectedCompanyId
           ? await getPortalUsageAllowanceByCompany(selectedCompanyId)
@@ -68,6 +70,7 @@ export default async function AdminSupportPage({
         const openCount = tickets.filter((ticket) => ticket.status === "open").length;
         const urgentCount = tickets.filter((ticket) => ticket.priority === "urgent").length;
         const unassignedCount = tickets.filter((ticket) => !ticket.ownerId).length;
+        const selectedCompanyTickets = tickets.filter((ticket) => ticket.companyId === selectedCompanyId);
         const companyDashboardEditorItems = dashboardCatalog.map((dashboard) => {
           const config = selectedCompanyDashboardConfigs.find((item) => item.dashboardSlug === dashboard.slug);
           return {
@@ -80,6 +83,56 @@ export default async function AdminSupportPage({
             notes: config?.notes ?? "",
           };
         });
+        const inviteActorIds = Array.from(new Set(selectedCompanyInvites.map((invite) => invite.invitedByUserId)));
+        const inviteActors = await getPortalUsersByIds(inviteActorIds);
+        const inviteActorsById = new Map(inviteActors.map((user) => [user.id, user]));
+        const operationalUsageEvents = (
+          await getPortalUsageLogsForAdmin({
+            companyId: selectedCompanyId || undefined,
+            limit: 50,
+          })
+        ).filter((log) => log.eventType !== "viewer_session" && log.eventType !== "viewer_opened");
+        const auditTimeline = [
+          ...selectedCompanyInvites.map((invite) => ({
+            id: `invite-${invite.id}`,
+            eventAt: invite.lastSentAt || invite.createdAt,
+            title: `${invite.invitedName} invited to the portal`,
+            detail: `${invite.invitedRole.replace("_", " ")} access prepared. Delivery status: ${invite.deliveryStatus.replaceAll("_", " ")}.`,
+            actor: inviteActorsById.get(invite.invitedByUserId)?.name || "EcoFocus Team",
+            surface: "Team access",
+          })),
+          ...selectedCompanyDashboardConfigs.map((config) => {
+            const dashboard = dashboardCatalog.find((item) => item.slug === config.dashboardSlug);
+            return {
+              id: `dashboard-${config.id}`,
+              eventAt: config.updatedAt,
+              title: `${dashboard?.name || config.dashboardSlug} access updated`,
+              detail: config.isActive
+                ? "Dashboard access is active for this company."
+                : "Dashboard access is currently paused for this company.",
+              actor: "EcoFocus Support",
+              surface: "Dashboard access",
+            };
+          }),
+          ...selectedCompanyTickets.map((ticket) => ({
+            id: `ticket-${ticket.id}`,
+            eventAt: ticket.updatedAt,
+            title: `${ticket.id} updated`,
+            detail: `${ticket.subject} is currently ${ticket.status.replaceAll("_", " ")}.`,
+            actor: ticket.ownerId ? usersById.get(ticket.ownerId)?.name || "EcoFocus Team" : "Unassigned",
+            surface: "Support",
+          })),
+          ...operationalUsageEvents.map((log) => ({
+            id: `usage-${log.id}`,
+            eventAt: log.eventAt,
+            title: `${log.dashboardName} usage review event`,
+            detail: log.notes || log.eventType.replaceAll("_", " "),
+            actor: usageLogUsersById.get(log.userId)?.name || log.userId,
+            surface: "Usage",
+          })),
+        ]
+          .sort((a, b) => b.eventAt.localeCompare(a.eventAt))
+          .slice(0, 12);
 
         return (
           <div className="space-y-6">
@@ -324,6 +377,35 @@ export default async function AdminSupportPage({
                     Select a client company above to manage dashboard access.
                   </div>
                 )}
+              </div>
+
+              <div className="rounded-[32px] border border-slate-200 bg-white p-6 xl:col-span-3">
+                <h3 className="text-lg font-semibold text-slate-950">Account timeline</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Review recent operational activity for the selected company across invites, dashboard access changes, support work, and allowance-related usage events.
+                </p>
+
+                <div className="mt-5 space-y-3">
+                  {auditTimeline.length ? (
+                    auditTimeline.map((event) => (
+                      <div key={event.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[0.9fr_1.4fr_0.9fr_0.8fr] md:items-center">
+                        <div>
+                          <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{event.surface}</span>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-900">{event.title}</p>
+                          <p className="mt-1 text-sm text-slate-600">{event.detail}</p>
+                        </div>
+                        <div className="text-sm text-slate-700">{event.actor}</div>
+                        <div className="text-sm text-slate-500">{formatDateTime(event.eventAt)}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
+                      No account timeline events are available for the selected company yet.
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">
