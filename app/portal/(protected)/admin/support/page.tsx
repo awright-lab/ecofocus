@@ -30,6 +30,14 @@ const filterOptions = {
   issueType: ["Login / Access", "Dashboard Navigation", "Chart Export", "Data Question", "Possible Bug", "Feature Request", "Training Request"],
 };
 
+const timelineFilterOptions = [
+  { value: "all", label: "All activity" },
+  { value: "team", label: "Invites" },
+  { value: "dashboard", label: "Dashboard access" },
+  { value: "support", label: "Support" },
+  { value: "usage", label: "Usage review" },
+] as const;
+
 export default async function AdminSupportPage({
   searchParams,
 }: {
@@ -40,6 +48,9 @@ export default async function AdminSupportPage({
   const selectedUserParam = Array.isArray(params.user) ? params.user[0] : params.user;
   const selectedStartParam = Array.isArray(params.start) ? params.start[0] : params.start;
   const selectedEndParam = Array.isArray(params.end) ? params.end[0] : params.end;
+  const selectedTimelineParam = Array.isArray(params.timeline) ? params.timeline[0] : params.timeline;
+  const timelineFilter =
+    timelineFilterOptions.some((option) => option.value === selectedTimelineParam) ? selectedTimelineParam || "all" : "all";
 
   return (
     <RoleGuard role="support_admin" redirectTarget="/portal/admin/support">
@@ -100,6 +111,9 @@ export default async function AdminSupportPage({
             detail: `${invite.invitedRole.replace("_", " ")} access prepared. Delivery status: ${invite.deliveryStatus.replaceAll("_", " ")}.`,
             actor: inviteActorsById.get(invite.invitedByUserId)?.name || "EcoFocus Team",
             surface: "Team access",
+            surfaceKey: "team",
+            href: "/portal/team",
+            linkLabel: "Open team access",
           })),
           ...selectedCompanyDashboardConfigs.map((config) => {
             const dashboard = dashboardCatalog.find((item) => item.slug === config.dashboardSlug);
@@ -112,6 +126,9 @@ export default async function AdminSupportPage({
                 : "Dashboard access is currently paused for this company.",
               actor: "EcoFocus Support",
               surface: "Dashboard access",
+              surfaceKey: "dashboard",
+              href: `/portal/admin/support?company=${encodeURIComponent(selectedCompanyId)}#dashboard-access`,
+              linkLabel: "Open dashboard access",
             };
           }),
           ...selectedCompanyTickets.map((ticket) => ({
@@ -121,6 +138,9 @@ export default async function AdminSupportPage({
             detail: `${ticket.subject} is currently ${ticket.status.replaceAll("_", " ")}.`,
             actor: ticket.ownerId ? usersById.get(ticket.ownerId)?.name || "EcoFocus Team" : "Unassigned",
             surface: "Support",
+            surfaceKey: "support",
+            href: `/portal/support/tickets/${ticket.id}`,
+            linkLabel: "Open ticket",
           })),
           ...operationalUsageEvents.map((log) => ({
             id: `usage-${log.id}`,
@@ -129,8 +149,12 @@ export default async function AdminSupportPage({
             detail: log.notes || log.eventType.replaceAll("_", " "),
             actor: usageLogUsersById.get(log.userId)?.name || log.userId,
             surface: "Usage",
+            surfaceKey: "usage",
+            href: `/portal/admin/support?company=${encodeURIComponent(selectedCompanyId)}#usage-review`,
+            linkLabel: "Open usage review",
           })),
         ]
+          .filter((event) => timelineFilter === "all" || event.surfaceKey === timelineFilter)
           .sort((a, b) => b.eventAt.localeCompare(a.eventAt))
           .slice(0, 12);
 
@@ -257,7 +281,7 @@ export default async function AdminSupportPage({
                 )}
               </div>
 
-              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+              <div id="usage-review" className="rounded-[32px] border border-slate-200 bg-white p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-semibold text-slate-950">Usage review</h3>
@@ -358,7 +382,7 @@ export default async function AdminSupportPage({
             </section>
 
             <section className="grid gap-6 xl:grid-cols-3">
-              <div className="rounded-[32px] border border-slate-200 bg-white p-6 xl:col-span-3">
+              <div id="dashboard-access" className="rounded-[32px] border border-slate-200 bg-white p-6 xl:col-span-3">
                 <h3 className="text-lg font-semibold text-slate-950">Company dashboard access</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   Turn dashboards on or off for a client company and keep each private dashboard link stored on the server instead of in deployment settings.
@@ -385,10 +409,35 @@ export default async function AdminSupportPage({
                   Review recent operational activity for the selected company across invites, dashboard access changes, support work, and allowance-related usage events.
                 </p>
 
-                <div className="mt-5 space-y-3">
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {timelineFilterOptions.map((option) => {
+                    const href = new URLSearchParams();
+                    if (selectedCompanyId) href.set("company", selectedCompanyId);
+                    if (selectedUserParam) href.set("user", selectedUserParam);
+                    if (selectedStartParam) href.set("start", selectedStartParam);
+                    if (selectedEndParam) href.set("end", selectedEndParam);
+                    if (option.value !== "all") href.set("timeline", option.value);
+
+                    return (
+                      <Link
+                        key={option.value}
+                        href={`/portal/admin/support${href.toString() ? `?${href.toString()}` : ""}#account-timeline`}
+                        className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                          timelineFilter === option.value
+                            ? "bg-slate-950 text-white"
+                            : "border border-slate-300 text-slate-700 hover:border-emerald-400 hover:text-emerald-700"
+                        }`}
+                      >
+                        {option.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                <div id="account-timeline" className="mt-5 space-y-3">
                   {auditTimeline.length ? (
                     auditTimeline.map((event) => (
-                      <div key={event.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[0.9fr_1.4fr_0.9fr_0.8fr] md:items-center">
+                      <div key={event.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[0.8fr_1.45fr_0.85fr_0.8fr_0.75fr] md:items-center">
                         <div>
                           <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{event.surface}</span>
                         </div>
@@ -398,6 +447,14 @@ export default async function AdminSupportPage({
                         </div>
                         <div className="text-sm text-slate-700">{event.actor}</div>
                         <div className="text-sm text-slate-500">{formatDateTime(event.eventAt)}</div>
+                        <div>
+                          <Link
+                            href={event.href}
+                            className="text-sm font-semibold text-emerald-700 transition hover:text-emerald-800"
+                          >
+                            {event.linkLabel}
+                          </Link>
+                        </div>
                       </div>
                     ))
                   ) : (
