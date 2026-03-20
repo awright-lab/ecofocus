@@ -43,12 +43,25 @@ export async function GET(request: NextRequest) {
   const type = requestUrl.searchParams.get("type") as EmailOtpType | null;
 
   try {
-    if (tokenHash && type) {
-      const { error } = await supabase.auth.verifyOtp({
-        token_hash: tokenHash,
-        type,
-      });
-      if (error) throw error;
+    if (tokenHash) {
+      const candidateTypes = Array.from(new Set(([type, "magiclink"] as Array<EmailOtpType | null>).filter(Boolean))) as EmailOtpType[];
+      let lastError: Error | null = null;
+
+      for (const candidateType of candidateTypes) {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: candidateType,
+        });
+
+        if (!error) {
+          lastError = null;
+          break;
+        }
+
+        lastError = error;
+      }
+
+      if (lastError) throw lastError;
       const {
         data: { user },
       } = await supabase.auth.getUser();

@@ -22,6 +22,10 @@ export default async function PortalLoginPage({
   const invite = Array.isArray(inviteParam) ? inviteParam[0] : inviteParam;
   const codeParam = params.code;
   const code = Array.isArray(codeParam) ? codeParam[0] : codeParam;
+  const tokenHashParam = params.token_hash;
+  const tokenHash = Array.isArray(tokenHashParam) ? tokenHashParam[0] : tokenHashParam;
+  const typeParam = params.type;
+  const type = Array.isArray(typeParam) ? typeParam[0] : typeParam;
   const showDevBypass = isPortalDevBypassEnabled();
 
   return (
@@ -53,7 +57,7 @@ export default async function PortalLoginPage({
         </section>
 
         <section className="rounded-[32px] border border-white/70 bg-white/95 p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
-          <LoginHandler code={code} redirect={redirect} />
+          <LoginHandler code={code} tokenHash={tokenHash} type={type} redirect={redirect} />
           <LoginForm redirect={redirect} initialEmail={email} />
           {invite === "1" ? (
             <div className="px-4 pb-4 text-sm text-emerald-700 sm:px-0">
@@ -92,8 +96,8 @@ export default async function PortalLoginPage({
           ) : null}
           {params.error === "auth_callback_failed" ? (
             <div className="px-4 pb-4 text-sm text-rose-600 sm:px-0">
-              The magic-link callback could not be completed. If this persists, update the Supabase email template to use
-              the token-hash SSR flow and ensure the callback opens in the same browser session.
+              The sign-in link could not be completed. Start with a fresh sign-in email and open it in the same browser you used to request it. If it still fails,
+              the Supabase email template likely needs the token-hash SSR callback format.
             </div>
           ) : null}
           {params.error === "not_provisioned" ? (
