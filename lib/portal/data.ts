@@ -5,6 +5,7 @@ import {
   portalHelpArticles,
   portalSubscriptions,
   portalTeamMembers,
+  portalTeamInvites,
   portalTicketMessages,
   portalTickets,
   portalUsageAllowances,
@@ -20,6 +21,7 @@ import type {
   PortalHelpArticle,
   PortalRole,
   PortalSubscription,
+  PortalTeamInvite,
   PortalTicket,
   PortalTicketMessage,
   PortalTeamMember,
@@ -227,6 +229,50 @@ async function queryPortalUsersByIds(userIds: string[]): Promise<PortalUser[] | 
   } catch (error) {
     console.warn("[portal/data] portal_users id storage unavailable.", {
       userIds,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function queryPortalTeamInvites(companyId: string): Promise<PortalTeamInvite[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_team_invites")
+      .select("id, company_id, invited_user_id, invited_name, invited_email, invited_role, invited_by_user_id, invite_url, delivery_status, delivery_message, created_at, updated_at, last_sent_at")
+      .eq("company_id", companyId)
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    if (error) {
+      console.warn("[portal/data] portal_team_invites lookup failed.", { companyId, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((invite) => ({
+      id: String(invite.id),
+      companyId: String(invite.company_id),
+      invitedUserId: invite.invited_user_id ? String(invite.invited_user_id) : null,
+      invitedName: String(invite.invited_name),
+      invitedEmail: String(invite.invited_email),
+      invitedRole: invite.invited_role === "client_admin" ? "client_admin" : "client_user",
+      invitedByUserId: String(invite.invited_by_user_id),
+      inviteUrl: String(invite.invite_url),
+      deliveryStatus:
+        invite.delivery_status === "sent"
+          ? "sent"
+          : invite.delivery_status === "failed"
+            ? "failed"
+            : "manual_only",
+      deliveryMessage: invite.delivery_message || null,
+      createdAt: String(invite.created_at),
+      updatedAt: String(invite.updated_at),
+      lastSentAt: invite.last_sent_at || null,
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_team_invites storage unavailable.", {
+      companyId,
       error: error instanceof Error ? error.message : String(error),
     });
     return null;
@@ -662,6 +708,14 @@ export async function getPortalTeamMembersByCompany(companyId: string) {
   const runtimeTeamMembers = await queryPortalTeamMembers(companyId);
   if (runtimeTeamMembers.length) return runtimeTeamMembers;
   return portalTeamMembers.filter((member) => member.companyId === companyId);
+}
+
+export async function getPortalTeamInvitesByCompany(companyId: string) {
+  const runtimeInvites = await queryPortalTeamInvites(companyId);
+  if (runtimeInvites) return runtimeInvites;
+  return portalTeamInvites
+    .filter((invite) => invite.companyId === companyId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
 export async function getPortalUsersByIds(userIds: string[]) {

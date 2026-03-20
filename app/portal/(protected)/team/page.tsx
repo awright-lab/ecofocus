@@ -1,9 +1,11 @@
+import { TeamInviteHistory } from "@/components/portal/TeamInviteHistory";
 import { TeamInviteForm } from "@/components/portal/TeamInviteForm";
 import { TeamMemberActions } from "@/components/portal/TeamMemberActions";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalTeamMembers } from "@/lib/portal/data";
+import { getPortalTeamInvitesByCompany, getPortalTeamMembers, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
+import { formatDateTime } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
   "Team Management",
@@ -13,6 +15,10 @@ export const metadata = buildPortalMetadata(
 export default async function TeamPage() {
   const access = await requirePortalAccess("/portal/team");
   const teamMembers = await getPortalTeamMembers(access.user);
+  const inviteHistory = await getPortalTeamInvitesByCompany(access.company.id);
+  const inviteActorIds = Array.from(new Set(inviteHistory.map((invite) => invite.invitedByUserId)));
+  const inviteActors = await getPortalUsersByIds(inviteActorIds);
+  const inviteActorsById = new Map(inviteActors.map((user) => [user.id, user]));
   const seatsAvailable = access.subscription.seatsPurchased - access.subscription.seatsUsed;
   const canManageTeam = access.user.role === "client_admin" || access.user.role === "support_admin";
   const invitedCount = teamMembers.filter((member) => member.status === "invited").length;
@@ -84,6 +90,34 @@ export default async function TeamPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+        <h3 className="text-lg font-semibold text-slate-950">Invite activity</h3>
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          Review recent invite activity, confirm whether delivery succeeded, and resend access emails when a teammate needs another copy.
+        </p>
+        <div className="mt-5">
+          {inviteHistory.length ? (
+            <TeamInviteHistory
+              invites={inviteHistory.map((invite) => ({
+                id: invite.id,
+                invitedName: invite.invitedName,
+                invitedEmail: invite.invitedEmail,
+                invitedRole: invite.invitedRole,
+                invitedByName: inviteActorsById.get(invite.invitedByUserId)?.name || invite.invitedByUserId,
+                deliveryStatus: invite.deliveryStatus,
+                deliveryMessage: invite.deliveryMessage || null,
+                createdAt: formatDateTime(invite.createdAt),
+                lastSentAt: invite.lastSentAt ? formatDateTime(invite.lastSentAt) : null,
+              }))}
+            />
+          ) : (
+            <div className="rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
+              No invite activity has been recorded for this account yet.
+            </div>
+          )}
         </div>
       </section>
     </div>

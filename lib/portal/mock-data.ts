@@ -4,6 +4,7 @@ import type {
   PortalDashboardEntitlement,
   PortalHelpArticle,
   PortalSubscription,
+  PortalTeamInvite,
   PortalTeamMember,
   PortalTicket,
   PortalTicketMessage,
@@ -36,6 +37,24 @@ export const portalUsers: PortalUser[] = [
     companyId: "company-ecofocus",
     role: "support_admin",
     status: "active",
+  },
+];
+
+export const portalTeamInvites: PortalTeamInvite[] = [
+  {
+    id: "invite-1",
+    companyId: "company-greenloop",
+    invitedUserId: "user-jordan",
+    invitedName: "Jordan Lee",
+    invitedEmail: "jordan@greenloopfoods.com",
+    invitedRole: "client_user",
+    invitedByUserId: "user-maya",
+    inviteUrl: "https://portal.ecofocusresearch.com/login?email=jordan%40greenloopfoods.com&invite=1",
+    deliveryStatus: "sent",
+    deliveryMessage: null,
+    createdAt: "2026-03-18T15:20:00Z",
+    updatedAt: "2026-03-18T15:20:00Z",
+    lastSentAt: "2026-03-18T15:20:00Z",
   },
 ];
 

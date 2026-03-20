@@ -128,3 +128,19 @@ export type PortalTeamMember = {
   role: PortalRole;
   status: "active" | "invited" | "inactive";
 };
+
+export type PortalTeamInvite = {
+  id: string;
+  companyId: string;
+  invitedUserId?: string | null;
+  invitedName: string;
+  invitedEmail: string;
+  invitedRole: "client_user" | "client_admin";
+  invitedByUserId: string;
+  inviteUrl: string;
+  deliveryStatus: "sent" | "manual_only" | "failed";
+  deliveryMessage?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lastSentAt?: string | null;
+};
