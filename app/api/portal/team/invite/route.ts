@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { getPortalOrigin } from "@/lib/portal/host";
 import { createPortalTeamInvite } from "@/lib/portal/provisioning";
+import { getInviteSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
@@ -51,7 +52,41 @@ export async function POST(req: NextRequest) {
     inviteUrl.searchParams.set("email", result.email);
     inviteUrl.searchParams.set("invite", "1");
 
-    return asJson({ ok: true, invitedUserId: result.userId, email: result.email, inviteUrl: inviteUrl.toString() }, 201);
+    let emailSent = false;
+    let emailWarning: string | null = null;
+
+    try {
+      const supabase = getInviteSupabase();
+      const callbackUrl = new URL("/auth/confirm", getPortalOrigin(req.url));
+      callbackUrl.searchParams.set("next", "/home");
+
+      const { error: authError } = await supabase.auth.signInWithOtp({
+        email: result.email,
+        options: {
+          emailRedirectTo: callbackUrl.toString(),
+        },
+      });
+
+      if (authError) {
+        emailWarning = authError.message;
+      } else {
+        emailSent = true;
+      }
+    } catch (error) {
+      emailWarning = error instanceof Error ? error.message : "Invite email could not be sent automatically.";
+    }
+
+    return asJson(
+      {
+        ok: true,
+        invitedUserId: result.userId,
+        email: result.email,
+        inviteUrl: inviteUrl.toString(),
+        emailSent,
+        emailWarning,
+      },
+      201,
+    );
   } catch (error) {
     return asJson(
       {

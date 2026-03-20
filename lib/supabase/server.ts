@@ -50,6 +50,15 @@ export function getServiceSupabase() {
   });
 }
 
+export function getInviteSupabase() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error('Missing SUPABASE_URL or SUPABASE_ANON_KEY');
+  }
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
 export async function getSession() {
   const supabase = await getServerSupabase();
   const { data, error } = await supabase.auth.getSession();

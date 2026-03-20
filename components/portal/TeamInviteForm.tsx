@@ -21,6 +21,8 @@ export function TeamInviteForm({
   const [success, setSuccess] = useState<string | null>(null);
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<"sent" | "manual" | null>(null);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +33,8 @@ export function TeamInviteForm({
     setSuccess(null);
     setInviteUrl(null);
     setCopied(false);
+    setEmailStatus(null);
+    setEmailWarning(null);
 
     try {
       const response = await fetch("/api/portal/team/invite", {
@@ -39,15 +43,27 @@ export function TeamInviteForm({
         body: JSON.stringify(form),
       });
 
-      const data = (await response.json()) as { error?: string; email?: string; inviteUrl?: string };
+      const data = (await response.json()) as {
+        error?: string;
+        email?: string;
+        inviteUrl?: string;
+        emailSent?: boolean;
+        emailWarning?: string | null;
+      };
       if (!response.ok) {
         setError(data.error || "We couldn't create the invite.");
         setIsSubmitting(false);
         return;
       }
 
-      setSuccess(`Invite prepared for ${data.email || form.email}.`);
+      setSuccess(
+        data.emailSent
+          ? `Invite created and sign-in email sent to ${data.email || form.email}.`
+          : `Invite prepared for ${data.email || form.email}.`,
+      );
       setInviteUrl(data.inviteUrl || null);
+      setEmailStatus(data.emailSent ? "sent" : "manual");
+      setEmailWarning(data.emailWarning || null);
       setForm({ name: "", email: "", role: "client_user" });
       setIsSubmitting(false);
       router.refresh();
@@ -108,7 +124,9 @@ export function TeamInviteForm({
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
           <p className="text-sm font-medium text-emerald-900">Invite link ready</p>
           <p className="mt-1 text-xs leading-5 text-emerald-800">
-            Send this link to your teammate so they can sign in and activate their portal access.
+            {emailStatus === "sent"
+              ? "A sign-in email was sent automatically. You can still copy this link if you want to resend it manually."
+              : "Automatic email delivery was not confirmed, so you can copy this link and send it to your teammate manually."}
           </p>
           <div className="mt-3 rounded-xl bg-white px-3 py-2 text-xs text-slate-700 break-all">{inviteUrl}</div>
           <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -121,6 +139,7 @@ export function TeamInviteForm({
             </button>
             <span className="text-xs text-emerald-800">Teammates will activate their seat the first time they sign in.</span>
           </div>
+          {emailWarning ? <p className="mt-3 text-xs text-amber-800">Automatic invite email note: {emailWarning}</p> : null}
         </div>
       ) : null}
     </form>
