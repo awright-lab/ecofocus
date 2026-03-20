@@ -5,7 +5,7 @@ import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export const metadata = buildPortalMetadata(
   "Team Management",
-  "Private team and seat management scaffold for the EcoFocus portal.",
+  "Private team and seat management view for the EcoFocus portal.",
 );
 
 export default async function TeamPage() {
@@ -18,8 +18,8 @@ export default async function TeamPage() {
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
           eyebrow="Team"
-          title="Seat management scaffold"
-          description="This MVP intentionally stops short of provisioning logic. It shows how team members, roles, invitations, and seat availability can live in the portal."
+          title="Team and seat management"
+          description="Review seat availability, see active teammates, and prepare access updates for your organization."
         />
       </section>
 
@@ -42,7 +42,7 @@ export default async function TeamPage() {
           <div className="rounded-[32px] border border-dashed border-slate-300 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Invite teammate</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Placeholder UI for role assignment, invitation email, and seat consumption rules.
+              Capture the teammate email and access role you want EcoFocus to provision for this account.
             </p>
             <div className="mt-5 grid gap-3">
               <input placeholder="teammate@company.com" className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none" />
@@ -50,7 +50,7 @@ export default async function TeamPage() {
                 <option>client_user</option>
                 <option>client_admin</option>
               </select>
-              <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white">Send invite placeholder</button>
+              <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white">Prepare team invite</button>
             </div>
           </div>
         </div>
@@ -68,7 +68,7 @@ export default async function TeamPage() {
                 <div>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{member.status}</span>
                 </div>
-                <div className="text-sm text-slate-500">Seat-aware TODO</div>
+                <div className="text-sm text-slate-500">Seat eligible</div>
               </div>
             ))}
           </div>

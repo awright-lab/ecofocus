@@ -185,6 +185,7 @@ export const portalUsageLogs: PortalUsageLog[] = [
 export const portalTickets: PortalTicket[] = [
   {
     id: "TCK-1042",
+    companyId: "company-greenloop",
     subject: "Exported chart labels are truncating in PNG output",
     dashboardName: "Category Performance",
     issueType: "Chart Export",
@@ -197,6 +198,7 @@ export const portalTickets: PortalTicket[] = [
   },
   {
     id: "TCK-1038",
+    companyId: "company-greenloop",
     subject: "Need segment filter guidance for leadership review",
     dashboardName: "Eco IQ Overview",
     issueType: "Training Request",
@@ -209,6 +211,7 @@ export const portalTickets: PortalTicket[] = [
   },
   {
     id: "TCK-1031",
+    companyId: "company-greenloop",
     subject: "Can’t access project dashboard after seat reassignment",
     dashboardName: "Custom Client Study",
     issueType: "Login / Access",

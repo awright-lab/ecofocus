@@ -1,4 +1,4 @@
-import { DashboardCard } from "@/components/portal/DashboardCard";
+import { DashboardLibrary } from "@/components/portal/DashboardLibrary";
 import { EmptyState } from "@/components/portal/EmptyState";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
@@ -48,11 +48,7 @@ export default async function PortalDashboardsPage() {
       </section>
 
       {dashboards.length ? (
-        <section className="grid gap-5 xl:grid-cols-2">
-          {dashboards.map((dashboard) => (
-            <DashboardCard key={dashboard.id} dashboard={dashboard} usageLocked={usage.isLocked} />
-          ))}
-        </section>
+        <DashboardLibrary dashboards={dashboards} usageLocked={usage.isLocked} />
       ) : (
         <EmptyState
           icon={LayoutDashboard}

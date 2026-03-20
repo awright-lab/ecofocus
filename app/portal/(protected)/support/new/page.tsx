@@ -28,7 +28,7 @@ export default async function NewSupportTicketPage({
         <SectionHeader
           eyebrow="Support Request"
           title="Submit a support ticket"
-          description="This MVP form validates client inputs and produces a mocked success state. It is structured for future persistence, notifications, attachments, and support queue assignment."
+          description="Share the dashboard, issue type, and business context so the EcoFocus team can review and respond with the right next steps."
         />
       </section>
 

@@ -173,6 +173,37 @@ async function queryPortalTeamMembers(companyId: string): Promise<PortalTeamMemb
   }
 }
 
+async function queryPortalUsersByIds(userIds: string[]): Promise<PortalUser[] | null> {
+  if (!userIds.length) return [];
+
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_users")
+      .select("id, name, email, company_id, role, status")
+      .in("id", userIds);
+
+    if (error) {
+      console.warn("[portal/data] portal_users id lookup failed.", { userIds, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      companyId: user.company_id,
+      role: normalizePortalRole(user.role),
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_users id storage unavailable.", {
+      userIds,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
 async function queryCompanyDashboards(companyId: string): Promise<PortalDashboard[]> {
   try {
     const admin = getServiceSupabase();
@@ -231,6 +262,103 @@ async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]
       error: error instanceof Error ? error.message : String(error),
     });
     return [];
+  }
+}
+
+async function queryPortalTickets(user: PortalUser): Promise<PortalTicket[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    const query = admin
+      .from("portal_tickets")
+      .select("id, company_id, subject, dashboard_name, issue_type, priority, status, created_at, updated_at, requester_id, owner_id")
+      .order("updated_at", { ascending: false });
+
+    if (user.role === "support_admin") {
+      const { data, error } = await query.limit(100);
+
+      if (error) {
+        console.warn("[portal/data] portal_tickets support lookup failed.", { userId: user.id, error: error.message });
+        return null;
+      }
+
+      return (data || []).map((ticket) => ({
+        id: ticket.id,
+        companyId: ticket.company_id,
+        subject: ticket.subject,
+        dashboardName: ticket.dashboard_name,
+        issueType: ticket.issue_type,
+        priority: ticket.priority,
+        status: ticket.status,
+        createdAt: ticket.created_at,
+        updatedAt: ticket.updated_at,
+        requesterId: ticket.requester_id,
+        ownerId: ticket.owner_id,
+      }));
+    }
+
+    const { data, error } = await query.eq("requester_id", user.id).limit(100);
+
+    if (error) {
+      console.warn("[portal/data] portal_tickets user lookup failed.", { userId: user.id, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((ticket) => ({
+      id: ticket.id,
+      companyId: ticket.company_id,
+      subject: ticket.subject,
+      dashboardName: ticket.dashboard_name,
+      issueType: ticket.issue_type,
+      priority: ticket.priority,
+      status: ticket.status,
+      createdAt: ticket.created_at,
+      updatedAt: ticket.updated_at,
+      requesterId: ticket.requester_id,
+      ownerId: ticket.owner_id,
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_tickets storage unavailable.", {
+      userId: user.id,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function queryPortalTicketMessages(ticketId: string, includeInternal: boolean): Promise<PortalTicketMessage[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    let query = admin
+      .from("portal_ticket_messages")
+      .select("id, ticket_id, author_id, body, created_at, is_internal")
+      .eq("ticket_id", ticketId)
+      .order("created_at", { ascending: true });
+
+    if (!includeInternal) {
+      query = query.eq("is_internal", false);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn("[portal/data] portal_ticket_messages lookup failed.", { ticketId, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((message) => ({
+      id: String(message.id),
+      ticketId: message.ticket_id,
+      authorId: message.author_id,
+      body: message.body,
+      createdAt: message.created_at,
+      isInternal: message.is_internal,
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_ticket_messages storage unavailable.", {
+      ticketId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
   }
 }
 
@@ -338,7 +466,16 @@ export async function getPortalTeamMembers(user: PortalUser) {
   return portalTeamMembers.filter((member) => member.companyId === user.companyId);
 }
 
-export function getPortalTicketsForUser(user: PortalUser): PortalTicket[] {
+export async function getPortalUsersByIds(userIds: string[]) {
+  const runtimeUsers = await queryPortalUsersByIds(userIds);
+  if (runtimeUsers) return runtimeUsers;
+  return portalUsers.filter((user) => userIds.includes(user.id));
+}
+
+export async function getPortalTicketsForUser(user: PortalUser): Promise<PortalTicket[]> {
+  const runtimeTickets = await queryPortalTickets(user);
+  if (runtimeTickets) return runtimeTickets;
+
   if (user.role === "support_admin") {
     return [...portalTickets].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
@@ -347,14 +484,22 @@ export function getPortalTicketsForUser(user: PortalUser): PortalTicket[] {
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
-export function getPortalTicketForUser(user: PortalUser, ticketId: string): PortalTicket | null {
+export async function getPortalTicketForUser(user: PortalUser, ticketId: string): Promise<PortalTicket | null> {
+  const runtimeTickets = await queryPortalTickets(user);
+  if (runtimeTickets) {
+    return runtimeTickets.find((item) => item.id === ticketId) ?? null;
+  }
+
   const ticket = portalTickets.find((item) => item.id === ticketId) ?? null;
   if (!ticket) return null;
   if (user.role === "support_admin" || ticket.requesterId === user.id) return ticket;
   return null;
 }
 
-export function getPortalTicketMessages(ticketId: string, includeInternal: boolean): PortalTicketMessage[] {
+export async function getPortalTicketMessages(ticketId: string, includeInternal: boolean): Promise<PortalTicketMessage[]> {
+  const runtimeMessages = await queryPortalTicketMessages(ticketId, includeInternal);
+  if (runtimeMessages) return runtimeMessages;
+
   return portalTicketMessages
     .filter((message) => message.ticketId === ticketId && (includeInternal || !message.isInternal))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));

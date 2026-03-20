@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { PortalDashboard } from "@/lib/portal/types";
 
 const issueTypes = [
@@ -55,6 +56,9 @@ export function SupportTicketForm({
   });
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const dashboardOptions = useMemo(
     () => dashboards.map((dashboard) => ({ value: dashboard.name, label: dashboard.name })),
@@ -78,14 +82,42 @@ export function SupportTicketForm({
     return nextErrors;
   }
 
-  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validate();
     setErrors(nextErrors);
+    setSubmitError(null);
     if (Object.keys(nextErrors).length > 0) return;
 
-    // TODO: replace with persisted ticket creation, notifications, and CRM/email workflow.
-    setSubmittedId(`TCK-MVP-${Math.floor(Math.random() * 9000) + 1000}`);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/portal/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          dashboardName: form.dashboardName,
+          issueType: form.issueType,
+          priority: form.priority,
+          description: form.description,
+          notes: form.notes,
+          attachmentName: form.attachmentName,
+        }),
+      });
+
+      const data = (await response.json()) as { ticketId?: string; error?: string };
+      if (!response.ok || !data.ticketId) {
+        setSubmitError(data.error || "We couldn't submit your request. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSubmittedId(data.ticketId);
+      router.refresh();
+    } catch {
+      setSubmitError("We couldn't submit your request. Please try again.");
+      setIsSubmitting(false);
+    }
   }
 
   if (submittedId) {
@@ -94,8 +126,7 @@ export function SupportTicketForm({
         <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-emerald-700">Request received</p>
         <h3 className="mt-2 text-xl font-semibold text-emerald-950">Support ticket submitted</h3>
         <p className="mt-2 text-sm text-emerald-900/80">
-          Placeholder submission complete for <span className="font-semibold">{submittedId}</span>. Wire this form to the
-          production ticket backend, email automation, and audit logging next.
+          Your request has been recorded as <span className="font-semibold">{submittedId}</span>. The EcoFocus team will review the issue details, dashboard context, and any notes you included.
         </p>
       </div>
     );
@@ -156,7 +187,7 @@ export function SupportTicketForm({
         />
       </Field>
 
-      <Field label="Screenshot / File upload placeholder">
+      <Field label="Screenshot / File upload">
         <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
           <input
             type="file"
@@ -164,7 +195,7 @@ export function SupportTicketForm({
             className="block w-full text-sm text-slate-600"
           />
           <p className="mt-2 text-xs text-slate-500">
-            TODO: store file uploads in the production support workflow. {form.attachmentName ? `Selected: ${form.attachmentName}` : ""}
+            File capture is noted for the request. Direct file storage will be added in a later support workflow update. {form.attachmentName ? `Selected: ${form.attachmentName}` : ""}
           </p>
         </div>
       </Field>
@@ -182,13 +213,12 @@ export function SupportTicketForm({
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
+          disabled={isSubmitting}
           className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
         >
-          Submit support ticket
+          {isSubmitting ? "Submitting..." : "Submit support ticket"}
         </button>
-        <p className="text-xs text-slate-500">
-          TODO: connect to database persistence, internal assignment, and notification handling.
-        </p>
+        {submitError ? <p className="text-xs font-medium text-rose-600">{submitError}</p> : null}
       </div>
     </form>
   );

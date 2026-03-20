@@ -15,7 +15,7 @@ export const metadata = buildPortalMetadata(
 
 export default async function TicketsPage() {
   const access = await requirePortalAccess("/portal/support/tickets");
-  const tickets = getPortalTicketsForUser(access.user);
+  const tickets = await getPortalTicketsForUser(access.user);
 
   return (
     <div className="space-y-6">

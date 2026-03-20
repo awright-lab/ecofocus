@@ -17,7 +17,7 @@ export const metadata = buildPortalMetadata(
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
   const dashboards = (await getPortalDashboardsForUser(access.user)).slice(0, 3);
-  const tickets = getPortalTicketsForUser(access.user).slice(0, 3);
+  const tickets = (await getPortalTicketsForUser(access.user)).slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
 
   return (
@@ -55,7 +55,7 @@ export default async function PortalHomePage() {
             <SectionHeader
               eyebrow="Available Dashboards"
               title="Preview licensed workspaces"
-              description="Dashboard access is driven by company and user entitlements so seat licensing and project-level permissions can be wired in later."
+              description="Dashboard access reflects the dashboards currently assigned to your company and account."
               actions={
                 <Link href="/portal/dashboards" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
                   View all dashboards

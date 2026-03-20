@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import { MessageSquarePlus, ShieldCheck } from "lucide-react";
+import { TicketReplyForm } from "@/components/portal/TicketReplyForm";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalTicketForUser, getPortalTicketMessages, getPortalUserName } from "@/lib/portal/data";
+import { getPortalTicketForUser, getPortalTicketMessages, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,11 +17,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const access = await requirePortalAccess(`/portal/support/tickets/${id}`);
-  const ticket = getPortalTicketForUser(access.user, id);
+  const ticket = await getPortalTicketForUser(access.user, id);
   if (!ticket) notFound();
 
   const showInternal = access.user.role === "support_admin";
-  const messages = getPortalTicketMessages(ticket.id, showInternal);
+  const messages = await getPortalTicketMessages(ticket.id, showInternal);
+  const authors = await getPortalUsersByIds(Array.from(new Set(messages.map((message) => message.authorId))));
+  const authorsById = new Map(authors.map((author) => [author.id, author]));
 
   return (
     <div className="space-y-6">
@@ -47,8 +50,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
             {messages.map((message) => (
               <div key={message.id} className={`rounded-[24px] p-4 ${message.isInternal ? "bg-amber-50" : "bg-slate-50"}`}>
                 <div className="flex items-center justify-between gap-4 text-xs text-slate-500">
-                  <span className="font-semibold text-slate-800">{getPortalUserName(message.authorId)}</span>
-                  <span>{formatDate(message.createdAt)}</span>
+                  <span className="font-semibold text-slate-800">
+                    {authorsById.get(message.authorId)?.name || "EcoFocus Team"}
+                  </span>
+                  <span>{formatDateTime(message.createdAt)}</span>
                 </div>
                 <p className="mt-3 text-sm leading-6 text-slate-700">{message.body}</p>
                 {message.isInternal ? (
@@ -65,14 +70,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
         <div className="space-y-6">
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Reply</h3>
-            <div className="mt-4 rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-5">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <div className="mt-4 rounded-[24px] bg-slate-50 p-5">
+              <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-800">
                 <MessageSquarePlus className="h-4 w-4 text-emerald-700" />
-                Reply box placeholder
+                Add a reply
               </div>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                TODO: wire ticket replies to the production backend, email notifications, and visibility rules.
-              </p>
+              <TicketReplyForm ticketId={ticket.id} allowInternalNotes={showInternal} />
             </div>
           </div>
 
@@ -98,7 +101,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
             <div className="rounded-[32px] border border-slate-200 bg-slate-950 p-6 text-white">
               <h3 className="text-lg font-semibold">Internal notes</h3>
               <p className="mt-3 text-sm leading-6 text-slate-300">
-                Visible only to support staff. TODO: store internal-only note threads separately from client-facing messages.
+                Support staff can save internal notes from the reply box above. Internal notes stay hidden from client users in this thread.
               </p>
             </div>
           ) : null}

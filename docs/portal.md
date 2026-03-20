@@ -33,6 +33,7 @@
 - Prefers `responses_2025_all`; falls back to `responses_2025_core` if the view/table is missing.
 - `portal_usage_logs` stores portal-side dashboard usage events for allowance reviews and audit history.
 - `portal_dashboard_configs` stores private company-scoped dashboard embed URLs for runtime provisioning without redeploys.
+- `portal_tickets` and `portal_ticket_messages` store support requests, replies, and internal support notes.
 
 ## Provisioning metadata
 - To auto-provision portal account records and a dashboard mapping from Stripe checkout, send metadata keys such as:
@@ -53,4 +54,5 @@
 - `docs/portal_chat_logs.sql`
 - `docs/portal_dashboard_configs.sql`
 - `docs/portal_question_search.sql`
+- `docs/portal_support.sql`
 - `docs/portal_usage_logs.sql`

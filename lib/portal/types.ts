@@ -69,6 +69,7 @@ export type PortalUsageLog = {
 
 export type PortalTicket = {
   id: string;
+  companyId: string;
   subject: string;
   dashboardName: string;
   issueType: string;

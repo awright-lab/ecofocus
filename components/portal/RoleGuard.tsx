@@ -6,7 +6,7 @@ export async function RoleGuard({
   role,
   redirectTarget,
 }: {
-  children: (access: Awaited<ReturnType<typeof requirePortalRole>>) => React.ReactNode;
+  children: (access: Awaited<ReturnType<typeof requirePortalRole>>) => React.ReactNode | Promise<React.ReactNode>;
   role: PortalRole;
   redirectTarget?: string;
 }) {
