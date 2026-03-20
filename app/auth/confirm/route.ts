@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { activatePortalUserByEmail } from "@/lib/portal/provisioning";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY =
@@ -48,12 +49,34 @@ export async function GET(request: NextRequest) {
         type,
       });
       if (error) throw error;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const activation = await activatePortalUserByEmail(user?.email);
+      if (activation.status === "inactive" || activation.status === "missing") {
+        await supabase.auth.signOut();
+        const loginUrl = new URL("/portal/login", requestUrl.origin);
+        loginUrl.searchParams.set("redirect", nextPath);
+        loginUrl.searchParams.set("error", activation.status === "inactive" ? "access_paused" : "not_provisioned");
+        return NextResponse.redirect(loginUrl);
+      }
       return response;
     }
 
     if (code) {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) throw error;
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const activation = await activatePortalUserByEmail(user?.email);
+      if (activation.status === "inactive" || activation.status === "missing") {
+        await supabase.auth.signOut();
+        const loginUrl = new URL("/portal/login", requestUrl.origin);
+        loginUrl.searchParams.set("redirect", nextPath);
+        loginUrl.searchParams.set("error", activation.status === "inactive" ? "access_paused" : "not_provisioned");
+        return NextResponse.redirect(loginUrl);
+      }
       return response;
     }
   } catch (error) {

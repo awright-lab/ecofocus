@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
-import { getPortalCompany, getPortalSubscription, getPortalUserByEmail, normalizePortalRole, hasRequiredRole } from "@/lib/portal/data";
+import { getPortalCompany, getPortalSubscription, getPortalUserByEmail, hasRequiredRole } from "@/lib/portal/data";
 import { getPortalDevUserFromCookies } from "@/lib/portal/dev-auth";
 import type { PortalRole, PortalUser } from "@/lib/portal/types";
 
@@ -10,22 +10,6 @@ export type PortalAccessContext = {
   company: NonNullable<Awaited<ReturnType<typeof getPortalCompany>>>;
   subscription: NonNullable<Awaited<ReturnType<typeof getPortalSubscription>>>;
 };
-
-function fallbackPortalUser(session: NonNullable<Awaited<ReturnType<typeof getSession>>>): PortalUser {
-  const email = session.user.email || "unknown@ecofocusresearch.com";
-  const metadataRole =
-    session.user.app_metadata?.portal_role ||
-    session.user.user_metadata?.portal_role ||
-    session.user.user_metadata?.role;
-
-  return {
-    id: session.user.id,
-    name: session.user.user_metadata?.full_name || email.split("@")[0] || "Portal User",
-    email,
-    companyId: "company-greenloop",
-    role: normalizePortalRole(typeof metadataRole === "string" ? metadataRole : null),
-  };
-}
 
 export async function getPortalAccessContext(): Promise<PortalAccessContext | null> {
   const devUser = await getPortalDevUserFromCookies();
@@ -46,7 +30,11 @@ export async function getPortalAccessContext(): Promise<PortalAccessContext | nu
   if (!session?.user) return null;
 
   const matchedUser = await getPortalUserByEmail(session.user.email);
-  const user = matchedUser ?? fallbackPortalUser(session);
+  if (!matchedUser || matchedUser.status === "invited" || matchedUser.status === "inactive") {
+    return null;
+  }
+
+  const user = matchedUser;
   const company = await getPortalCompany(user);
   const subscription = await getPortalSubscription(user);
 

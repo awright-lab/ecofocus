@@ -87,6 +87,16 @@ export default async function PortalLoginPage({
               the token-hash SSR flow and ensure the callback opens in the same browser session.
             </div>
           ) : null}
+          {params.error === "not_provisioned" ? (
+            <div className="px-4 pb-4 text-sm text-rose-600 sm:px-0">
+              This email address is not yet set up for the EcoFocus portal. Ask your company admin or EcoFocus Support to send an invitation first.
+            </div>
+          ) : null}
+          {params.error === "access_paused" ? (
+            <div className="px-4 pb-4 text-sm text-rose-600 sm:px-0">
+              Portal access for this account is currently paused. Contact your company admin or EcoFocus Support if you need access restored.
+            </div>
+          ) : null}
           {params.error === "invalid_dev_role" ? (
             <div className="px-4 pb-4 text-sm text-rose-600 sm:px-0">
               Invalid dev bypass role selection.

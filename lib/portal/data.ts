@@ -55,7 +55,6 @@ async function queryPortalUserByEmail(email?: string | null): Promise<PortalUser
       .from("portal_users")
       .select("id, name, email, company_id, role, status")
       .ilike("email", email)
-      .eq("status", "active")
       .maybeSingle();
 
     if (error) {
@@ -71,6 +70,7 @@ async function queryPortalUserByEmail(email?: string | null): Promise<PortalUser
       email: data.email,
       companyId: data.company_id,
       role: normalizePortalRole(data.role),
+      status: data.status,
     };
   } catch (error) {
     console.warn("[portal/data] portal_users storage unavailable.", {
@@ -222,6 +222,7 @@ async function queryPortalUsersByIds(userIds: string[]): Promise<PortalUser[] | 
       email: user.email,
       companyId: user.company_id,
       role: normalizePortalRole(user.role),
+      status: user.status,
     }));
   } catch (error) {
     console.warn("[portal/data] portal_users id storage unavailable.", {

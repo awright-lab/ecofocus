@@ -38,6 +38,12 @@ export type PortalTeamStatusUpdateInput = {
   action: "deactivate" | "reactivate";
 };
 
+export type PortalUserActivationResult =
+  | { status: "missing" }
+  | { status: "inactive" }
+  | { status: "active"; userId: string }
+  | { status: "activated"; userId: string };
+
 function normalizeProvisioningValue(value?: string | null) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -298,6 +304,46 @@ export async function updatePortalTeamMemberStatus(input: PortalTeamStatusUpdate
   if (updateSubscriptionError) throw new Error(updateSubscriptionError.message);
 
   return { status: "invited" as const };
+}
+
+export async function activatePortalUserByEmail(emailInput?: string | null): Promise<PortalUserActivationResult> {
+  const admin = getServiceSupabase();
+  const email = normalizeEmail(emailInput);
+
+  if (!email) {
+    return { status: "missing" };
+  }
+
+  const { data: existingUser, error } = await admin
+    .from("portal_users")
+    .select("id, status")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!existingUser) {
+    return { status: "missing" };
+  }
+
+  if (existingUser.status === "inactive") {
+    return { status: "inactive" };
+  }
+
+  if (existingUser.status === "active") {
+    return { status: "active", userId: existingUser.id };
+  }
+
+  const { error: updateError } = await admin
+    .from("portal_users")
+    .update({
+      status: "active",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", existingUser.id);
+
+  if (updateError) throw new Error(updateError.message);
+
+  return { status: "activated", userId: existingUser.id };
 }
 
 export function getPortalProvisioningMetadata(

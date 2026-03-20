@@ -6,6 +6,7 @@ export type PortalUser = {
   email: string;
   companyId: string;
   role: PortalRole;
+  status?: "active" | "invited" | "inactive";
 };
 
 export type PortalCompany = {

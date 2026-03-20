@@ -19,6 +19,7 @@ export const portalUsers: PortalUser[] = [
     email: "maya@greenloopfoods.com",
     companyId: "company-greenloop",
     role: "client_admin",
+    status: "active",
   },
   {
     id: "user-elliot",
@@ -26,6 +27,7 @@ export const portalUsers: PortalUser[] = [
     email: "elliot@greenloopfoods.com",
     companyId: "company-greenloop",
     role: "client_user",
+    status: "active",
   },
   {
     id: "user-sam",
@@ -33,6 +35,7 @@ export const portalUsers: PortalUser[] = [
     email: "sam@ecofocusresearch.com",
     companyId: "company-ecofocus",
     role: "support_admin",
+    status: "active",
   },
 ];
 
