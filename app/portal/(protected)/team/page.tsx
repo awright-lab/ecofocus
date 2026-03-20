@@ -1,3 +1,4 @@
+import { TeamInviteForm } from "@/components/portal/TeamInviteForm";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalTeamMembers } from "@/lib/portal/data";
@@ -12,6 +13,9 @@ export default async function TeamPage() {
   const access = await requirePortalAccess("/portal/team");
   const teamMembers = await getPortalTeamMembers(access.user);
   const seatsAvailable = access.subscription.seatsPurchased - access.subscription.seatsUsed;
+  const canManageTeam = access.user.role === "client_admin" || access.user.role === "support_admin";
+  const invitedCount = teamMembers.filter((member) => member.status === "invited").length;
+  const activeCount = teamMembers.filter((member) => member.status === "active").length;
 
   return (
     <div className="space-y-6">
@@ -36,22 +40,23 @@ export default async function TeamPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Available</p>
                 <p className="mt-2 text-3xl font-semibold">{seatsAvailable}</p>
               </div>
+              <div className="rounded-[24px] bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Active</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-900">{activeCount}</p>
+              </div>
+              <div className="rounded-[24px] bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Invited</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-900">{invitedCount}</p>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-[32px] border border-dashed border-slate-300 bg-white p-6">
+          <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Invite teammate</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Capture the teammate email and access role you want EcoFocus to provision for this account.
+              Add a teammate by reserving a seat and marking the user as invited for this account.
             </p>
-            <div className="mt-5 grid gap-3">
-              <input placeholder="teammate@company.com" className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none" />
-              <select className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none">
-                <option>client_user</option>
-                <option>client_admin</option>
-              </select>
-              <button className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white">Prepare team invite</button>
-            </div>
+            <TeamInviteForm canManage={canManageTeam} seatsAvailable={seatsAvailable} />
           </div>
         </div>
 
@@ -68,7 +73,7 @@ export default async function TeamPage() {
                 <div>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{member.status}</span>
                 </div>
-                <div className="text-sm text-slate-500">Seat eligible</div>
+                <div className="text-sm text-slate-500">{member.status === "invited" ? "Seat reserved" : member.status === "active" ? "Seat assigned" : "Seat inactive"}</div>
               </div>
             ))}
           </div>

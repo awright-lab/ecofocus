@@ -23,6 +23,14 @@ export type PortalAccountProvisioningInput = {
   adminRole: "client_admin";
 };
 
+export type PortalTeamInviteInput = {
+  companyId: string;
+  subscriptionId: string;
+  name: string;
+  email: string;
+  role: "client_user" | "client_admin";
+};
+
 function normalizeProvisioningValue(value?: string | null) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -61,6 +69,10 @@ function slugifyUserId(email: string) {
   const localPart = email.split("@")[0] || "client-admin";
   const slug = localPart.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   return `user-${slug || "client-admin"}`;
+}
+
+function normalizeEmail(value?: string | null) {
+  return normalizeProvisioningValue(value).toLowerCase();
 }
 
 function buildSubscriptionId(companyId: string) {
@@ -136,6 +148,68 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
   );
 
   if (userError) throw new Error(userError.message);
+}
+
+export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
+  const admin = getServiceSupabase();
+  const email = normalizeEmail(input.email);
+  const name = normalizeProvisioningValue(input.name);
+
+  if (!input.companyId || !input.subscriptionId || !email || !name) {
+    throw new Error("companyId, subscriptionId, name, and email are required.");
+  }
+
+  const { data: existingUser, error: existingUserError } = await admin
+    .from("portal_users")
+    .select("id, company_id, status")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (existingUserError) throw new Error(existingUserError.message);
+  if (existingUser && existingUser.company_id === input.companyId && existingUser.status !== "inactive") {
+    throw new Error("A portal user with this email already exists for the selected company.");
+  }
+
+  const { data: subscription, error: subscriptionError } = await admin
+    .from("portal_subscriptions")
+    .select("id, seats_purchased, seats_used")
+    .eq("id", input.subscriptionId)
+    .maybeSingle();
+
+  if (subscriptionError) throw new Error(subscriptionError.message);
+  if (!subscription) throw new Error("Subscription not found.");
+  if (subscription.seats_used >= subscription.seats_purchased) {
+    throw new Error("No seats are currently available for this account.");
+  }
+
+  const userId = existingUser?.id || slugifyUserId(email);
+
+  const { error: userError } = await admin.from("portal_users").upsert(
+    {
+      id: userId,
+      name,
+      email,
+      company_id: input.companyId,
+      role: input.role,
+      status: "invited",
+    },
+    { onConflict: "id" },
+  );
+
+  if (userError) throw new Error(userError.message);
+
+  const seatsUsedIncrement = existingUser?.status === "inactive" || !existingUser ? 1 : 0;
+  const { error: subscriptionUpdateError } = await admin
+    .from("portal_subscriptions")
+    .update({
+      seats_used: subscription.seats_used + seatsUsedIncrement,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", input.subscriptionId);
+
+  if (subscriptionUpdateError) throw new Error(subscriptionUpdateError.message);
+
+  return { userId, email };
 }
 
 export function getPortalProvisioningMetadata(
