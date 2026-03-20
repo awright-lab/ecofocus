@@ -131,7 +131,9 @@ export default async function AdminSupportPage({
               {tickets.map((ticket) => (
                 <div key={ticket.id} className="grid grid-cols-[1.4fr_0.9fr_0.8fr_0.9fr_0.8fr_1fr] gap-4 border-b border-slate-100 px-6 py-5 text-sm last:border-b-0">
                   <div>
-                    <p className="font-semibold text-slate-900">{ticket.subject}</p>
+                    <Link href={`/portal/support/tickets/${ticket.id}`} className="font-semibold text-slate-900 transition hover:text-emerald-700">
+                      {ticket.subject}
+                    </Link>
                     <p className="mt-1 text-slate-600">{ticket.id}</p>
                   </div>
                   <div className="self-center">
