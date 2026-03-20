@@ -23,6 +23,7 @@ import type {
   PortalTicketMessage,
   PortalTeamMember,
   PortalUsageAllowance,
+  PortalUsageLogFilters,
   PortalUsageLog,
   PortalUser,
 } from "@/lib/portal/types";
@@ -103,6 +104,32 @@ async function queryPortalCompanyById(companyId: string): Promise<PortalCompany 
   } catch (error) {
     console.warn("[portal/data] portal_companies storage unavailable.", {
       companyId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function queryPortalCompanies(): Promise<PortalCompany[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_companies")
+      .select("id, name, subscription_id")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.warn("[portal/data] portal_companies list lookup failed.", { error: error.message });
+      return null;
+    }
+
+    return (data || []).map((company) => ({
+      id: company.id,
+      name: company.name,
+      subscriptionId: company.subscription_id,
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_companies list storage unavailable.", {
       error: error instanceof Error ? error.message : String(error),
     });
     return null;
@@ -265,6 +292,81 @@ async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]
   }
 }
 
+async function queryPortalUsageLogsWithFilters(filters: PortalUsageLogFilters = {}): Promise<PortalUsageLog[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    let query = admin
+      .from("portal_usage_logs")
+      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes")
+      .order("event_at", { ascending: false })
+      .limit(filters.limit ?? 100);
+
+    if (filters.companyId) query = query.eq("company_id", filters.companyId);
+    if (filters.userId) query = query.eq("user_id", filters.userId);
+    if (filters.dashboardId) query = query.eq("dashboard_id", filters.dashboardId);
+    if (filters.startAt) query = query.gte("event_at", filters.startAt);
+    if (filters.endAt) query = query.lte("event_at", filters.endAt);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.warn("[portal/data] portal_usage_logs filtered lookup failed.", { filters, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((log) => ({
+      id: String(log.id),
+      userId: String(log.user_id),
+      companyId: String(log.company_id),
+      dashboardId: String(log.dashboard_id),
+      dashboardName: String(log.dashboard_name),
+      eventType: log.event_type,
+      eventAt: String(log.event_at),
+      minutesTracked: Number(log.minutes_tracked || 0),
+      source: log.source === "portal_runtime" ? "portal_runtime" : "mock",
+      notes: log.notes || undefined,
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_usage_logs filtered storage unavailable.", {
+      filters,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function queryPortalUsageAllowance(companyId: string): Promise<PortalUsageAllowance | null> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_usage_allowances")
+      .select("company_id, annual_hours_limit, hours_used, period_start, period_end")
+      .eq("company_id", companyId)
+      .maybeSingle();
+
+    if (error) {
+      console.warn("[portal/data] portal_usage_allowances lookup failed.", { companyId, error: error.message });
+      return null;
+    }
+
+    if (!data) return null;
+
+    return {
+      companyId: data.company_id,
+      annualHoursLimit: data.annual_hours_limit,
+      hoursUsed: data.hours_used,
+      periodStart: data.period_start,
+      periodEnd: data.period_end,
+    };
+  } catch (error) {
+    console.warn("[portal/data] portal_usage_allowances storage unavailable.", {
+      companyId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
 async function queryPortalTickets(user: PortalUser): Promise<PortalTicket[] | null> {
   try {
     const admin = getServiceSupabase();
@@ -386,13 +488,20 @@ export async function getPortalDashboardForUser(user: PortalUser, slug: string) 
   return (await getPortalDashboardsForUser(user)).find((dashboard) => dashboard.slug === slug) ?? null;
 }
 
-export function getPortalUsageAllowance(user: PortalUser): PortalUsageAllowance | null {
-  if (user.role === "support_admin") return null;
-  return portalUsageAllowances.find((allowance) => allowance.companyId === user.companyId) ?? null;
+export async function getPortalCompanies() {
+  const runtimeCompanies = await queryPortalCompanies();
+  if (runtimeCompanies) return runtimeCompanies;
+  return [...portalCompanies].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function getPortalUsageAllowanceByCompany(companyId: string) {
+  const runtimeAllowance = await queryPortalUsageAllowance(companyId);
+  if (runtimeAllowance) return runtimeAllowance;
+  return portalUsageAllowances.find((allowance) => allowance.companyId === companyId) ?? null;
 }
 
 export async function getPortalUsageStatus(user: PortalUser) {
-  const allowance = getPortalUsageAllowance(user);
+  const allowance = user.role === "support_admin" ? null : await getPortalUsageAllowanceByCompany(user.companyId);
   if (!allowance) {
     return {
       allowance: null,
@@ -404,13 +513,22 @@ export async function getPortalUsageStatus(user: PortalUser) {
     };
   }
 
+  const loggedUsage = await getPortalUsageLogsForAdmin({
+    companyId: user.companyId,
+    startAt: `${allowance.periodStart}T00:00:00Z`,
+    endAt: `${allowance.periodEnd}T23:59:59Z`,
+    limit: 500,
+  });
+  const loggedHours = Number((loggedUsage.reduce((total, log) => total + log.minutesTracked, 0) / 60).toFixed(1));
+
   const devOverride = await getPortalDevUsageOverrideFromCookies();
+  const trackedHoursUsed = Math.max(allowance.hoursUsed, loggedHours);
   const overriddenHoursUsed =
     devOverride === "available"
-      ? Math.min(allowance.hoursUsed, Math.max(0, allowance.annualHoursLimit - 1))
+      ? Math.min(trackedHoursUsed, Math.max(0, allowance.annualHoursLimit - 1))
       : devOverride === "exhausted"
         ? allowance.annualHoursLimit
-        : allowance.hoursUsed;
+        : trackedHoursUsed;
 
   const hoursRemaining = Math.max(0, allowance.annualHoursLimit - overriddenHoursUsed);
   const utilizationPct = allowance.annualHoursLimit
@@ -446,6 +564,23 @@ export async function getPortalUsageLogsForUser(user: PortalUser): Promise<Porta
     .sort((a, b) => b.eventAt.localeCompare(a.eventAt));
 }
 
+export async function getPortalUsageLogsForAdmin(filters: PortalUsageLogFilters = {}) {
+  const runtimeLogs = await queryPortalUsageLogsWithFilters(filters);
+  if (runtimeLogs) return runtimeLogs;
+
+  return portalUsageLogs
+    .filter((log) => {
+      if (filters.companyId && log.companyId !== filters.companyId) return false;
+      if (filters.userId && log.userId !== filters.userId) return false;
+      if (filters.dashboardId && log.dashboardId !== filters.dashboardId) return false;
+      if (filters.startAt && log.eventAt < filters.startAt) return false;
+      if (filters.endAt && log.eventAt > filters.endAt) return false;
+      return true;
+    })
+    .sort((a, b) => b.eventAt.localeCompare(a.eventAt))
+    .slice(0, filters.limit ?? 100);
+}
+
 export async function getPortalCompany(user: PortalUser) {
   const runtimeCompany = await queryPortalCompanyById(user.companyId);
   if (runtimeCompany) return runtimeCompany;
@@ -464,6 +599,12 @@ export async function getPortalTeamMembers(user: PortalUser) {
   const runtimeTeamMembers = await queryPortalTeamMembers(user.companyId);
   if (runtimeTeamMembers.length) return runtimeTeamMembers;
   return portalTeamMembers.filter((member) => member.companyId === user.companyId);
+}
+
+export async function getPortalTeamMembersByCompany(companyId: string) {
+  const runtimeTeamMembers = await queryPortalTeamMembers(companyId);
+  if (runtimeTeamMembers.length) return runtimeTeamMembers;
+  return portalTeamMembers.filter((member) => member.companyId === companyId);
 }
 
 export async function getPortalUsersByIds(userIds: string[]) {

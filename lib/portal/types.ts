@@ -14,6 +14,15 @@ export type PortalCompany = {
   subscriptionId: string;
 };
 
+export type PortalUsageLogFilters = {
+  companyId?: string;
+  userId?: string;
+  dashboardId?: string;
+  startAt?: string;
+  endAt?: string;
+  limit?: number;
+};
+
 export type PortalSubscription = {
   id: string;
   planName: string;

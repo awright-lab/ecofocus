@@ -1,10 +1,19 @@
+import Link from "next/link";
+import { AdminUsageAllowanceForm } from "@/components/portal/AdminUsageAllowanceForm";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
-import { getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
+import {
+  getPortalCompanies,
+  getPortalTeamMembersByCompany,
+  getPortalTicketsForUser,
+  getPortalUsageAllowanceByCompany,
+  getPortalUsageLogsForAdmin,
+  getPortalUsersByIds,
+} from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
   "Admin Support Queue",
@@ -17,7 +26,17 @@ const filterOptions = {
   issueType: ["Login / Access", "Dashboard Navigation", "Chart Export", "Data Question", "Possible Bug", "Feature Request", "Training Request"],
 };
 
-export default function AdminSupportPage() {
+export default async function AdminSupportPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = (await searchParams) || {};
+  const selectedCompanyParam = Array.isArray(params.company) ? params.company[0] : params.company;
+  const selectedUserParam = Array.isArray(params.user) ? params.user[0] : params.user;
+  const selectedStartParam = Array.isArray(params.start) ? params.start[0] : params.start;
+  const selectedEndParam = Array.isArray(params.end) ? params.end[0] : params.end;
+
   return (
     <RoleGuard role="support_admin" redirectTarget="/portal/admin/support">
       {async (access) => {
@@ -25,6 +44,22 @@ export default function AdminSupportPage() {
         const relatedUserIds = Array.from(new Set(tickets.flatMap((ticket) => [ticket.requesterId, ticket.ownerId].filter(Boolean) as string[])));
         const users = await getPortalUsersByIds(relatedUserIds);
         const usersById = new Map(users.map((user) => [user.id, user]));
+        const companies = (await getPortalCompanies()).filter((company) => company.id !== access.company.id);
+        const selectedCompanyId = selectedCompanyParam || companies[0]?.id || "";
+        const selectedCompany = companies.find((company) => company.id === selectedCompanyId) || null;
+        const selectedCompanyUsers = selectedCompanyId ? await getPortalTeamMembersByCompany(selectedCompanyId) : [];
+        const usageAllowance = selectedCompanyId
+          ? await getPortalUsageAllowanceByCompany(selectedCompanyId)
+          : null;
+        const usageLogs = await getPortalUsageLogsForAdmin({
+          companyId: selectedCompanyId || undefined,
+          userId: selectedUserParam || undefined,
+          startAt: selectedStartParam ? `${selectedStartParam}T00:00:00Z` : undefined,
+          endAt: selectedEndParam ? `${selectedEndParam}T23:59:59Z` : undefined,
+          limit: 20,
+        });
+        const usageLogUsers = await getPortalUsersByIds(Array.from(new Set(usageLogs.map((log) => log.userId))));
+        const usageLogUsersById = new Map(usageLogUsers.map((user) => [user.id, user]));
         const openCount = tickets.filter((ticket) => ticket.status === "open").length;
         const urgentCount = tickets.filter((ticket) => ticket.priority === "urgent").length;
         const unassignedCount = tickets.filter((ticket) => !ticket.ownerId).length;
@@ -95,6 +130,159 @@ export default function AdminSupportPage() {
                   <div className="self-center text-slate-600">{formatDate(ticket.updatedAt)}</div>
                 </div>
               ))}
+            </section>
+
+            <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+                <h3 className="text-lg font-semibold text-slate-950">Usage allowance controls</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Review the current dashboard hour allowance for a client company and adjust the tracked total or access period when support review requires it.
+                </p>
+
+                <form method="get" className="mt-5 grid gap-4">
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-800">Client company</span>
+                    <select
+                      name="company"
+                      defaultValue={selectedCompanyId}
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    >
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    type="submit"
+                    className="w-fit rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+                  >
+                    Load company
+                  </button>
+                </form>
+
+                {selectedCompany && usageAllowance ? (
+                  <div className="mt-6 rounded-[24px] bg-slate-50 p-5">
+                    <p className="text-sm font-semibold text-slate-900">{selectedCompany.name}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Current period: {formatDate(usageAllowance.periodStart)} to {formatDate(usageAllowance.periodEnd)}
+                    </p>
+                    <div className="mt-4">
+                      <AdminUsageAllowanceForm
+                        companyId={selectedCompany.id}
+                        annualHoursLimit={usageAllowance.annualHoursLimit}
+                        hoursUsed={usageAllowance.hoursUsed}
+                        periodStart={usageAllowance.periodStart}
+                        periodEnd={usageAllowance.periodEnd}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mt-6 rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
+                    Select a client company to review or seed an allowance record before making updates.
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-950">Usage review</h3>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      Filter recent dashboard usage by company, user, and date range when investigating allowance disputes or client access questions.
+                    </p>
+                  </div>
+                  <Link href="/api/portal/usage/export" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                    Export current user log
+                  </Link>
+                </div>
+
+                <form method="get" className="mt-5 grid gap-4 md:grid-cols-2">
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-800">Company</span>
+                    <select
+                      name="company"
+                      defaultValue={selectedCompanyId}
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    >
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-800">User</span>
+                    <select
+                      name="user"
+                      defaultValue={selectedUserParam || ""}
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    >
+                      <option value="">All users</option>
+                      {selectedCompanyUsers.map((member) => (
+                        <option key={member.id} value={member.id}>
+                          {member.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-800">Start date</span>
+                    <input
+                      type="date"
+                      name="start"
+                      defaultValue={selectedStartParam || ""}
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-800">End date</span>
+                    <input
+                      type="date"
+                      name="end"
+                      defaultValue={selectedEndParam || ""}
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    />
+                  </label>
+                  <div className="md:col-span-2">
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      Apply usage filters
+                    </button>
+                  </div>
+                </form>
+
+                <div className="mt-6 space-y-3">
+                  {usageLogs.length ? (
+                    usageLogs.map((log) => (
+                      <div key={log.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.1fr_1fr_0.55fr_0.85fr] md:items-center">
+                        <div>
+                          <p className="font-semibold text-slate-900">{log.dashboardName}</p>
+                          <p className="mt-1 text-sm text-slate-600">{log.notes || log.eventType.replaceAll("_", " ")}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-slate-900">
+                            {usageLogUsersById.get(log.userId)?.name || "EcoFocus portal user"}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-600">
+                            {usageLogUsersById.get(log.userId)?.email || log.userId}
+                          </p>
+                        </div>
+                        <div className="text-sm text-slate-700">{log.minutesTracked} min</div>
+                        <div className="text-sm text-slate-500">{formatDateTime(log.eventAt)}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
+                      No usage events match the current filter set.
+                    </div>
+                  )}
+                </div>
+              </div>
             </section>
 
             <section className="grid gap-6 xl:grid-cols-3">
