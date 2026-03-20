@@ -42,6 +42,17 @@ export type PortalDashboard = {
   embedAccess: "public_link" | "displayr_login_required";
 };
 
+export type PortalDashboardConfig = {
+  id: string;
+  companyId: string;
+  dashboardSlug: string;
+  displayrEmbedUrl: string;
+  isActive: boolean;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type PortalDashboardEntitlement = {
   userId?: string;
   companyId?: string;

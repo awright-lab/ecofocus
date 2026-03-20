@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminDashboardConfigForm } from "@/components/portal/AdminDashboardConfigForm";
 import { AdminUsageAllowanceForm } from "@/components/portal/AdminUsageAllowanceForm";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
@@ -6,6 +7,8 @@ import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import {
   getPortalCompanies,
+  getPortalDashboardCatalog,
+  getPortalDashboardConfigsByCompany,
   getPortalTeamMembersByCompany,
   getPortalTicketsForUser,
   getPortalUsageAllowanceByCompany,
@@ -48,6 +51,8 @@ export default async function AdminSupportPage({
         const selectedCompanyId = selectedCompanyParam || companies[0]?.id || "";
         const selectedCompany = companies.find((company) => company.id === selectedCompanyId) || null;
         const selectedCompanyUsers = selectedCompanyId ? await getPortalTeamMembersByCompany(selectedCompanyId) : [];
+        const selectedCompanyDashboardConfigs = selectedCompanyId ? await getPortalDashboardConfigsByCompany(selectedCompanyId) : [];
+        const dashboardCatalog = await getPortalDashboardCatalog();
         const usageAllowance = selectedCompanyId
           ? await getPortalUsageAllowanceByCompany(selectedCompanyId)
           : null;
@@ -63,6 +68,18 @@ export default async function AdminSupportPage({
         const openCount = tickets.filter((ticket) => ticket.status === "open").length;
         const urgentCount = tickets.filter((ticket) => ticket.priority === "urgent").length;
         const unassignedCount = tickets.filter((ticket) => !ticket.ownerId).length;
+        const companyDashboardEditorItems = dashboardCatalog.map((dashboard) => {
+          const config = selectedCompanyDashboardConfigs.find((item) => item.dashboardSlug === dashboard.slug);
+          return {
+            slug: dashboard.slug,
+            name: dashboard.name,
+            description: dashboard.description,
+            accessTag: dashboard.accessTag,
+            isActive: config?.isActive ?? false,
+            displayrEmbedUrl: config?.displayrEmbedUrl ?? dashboard.embedUrl ?? "",
+            notes: config?.notes ?? "",
+          };
+        });
 
         return (
           <div className="space-y-6">
@@ -286,6 +303,27 @@ export default async function AdminSupportPage({
             </section>
 
             <section className="grid gap-6 xl:grid-cols-3">
+              <div className="rounded-[32px] border border-slate-200 bg-white p-6 xl:col-span-3">
+                <h3 className="text-lg font-semibold text-slate-950">Company dashboard access</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Turn dashboards on or off for a client company and keep each private dashboard link stored on the server instead of in deployment settings.
+                </p>
+
+                {selectedCompany ? (
+                  <div className="mt-6">
+                    <AdminDashboardConfigForm
+                      companyId={selectedCompany.id}
+                      companyName={selectedCompany.name}
+                      dashboards={companyDashboardEditorItems}
+                    />
+                  </div>
+                ) : (
+                  <div className="mt-6 rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
+                    Select a client company above to manage dashboard access.
+                  </div>
+                )}
+              </div>
+
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">
                 <h3 className="text-lg font-semibold text-slate-950">Assignment coverage</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">

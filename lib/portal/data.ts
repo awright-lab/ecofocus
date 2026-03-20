@@ -16,6 +16,7 @@ import { getServiceSupabase } from "@/lib/supabase/server";
 import type {
   PortalCompany,
   PortalDashboard,
+  PortalDashboardConfig,
   PortalHelpArticle,
   PortalRole,
   PortalSubscription,
@@ -256,6 +257,39 @@ async function queryCompanyDashboards(companyId: string): Promise<PortalDashboar
   }
 }
 
+async function queryPortalDashboardConfigs(companyId: string): Promise<PortalDashboardConfig[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_dashboard_configs")
+      .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, notes, created_at, updated_at")
+      .eq("company_id", companyId)
+      .order("dashboard_slug", { ascending: true });
+
+    if (error) {
+      console.warn("[portal/data] portal_dashboard_configs detail lookup failed.", { companyId, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((config) => ({
+      id: String(config.id),
+      companyId: String(config.company_id),
+      dashboardSlug: String(config.dashboard_slug),
+      displayrEmbedUrl: String(config.displayr_embed_url),
+      isActive: Boolean(config.is_active),
+      notes: config.notes || null,
+      createdAt: String(config.created_at),
+      updatedAt: String(config.updated_at),
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_dashboard_configs detail storage unavailable.", {
+      companyId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
 async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]> {
   try {
     const admin = getServiceSupabase();
@@ -492,6 +526,28 @@ export async function getPortalCompanies() {
   const runtimeCompanies = await queryPortalCompanies();
   if (runtimeCompanies) return runtimeCompanies;
   return [...portalCompanies].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function getPortalDashboardCatalog() {
+  return [...portalDashboards].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function getPortalDashboardConfigsByCompany(companyId: string) {
+  const runtimeConfigs = await queryPortalDashboardConfigs(companyId);
+  if (runtimeConfigs) return runtimeConfigs;
+
+  return portalDashboards
+    .filter((dashboard) => portalDashboardEntitlements.some((entitlement) => entitlement.companyId === companyId && entitlement.dashboardId === dashboard.id))
+    .map((dashboard) => ({
+      id: `mock-${companyId}-${dashboard.slug}`,
+      companyId,
+      dashboardSlug: dashboard.slug,
+      displayrEmbedUrl: dashboard.embedUrl || "",
+      isActive: true,
+      notes: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
 }
 
 export async function getPortalUsageAllowanceByCompany(companyId: string) {
