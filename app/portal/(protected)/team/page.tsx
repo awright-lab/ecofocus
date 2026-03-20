@@ -1,4 +1,5 @@
 import { TeamInviteForm } from "@/components/portal/TeamInviteForm";
+import { TeamMemberActions } from "@/components/portal/TeamMemberActions";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalTeamMembers } from "@/lib/portal/data";
@@ -64,7 +65,7 @@ export default async function TeamPage() {
           <h3 className="text-lg font-semibold text-slate-950">Team members</h3>
           <div className="mt-5 space-y-3">
             {teamMembers.map((member) => (
-              <div key={member.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.2fr_1.1fr_0.7fr_0.7fr] md:items-center">
+              <div key={member.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.2fr_1fr_0.7fr_0.7fr_0.8fr] md:items-center">
                 <div>
                   <p className="font-semibold text-slate-900">{member.name}</p>
                   <p className="text-sm text-slate-600">{member.email}</p>
@@ -74,6 +75,12 @@ export default async function TeamPage() {
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{member.status}</span>
                 </div>
                 <div className="text-sm text-slate-500">{member.status === "invited" ? "Seat reserved" : member.status === "active" ? "Seat assigned" : "Seat inactive"}</div>
+                <TeamMemberActions
+                  memberId={member.id}
+                  memberStatus={member.status}
+                  canManage={canManageTeam}
+                  isSelf={member.id === access.user.id}
+                />
               </div>
             ))}
           </div>

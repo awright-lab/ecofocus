@@ -31,6 +31,13 @@ export type PortalTeamInviteInput = {
   role: "client_user" | "client_admin";
 };
 
+export type PortalTeamStatusUpdateInput = {
+  userId: string;
+  companyId: string;
+  subscriptionId: string;
+  action: "deactivate" | "reactivate";
+};
+
 function normalizeProvisioningValue(value?: string | null) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -210,6 +217,87 @@ export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
   if (subscriptionUpdateError) throw new Error(subscriptionUpdateError.message);
 
   return { userId, email };
+}
+
+export async function updatePortalTeamMemberStatus(input: PortalTeamStatusUpdateInput) {
+  const admin = getServiceSupabase();
+
+  const { data: existingUser, error: userLookupError } = await admin
+    .from("portal_users")
+    .select("id, company_id, status")
+    .eq("id", input.userId)
+    .eq("company_id", input.companyId)
+    .maybeSingle();
+
+  if (userLookupError) throw new Error(userLookupError.message);
+  if (!existingUser) throw new Error("Team member not found for this company.");
+
+  const { data: subscription, error: subscriptionError } = await admin
+    .from("portal_subscriptions")
+    .select("id, seats_purchased, seats_used")
+    .eq("id", input.subscriptionId)
+    .maybeSingle();
+
+  if (subscriptionError) throw new Error(subscriptionError.message);
+  if (!subscription) throw new Error("Subscription not found.");
+
+  if (input.action === "deactivate") {
+    if (existingUser.status === "inactive") {
+      return { status: "inactive" as const };
+    }
+
+    const { error: updateUserError } = await admin
+      .from("portal_users")
+      .update({
+        status: "inactive",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", input.userId);
+
+    if (updateUserError) throw new Error(updateUserError.message);
+
+    const { error: updateSubscriptionError } = await admin
+      .from("portal_subscriptions")
+      .update({
+        seats_used: Math.max(0, subscription.seats_used - 1),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", input.subscriptionId);
+
+    if (updateSubscriptionError) throw new Error(updateSubscriptionError.message);
+
+    return { status: "inactive" as const };
+  }
+
+  if (existingUser.status !== "inactive") {
+    return { status: existingUser.status as "active" | "invited" };
+  }
+
+  if (subscription.seats_used >= subscription.seats_purchased) {
+    throw new Error("No seats are currently available for this account.");
+  }
+
+  const { error: updateUserError } = await admin
+    .from("portal_users")
+    .update({
+      status: "invited",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", input.userId);
+
+  if (updateUserError) throw new Error(updateUserError.message);
+
+  const { error: updateSubscriptionError } = await admin
+    .from("portal_subscriptions")
+    .update({
+      seats_used: subscription.seats_used + 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", input.subscriptionId);
+
+  if (updateSubscriptionError) throw new Error(updateSubscriptionError.message);
+
+  return { status: "invited" as const };
 }
 
 export function getPortalProvisioningMetadata(
