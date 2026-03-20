@@ -17,11 +17,12 @@ export function ResetPasswordHandler({
 
   useEffect(() => {
     if (code || tokenHash) {
+      const currentPath = window.location.pathname;
       const confirmUrl = new URL("/auth/confirm", window.location.origin);
       if (code) confirmUrl.searchParams.set("code", code);
       if (tokenHash) confirmUrl.searchParams.set("token_hash", tokenHash);
       if (tokenHash) confirmUrl.searchParams.set("type", type || "recovery");
-      confirmUrl.searchParams.set("next", "/reset-password");
+      confirmUrl.searchParams.set("next", currentPath);
       router.replace(confirmUrl.toString());
       return;
     }
@@ -53,7 +54,10 @@ export function ResetPasswordHandler({
         }
       } catch {
         if (!cancelled) {
-          const fallbackUrl = new URL("/forgot-password", window.location.origin);
+          const forgotPasswordPath = window.location.pathname.startsWith("/portal")
+            ? "/portal/forgot-password"
+            : "/forgot-password";
+          const fallbackUrl = new URL(forgotPasswordPath, window.location.origin);
           fallbackUrl.searchParams.set("error", "reset_callback_failed");
           router.replace(fallbackUrl.toString());
         }
