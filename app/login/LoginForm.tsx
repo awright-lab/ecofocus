@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getBrowserSupabase } from "@/lib/supabase/client";
 
@@ -19,6 +20,7 @@ export default function LoginForm({
   const [mode, setMode] = useState<"password" | "magic_link">("password");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const forgotPasswordHref = redirect.startsWith("/portal") ? "/portal/forgot-password" : "/forgot-password";
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,9 +167,14 @@ export default function LoginForm({
           </p>
         )}
         {mode === "password" ? (
-          <p className="text-sm text-slate-500">
-            Password sign-in works for portal accounts that already have a Supabase Auth password set.
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm text-slate-500">
+              Password sign-in works for portal accounts that already have a Supabase Auth password set.
+            </p>
+            <Link href={forgotPasswordHref} className="text-sm font-semibold text-emerald-700 transition hover:text-emerald-800">
+              Forgot your password?
+            </Link>
+          </div>
         ) : null}
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>

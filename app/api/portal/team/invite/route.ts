@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
-import { sendPortalInviteEmail } from "@/lib/portal/invite-email";
 import { getPortalOrigin } from "@/lib/portal/host";
 import { createPortalTeamInvite } from "@/lib/portal/provisioning";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -52,11 +51,9 @@ export async function POST(req: NextRequest) {
     const inviteUrl = new URL("/set-password", getPortalOrigin(req.url));
     inviteUrl.searchParams.set("email", result.email);
     inviteUrl.searchParams.set("invite", "1");
-    const { emailSent, emailWarning } = await sendPortalInviteEmail(result.email, req.url).catch((error: unknown) => ({
-      emailSent: false,
-      emailWarning: error instanceof Error ? error.message : "Invite email could not be sent automatically.",
-    }));
-    const deliveryStatus = emailSent ? "sent" : "manual_only";
+    const emailSent = false;
+    const emailWarning = "Copy and share the password setup link directly with the teammate.";
+    const deliveryStatus = "manual_only";
     const now = new Date().toISOString();
 
     try {

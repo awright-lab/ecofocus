@@ -9,6 +9,7 @@ type InviteItem = {
   invitedEmail: string;
   invitedRole: string;
   invitedByName: string;
+  inviteUrl: string;
   deliveryStatus: "sent" | "manual_only" | "failed";
   deliveryMessage?: string | null;
   createdAt: string;
@@ -25,6 +26,16 @@ export function TeamInviteHistory({ invites }: { invites: InviteItem[] }) {
   const router = useRouter();
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Record<string, { error?: string; success?: string }>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  async function copyInviteUrl(inviteId: string, inviteUrl: string) {
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopiedId(inviteId);
+    } catch {
+      setCopiedId(null);
+    }
+  }
 
   async function resendInvite(inviteId: string) {
     setResendingId(inviteId);
@@ -35,7 +46,7 @@ export function TeamInviteHistory({ invites }: { invites: InviteItem[] }) {
         method: "POST",
       });
 
-      const data = (await response.json()) as { error?: string; emailSent?: boolean };
+      const data = (await response.json()) as { error?: string; emailSent?: boolean; inviteUrl?: string };
       if (!response.ok) {
         setFeedback((current) => ({
           ...current,
@@ -47,9 +58,12 @@ export function TeamInviteHistory({ invites }: { invites: InviteItem[] }) {
 
       setFeedback((current) => ({
         ...current,
-        [inviteId]: { success: data.emailSent ? "Invite email sent." : "Invite link is still available for manual send." },
+        [inviteId]: { success: data.emailSent ? "Invite email sent." : "Setup link is ready to share." },
       }));
       setResendingId(null);
+      if (data.inviteUrl) {
+        await copyInviteUrl(inviteId, data.inviteUrl);
+      }
       router.refresh();
     } catch {
       setFeedback((current) => ({
@@ -93,11 +107,18 @@ export function TeamInviteHistory({ invites }: { invites: InviteItem[] }) {
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <button
                 type="button"
+                onClick={() => copyInviteUrl(invite.id, invite.inviteUrl)}
+                className="rounded-xl border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+              >
+                {copiedId === invite.id ? "Copied" : "Copy setup link"}
+              </button>
+              <button
+                type="button"
                 onClick={() => resendInvite(invite.id)}
                 disabled={resendingId === invite.id}
                 className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {resendingId === invite.id ? "Resending..." : "Resend invite"}
+                {resendingId === invite.id ? "Refreshing..." : "Refresh setup link"}
               </button>
               {messages.success ? <p className="text-xs font-medium text-emerald-700">{messages.success}</p> : null}
               {messages.error ? <p className="text-xs font-medium text-rose-600">{messages.error}</p> : null}

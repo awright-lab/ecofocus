@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
-import { sendPortalInviteEmail } from "@/lib/portal/invite-email";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -23,7 +22,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const admin = getServiceSupabase();
     const { data: invite, error: inviteError } = await admin
       .from("portal_team_invites")
-      .select("id, company_id, invited_email")
+      .select("id, company_id, invited_email, invite_url")
       .eq("id", id)
       .eq("company_id", access.company.id)
       .maybeSingle();
@@ -36,15 +35,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return asJson({ error: "Invite not found." }, 404);
     }
 
-    const { emailSent, emailWarning } = await sendPortalInviteEmail(invite.invited_email, req.url);
-    const deliveryStatus = emailSent ? "sent" : "manual_only";
     const now = new Date().toISOString();
 
     const { error: updateError } = await admin
       .from("portal_team_invites")
       .update({
-        delivery_status: deliveryStatus,
-        delivery_message: emailWarning,
+        delivery_status: "manual_only",
+        delivery_message: "Copy and share the password setup link directly with the teammate.",
         last_sent_at: now,
         updated_at: now,
       })
@@ -54,7 +51,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return asJson({ error: updateError.message }, 500);
     }
 
-    return asJson({ ok: true, emailSent, emailWarning });
+    return asJson({
+      ok: true,
+      emailSent: false,
+      inviteUrl: invite.invite_url,
+      emailWarning: "Setup links are now shared directly instead of sending a sign-in email automatically.",
+    });
   } catch (error) {
     return asJson(
       {

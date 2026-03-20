@@ -14,7 +14,9 @@ export async function middleware(req: NextRequest) {
   const isPortal = internalPathname.startsWith('/portal');
   const isPortalApi = pathname.startsWith('/api/portal');
   const isPortalLogin = internalPathname === '/portal/login';
+  const isPortalForgotPassword = internalPathname === '/portal/forgot-password';
   const isPortalPasswordSetup = internalPathname === '/portal/set-password';
+  const isPortalResetPassword = internalPathname === '/portal/reset-password';
   const isPortalDevUtilityPath =
     pathname === '/portal/dev-login' ||
     pathname === '/portal/dev-logout' ||
@@ -22,6 +24,9 @@ export async function middleware(req: NextRequest) {
   const isAllowedPortalHostPath =
     pathname === '/' ||
     pathname === '/login' ||
+    pathname === '/forgot-password' ||
+    pathname === '/reset-password' ||
+    pathname === '/set-password' ||
     isPortal ||
     pathname.startsWith('/api/') ||
     pathname === '/auth/confirm' ||
@@ -58,7 +63,9 @@ export async function middleware(req: NextRequest) {
 
   if (
     isPortalLogin ||
+    isPortalForgotPassword ||
     isPortalPasswordSetup ||
+    isPortalResetPassword ||
     isPortalDevUtilityPath
   ) {
     return res;
@@ -132,7 +139,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if ((isPortal || isPortalApi) && !isPortalLogin && !isPortalPasswordSetup && !session) {
+  if ((isPortal || isPortalApi) && !isPortalLogin && !isPortalForgotPassword && !isPortalPasswordSetup && !isPortalResetPassword && !session) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = portalHost ? '/login' : '/portal/login';
     redirectUrl.searchParams.set('redirect', portalHost ? pathname + req.nextUrl.search : pathname + req.nextUrl.search);

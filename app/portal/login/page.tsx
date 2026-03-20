@@ -120,6 +120,11 @@ export default async function PortalLoginPage({
               Your password has been saved. Sign in with your work email and password below.
             </div>
           ) : null}
+          {params.password_reset === "1" ? (
+            <div className="px-4 pb-4 text-sm text-emerald-700 sm:px-0">
+              Your password has been reset. Sign in with your work email and new password below.
+            </div>
+          ) : null}
           <div className="px-4 pb-4 text-xs text-slate-500 sm:px-0">
             TODO: replace email-link-only access with production auth policy, role claims, and tenant mapping.
           </div>
