@@ -44,6 +44,11 @@ export type PortalUserActivationResult =
   | { status: "active"; userId: string }
   | { status: "activated"; userId: string };
 
+type AuthUserRecord = {
+  id: string;
+  email?: string | null;
+};
+
 function normalizeProvisioningValue(value?: string | null) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -90,6 +95,35 @@ function normalizeEmail(value?: string | null) {
 
 function buildSubscriptionId(companyId: string) {
   return companyId.startsWith("company-") ? `sub-${companyId.slice("company-".length)}` : `sub-${companyId}`;
+}
+
+async function findAuthUserByEmail(email: string): Promise<AuthUserRecord | null> {
+  const admin = getServiceSupabase();
+  let page = 1;
+  const perPage = 200;
+
+  while (page <= 10) {
+    const { data, error } = await admin.auth.admin.listUsers({
+      page,
+      perPage,
+    });
+
+    if (error) throw new Error(error.message);
+
+    const users = data?.users || [];
+    const matchedUser = users.find((user) => (user.email || "").toLowerCase() === email.toLowerCase());
+    if (matchedUser) {
+      return {
+        id: matchedUser.id,
+        email: matchedUser.email,
+      };
+    }
+
+    if (users.length < perPage) break;
+    page += 1;
+  }
+
+  return null;
 }
 
 export async function upsertPortalDashboardConfig(input: PortalDashboardProvisioningInput) {
@@ -344,6 +378,72 @@ export async function activatePortalUserByEmail(emailInput?: string | null): Pro
   if (updateError) throw new Error(updateError.message);
 
   return { status: "activated", userId: existingUser.id };
+}
+
+export async function setPortalUserPassword(emailInput: string, password: string) {
+  const admin = getServiceSupabase();
+  const email = normalizeEmail(emailInput);
+
+  if (!email || !password) {
+    throw new Error("Email and password are required.");
+  }
+
+  if (password.length < 8) {
+    throw new Error("Password must be at least 8 characters.");
+  }
+
+  const { data: portalUser, error: portalUserError } = await admin
+    .from("portal_users")
+    .select("id, name, email, company_id, role, status")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (portalUserError) throw new Error(portalUserError.message);
+  if (!portalUser) throw new Error("This email address is not set up for the EcoFocus portal.");
+  if (portalUser.status === "inactive") {
+    throw new Error("Portal access for this account is currently paused.");
+  }
+
+  const existingAuthUser = await findAuthUserByEmail(email);
+
+  if (existingAuthUser) {
+    const { error } = await admin.auth.admin.updateUserById(existingAuthUser.id, {
+      password,
+      email_confirm: true,
+      user_metadata: {
+        name: portalUser.name,
+        portal_user_id: portalUser.id,
+        portal_company_id: portalUser.company_id,
+        portal_role: portalUser.role,
+      },
+    });
+
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        name: portalUser.name,
+        portal_user_id: portalUser.id,
+        portal_company_id: portalUser.company_id,
+        portal_role: portalUser.role,
+      },
+    });
+
+    if (error) throw new Error(error.message);
+  }
+
+  const activation = await activatePortalUserByEmail(email);
+  if (activation.status === "missing" || activation.status === "inactive") {
+    throw new Error("Portal access could not be activated for this account.");
+  }
+
+  return {
+    userId: portalUser.id,
+    email,
+  };
 }
 
 export function getPortalProvisioningMetadata(

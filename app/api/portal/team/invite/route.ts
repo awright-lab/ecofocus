@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       role,
     });
 
-    const inviteUrl = new URL("/login", getPortalOrigin(req.url));
+    const inviteUrl = new URL("/set-password", getPortalOrigin(req.url));
     inviteUrl.searchParams.set("email", result.email);
     inviteUrl.searchParams.set("invite", "1");
     const { emailSent, emailWarning } = await sendPortalInviteEmail(result.email, req.url).catch((error: unknown) => ({

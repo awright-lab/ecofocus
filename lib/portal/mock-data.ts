@@ -49,7 +49,7 @@ export const portalTeamInvites: PortalTeamInvite[] = [
     invitedEmail: "jordan@greenloopfoods.com",
     invitedRole: "client_user",
     invitedByUserId: "user-maya",
-    inviteUrl: "https://portal.ecofocusresearch.com/login?email=jordan%40greenloopfoods.com&invite=1",
+    inviteUrl: "https://portal.ecofocusresearch.com/set-password?email=jordan%40greenloopfoods.com&invite=1",
     deliveryStatus: "sent",
     deliveryMessage: null,
     createdAt: "2026-03-18T15:20:00Z",
