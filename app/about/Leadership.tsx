@@ -120,6 +120,17 @@ export default function Leadership() {
         'With a background that spans agencies, media research, and marketing support, Paul brings EcoFocus valuable perspective for serving ad, PR, marketing, and communications agencies. He began on the agency side at DDB Needham in media planning before going on to lead custom media research at MRI-Simmons, where he helped media brands use audience data across print, digital, newsletters, social, and events to build stronger sales and marketing narratives. At DJG Marketing, he also directed strategic marketing, research support, and ad sales development for hundreds of media brands. Paul was recently featured in Alliance for Audited Media’s “Media Mavens” blog series, “Paul Sammon on the Power of Innovative Data,” where he explored how trust and confidence shape today’s media marketplace. That focus on trusted, differentiated data is especially relevant to EcoFocus and its unique sustainability intelligence. In addition to advising EcoFocus, Paul is President of All In One Insights focusing on providing high quality full-service research, marketing and ad support for media brands across their full multi-platform footprint.',
       focal: '50% 28%',
     },
+    {
+      name: 'Jim Elliott',
+      title: 'Media Research & Revenue Strategy Advisor',
+      img: '/images/team/Jim.jpg',
+      eyebrow: 'Advisory Team',
+      blurb:
+        'Turns market data into revenue-driving strategies that help agencies target the purpose-driven generation with stronger narratives.',
+      details:
+        'Jim Elliott brings unparalleled expertise in translating market data into revenue-driving strategies. He understands that when advertisers target the purpose-driven generation, agencies must rely on robust research to build the vivid personas and compelling narratives required to win the pitch and sell products. Currently President of an advertising sales and consulting firm that has generated over $750 million for 600+ media brands, Jim’s career spans media planning at Ogilvy & Mather to executive leadership at CBS Magazines. Drawing on deep experience designing research, representing MRI-Simmons, and partnering with Kantar Media, Jim ensures EcoFocus delivers relevant insights that are commercially vital.',
+      focal: '50% 28%',
+    },
   ];
 
   const [flipped, setFlipped] = React.useState<Record<number, boolean>>({});
@@ -311,7 +322,6 @@ export default function Leadership() {
     </section>
   );
 }
-
 
 
 
