@@ -11,6 +11,12 @@ function normalizeEmail(value?: string | null) {
   return typeof value === "string" ? value.trim().toLowerCase() : "";
 }
 
+type AuthUserLike = {
+  id: string;
+  email?: string | null;
+  user_metadata?: Record<string, unknown> | null;
+};
+
 function getPasswordResetSecret() {
   return (
     process.env.PORTAL_PASSWORD_RESET_SECRET ||
@@ -80,16 +86,30 @@ export async function getPortalResettableUser(emailInput: string) {
       .ilike("email", email)
       .maybeSingle();
 
-    if (error || !data || data.status === "inactive") {
+    if (error) {
       return null;
     }
 
-    return {
-      id: data.id as string,
-      name: data.name as string,
-      email: data.email as string,
-      status: data.status as string,
-    };
+    if (data && data.status !== "inactive") {
+      return {
+        id: data.id as string,
+        name: data.name as string,
+        email: data.email as string,
+        status: data.status as string,
+      };
+    }
+
+    const authUser = await findAuthUserByEmail(admin, email);
+    if (!authUser) {
+      return null;
+    }
+
+    const bootstrappedUser = await bootstrapPortalUserFromAuth(admin, authUser);
+    if (!bootstrappedUser || bootstrappedUser.status === "inactive") {
+      return null;
+    }
+
+    return bootstrappedUser;
   } catch {
     return null;
   }
@@ -101,4 +121,93 @@ export function buildPortalPasswordResetUrl(email: string, requestUrl?: string |
   resetUrl.searchParams.set("token", token);
   resetUrl.searchParams.set("email", email);
   return resetUrl.toString();
+}
+
+async function findAuthUserByEmail(admin: ReturnType<typeof getServiceSupabase>, email: string): Promise<AuthUserLike | null> {
+  let page = 1;
+  const perPage = 200;
+
+  while (page <= 10) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const matchedUser = (data?.users || []).find((user) => normalizeEmail(user.email) === email);
+    if (matchedUser) {
+      return matchedUser as AuthUserLike;
+    }
+
+    if ((data?.users || []).length < perPage) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return null;
+}
+
+async function bootstrapPortalUserFromAuth(admin: ReturnType<typeof getServiceSupabase>, authUser: AuthUserLike) {
+  const email = normalizeEmail(authUser.email);
+  if (!email) return null;
+
+  const metadata = authUser.user_metadata || {};
+  const roleValue = typeof metadata.portal_role === "string" ? metadata.portal_role : typeof metadata.role === "string" ? metadata.role : "";
+  const companyId =
+    typeof metadata.portal_company_id === "string"
+      ? metadata.portal_company_id
+      : typeof metadata.company_id === "string"
+        ? metadata.company_id
+        : "";
+  const portalUserId =
+    typeof metadata.portal_user_id === "string" && metadata.portal_user_id.trim()
+      ? metadata.portal_user_id.trim()
+      : authUser.id;
+  const name =
+    typeof metadata.name === "string" && metadata.name.trim()
+      ? metadata.name.trim()
+      : email.split("@")[0] || "EcoFocus User";
+
+  if (roleValue !== "client_user" && roleValue !== "client_admin" && roleValue !== "support_admin") {
+    return null;
+  }
+
+  if (!companyId) {
+    return null;
+  }
+
+  const { error: upsertError } = await admin.from("portal_users").upsert(
+    {
+      id: portalUserId,
+      name,
+      email,
+      company_id: companyId,
+      role: roleValue,
+      status: "active",
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "id" },
+  );
+
+  if (upsertError) {
+    throw new Error(upsertError.message);
+  }
+
+  const { data, error } = await admin
+    .from("portal_users")
+    .select("id, name, email, status")
+    .eq("id", portalUserId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    id: data.id as string,
+    name: data.name as string,
+    email: data.email as string,
+    status: data.status as string,
+  };
 }
