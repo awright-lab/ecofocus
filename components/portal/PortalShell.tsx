@@ -70,7 +70,7 @@ async function PortalShellInner({
 
           <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-emerald-50/80">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">{workspaceBadge}</span>
-            {devToolsEnabled ? (
+            {devToolsEnabled && isSupportAdmin ? (
               <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
                 Testing mode
               </span>
@@ -80,7 +80,7 @@ async function PortalShellInner({
                 Test sign-in session
               </span>
             ) : null}
-            {devToolsEnabled && usageOverride ? (
+            {devToolsEnabled && isSupportAdmin && usageOverride ? (
               <span className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sky-100">
                 {usageOverride === "available" ? "Hours set to available" : "Hours set to exhausted"}
               </span>
@@ -107,7 +107,7 @@ async function PortalShellInner({
                 </button>
               </form>
             ) : null}
-            {devToolsEnabled ? (
+            {devToolsEnabled && isSupportAdmin ? (
               <form action="/portal/dev-usage" method="post" className="inline-flex">
                 <input type="hidden" name="redirect" value="/portal/home" />
                 <button
@@ -120,7 +120,7 @@ async function PortalShellInner({
                 </button>
               </form>
             ) : null}
-            {devToolsEnabled ? (
+            {devToolsEnabled && isSupportAdmin ? (
               <form action="/portal/dev-usage" method="post" className="inline-flex">
                 <input type="hidden" name="redirect" value="/portal/home" />
                 <button

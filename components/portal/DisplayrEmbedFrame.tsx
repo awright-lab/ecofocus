@@ -5,10 +5,12 @@ export function DisplayrEmbedFrame({
   dashboard,
   iframeSrc,
   isConfigured,
+  isSupportAdmin = false,
 }: {
   dashboard: PortalDashboard;
   iframeSrc: string | null;
   isConfigured: boolean;
+  isSupportAdmin?: boolean;
 }) {
   if (!isConfigured || !iframeSrc) {
     return (
@@ -37,15 +39,25 @@ export function DisplayrEmbedFrame({
     <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_16px_50px_-40px_rgba(15,23,42,0.45)]">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-950 px-4 py-3 text-sm text-white">
         <div className="flex items-center gap-3">
-          <span>Displayr embed</span>
-          <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-200">Portal-routed access</span>
+          <span>{isSupportAdmin ? "Displayr embed" : "Dashboard viewer"}</span>
+          {isSupportAdmin ? (
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-slate-200">Portal-routed access</span>
+          ) : null}
         </div>
-        <span className="text-xs text-slate-300">Published Displayr document rendered inside the private portal</span>
+        <span className="text-xs text-slate-300">
+          {isSupportAdmin ? "Published Displayr document rendered inside the private portal" : "Licensed access in your secure portal workspace"}
+        </span>
       </div>
 
-      <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-        The EcoFocus portal controls who can reach this embed route. The dashboard content itself remains hosted and authorized by Displayr.
-      </div>
+      {isSupportAdmin ? (
+        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          The EcoFocus portal controls who can reach this embed route. The dashboard content itself remains hosted and authorized by Displayr.
+        </div>
+      ) : (
+        <div className="mb-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          This licensed dashboard is available through your company&apos;s EcoFocus portal workspace.
+        </div>
+      )}
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
         <span>Confidential licensed access for {dashboard.name}</span>

@@ -107,6 +107,7 @@ export default async function PortalDashboardDetailPage({
               dashboard={dashboard}
               iframeSrc={embedState.iframeSrc}
               isConfigured={embedState.isConfigured}
+              isSupportAdmin={isSupportAdmin}
             />
           </>
         )}
@@ -147,10 +148,12 @@ export default async function PortalDashboardDetailPage({
           </div>
 
           <div className="rounded-[28px] border border-slate-200 bg-white p-6">
-            <h3 className="text-lg font-semibold text-slate-950">Subscription and access</h3>
+            <h3 className="text-lg font-semibold text-slate-950">{isSupportAdmin ? "Subscription and access" : "Access details"}</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Access tag: <span className="font-semibold text-slate-900">{dashboard.accessTag}</span>. This shell is prepared for seat-level
-              grants, embed token exchange, and dashboard-specific support context.
+              Access tag: <span className="font-semibold text-slate-900">{dashboard.accessTag}</span>.
+              {isSupportAdmin
+                ? " This shell is prepared for seat-level grants, embed token exchange, and dashboard-specific support context."
+                : " Your company has licensed access to this dashboard through the EcoFocus portal."}
             </p>
             <div className="mt-4 flex flex-wrap gap-3 text-sm">
               {usage.annualHoursLimit ? (
@@ -165,24 +168,30 @@ export default async function PortalDashboardDetailPage({
                   Internal support viewing mode
                 </span>
               ) : null}
-              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 font-medium text-emerald-700">
-                <ExternalLink className="h-4 w-4" />
-                {embedState.isConfigured ? "Company dashboard mapping configured" : "Company dashboard mapping required"}
-              </span>
-              <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 font-medium text-amber-700">
-                <FileWarning className="h-4 w-4" />
-                {embedState.requiresDisplayrLogin ? "Displayr login required" : "Displayr public-link publish mode"}
-              </span>
+              {isSupportAdmin ? (
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 font-medium text-emerald-700">
+                  <ExternalLink className="h-4 w-4" />
+                  {embedState.isConfigured ? "Company dashboard mapping configured" : "Company dashboard mapping required"}
+                </span>
+              ) : null}
+              {isSupportAdmin ? (
+                <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 font-medium text-amber-700">
+                  <FileWarning className="h-4 w-4" />
+                  {embedState.requiresDisplayrLogin ? "Displayr login required" : "Displayr public-link publish mode"}
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-2 font-medium text-sky-700">
                 <LifeBuoy className="h-4 w-4" />
                 Dashboard-aware support actions
               </span>
             </div>
-            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
-              Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. In production, embeds should come from company-specific private portal configuration storage.
-              {isSupportAdmin ? " Internal support views do not post dashboard session minutes to the standard usage tracker." : ""}
-              {isSupportAdmin ? ` Current dashboard company context: ${selectedCompany.name}.` : ""}
-            </div>
+            {isSupportAdmin ? (
+              <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
+                Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. In production, embeds should come from company-specific private portal configuration storage.
+                {" "}Internal support views do not post dashboard session minutes to the standard usage tracker.
+                {` Current dashboard company context: ${selectedCompany.name}.`}
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
