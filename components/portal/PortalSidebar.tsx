@@ -36,6 +36,12 @@ const supportAdminNavItems = [
 
 export function PortalSidebar({ role }: { role: PortalRole }) {
   const pathname = usePathname();
+  const normalizedPathname =
+    pathname === "/"
+      ? "/portal"
+      : pathname.startsWith("/portal")
+        ? pathname
+        : `/portal${pathname}`;
   const navItems = role === "support_admin" ? supportAdminNavItems : clientNavItems;
   const visibleNavItems = navItems.filter((item) => item.href !== "/portal/team" || role !== "client_user");
   const navLabel = role === "support_admin" ? "EcoFocus Workspace" : "Portal Navigation";
@@ -49,7 +55,8 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
           </p>
           <nav className="mt-4 space-y-1">
             {visibleNavItems.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const isActive =
+                normalizedPathname === item.href || normalizedPathname.startsWith(`${item.href}/`);
               const Icon = item.icon;
               return (
                 <Link
