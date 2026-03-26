@@ -15,6 +15,7 @@ type AuthUserLike = {
   id: string;
   email?: string | null;
   user_metadata?: Record<string, unknown> | null;
+  app_metadata?: Record<string, unknown> | null;
 };
 
 function getPasswordResetSecret() {
@@ -152,7 +153,10 @@ async function bootstrapPortalUserFromAuth(admin: ReturnType<typeof getServiceSu
   const email = normalizeEmail(authUser.email);
   if (!email) return null;
 
-  const metadata = authUser.user_metadata || {};
+  const metadata = {
+    ...(authUser.app_metadata || {}),
+    ...(authUser.user_metadata || {}),
+  };
   const roleValue = typeof metadata.portal_role === "string" ? metadata.portal_role : typeof metadata.role === "string" ? metadata.role : "";
   const companyId =
     typeof metadata.portal_company_id === "string"
