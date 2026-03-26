@@ -342,7 +342,7 @@ async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_usage_logs")
-      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes")
+      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes, metadata")
       .eq("company_id", companyId)
       .order("event_at", { ascending: false })
       .limit(50);
@@ -363,6 +363,7 @@ async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]
       minutesTracked: Number(log.minutes_tracked || 0),
       source: log.source === "portal_runtime" ? "portal_runtime" : "mock",
       notes: log.notes || undefined,
+      metadata: log.metadata || {},
     }));
   } catch (error) {
     console.warn("[portal/data] portal_usage_logs storage unavailable.", {
@@ -378,7 +379,7 @@ async function queryPortalUsageLogsWithFilters(filters: PortalUsageLogFilters = 
     const admin = getServiceSupabase();
     let query = admin
       .from("portal_usage_logs")
-      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes")
+      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes, metadata")
       .order("event_at", { ascending: false })
       .limit(filters.limit ?? 100);
 
@@ -406,6 +407,7 @@ async function queryPortalUsageLogsWithFilters(filters: PortalUsageLogFilters = 
       minutesTracked: Number(log.minutes_tracked || 0),
       source: log.source === "portal_runtime" ? "portal_runtime" : "mock",
       notes: log.notes || undefined,
+      metadata: log.metadata || {},
     }));
   } catch (error) {
     console.warn("[portal/data] portal_usage_logs filtered storage unavailable.", {

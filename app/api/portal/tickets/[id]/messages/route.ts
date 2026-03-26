@@ -44,12 +44,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   try {
     const admin = getServiceSupabase();
+    const now = new Date().toISOString();
     const { error } = await admin.from("portal_ticket_messages").insert({
       ticket_id: ticket.id,
       author_id: access.user.id,
       body,
       is_internal: isInternal,
-      created_at: new Date().toISOString(),
+      created_at: now,
     });
 
     if (error) {
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         .update({
           status: isInternal ? ticket.status : "in_progress",
           owner_id: ticket.ownerId || access.user.id,
+          updated_at: now,
         })
         .eq("id", ticket.id);
     } else {
@@ -69,6 +71,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         .from("portal_tickets")
         .update({
           status: "open",
+          updated_at: now,
         })
         .eq("id", ticket.id);
     }

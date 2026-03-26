@@ -22,7 +22,13 @@ function getStatusLabel(status: InviteItem["deliveryStatus"]) {
   return "Delivery issue";
 }
 
-export function TeamInviteHistory({ invites }: { invites: InviteItem[] }) {
+export function TeamInviteHistory({
+  invites,
+  canManage,
+}: {
+  invites: InviteItem[];
+  canManage: boolean;
+}) {
   const router = useRouter();
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Record<string, { error?: string; success?: string }>>({});
@@ -104,25 +110,29 @@ export function TeamInviteHistory({ invites }: { invites: InviteItem[] }) {
               <p>Last sent: <span className="font-medium text-slate-900">{invite.lastSentAt || "Not recorded yet"}</span></p>
             </div>
             {invite.deliveryMessage ? <p className="mt-2 text-xs text-slate-500">{invite.deliveryMessage}</p> : null}
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={() => copyInviteUrl(invite.id, invite.inviteUrl)}
-                className="rounded-xl border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
-              >
-                {copiedId === invite.id ? "Copied" : "Copy setup link"}
-              </button>
-              <button
-                type="button"
-                onClick={() => resendInvite(invite.id)}
-                disabled={resendingId === invite.id}
-                className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {resendingId === invite.id ? "Refreshing..." : "Refresh setup link"}
-              </button>
-              {messages.success ? <p className="text-xs font-medium text-emerald-700">{messages.success}</p> : null}
-              {messages.error ? <p className="text-xs font-medium text-rose-600">{messages.error}</p> : null}
-            </div>
+            {canManage ? (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => copyInviteUrl(invite.id, invite.inviteUrl)}
+                  className="rounded-xl border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+                >
+                  {copiedId === invite.id ? "Copied" : "Copy setup link"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => resendInvite(invite.id)}
+                  disabled={resendingId === invite.id}
+                  className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {resendingId === invite.id ? "Refreshing..." : "Refresh setup link"}
+                </button>
+                {messages.success ? <p className="text-xs font-medium text-emerald-700">{messages.success}</p> : null}
+                {messages.error ? <p className="text-xs font-medium text-rose-600">{messages.error}</p> : null}
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500">Invite delivery details are visible to admins only.</p>
+            )}
           </div>
         );
       })}

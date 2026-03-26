@@ -17,10 +17,12 @@ export function AdminDashboardConfigForm({
   companyId,
   companyName,
   dashboards,
+  introTitle = "Manage which dashboards are live for this company and keep each dashboard URL stored on the server.",
 }: {
   companyId: string;
   companyName: string;
   dashboards: DashboardConfigItem[];
+  introTitle?: string;
 }) {
   const router = useRouter();
   const initialState = useMemo(
@@ -90,7 +92,7 @@ export function AdminDashboardConfigForm({
       <div className="rounded-[24px] bg-slate-50 p-5">
         <p className="text-sm font-semibold text-slate-900">{companyName}</p>
         <p className="mt-1 text-sm text-slate-600">
-          Manage which dashboards are live for this company and keep each private dashboard link stored on the server.
+          {introTitle}
         </p>
       </div>
 
@@ -140,7 +142,7 @@ export function AdminDashboardConfigForm({
 
               <div className="mt-4 grid gap-4">
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-800">Private dashboard URL</span>
+                  <span className="mb-2 block text-sm font-medium text-slate-800">Displayr dashboard URL</span>
                   <input
                     type="url"
                     value={state.displayrEmbedUrl}
@@ -156,6 +158,9 @@ export function AdminDashboardConfigForm({
                     placeholder="https://app.displayr.com/Dashboard?id=..."
                     className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                   />
+                  <p className="mt-2 text-xs text-slate-500">
+                    Use a company-specific Displayr publish URL. Treat this like a bearer link and replace it if exposure is suspected.
+                  </p>
                 </label>
 
                 <label className="block">

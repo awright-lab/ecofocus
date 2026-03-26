@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleHelp, LifeBuoy, Search, Ticket } from "lucide-react";
+import { CircleHelp, LifeBuoy, Ticket } from "lucide-react";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalArticles } from "@/lib/portal/data";
@@ -25,9 +25,8 @@ export default async function PortalSupportPage() {
           description="Start with help articles for common questions, then submit or track support requests when access, export, or interpretation issues need direct assistance."
         />
         <div className="mt-6 rounded-[28px] bg-[linear-gradient(135deg,#0f172a_0%,#0f766e_100%)] p-6 text-white">
-          <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
-            <Search className="h-4 w-4" />
-            <span className="text-sm text-white/85">Search help articles by topic, dashboard name, export type, or common issue.</span>
+          <div className="rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/85">
+            Browse the knowledge base to search help content by topic, dashboard name, export type, or common issue.
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link href="/portal/support/new" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">

@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = getServiceSupabase();
+    const now = new Date().toISOString();
     const { error: ticketError } = await admin.from("portal_tickets").insert({
       id: ticketId,
       company_id: access.company.id,
@@ -65,8 +66,8 @@ export async function POST(req: NextRequest) {
       status: "open",
       requester_id: access.user.id,
       owner_id: null,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: now,
+      updated_at: now,
     });
 
     if (ticketError) {
@@ -78,10 +79,11 @@ export async function POST(req: NextRequest) {
       author_id: access.user.id,
       body: messageBody,
       is_internal: false,
-      created_at: new Date().toISOString(),
+      created_at: now,
     });
 
     if (messageError) {
+      await admin.from("portal_tickets").delete().eq("id", ticketId);
       return asJson({ error: messageError.message }, 500);
     }
 

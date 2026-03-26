@@ -39,6 +39,17 @@ export async function middleware(req: NextRequest) {
 
   if (isPortal || isPortalApi || portalHost) {
     res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+    res.headers.set('Cache-Control', 'no-store, max-age=0');
+    res.headers.set('Pragma', 'no-cache');
+    res.headers.set('Referrer-Policy', 'no-referrer');
+    res.headers.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=(), browsing-topics=()',
+    );
+    res.headers.set(
+      'Content-Security-Policy',
+      "frame-src 'self' https://app.displayr.com; child-src 'self' https://app.displayr.com; frame-ancestors 'self';",
+    );
   }
 
   if (portalHost && pathname === '/login') {

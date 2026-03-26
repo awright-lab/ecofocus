@@ -1,12 +1,20 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
 import type { PortalDashboard } from "@/lib/portal/types";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 type DisplayrEmbedState = {
-  iframeUrl: string | null;
+  iframeSrc: string | null;
   isConfigured: boolean;
   accessMode: PortalDashboard["embedAccess"];
   requiresDisplayrLogin: boolean;
-  configSource: "database" | "environment" | "inline" | "missing";
+  configSource: "database" | "development_fallback" | "missing";
+};
+
+type DisplayrEmbedTokenPayload = {
+  companyId: string;
+  dashboardSlug: string;
+  userId: string;
+  exp: number;
 };
 
 function slugToEnvKey(slug: string) {
@@ -56,20 +64,131 @@ async function getCompanyDashboardConfigUrl(companyId: string, dashboardSlug: st
   }
 }
 
+function getDisplayrEmbedTokenSecret() {
+  return (
+    process.env.DISPLAYR_EMBED_TOKEN_SECRET ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    "local-displayr-embed-secret"
+  );
+}
+
+function toBase64Url(value: string) {
+  return Buffer.from(value, "utf8").toString("base64url");
+}
+
+function fromBase64Url(value: string) {
+  return Buffer.from(value, "base64url").toString("utf8");
+}
+
+function signDisplayrPayload(payload: string) {
+  return createHmac("sha256", getDisplayrEmbedTokenSecret()).update(payload).digest("base64url");
+}
+
+function buildDisplayrEmbedToken(payload: DisplayrEmbedTokenPayload) {
+  const encodedPayload = toBase64Url(JSON.stringify(payload));
+  const signature = signDisplayrPayload(encodedPayload);
+  return `${encodedPayload}.${signature}`;
+}
+
+function verifySignature(encodedPayload: string, signature: string) {
+  const expectedSignature = signDisplayrPayload(encodedPayload);
+
+  const expectedBuffer = Buffer.from(expectedSignature);
+  const receivedBuffer = Buffer.from(signature);
+  if (expectedBuffer.length !== receivedBuffer.length) {
+    return false;
+  }
+
+  return timingSafeEqual(expectedBuffer, receivedBuffer);
+}
+
+function getDevFallbackUrl(dashboard: PortalDashboard) {
+  if (process.env.NODE_ENV !== "development") {
+    return null;
+  }
+
+  const envKey = `DISPLAYR_EMBED_URL_${slugToEnvKey(dashboard.slug)}`;
+  return normalizeDisplayrUrl(process.env[envKey]) || normalizeDisplayrUrl(dashboard.embedUrl);
+}
+
+async function logDisplayrEmbedAuditEvent({
+  userId,
+  companyId,
+  dashboardId,
+  dashboardName,
+  note,
+  metadata,
+}: {
+  userId: string;
+  companyId: string;
+  dashboardId: string;
+  dashboardName: string;
+  note: string;
+  metadata: Record<string, unknown>;
+}) {
+  try {
+    const admin = getServiceSupabase();
+    await admin.from("portal_usage_logs").insert({
+      user_id: userId,
+      company_id: companyId,
+      dashboard_id: dashboardId,
+      dashboard_name: dashboardName,
+      event_type: "viewer_opened",
+      event_at: new Date().toISOString(),
+      minutes_tracked: 0,
+      source: "portal_runtime",
+      notes: note,
+      metadata,
+    });
+  } catch (error) {
+    console.warn("[portal/displayr] Unable to write embed audit event.", {
+      companyId,
+      dashboardId,
+      note,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 export async function getDisplayrEmbedState(
   dashboard: PortalDashboard,
   companyId: string,
+  userId: string,
 ): Promise<DisplayrEmbedState> {
   const databaseUrl = await getCompanyDashboardConfigUrl(companyId, dashboard.slug);
-  const envKey = `DISPLAYR_EMBED_URL_${slugToEnvKey(dashboard.slug)}`;
-  const envUrl = normalizeDisplayrUrl(process.env[envKey]);
-  const inlineUrl = normalizeDisplayrUrl(dashboard.embedUrl);
-  const iframeUrl = databaseUrl || envUrl || inlineUrl;
-  const configSource = databaseUrl ? "database" : envUrl ? "environment" : inlineUrl ? "inline" : "missing";
+  const devFallbackUrl = getDevFallbackUrl(dashboard);
+  const resolvedUrl = databaseUrl || devFallbackUrl;
+  const configSource = databaseUrl ? "database" : devFallbackUrl ? "development_fallback" : "missing";
+  const iframeSrc = resolvedUrl
+    ? `/api/portal/displayr/embed?token=${encodeURIComponent(
+        buildDisplayrEmbedToken({
+          companyId,
+          dashboardSlug: dashboard.slug,
+          userId,
+          exp: Date.now() + 1000 * 60 * 10,
+        }),
+      )}`
+    : null;
+
+  if (iframeSrc) {
+    await logDisplayrEmbedAuditEvent({
+      userId,
+      companyId,
+      dashboardId: dashboard.id,
+      dashboardName: dashboard.name,
+      note: "Displayr embed token issued.",
+      metadata: {
+        phase: "token_issued",
+        dashboardSlug: dashboard.slug,
+        configSource,
+      },
+    });
+  }
 
   return {
-    iframeUrl,
-    isConfigured: Boolean(iframeUrl),
+    iframeSrc,
+    isConfigured: Boolean(resolvedUrl),
     accessMode: dashboard.embedAccess,
     requiresDisplayrLogin: dashboard.embedAccess === "displayr_login_required",
     configSource,
@@ -78,4 +197,58 @@ export async function getDisplayrEmbedState(
 
 export function getDisplayrEmbedEnvKey(slug: string) {
   return `DISPLAYR_EMBED_URL_${slugToEnvKey(slug)}`;
+}
+
+export async function resolveDisplayrEmbedUrl(companyId: string, dashboardSlug: string) {
+  const databaseUrl = await getCompanyDashboardConfigUrl(companyId, dashboardSlug);
+  if (databaseUrl) return databaseUrl;
+  return null;
+}
+
+export async function logDisplayrEmbedRedirectEvent({
+  userId,
+  companyId,
+  dashboardId,
+  dashboardName,
+  dashboardSlug,
+  userAgent,
+}: {
+  userId: string;
+  companyId: string;
+  dashboardId: string;
+  dashboardName: string;
+  dashboardSlug: string;
+  userAgent?: string | null;
+}) {
+  await logDisplayrEmbedAuditEvent({
+    userId,
+    companyId,
+    dashboardId,
+    dashboardName,
+    note: "Displayr embed redirect served.",
+    metadata: {
+      phase: "redirect_served",
+      dashboardSlug,
+      userAgent: userAgent || null,
+    },
+  });
+}
+
+export function verifyDisplayrEmbedToken(token: string): DisplayrEmbedTokenPayload | null {
+  const [encodedPayload, signature] = token.split(".");
+  if (!encodedPayload || !signature) return null;
+  if (!verifySignature(encodedPayload, signature)) return null;
+
+  try {
+    const payload = JSON.parse(fromBase64Url(encodedPayload)) as DisplayrEmbedTokenPayload;
+    if (!payload.companyId || !payload.dashboardSlug || !payload.userId || !payload.exp) {
+      return null;
+    }
+    if (payload.exp < Date.now()) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
 }

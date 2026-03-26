@@ -17,6 +17,7 @@ const navItems = [
 
 export function PortalSidebar({ role }: { role: PortalRole }) {
   const pathname = usePathname();
+  const visibleNavItems = navItems.filter((item) => item.href !== "/portal/team" || role !== "client_user");
 
   return (
     <aside className="w-full xl:w-64 2xl:w-72">
@@ -26,7 +27,7 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
             Portal Navigation
           </p>
           <nav className="mt-4 space-y-1">
-            {navItems.map((item) => {
+            {visibleNavItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
               const Icon = item.icon;
               return (
@@ -53,6 +54,13 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
               Internal Tools
             </p>
+            <Link
+              href="/portal/admin/dashboards"
+              className="mt-3 flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/15"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Dashboard Access</span>
+            </Link>
             <Link
               href="/portal/admin/support"
               className="mt-3 flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/15"

@@ -86,6 +86,7 @@ export type PortalUsageLog = {
   minutesTracked: number;
   source: "mock" | "portal_runtime";
   notes?: string;
+  metadata?: Record<string, unknown>;
 };
 
 export type PortalTicket = {

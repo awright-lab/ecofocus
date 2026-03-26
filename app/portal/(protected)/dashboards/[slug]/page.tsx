@@ -22,7 +22,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
   const dashboard = await getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
   const usage = await getPortalUsageStatus(access.user);
-  const embedState = await getDisplayrEmbedState(dashboard, access.company.id);
+  const embedState = await getDisplayrEmbedState(dashboard, access.company.id, access.user.id);
 
   const relatedArticles = getPortalArticles().slice(0, 3);
 
@@ -48,9 +48,12 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             <Link href={`/portal/support/new?dashboard=${encodeURIComponent(dashboard.name)}&issueType=${encodeURIComponent("Possible Bug")}`} className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
               Report an Issue
             </Link>
-            <span className="rounded-xl border border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-500">
+            <Link
+              href="/portal/help/exporting-charts-and-tables"
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+            >
               Export Tips
-            </span>
+            </Link>
           </div>
         </div>
       </section>
@@ -83,7 +86,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             />
             <DisplayrEmbedFrame
               dashboard={dashboard}
-              iframeUrl={embedState.iframeUrl}
+              iframeSrc={embedState.iframeSrc}
               isConfigured={embedState.isConfigured}
             />
           </>
@@ -127,11 +130,11 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               ) : null}
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 font-medium text-emerald-700">
                 <ExternalLink className="h-4 w-4" />
-                {embedState.isConfigured ? "Dashboard mapping configured" : "Dashboard mapping required"}
+                {embedState.isConfigured ? "Company dashboard mapping configured" : "Company dashboard mapping required"}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-2 font-medium text-amber-700">
                 <FileWarning className="h-4 w-4" />
-                {embedState.requiresDisplayrLogin ? "Displayr-managed login flow" : "Portal-gated public link embed"}
+                {embedState.requiresDisplayrLogin ? "Displayr login required" : "Displayr public-link publish mode"}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-2 font-medium text-sky-700">
                 <LifeBuoy className="h-4 w-4" />
@@ -139,7 +142,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
               </span>
             </div>
             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
-              Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. Company-specific dashboard URLs should be managed in private portal configuration storage.
+              Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. In production, embeds should come from company-specific private portal configuration storage.
             </div>
           </div>
         </div>

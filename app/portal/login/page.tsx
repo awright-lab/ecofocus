@@ -37,9 +37,8 @@ export default async function PortalLoginPage({
             Licensed dashboards, support requests, and account access in one secure workspace.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-emerald-50/85">
-            This portal is built as an authenticated product surface. Search indexing is disabled, sitemap inclusion is excluded,
-            and future integrations for Displayr embeds, seat licensing, support workflows, and subscription controls plug into
-            this shell.
+            This portal is an authenticated EcoFocus workspace for licensed dashboard access, support conversations, and account administration.
+            Search indexing is disabled and access stays scoped to approved portal users and company assignments.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -125,9 +124,6 @@ export default async function PortalLoginPage({
               Your password has been reset. Sign in with your work email and new password below.
             </div>
           ) : null}
-          <div className="px-4 pb-4 text-xs text-slate-500 sm:px-0">
-            TODO: replace email-link-only access with production auth policy, role claims, and tenant mapping.
-          </div>
         </section>
       </div>
     </div>
