@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function PortalDashboardDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
+  const isSupportAdmin = access.user.role === "support_admin";
   const dashboard = await getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
   const usage = await getPortalUsageStatus(access.user);
@@ -82,7 +83,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             <DashboardUsageTracker
               dashboardId={dashboard.id}
               dashboardName={dashboard.name}
-              enabled={embedState.isConfigured}
+              enabled={embedState.isConfigured && !isSupportAdmin}
             />
             <DisplayrEmbedFrame
               dashboard={dashboard}
@@ -128,6 +129,12 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
                   {usage.hoursUsed}/{usage.annualHoursLimit} annual hours used
                 </span>
               ) : null}
+              {isSupportAdmin ? (
+                <span className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-2 font-medium text-violet-700">
+                  <FileWarning className="h-4 w-4" />
+                  Internal support viewing mode
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 font-medium text-emerald-700">
                 <ExternalLink className="h-4 w-4" />
                 {embedState.isConfigured ? "Company dashboard mapping configured" : "Company dashboard mapping required"}
@@ -143,6 +150,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             </div>
             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
               Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. In production, embeds should come from company-specific private portal configuration storage.
+              {isSupportAdmin ? " Internal support views do not post dashboard session minutes to the standard usage tracker." : ""}
             </div>
           </div>
         </div>
