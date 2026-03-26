@@ -458,15 +458,16 @@ export default function PostBody({
                   : pq.text ?? '';
 
               return (
-                <blockquote
-                  key={b.id?.toString() ?? i.toString()}
-                  className="my-6 border-l-4 border-emerald-600 pl-4 text-lg italic text-emerald-900/90"
-                >
-                  {quote}
+                <figure key={b.id?.toString() ?? i.toString()} className="not-prose my-8">
+                  <blockquote className="rounded-[1.35rem] bg-black px-5 py-4 text-xl font-extrabold leading-tight tracking-tight text-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.65)] sm:px-7 sm:py-5 sm:text-[2rem]">
+                    <span dangerouslySetInnerHTML={{ __html: quote }} />
+                  </blockquote>
                   {pq.attribution ? (
-                    <cite className="not-italic text-gray-500 block mt-1">— {pq.attribution}</cite>
+                    <figcaption className="mt-3 px-1 text-sm font-medium text-slate-500">
+                      {pq.attribution}
+                    </figcaption>
                   ) : null}
-                </blockquote>
+                </figure>
               );
             }
 
@@ -475,18 +476,40 @@ export default function PostBody({
               const kt = b as KeyTakeawaysBlock;
               const items = (kt.items ?? kt.points ?? []).filter(Boolean) as Array<{ text?: string } | string>;
               if (items.length === 0) return null;
+              const takeaways = items
+                .map((it) => (typeof it === 'string' ? it : it.text ?? '').trim())
+                .filter(Boolean);
+
+              if (takeaways.length === 0) return null;
+
               return (
                 <div
                   key={b.id?.toString() ?? i.toString()}
-                  className="my-6 rounded-xl bg-emerald-50 p-4 ring-1 ring-emerald-200"
+                  className="not-prose my-10 rounded-[2rem] bg-white px-5 py-8 text-slate-900 shadow-[0_20px_60px_-36px_rgba(15,23,42,0.45)] ring-1 ring-black/5 sm:px-8"
                 >
-                  <h3 className="m-0 text-emerald-900">Key takeaways</h3>
-                  <ul>
-                    {items.map((it, idx) => {
-                      const text = typeof it === 'string' ? it : it.text ?? '';
-                      return <li key={idx}>{text}</li>;
-                    })}
-                  </ul>
+                  <div className="flex justify-center">
+                    <h3 className="m-0 inline-flex items-center rounded-full bg-black px-6 py-3 text-center text-lg font-extrabold tracking-tight text-white shadow-lg shadow-black/15 sm:px-8 sm:text-[2rem]">
+                      <span>What&apos;s the </span>
+                      <span className="ml-2 text-emerald-400">Takeaway?</span>
+                    </h3>
+                  </div>
+
+                  {takeaways.length === 1 ? (
+                    <p className="mx-auto mt-7 max-w-4xl text-pretty text-lg font-semibold leading-8 text-slate-900 sm:text-[1.95rem] sm:leading-[1.45]">
+                      {takeaways[0]}
+                    </p>
+                  ) : (
+                    <div className="mx-auto mt-7 max-w-4xl space-y-4">
+                      {takeaways.map((text, idx) => (
+                        <p
+                          key={idx}
+                          className="text-lg font-semibold leading-8 text-slate-900 sm:text-[1.55rem] sm:leading-[1.5]"
+                        >
+                          {text}
+                        </p>
+                      ))}
+                    </div>
+                  )}
                 </div>
               );
             }
@@ -579,4 +602,3 @@ export default function PostBody({
     </div>
   );
 }
-
