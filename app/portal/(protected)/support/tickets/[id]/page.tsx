@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { MessageSquarePlus, ShieldCheck } from "lucide-react";
 import { TicketAdminControls } from "@/components/portal/TicketAdminControls";
 import { TicketReplyForm } from "@/components/portal/TicketReplyForm";
@@ -61,7 +62,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                   </span>
                   <span>{formatDateTime(message.createdAt)}</span>
                 </div>
-                <p className="mt-3 text-sm leading-6 text-slate-700">{message.body}</p>
+                <div className="mt-3 text-sm leading-6 text-slate-700">{renderMessageBody(message.body)}</div>
                 {message.isInternal ? (
                   <span className="mt-3 inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
                     <ShieldCheck className="h-3.5 w-3.5" />
@@ -140,4 +141,33 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       </section>
     </div>
   );
+}
+
+function renderMessageBody(body: string) {
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
+  const isUrl = (value: string) => /^https?:\/\/[^\s]+$/.test(value);
+  const lines = body.split("\n");
+
+  return lines.map((line, index) => {
+    const parts = line.split(urlPattern);
+    return (
+      <p key={`${index}-${line.slice(0, 12)}`} className="break-words">
+        {parts.map((part, partIndex) =>
+          isUrl(part) ? (
+            <Link
+              key={`${index}-${partIndex}`}
+              href={part}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-emerald-700 underline underline-offset-2"
+            >
+              {part}
+            </Link>
+          ) : (
+            <span key={`${index}-${partIndex}`}>{part}</span>
+          ),
+        )}
+      </p>
+    );
+  });
 }

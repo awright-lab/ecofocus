@@ -58,6 +58,7 @@ export function SupportTicketForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const router = useRouter();
 
   const dashboardOptions = useMemo(
@@ -92,17 +93,20 @@ export function SupportTicketForm({
     setIsSubmitting(true);
 
     try {
+      const payload = new FormData();
+      payload.set("dashboardName", form.dashboardName);
+      payload.set("issueType", form.issueType);
+      payload.set("priority", form.priority);
+      payload.set("description", form.description);
+      payload.set("notes", form.notes);
+      payload.set("attachmentName", form.attachmentName);
+      if (attachmentFile) {
+        payload.set("attachment", attachmentFile);
+      }
+
       const response = await fetch("/api/portal/tickets", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          dashboardName: form.dashboardName,
-          issueType: form.issueType,
-          priority: form.priority,
-          description: form.description,
-          notes: form.notes,
-          attachmentName: form.attachmentName,
-        }),
+        body: payload,
       });
 
       const data = (await response.json()) as { ticketId?: string; error?: string };
@@ -191,11 +195,15 @@ export function SupportTicketForm({
         <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
           <input
             type="file"
-            onChange={(event) => update("attachmentName", event.target.files?.[0]?.name || "")}
+            onChange={(event) => {
+              const file = event.target.files?.[0] || null;
+              setAttachmentFile(file);
+              update("attachmentName", file?.name || "");
+            }}
             className="block w-full text-sm text-slate-600"
           />
           <p className="mt-2 text-xs text-slate-500">
-            File capture is noted for the request. Direct file storage will be added in a later support workflow update. {form.attachmentName ? `Selected: ${form.attachmentName}` : ""}
+            Attach a screenshot or supporting file to include it with the request. {form.attachmentName ? `Selected: ${form.attachmentName}` : ""}
           </p>
         </div>
       </Field>
