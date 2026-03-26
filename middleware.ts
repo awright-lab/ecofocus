@@ -13,6 +13,9 @@ export async function middleware(req: NextRequest) {
   const internalPathname = portalHost ? toInternalPortalPath(pathname) : pathname;
   const isPortal = internalPathname.startsWith('/portal');
   const isPortalApi = pathname.startsWith('/api/portal');
+  const isPublicPortalApi =
+    pathname === '/api/portal/password-reset/request' ||
+    pathname === '/api/portal/password-reset/confirm';
   const isPortalLogin = internalPathname === '/portal/login';
   const isPortalForgotPassword = internalPathname === '/portal/forgot-password';
   const isPortalPasswordSetup = internalPathname === '/portal/set-password';
@@ -168,7 +171,15 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if ((isPortal || isPortalApi) && !isPortalLogin && !isPortalForgotPassword && !isPortalPasswordSetup && !isPortalResetPassword && !session) {
+  if (
+    (isPortal || isPortalApi) &&
+    !isPublicPortalApi &&
+    !isPortalLogin &&
+    !isPortalForgotPassword &&
+    !isPortalPasswordSetup &&
+    !isPortalResetPassword &&
+    !session
+  ) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = portalHost ? '/login' : '/portal/login';
     redirectUrl.searchParams.set('redirect', portalHost ? pathname + req.nextUrl.search : pathname + req.nextUrl.search);
