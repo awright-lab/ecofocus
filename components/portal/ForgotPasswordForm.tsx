@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { getBrowserSupabase } from "@/lib/supabase/client";
 
 export function ForgotPasswordForm({
   initialEmail = "",
@@ -11,33 +10,35 @@ export function ForgotPasswordForm({
   const [email, setEmail] = useState(initialEmail);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [resetUrl, setResetUrl] = useState<string | null>(null);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("sending");
     setError(null);
+    setResetUrl(null);
+    setEmailWarning(null);
 
     try {
-      const supabase = getBrowserSupabase();
-      const siteUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || "";
-      const resetPath =
-        typeof window !== "undefined" && window.location.pathname.startsWith("/portal")
-          ? "/portal/reset-password"
-          : "/reset-password";
-      const callbackUrl = new URL(resetPath, siteUrl);
-
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: callbackUrl.toString(),
+      const response = await fetch("/api/portal/password-reset/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       });
-
-      if (resetError) throw resetError;
+      const data = (await response.json()) as {
+        error?: string;
+        resetUrl?: string | null;
+        emailWarning?: string | null;
+      };
+      if (!response.ok) {
+        throw new Error(data.error || "We couldn't send a password reset email.");
+      }
       setStatus("sent");
-    } catch (err: any) {
-      const message =
-        err?.message === "Failed to fetch"
-          ? "Unable to reach the authentication service. Check the deployed Supabase URL/DNS configuration."
-          : err?.message || "We couldn't send a password reset email.";
-      setError(message);
+      setResetUrl(data.resetUrl || null);
+      setEmailWarning(data.emailWarning || null);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "We couldn't send a password reset email.");
       setStatus("error");
     }
   }
@@ -69,9 +70,18 @@ export function ForgotPasswordForm({
       </button>
 
       {status === "sent" ? (
-        <p className="text-sm text-emerald-700">
-          Check your email for a password reset link. It will bring you back to the portal to choose a new password.
-        </p>
+        <div className="space-y-3">
+          <p className="text-sm text-emerald-700">
+            If this work email is set up for the EcoFocus Portal, you&apos;ll receive a password reset link shortly.
+          </p>
+          {emailWarning ? <p className="text-sm text-amber-700">{emailWarning}</p> : null}
+          {resetUrl ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <p className="font-semibold">Manual reset link</p>
+              <p className="mt-2 break-all">{resetUrl}</p>
+            </div>
+          ) : null}
+        </div>
       ) : null}
 
       {error ? <p className="text-sm text-rose-600">{error}</p> : null}

@@ -14,6 +14,8 @@ export default async function PortalResetPasswordPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = (await searchParams) || {};
+  const tokenParam = params.token;
+  const token = Array.isArray(tokenParam) ? tokenParam[0] : tokenParam || "";
   const codeParam = params.code;
   const code = Array.isArray(codeParam) ? codeParam[0] : codeParam;
   const tokenHashParam = params.token_hash;
@@ -42,7 +44,7 @@ export default async function PortalResetPasswordPage({
             </div>
 
             <ResetPasswordHandler code={code} tokenHash={tokenHash} type={type} />
-            <ResetPasswordForm />
+            <ResetPasswordForm token={token} />
 
             <Link href="/login" className="text-sm font-semibold text-emerald-700 transition hover:text-emerald-800">
               Back to portal login

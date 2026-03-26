@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getBrowserSupabase } from "@/lib/supabase/client";
 
-export function ResetPasswordForm() {
+export function ResetPasswordForm({ token = "" }: { token?: string }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasValidToken = Boolean(token);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -22,18 +22,26 @@ export function ResetPasswordForm() {
       return;
     }
 
+    if (!hasValidToken) {
+      setError("This password reset link is invalid or has expired.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const supabase = getBrowserSupabase();
-      const { error: updateError } = await supabase.auth.updateUser({
-        password,
+      const response = await fetch("/api/portal/password-reset/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password, confirmPassword }),
       });
+      const data = (await response.json()) as { error?: string; email?: string };
+      if (!response.ok) {
+        throw new Error(data.error || "We couldn't reset your password.");
+      }
 
-      if (updateError) throw updateError;
-
-      await supabase.auth.signOut();
-      router.push("/login?password_reset=1");
-    } catch (err: any) {
-      setError(err?.message || "We couldn't reset your password.");
+      router.push(`/login${data.email ? `?email=${encodeURIComponent(data.email)}&password_reset=1` : "?password_reset=1"}`);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "We couldn't reset your password.");
       setIsSubmitting(false);
     }
   }
@@ -76,7 +84,7 @@ export function ResetPasswordForm() {
 
       <button
         type="submit"
-        disabled={!password || !confirmPassword || isSubmitting}
+        disabled={!password || !confirmPassword || isSubmitting || !hasValidToken}
         className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
       >
         {isSubmitting ? "Saving new password…" : "Reset password"}
@@ -85,6 +93,12 @@ export function ResetPasswordForm() {
       <p className="text-sm text-slate-500">
         After your password is updated, you’ll return to the login screen and sign in with your work email and new password.
       </p>
+
+      {!hasValidToken ? (
+        <p className="text-sm text-rose-600">
+          This reset link is missing or invalid. Request a fresh password reset email from the portal.
+        </p>
+      ) : null}
 
       {error ? <p className="text-sm text-rose-600">{error}</p> : null}
     </form>
