@@ -50,12 +50,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+        <div className="min-w-0 rounded-[32px] border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-950">Message thread</h3>
           <div className="mt-6 space-y-4">
             {messages.map((message) => (
-              <div key={message.id} className={`rounded-[24px] p-4 ${message.isInternal ? "bg-amber-50" : "bg-slate-50"}`}>
+              <div key={message.id} className={`min-w-0 rounded-[24px] p-4 ${message.isInternal ? "bg-amber-50" : "bg-slate-50"}`}>
                 <div className="flex items-center justify-between gap-4 text-xs text-slate-500">
                   <span className="font-semibold text-slate-800">
                     {authorsById.get(message.authorId)?.name || "EcoFocus Team"}
@@ -74,7 +74,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Reply</h3>
             <div className="mt-4 rounded-[24px] bg-slate-50 p-5">
@@ -151,7 +151,7 @@ function renderMessageBody(body: string) {
   return lines.map((line, index) => {
     const parts = line.split(urlPattern);
     return (
-      <p key={`${index}-${line.slice(0, 12)}`} className="break-words">
+      <p key={`${index}-${line.slice(0, 12)}`} className="break-words whitespace-pre-wrap">
         {parts.map((part, partIndex) =>
           isUrl(part) ? (
             <Link
@@ -159,7 +159,7 @@ function renderMessageBody(body: string) {
               href={part}
               target="_blank"
               rel="noreferrer"
-              className="font-medium text-emerald-700 underline underline-offset-2"
+              className="break-all font-medium text-emerald-700 underline underline-offset-2"
             >
               {part}
             </Link>
