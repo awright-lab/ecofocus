@@ -58,6 +58,24 @@ export async function middleware(req: NextRequest) {
     return NextResponse.rewrite(rewriteUrl, { headers: res.headers });
   }
 
+  if (portalHost && pathname === '/forgot-password') {
+    const rewriteUrl = req.nextUrl.clone();
+    rewriteUrl.pathname = '/portal/forgot-password';
+    return NextResponse.rewrite(rewriteUrl, { headers: res.headers });
+  }
+
+  if (portalHost && pathname === '/reset-password') {
+    const rewriteUrl = req.nextUrl.clone();
+    rewriteUrl.pathname = '/portal/reset-password';
+    return NextResponse.rewrite(rewriteUrl, { headers: res.headers });
+  }
+
+  if (portalHost && pathname === '/set-password') {
+    const rewriteUrl = req.nextUrl.clone();
+    rewriteUrl.pathname = '/portal/set-password';
+    return NextResponse.rewrite(rewriteUrl, { headers: res.headers });
+  }
+
   if (portalHost && pathname === '/portal') {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = '/';
