@@ -137,7 +137,18 @@ export function SupportTicketForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6 rounded-[28px] border border-slate-200 bg-white p-6">
+    <form
+      id="EcoFocus_Support_Ticket_Form"
+      data-form-name="EcoFocus Support Ticket Form"
+      data-hs-ignore="true"
+      onSubmit={onSubmit}
+      className="space-y-6 rounded-[28px] border border-slate-200 bg-white p-6"
+    >
+      <label htmlFor="amex" style={{ display: "none" }}>
+        AMEX
+      </label>
+      <input type="hidden" name="amex" id="amex" value="" />
+
       <div className="grid gap-5 md:grid-cols-2">
         <Field label="Name" error={errors.name}>
           <input value={form.name} onChange={(event) => update("name", event.target.value)} className={inputClass} />

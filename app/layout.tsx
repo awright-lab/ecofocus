@@ -138,6 +138,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             window._hsq = window._hsq || [];
             window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Newsletter_Signup']);
             window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Contact_Form']);
+            window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Support_Ticket_Form']);
           `}
         </Script>
 
@@ -215,6 +216,5 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
 
