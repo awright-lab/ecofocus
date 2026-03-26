@@ -459,7 +459,7 @@ export default function PostBody({
 
               return (
                 <figure key={b.id?.toString() ?? i.toString()} className="not-prose my-8">
-                  <blockquote className="rounded-[1.35rem] bg-black px-5 py-4 text-xl font-extrabold leading-tight tracking-tight text-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.65)] sm:px-7 sm:py-5 sm:text-[2rem]">
+                  <blockquote className="rounded-[1.35rem] bg-black px-5 py-4 text-lg font-bold leading-snug tracking-tight text-white shadow-[0_18px_40px_-28px_rgba(15,23,42,0.65)] sm:px-7 sm:py-5 sm:text-xl">
                     <span dangerouslySetInnerHTML={{ __html: quote }} />
                   </blockquote>
                   {pq.attribution ? (
@@ -488,14 +488,14 @@ export default function PostBody({
                   className="not-prose my-10 rounded-[2rem] bg-white px-5 py-8 text-slate-900 shadow-[0_20px_60px_-36px_rgba(15,23,42,0.45)] ring-1 ring-black/5 sm:px-8"
                 >
                   <div className="flex justify-center">
-                    <h3 className="m-0 inline-flex items-center rounded-full bg-black px-6 py-3 text-center text-lg font-extrabold tracking-tight text-white shadow-lg shadow-black/15 sm:px-8 sm:text-[2rem]">
+                    <h3 className="m-0 inline-flex items-center rounded-full bg-black px-6 py-3 text-center text-base font-extrabold tracking-tight text-white shadow-lg shadow-black/15 sm:px-8 sm:text-xl">
                       <span>What&apos;s the </span>
                       <span className="ml-2 text-emerald-400">Takeaway?</span>
                     </h3>
                   </div>
 
                   {takeaways.length === 1 ? (
-                    <p className="mx-auto mt-7 max-w-4xl text-pretty text-lg font-semibold leading-8 text-slate-900 sm:text-[1.95rem] sm:leading-[1.45]">
+                    <p className="mx-auto mt-7 max-w-4xl text-pretty text-base leading-8 text-slate-800 sm:text-lg sm:leading-8">
                       {takeaways[0]}
                     </p>
                   ) : (
@@ -503,7 +503,7 @@ export default function PostBody({
                       {takeaways.map((text, idx) => (
                         <p
                           key={idx}
-                          className="text-lg font-semibold leading-8 text-slate-900 sm:text-[1.55rem] sm:leading-[1.5]"
+                          className="text-base leading-8 text-slate-800 sm:text-lg sm:leading-8"
                         >
                           {text}
                         </p>
