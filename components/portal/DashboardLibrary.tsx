@@ -9,9 +9,11 @@ import type { PortalDashboard } from "@/lib/portal/types";
 export function DashboardLibrary({
   dashboards,
   usageLocked = false,
+  companyId,
 }: {
   dashboards: PortalDashboard[];
   usageLocked?: boolean;
+  companyId?: string | null;
 }) {
   const [query, setQuery] = useState("");
   const [tag, setTag] = useState("All");
@@ -67,7 +69,16 @@ export function DashboardLibrary({
       {filteredDashboards.length ? (
         <section className="grid gap-5 xl:grid-cols-2">
           {filteredDashboards.map((dashboard) => (
-            <DashboardCard key={dashboard.id} dashboard={dashboard} usageLocked={usageLocked} />
+            <DashboardCard
+              key={dashboard.id}
+              dashboard={dashboard}
+              usageLocked={usageLocked}
+              href={
+                companyId
+                  ? `/portal/dashboards/${dashboard.slug}?company=${encodeURIComponent(companyId)}`
+                  : undefined
+              }
+            />
           ))}
         </section>
       ) : (

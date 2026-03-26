@@ -30,8 +30,8 @@ export default async function AdminDashboardsPage({
   return (
     <RoleGuard role="support_admin" redirectTarget="/portal/admin/dashboards">
       {async (access) => {
-        const companies = (await getPortalCompanies()).filter((company) => company.id !== access.company.id);
-        const selectedCompanyId = selectedCompanyParam || companies[0]?.id || "";
+        const companies = await getPortalCompanies();
+        const selectedCompanyId = selectedCompanyParam || access.company.id || companies[0]?.id || "";
         const selectedCompany = companies.find((company) => company.id === selectedCompanyId) || null;
         const dashboardCatalog = await getPortalDashboardCatalog();
         const selectedCompanyDashboardConfigs = selectedCompanyId
@@ -77,7 +77,7 @@ export default async function AdminDashboardsPage({
               />
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 <div className="rounded-[24px] bg-slate-950 p-4 text-white">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Client companies</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Managed companies</p>
                   <p className="mt-2 text-3xl font-semibold">{companies.length}</p>
                 </div>
                 <div className="rounded-[24px] bg-emerald-50 p-4">
@@ -95,7 +95,7 @@ export default async function AdminDashboardsPage({
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">
                 <h3 className="text-lg font-semibold text-slate-950">Companies</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Choose a client company to review the current dashboard assignments and replace any Displayr URL from one place.
+                  Choose any company workspace, including EcoFocus, to review current dashboard assignments and replace Displayr URLs from one place.
                 </p>
                 <div className="mt-5 space-y-3">
                   {companies.map((company) => {
@@ -111,6 +111,9 @@ export default async function AdminDashboardsPage({
                         }`}
                       >
                         <p className="font-semibold text-slate-900">{company.name}</p>
+                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                          {company.id === access.company.id ? "EcoFocus internal workspace" : "Client workspace"}
+                        </p>
                         <p className="mt-1 text-sm text-slate-600">{company.id}</p>
                       </Link>
                     );
@@ -124,7 +127,7 @@ export default async function AdminDashboardsPage({
                   <p className="mt-3 text-sm leading-6 text-slate-600">
                     {selectedCompany
                       ? `${selectedCompany.name} is currently selected for dashboard URL management.`
-                      : "Choose a client company from the left to manage dashboard URLs."}
+                      : "Choose a company from the left to manage dashboard URLs."}
                   </p>
                 </div>
 

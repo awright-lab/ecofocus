@@ -4,7 +4,7 @@ import { ArrowLeft, Clock3, ExternalLink, FileWarning, LifeBuoy } from "lucide-r
 import { DashboardUsageTracker } from "@/components/portal/DashboardUsageTracker";
 import { DisplayrEmbedFrame } from "@/components/portal/DisplayrEmbedFrame";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalArticles, getPortalDashboardForUser, getPortalUsageStatus } from "@/lib/portal/data";
+import { getPortalArticles, getPortalCompanies, getPortalDashboardForUser, getPortalUsageStatus } from "@/lib/portal/data";
 import { getDisplayrEmbedState } from "@/lib/portal/displayr";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
@@ -16,14 +16,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   );
 }
 
-export default async function PortalDashboardDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function PortalDashboardDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { slug } = await params;
+  const query = (await searchParams) || {};
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
   const isSupportAdmin = access.user.role === "support_admin";
+  const selectedCompanyParam = Array.isArray(query.company) ? query.company[0] : query.company;
+  const availableCompanies = isSupportAdmin ? await getPortalCompanies() : [];
+  const selectedCompany =
+    isSupportAdmin && selectedCompanyParam
+      ? availableCompanies.find((company) => company.id === selectedCompanyParam) || access.company
+      : access.company;
   const dashboard = await getPortalDashboardForUser(access.user, slug);
   if (!dashboard) notFound();
   const usage = await getPortalUsageStatus(access.user);
-  const embedState = await getDisplayrEmbedState(dashboard, access.company.id, access.user.id);
+  const embedState = await getDisplayrEmbedState(
+    dashboard,
+    selectedCompany.id,
+    access.user.id,
+    access.company.id,
+  );
 
   const relatedArticles = getPortalArticles().slice(0, 3);
 
@@ -40,7 +58,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
               <span className="inline-flex items-center gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Dashboards
+                {isSupportAdmin ? "Back to Dashboard Library" : "Back to Dashboards"}
               </span>
             </Link>
             <Link href={`/portal/support?dashboard=${encodeURIComponent(dashboard.name)}`} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
@@ -94,6 +112,18 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
         )}
 
         <div className="grid gap-6 xl:grid-cols-3">
+          {isSupportAdmin ? (
+            <div className="rounded-[28px] border border-violet-200 bg-violet-50 p-6">
+              <h3 className="text-lg font-semibold text-violet-950">Internal company context</h3>
+              <p className="mt-3 text-sm leading-6 text-violet-900">
+                You are viewing this dashboard using the <span className="font-semibold">{selectedCompany.name}</span> configuration while signed in as EcoFocus.
+              </p>
+              <p className="mt-3 text-xs leading-6 text-violet-800">
+                Internal support viewing uses the selected company&apos;s dashboard mapping, but it does not post standard client session-minute usage.
+              </p>
+            </div>
+          ) : null}
+
           <div className="rounded-[28px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">How to use this dashboard</h3>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
@@ -151,6 +181,7 @@ export default async function PortalDashboardDetailPage({ params }: { params: Pr
             <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
               Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. In production, embeds should come from company-specific private portal configuration storage.
               {isSupportAdmin ? " Internal support views do not post dashboard session minutes to the standard usage tracker." : ""}
+              {isSupportAdmin ? ` Current dashboard company context: ${selectedCompany.name}.` : ""}
             </div>
           </div>
         </div>

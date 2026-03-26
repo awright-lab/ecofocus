@@ -11,7 +11,8 @@ type DisplayrEmbedState = {
 };
 
 type DisplayrEmbedTokenPayload = {
-  companyId: string;
+  viewerCompanyId: string;
+  targetCompanyId: string;
   dashboardSlug: string;
   userId: string;
   exp: number;
@@ -153,17 +154,19 @@ async function logDisplayrEmbedAuditEvent({
 
 export async function getDisplayrEmbedState(
   dashboard: PortalDashboard,
-  companyId: string,
+  targetCompanyId: string,
   userId: string,
+  viewerCompanyId = targetCompanyId,
 ): Promise<DisplayrEmbedState> {
-  const databaseUrl = await getCompanyDashboardConfigUrl(companyId, dashboard.slug);
+  const databaseUrl = await getCompanyDashboardConfigUrl(targetCompanyId, dashboard.slug);
   const devFallbackUrl = getDevFallbackUrl(dashboard);
   const resolvedUrl = databaseUrl || devFallbackUrl;
   const configSource = databaseUrl ? "database" : devFallbackUrl ? "development_fallback" : "missing";
   const iframeSrc = resolvedUrl
     ? `/api/portal/displayr/embed?token=${encodeURIComponent(
         buildDisplayrEmbedToken({
-          companyId,
+          viewerCompanyId,
+          targetCompanyId,
           dashboardSlug: dashboard.slug,
           userId,
           exp: Date.now() + 1000 * 60 * 10,
@@ -174,7 +177,7 @@ export async function getDisplayrEmbedState(
   if (iframeSrc) {
     await logDisplayrEmbedAuditEvent({
       userId,
-      companyId,
+      companyId: viewerCompanyId,
       dashboardId: dashboard.id,
       dashboardName: dashboard.name,
       note: "Displayr embed token issued.",
@@ -182,6 +185,9 @@ export async function getDisplayrEmbedState(
         phase: "token_issued",
         dashboardSlug: dashboard.slug,
         configSource,
+        targetCompanyId,
+        viewerCompanyId,
+        internalSupportView: viewerCompanyId !== targetCompanyId,
       },
     });
   }
@@ -208,6 +214,7 @@ export async function resolveDisplayrEmbedUrl(companyId: string, dashboardSlug: 
 export async function logDisplayrEmbedRedirectEvent({
   userId,
   companyId,
+  targetCompanyId,
   dashboardId,
   dashboardName,
   dashboardSlug,
@@ -215,6 +222,7 @@ export async function logDisplayrEmbedRedirectEvent({
 }: {
   userId: string;
   companyId: string;
+  targetCompanyId: string;
   dashboardId: string;
   dashboardName: string;
   dashboardSlug: string;
@@ -230,6 +238,9 @@ export async function logDisplayrEmbedRedirectEvent({
       phase: "redirect_served",
       dashboardSlug,
       userAgent: userAgent || null,
+      targetCompanyId,
+      viewerCompanyId: companyId,
+      internalSupportView: companyId !== targetCompanyId,
     },
   });
 }
@@ -241,7 +252,7 @@ export function verifyDisplayrEmbedToken(token: string): DisplayrEmbedTokenPaylo
 
   try {
     const payload = JSON.parse(fromBase64Url(encodedPayload)) as DisplayrEmbedTokenPayload;
-    if (!payload.companyId || !payload.dashboardSlug || !payload.userId || !payload.exp) {
+    if (!payload.viewerCompanyId || !payload.targetCompanyId || !payload.dashboardSlug || !payload.userId || !payload.exp) {
       return null;
     }
     if (payload.exp < Date.now()) {
