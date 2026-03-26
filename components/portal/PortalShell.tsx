@@ -96,6 +96,17 @@ async function PortalShellInner({
                 </button>
               </form>
             ) : null}
+            {access.session ? (
+              <form action="/api/portal/logout" method="post">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
+                >
+                  <LogOut className="h-3.5 w-3.5" />
+                  <span>Log out</span>
+                </button>
+              </form>
+            ) : null}
             {devToolsEnabled ? (
               <form action="/portal/dev-usage" method="post" className="inline-flex">
                 <input type="hidden" name="redirect" value="/portal/home" />
