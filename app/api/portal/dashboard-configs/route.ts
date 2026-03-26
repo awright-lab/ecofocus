@@ -80,14 +80,19 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = getServiceSupabase();
-    const { error } = await admin.from("portal_dashboard_configs").upsert({
-      company_id: companyId,
-      dashboard_slug: dashboardSlug,
-      displayr_embed_url: persistedUrl,
-      is_active: isActive,
-      notes,
-      updated_at: new Date().toISOString(),
-    });
+    const { error } = await admin.from("portal_dashboard_configs").upsert(
+      {
+        company_id: companyId,
+        dashboard_slug: dashboardSlug,
+        displayr_embed_url: persistedUrl,
+        is_active: isActive,
+        notes,
+        updated_at: new Date().toISOString(),
+      },
+      {
+        onConflict: "company_id,dashboard_slug",
+      },
+    );
 
     if (error) {
       return asJson({ error: error.message }, 500);
