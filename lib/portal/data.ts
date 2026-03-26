@@ -555,6 +555,10 @@ export async function getPortalUserByEmail(email?: string | null): Promise<Porta
 }
 
 export async function getPortalDashboardsForUser(user: PortalUser): Promise<PortalDashboard[]> {
+  if (user.role === "support_admin") {
+    return getPortalDashboardCatalog();
+  }
+
   const runtimeDashboards = await queryCompanyDashboards(user.companyId);
   if (runtimeDashboards.length) return runtimeDashboards;
 

@@ -26,6 +26,7 @@ const clientNavItems = [
 
 const supportAdminNavItems = [
   { href: "/portal/home", label: "Overview", icon: Home },
+  { href: "/portal/admin/library", label: "All Dashboards", icon: BarChart3 },
   { href: "/portal/admin/support", label: "Support Queue", icon: LifeBuoy },
   { href: "/portal/admin/dashboards", label: "Dashboard Access", icon: ShieldCheck },
   { href: "/portal/support/tickets", label: "Ticket Inbox", icon: FolderKanban },
