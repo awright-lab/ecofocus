@@ -45,6 +45,7 @@ export function TicketReplyForm({
 
       setBody("");
       setIsInternal(false);
+      setIsSubmitting(false);
       router.refresh();
     } catch {
       setError("We couldn't post your reply. Please try again.");
