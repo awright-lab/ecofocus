@@ -21,6 +21,15 @@
     display: none;
 }
 
+.background-video::-webkit-media-controls {
+    display: none !important;
+}
+
+.background-video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+    -webkit-appearance: none;
+}
+
 @keyframes gradientMove {
     0% {
         background-position: 0% 50%;

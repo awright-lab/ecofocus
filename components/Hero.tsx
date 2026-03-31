@@ -54,9 +54,15 @@ export default function Hero({
               loop
               muted
               playsInline
+              controls={false}
+              disablePictureInPicture
+              disableRemotePlayback
+              controlsList="nodownload noplaybackrate nofullscreen noremoteplayback"
               preload="metadata"
               poster={posterSrc}
-              className="h-full w-full object-cover brightness-[0.80]"
+              aria-hidden="true"
+              tabIndex={-1}
+              className="background-video pointer-events-none h-full w-full select-none object-cover brightness-[0.80]"
             >
               <source src={videoSrc} type="video/mp4" />
             </video>

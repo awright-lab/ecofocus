@@ -5,12 +5,18 @@ export default function HeroSection() {
         <div className="relative h-[480px] w-full overflow-hidden">
             {/* Background Video */}
             <video
-                className="absolute top-0 left-0 w-full h-full object-cover"
+                className="background-video pointer-events-none absolute top-0 left-0 w-full h-full select-none object-cover"
                 src="/videos/hero.mp4"
                 autoPlay
                 muted
                 loop
                 playsInline
+                controls={false}
+                disablePictureInPicture
+                disableRemotePlayback
+                controlsList="nodownload noplaybackrate nofullscreen noremoteplayback"
+                aria-hidden="true"
+                tabIndex={-1}
             />
 
             {/* Dark Overlay */}

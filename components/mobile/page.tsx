@@ -17,13 +17,19 @@ export default function MobileHomePage() {
       <SnapSection id="hero">
         <div className="relative h-full w-full">
           <video
-            className="absolute inset-0 h-full w-full object-cover"
+            className="background-video pointer-events-none absolute inset-0 h-full w-full select-none object-cover"
             src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4" // use your actual path
             poster="/images/hero_poster.jpg"
             playsInline
             muted
             loop
             autoPlay
+            controls={false}
+            disablePictureInPicture
+            disableRemotePlayback
+            controlsList="nodownload noplaybackrate nofullscreen noremoteplayback"
+            aria-hidden="true"
+            tabIndex={-1}
           />
           <div className="absolute inset-0 bg-black/40" />
 
