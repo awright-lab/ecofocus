@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Eye, ShieldAlert } from "lucide-react";
 import type { PortalPreviewRole } from "@/lib/portal/types";
@@ -24,7 +24,11 @@ export function PreviewModeControls({
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!previewableRoles.length) {
+  useEffect(() => {
+    setIsOpen(false);
+  }, [previewRole]);
+
+  if (!previewableRoles.length || !previewRole) {
     return null;
   }
 
@@ -47,6 +51,9 @@ export function PreviewModeControls({
         }
 
         setIsOpen(false);
+        if (role === "off") {
+          router.push("/portal/home");
+        }
         router.refresh();
       } catch {
         setError("Unable to switch preview mode.");
@@ -54,7 +61,7 @@ export function PreviewModeControls({
     });
   }
 
-  const currentLabel = previewRole ? formatRoleLabel(previewRole) : "EcoFocus admin";
+  const currentLabel = formatRoleLabel(previewRole);
 
   return (
     <div className="fixed bottom-5 right-5 z-50 w-[min(360px,calc(100vw-2rem))]">
@@ -88,26 +95,17 @@ export function PreviewModeControls({
           </div>
 
           <div className="mt-4 space-y-2">
-            {previewRole ? (
-              <button
-                type="button"
-                onClick={() => updatePreview("off")}
-                disabled={isPending}
-                className="w-full rounded-2xl border border-rose-300/25 bg-rose-400/10 px-3 py-3 text-left text-sm text-white transition hover:bg-rose-400/15"
-              >
-                <div className="font-semibold">Exit preview</div>
-                <div className="mt-1 text-xs text-rose-100/80">
-                  Return to the full EcoFocus admin workspace.
-                </div>
-              </button>
-            ) : (
-              <div className="rounded-2xl border border-emerald-300 bg-emerald-500/15 px-3 py-3 text-left text-sm text-white">
-                <div className="font-semibold">EcoFocus admin</div>
-                <div className="mt-1 text-xs text-emerald-100/70">
-                  You are currently outside of preview mode.
-                </div>
+            <button
+              type="button"
+              onClick={() => updatePreview("off")}
+              disabled={isPending}
+              className="w-full rounded-2xl border border-rose-300/25 bg-rose-400/10 px-3 py-3 text-left text-sm text-white transition hover:bg-rose-400/15"
+            >
+              <div className="font-semibold">Exit preview</div>
+              <div className="mt-1 text-xs text-rose-100/80">
+                Return to the full EcoFocus admin workspace.
               </div>
-            )}
+            </button>
 
             {previewableRoles.map((role) => {
               const active = previewRole === role;
