@@ -123,7 +123,7 @@ export function WorkspacesDirectory({
           </p>
           <p className="mt-1 text-sm text-slate-600">
             {resultLabel}
-            {search.trim() ? ` matching "${search.trim()}"` : " available to this account"}.
+            {search.trim() ? ` matching "${search.trim()}"` : " in your workspace directory"}.
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
