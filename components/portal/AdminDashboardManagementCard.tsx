@@ -110,6 +110,7 @@ export function AdminDashboardManagementCard({
   async function saveCatalog() {
     setIsSavingCatalog(true);
     setFeedback({});
+    const isCreatingDashboard = !selectedSlug;
 
     try {
       const response = await fetch("/api/portal/dashboard-catalog", {
@@ -128,6 +129,36 @@ export function AdminDashboardManagementCard({
         setFeedback({ error: data.error || "We couldn't save this dashboard right now." });
         setIsSavingCatalog(false);
         return;
+      }
+
+      const persistedSlug = data.slug || formState.slug;
+
+      if (isCreatingDashboard) {
+        const shouldAssignWorkspace =
+          formState.isActive || Boolean(formState.displayrEmbedUrl.trim()) || Boolean(formState.notes.trim());
+
+        if (shouldAssignWorkspace) {
+          const configResponse = await fetch("/api/portal/dashboard-configs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              companyId,
+              dashboardSlug: persistedSlug,
+              isActive: formState.isActive,
+              displayrEmbedUrl: formState.displayrEmbedUrl,
+              notes: formState.notes,
+            }),
+          });
+          const configData = (await configResponse.json()) as { error?: string };
+
+          if (!configResponse.ok) {
+            setFeedback({
+              error: configData.error || "The dashboard was created, but workspace access could not be assigned.",
+            });
+            setIsSavingCatalog(false);
+            return;
+          }
+        }
       }
 
       setIsSavingCatalog(false);
@@ -308,6 +339,7 @@ export function AdminDashboardManagementCard({
                 </h4>
                 <p className="mt-2 text-sm text-slate-600">
                   Update catalog details and workspace access for {companyName} without leaving the dashboard grid.
+                  {!selectedSlug ? " New dashboards can be assigned to this workspace as part of creation." : ""}
                 </p>
               </div>
               <button
@@ -474,7 +506,7 @@ export function AdminDashboardManagementCard({
                 disabled={isSavingCatalog || !storageReady}
                 className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSavingCatalog ? "Saving..." : selectedSlug ? "Save catalog changes" : "Create dashboard"}
+                {isSavingCatalog ? "Saving..." : selectedSlug ? "Save catalog changes" : "Create dashboard and assign"}
               </button>
               <button
                 type="button"
