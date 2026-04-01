@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PORTAL_WORKSPACE_COOKIE, getPortalAccessContext } from "@/lib/portal/auth";
+import {
+  PORTAL_PREVIEW_ROLE_COOKIE,
+  PORTAL_WORKSPACE_COOKIE,
+  getPortalAccessContext,
+} from "@/lib/portal/auth";
 
 const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
@@ -41,6 +45,15 @@ export async function POST(req: NextRequest) {
     path: "/",
     secure: process.env.NODE_ENV === "production",
     maxAge: 60 * 60 * 24 * 30,
+  });
+  response.cookies.set({
+    name: PORTAL_PREVIEW_ROLE_COOKIE,
+    value: "",
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
   });
   return response;
 }

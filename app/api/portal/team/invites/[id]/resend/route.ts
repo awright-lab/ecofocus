@@ -16,6 +16,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!access || !isPortalWorkspaceManager(access.user.role)) {
     return asJson({ error: "Unauthorized" }, 401);
   }
+  if (access.isPreviewMode) {
+    return asJson({ error: "Support preview mode is read-only. Exit preview mode to resend invites." }, 403);
+  }
 
   const { id } = await params;
 

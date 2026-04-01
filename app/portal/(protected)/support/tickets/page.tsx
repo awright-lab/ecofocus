@@ -15,7 +15,7 @@ export const metadata = buildPortalMetadata(
 
 export default async function TicketsPage() {
   const access = await requirePortalAccess("/portal/support/tickets");
-  const tickets = await getPortalTicketsForUser(access.user);
+  const tickets = await getPortalTicketsForUser(access.effectiveUser);
 
   return (
     <div className="space-y-6">
@@ -23,7 +23,11 @@ export default async function TicketsPage() {
         <SectionHeader
           eyebrow="My Tickets"
           title="Track support requests"
-          description="View request status, priority, and last activity. Client users only see their own tickets; support admins can see the full queue in the admin view."
+          description={
+            access.isPreviewMode
+              ? "This read-only preview shows the ticket list available to the simulated workspace role."
+              : "View request status, priority, and last activity. Client users only see their own tickets; support admins can see the full queue in the admin view."
+          }
         />
       </section>
 

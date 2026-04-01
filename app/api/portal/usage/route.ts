@@ -25,6 +25,9 @@ export async function POST(req: NextRequest) {
   if (!access) {
     return asJson({ error: "Unauthorized" }, 401);
   }
+  if (access.isPreviewMode) {
+    return asJson({ ok: true, persisted: false, preview: true, message: "Preview sessions do not create usage events." });
+  }
 
   let body: UsageBody;
   try {
@@ -41,7 +44,7 @@ export async function POST(req: NextRequest) {
     return asJson({ error: "dashboardId and eventType are required." }, 400);
   }
 
-  const allowedDashboard = (await getPortalDashboardsForUser(access.user, access.company.id)).find((dashboard) => dashboard.id === dashboardId);
+  const allowedDashboard = (await getPortalDashboardsForUser(access.effectiveUser, access.company.id)).find((dashboard) => dashboard.id === dashboardId);
   if (!allowedDashboard) {
     return asJson({ error: "Dashboard not available for this user." }, 403);
   }

@@ -21,9 +21,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!access) {
     return asJson({ error: "Unauthorized" }, 401);
   }
+  if (access.isPreviewMode) {
+    return asJson({ error: "Support preview mode is read-only. Exit preview mode to reply." }, 403);
+  }
 
   const { id } = await params;
-  const ticket = await getPortalTicketForUser(access.user, id);
+  const ticket = await getPortalTicketForUser(access.effectiveUser, id);
   if (!ticket) {
     return asJson({ error: "Ticket not found." }, 404);
   }

@@ -23,11 +23,11 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
-  const dashboards = (await getPortalDashboardsForUser(access.user, access.company.id)).slice(0, 3);
-  const tickets = (await getPortalTicketsForUser(access.user)).slice(0, 3);
+  const dashboards = (await getPortalDashboardsForUser(access.effectiveUser, access.company.id)).slice(0, 3);
+  const tickets = (await getPortalTicketsForUser(access.effectiveUser)).slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
 
-  if (access.user.role === "support_admin") {
+  if (access.effectiveRole === "support_admin") {
     const companies = await getPortalCompanies();
     const clientCompanies = companies.filter((company) => company.id !== access.company.id);
     const dashboardCatalog = await getPortalDashboardCatalog();
@@ -241,7 +241,11 @@ export default async function PortalHomePage() {
         <SectionHeader
           eyebrow="Portal Home"
           title={`Welcome back, ${access.user.name.split(" ")[0]}`}
-          description="Use the portal to open licensed dashboards, manage support requests, and keep account access aligned with your organization."
+          description={
+            access.isPreviewMode
+              ? "This read-only preview shows the client workspace from the selected member role."
+              : "Use the portal to open licensed dashboards, manage support requests, and keep account access aligned with your organization."
+          }
         />
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
           <div className="rounded-[28px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] p-5">
@@ -253,9 +257,15 @@ export default async function PortalHomePage() {
           <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick support</p>
             <div className="mt-3 flex flex-wrap gap-3">
-              <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-                Submit Request
-              </Link>
+              {access.isPreviewMode ? (
+                <span className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500">
+                  Request submission disabled
+                </span>
+              ) : (
+                <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                  Submit Request
+                </Link>
+              )}
               <Link href="/portal/support/tickets" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
                 View Tickets
               </Link>

@@ -90,6 +90,9 @@ export async function POST(req: NextRequest) {
   if (!access) {
     return asJson({ error: "Unauthorized" }, 401);
   }
+  if (access.isPreviewMode) {
+    return asJson({ error: "Support preview mode is read-only. Exit preview mode to submit tickets." }, 403);
+  }
 
   let body: TicketBody;
   let attachmentFile: File | null = null;
@@ -125,7 +128,7 @@ export async function POST(req: NextRequest) {
     return asJson({ error: "dashboardName, issueType, and description are required." }, 400);
   }
 
-  const allowedDashboard = (await getPortalDashboardsForUser(access.user, access.company.id)).find((dashboard) => dashboard.name === dashboardName);
+  const allowedDashboard = (await getPortalDashboardsForUser(access.effectiveUser, access.company.id)).find((dashboard) => dashboard.name === dashboardName);
   if (!allowedDashboard) {
     return asJson({ error: "Dashboard not available for this user." }, 403);
   }

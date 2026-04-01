@@ -8,6 +8,12 @@ export type PortalRole =
   | "external_collaborator"
   | "support_admin";
 
+export type PortalPreviewRole =
+  | "client_user"
+  | "client_admin"
+  | "agency_user"
+  | "agency_admin";
+
 export type PortalWorkspaceMembershipRole =
   | "workspace_member"
   | "workspace_admin"

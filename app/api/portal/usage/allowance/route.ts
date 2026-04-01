@@ -24,6 +24,9 @@ export async function POST(req: NextRequest) {
   if (!access || access.user.role !== "support_admin") {
     return asJson({ error: "Unauthorized" }, 401);
   }
+  if (access.isPreviewMode) {
+    return asJson({ error: "Support preview mode is read-only. Exit preview mode to change allowance data." }, 403);
+  }
 
   let body: AllowanceBody;
   try {

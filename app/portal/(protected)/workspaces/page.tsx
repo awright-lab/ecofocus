@@ -25,7 +25,7 @@ export default async function PortalWorkspacesPage() {
         <WorkspacesDirectory
           companies={access.accessibleCompanies}
           currentCompanyId={access.company.id}
-          isSupportAdmin={access.user.role === "support_admin"}
+          isSupportAdmin={access.effectiveRole === "support_admin"}
         />
       </section>
     </div>

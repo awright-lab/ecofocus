@@ -23,6 +23,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!access || access.user.role !== "support_admin") {
     return asJson({ error: "Unauthorized" }, 401);
   }
+  if (access.isPreviewMode) {
+    return asJson({ error: "Support preview mode is read-only. Exit preview mode to change ticket status." }, 403);
+  }
 
   const { id } = await params;
   const ticket = await getPortalTicketForUser(access.user, id);

@@ -13,8 +13,8 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalDashboardsPage() {
   const access = await requirePortalAccess("/portal/dashboards");
-  const dashboards = await getPortalDashboardsForUser(access.user, access.company.id);
-  const usage = await getPortalUsageStatus(access.user);
+  const dashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
+  const usage = await getPortalUsageStatus(access.effectiveUser);
 
   return (
     <div className="space-y-6">
@@ -22,7 +22,11 @@ export default async function PortalDashboardsPage() {
         <SectionHeader
           eyebrow="My Dashboards"
           title="Licensed dashboard access"
-          description="Open the dashboards available to your company and track shared usage for the current access period."
+          description={
+            access.isPreviewMode
+              ? "This read-only preview shows the dashboards and allowance messaging a workspace member would see."
+              : "Open the dashboards available to your company and track shared usage for the current access period."
+          }
         />
         {usage.annualHoursLimit ? (
           <div className="mt-6 rounded-[24px] bg-slate-50 p-5">

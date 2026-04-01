@@ -13,10 +13,10 @@ export const metadata = buildPortalMetadata(
 
 export default async function AccountPage() {
   const access = await requirePortalAccess("/portal/account");
-  const dashboards = await getPortalDashboardsForUser(access.user, access.company.id);
-  const teamMembers = await getPortalTeamMembers(access.user, access.company.id);
-  const usage = await getPortalUsageStatus(access.user);
-  const usageLogs = (await getPortalUsageLogsForUser(access.user)).slice(0, 5);
+  const dashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
+  const teamMembers = await getPortalTeamMembers(access.effectiveUser, access.company.id);
+  const usage = await getPortalUsageStatus(access.effectiveUser);
+  const usageLogs = (await getPortalUsageLogsForUser(access.effectiveUser)).slice(0, 5);
   const teamMembersById = new Map(teamMembers.map((member) => [member.id, member]));
 
   function getUsageActor(userId: string) {
@@ -41,7 +41,11 @@ export default async function AccountPage() {
         <SectionHeader
           eyebrow="Account"
           title="Account and subscription"
-          description="Review your account details, company plan, seat usage, dashboard access, and recent activity in one place."
+          description={
+            access.isPreviewMode
+              ? "This read-only preview shows how account, seat, and usage details appear to the simulated workspace role."
+              : "Review your account details, company plan, seat usage, dashboard access, and recent activity in one place."
+          }
         />
       </section>
 
@@ -54,15 +58,15 @@ export default async function AccountPage() {
           <dl className="mt-4 space-y-3 text-sm text-slate-600">
             <div className="flex items-center justify-between gap-4">
               <dt>Name</dt>
-              <dd className="font-medium text-slate-900">{access.user.name}</dd>
+              <dd className="font-medium text-slate-900">{access.effectiveUser.name}</dd>
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt>Email</dt>
-              <dd className="font-medium text-slate-900">{access.user.email}</dd>
+              <dd className="font-medium text-slate-900">{access.effectiveUser.email}</dd>
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt>Role</dt>
-              <dd className="font-medium text-slate-900">{access.user.role.replace("_", " ")}</dd>
+              <dd className="font-medium text-slate-900">{access.effectiveRole.replace("_", " ")}</dd>
             </div>
           </dl>
         </div>
@@ -99,9 +103,11 @@ export default async function AccountPage() {
           </div>
           <p className="mt-4 text-4xl font-semibold">{access.subscription.seatsUsed}<span className="text-lg text-slate-400">/{access.subscription.seatsPurchased}</span></p>
           <p className="mt-2 text-sm text-slate-300">Seats used versus seats purchased across the organization.</p>
-          <Link href="/portal/team" className="mt-5 inline-flex rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">
-            Manage team access
-          </Link>
+          {access.effectiveRole === "client_admin" || access.effectiveRole === "agency_admin" ? (
+            <Link href="/portal/team" className="mt-5 inline-flex rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">
+              Manage team access
+            </Link>
+          ) : null}
         </div>
       </section>
 
@@ -125,9 +131,11 @@ export default async function AccountPage() {
             <div className={`h-full rounded-full ${usage.isLocked ? "bg-amber-500" : "bg-emerald-500"}`} style={{ width: `${usage.utilizationPct}%` }} />
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-              Request additional hours
-            </Link>
+            {!access.isPreviewMode ? (
+              <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                Request additional hours
+              </Link>
+            ) : null}
             <Link href="/portal/support" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
               Review support options
             </Link>
@@ -161,12 +169,16 @@ export default async function AccountPage() {
             Renewal date, plan status, and seat usage shown above reflect the current account record on file for your company.
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-              Contact billing support
-            </Link>
-            <Link href="/portal/team" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-              Review team access
-            </Link>
+            {!access.isPreviewMode ? (
+              <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                Contact billing support
+              </Link>
+            ) : null}
+            {access.effectiveRole === "client_admin" || access.effectiveRole === "agency_admin" ? (
+              <Link href="/portal/team" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                Review team access
+              </Link>
+            ) : null}
           </div>
           <div className="mt-6 text-sm text-slate-600">
             <span className="font-semibold text-slate-900">{teamMembers.length}</span> team members are currently modeled for this account.
@@ -182,9 +194,11 @@ export default async function AccountPage() {
               Recent company-level usage events that support reviews and allowance disputes can be checked against.
             </p>
           </div>
-          <Link href="/api/portal/usage/export" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-            Download CSV
-          </Link>
+          {!access.isPreviewMode ? (
+            <Link href="/api/portal/usage/export" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+              Download CSV
+            </Link>
+          ) : null}
         </div>
         <div className="mt-5 space-y-3">
           {usageLogs.map((log) => (

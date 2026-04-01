@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 export function TicketReplyForm({
   ticketId,
   allowInternalNotes = false,
+  readOnly = false,
 }: {
   ticketId: string;
   allowInternalNotes?: boolean;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [body, setBody] = useState("");
@@ -18,6 +20,10 @@ export function TicketReplyForm({
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (readOnly) {
+      setError("Replies are disabled while support preview mode is active.");
+      return;
+    }
     if (!body.trim()) {
       setError("Reply text is required.");
       return;
@@ -59,6 +65,7 @@ export function TicketReplyForm({
         value={body}
         onChange={(event) => setBody(event.target.value)}
         rows={5}
+        disabled={readOnly}
         className="w-full rounded-[24px] border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
         placeholder={allowInternalNotes ? "Add a client reply or internal support note." : "Reply with any additional context, screenshots, or follow-up questions."}
       />
@@ -68,6 +75,7 @@ export function TicketReplyForm({
             type="checkbox"
             checked={isInternal}
             onChange={(event) => setIsInternal(event.target.checked)}
+            disabled={readOnly}
             className="h-4 w-4 rounded border-slate-300 text-emerald-600"
           />
           Save this as an internal support note
@@ -76,10 +84,10 @@ export function TicketReplyForm({
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || readOnly}
           className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Sending..." : allowInternalNotes && isInternal ? "Save internal note" : "Send reply"}
+          {readOnly ? "Reply disabled in preview" : isSubmitting ? "Sending..." : allowInternalNotes && isInternal ? "Save internal note" : "Send reply"}
         </button>
         {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
       </div>

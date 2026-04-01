@@ -13,7 +13,7 @@ export const metadata = buildPortalMetadata(
 const categories = ["Login / Access", "Dashboard Navigation", "Chart Export", "Data Question", "Possible Bug", "Feature Request"];
 
 export default async function PortalSupportPage() {
-  await requirePortalAccess("/portal/support");
+  const access = await requirePortalAccess("/portal/support");
   const articles = getPortalArticles().slice(0, 4);
 
   return (
@@ -22,16 +22,26 @@ export default async function PortalSupportPage() {
         <SectionHeader
           eyebrow="Support Center"
           title="Help, tickets, and escalation guidance"
-          description="Start with help articles for common questions, then submit or track support requests when access, export, or interpretation issues need direct assistance."
+          description={
+            access.isPreviewMode
+              ? "This read-only preview shows how the support center appears to the current workspace role."
+              : "Start with help articles for common questions, then submit or track support requests when access, export, or interpretation issues need direct assistance."
+          }
         />
         <div className="mt-6 rounded-[28px] bg-[linear-gradient(135deg,#0f172a_0%,#0f766e_100%)] p-6 text-white">
           <div className="rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/85">
             Browse the knowledge base to search help content by topic, dashboard name, export type, or common issue.
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Link href="/portal/support/new" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">
-              Submit a Support Request
-            </Link>
+            {access.isPreviewMode ? (
+              <span className="rounded-xl bg-white/15 px-4 py-2 text-sm font-semibold text-white/80">
+                Ticket submission disabled in preview
+              </span>
+            ) : (
+              <Link href="/portal/support/new" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">
+                Submit a Support Request
+              </Link>
+            )}
             <Link href="/portal/support/tickets" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white">
               View My Tickets
             </Link>

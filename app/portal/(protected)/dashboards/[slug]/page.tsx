@@ -26,20 +26,20 @@ export default async function PortalDashboardDetailPage({
   const { slug } = await params;
   const query = (await searchParams) || {};
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
-  const isSupportAdmin = access.user.role === "support_admin";
+  const isSupportAdmin = access.effectiveRole === "support_admin";
   const selectedCompanyParam = Array.isArray(query.company) ? query.company[0] : query.company;
   const availableCompanies = isSupportAdmin ? await getPortalCompanies() : [];
   const selectedCompany =
     isSupportAdmin && selectedCompanyParam
       ? availableCompanies.find((company) => company.id === selectedCompanyParam) || access.company
       : access.company;
-  const dashboard = await getPortalDashboardForUser(access.user, slug, access.company.id);
+  const dashboard = await getPortalDashboardForUser(access.effectiveUser, slug, access.company.id);
   if (!dashboard) notFound();
-  const usage = await getPortalUsageStatus(access.user);
+  const usage = await getPortalUsageStatus(access.effectiveUser);
   const embedState = await getDisplayrEmbedState(
     dashboard,
     selectedCompany.id,
-    access.user.id,
+    access.effectiveUser.id,
     access.company.id,
   );
 
@@ -64,9 +64,15 @@ export default async function PortalDashboardDetailPage({
             <Link href={`/portal/support?dashboard=${encodeURIComponent(dashboard.name)}`} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
               Need Help
             </Link>
-            <Link href={`/portal/support/new?dashboard=${encodeURIComponent(dashboard.name)}&issueType=${encodeURIComponent("Possible Bug")}`} className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-              Report an Issue
-            </Link>
+            {access.isPreviewMode ? (
+              <span className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500">
+                Reporting disabled in preview
+              </span>
+            ) : (
+              <Link href={`/portal/support/new?dashboard=${encodeURIComponent(dashboard.name)}&issueType=${encodeURIComponent("Possible Bug")}`} className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                Report an Issue
+              </Link>
+            )}
             <Link
               href="/portal/help/exporting-charts-and-tables"
               className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
@@ -166,6 +172,11 @@ export default async function PortalDashboardDetailPage({
                 <span className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-2 font-medium text-violet-700">
                   <FileWarning className="h-4 w-4" />
                   Internal support viewing mode
+                </span>
+              ) : access.isPreviewMode ? (
+                <span className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-2 font-medium text-sky-700">
+                  <FileWarning className="h-4 w-4" />
+                  Read-only member preview
                 </span>
               ) : null}
               {isSupportAdmin ? (

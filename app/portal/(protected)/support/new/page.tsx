@@ -15,12 +15,25 @@ export default async function NewSupportTicketPage({
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const access = await requirePortalAccess("/portal/support/new");
+  if (access.isPreviewMode) {
+    return (
+      <div className="space-y-6">
+        <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+          <SectionHeader
+            eyebrow="Support Request"
+            title="Ticket submission is disabled in preview"
+            description="Support preview mode is read-only so EcoFocus admins can review the client experience without creating or changing account activity."
+          />
+        </section>
+      </div>
+    );
+  }
   const params = (await searchParams) || {};
   const dashboardParam = params.dashboard;
   const issueTypeParam = params.issueType;
   const defaultDashboard = Array.isArray(dashboardParam) ? dashboardParam[0] : dashboardParam;
   const defaultIssueType = Array.isArray(issueTypeParam) ? issueTypeParam[0] : issueTypeParam;
-  const dashboards = await getPortalDashboardsForUser(access.user, access.company.id);
+  const dashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
 
   return (
     <div className="space-y-6">
@@ -33,8 +46,8 @@ export default async function NewSupportTicketPage({
       </section>
 
       <SupportTicketForm
-        userName={access.user.name}
-        userEmail={access.user.email}
+        userName={access.effectiveUser.name}
+        userEmail={access.effectiveUser.email}
         companyName={access.company.name}
         dashboards={dashboards}
         defaultDashboard={defaultDashboard}

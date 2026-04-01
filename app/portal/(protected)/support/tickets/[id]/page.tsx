@@ -19,10 +19,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function TicketDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const access = await requirePortalAccess(`/portal/support/tickets/${id}`);
-  const ticket = await getPortalTicketForUser(access.user, id);
+  const ticket = await getPortalTicketForUser(access.effectiveUser, id);
   if (!ticket) notFound();
 
-  const showInternal = access.user.role === "support_admin";
+  const showInternal = access.effectiveRole === "support_admin";
   const messages = await getPortalTicketMessages(ticket.id, showInternal);
   const authorIds = Array.from(new Set(messages.map((message) => message.authorId).concat([ticket.requesterId, ticket.ownerId || ""]).filter(Boolean)));
   const authors = await getPortalUsersByIds(authorIds);
@@ -82,7 +82,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                 <MessageSquarePlus className="h-4 w-4 text-emerald-700" />
                 Add a reply
               </div>
-              <TicketReplyForm ticketId={ticket.id} allowInternalNotes={showInternal} />
+              <TicketReplyForm ticketId={ticket.id} allowInternalNotes={showInternal} readOnly={access.isPreviewMode} />
             </div>
           </div>
 

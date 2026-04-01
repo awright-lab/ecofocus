@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, LogOut, Shield } from "lucide-react";
+import { PreviewModeControls } from "@/components/portal/PreviewModeControls";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import type { PortalAccessContext } from "@/lib/portal/auth";
 import { getPortalDevUsageOverrideFromCookies, isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
@@ -25,12 +26,14 @@ async function PortalShellInner({
   const devToolsEnabled = isPortalDevBypassEnabled();
   const showDevBypassSession = devToolsEnabled && !access.session;
   const usageOverride = devToolsEnabled ? await getPortalDevUsageOverrideFromCookies() : null;
-  const isSupportAdmin = access.user.role === "support_admin";
+  const isSupportAdmin = access.effectiveRole === "support_admin";
   const shellEyebrow = isSupportAdmin ? "EcoFocus Admin" : "Private EcoFocus Portal";
   const shellTitle = isSupportAdmin ? "Support workspace" : "Support + Data Portal";
   const shellDescription = isSupportAdmin
     ? "Manage support, dashboard access, and internal review work from one place."
-    : "Licensed dashboard access, support workflows, and account management in one authenticated workspace.";
+    : access.isPreviewMode
+      ? `Read-only preview of the ${access.company.name} workspace from a member perspective.`
+      : "Licensed dashboard access, support workflows, and account management in one authenticated workspace.";
   const subscriberTypeLabel = access.company.subscriberType ? access.company.subscriberType.replace("_", " ") : "subscriber";
   const isCrossWorkspaceSession = access.company.id !== access.homeCompany.id;
 
@@ -73,7 +76,11 @@ async function PortalShellInner({
                           <span>Signed In</span>
                         </div>
                         <p className="mt-2 text-sm font-medium text-white">{access.user.name}</p>
-                        <p className="text-xs text-emerald-50/75">{access.user.role.replace("_", " ")}</p>
+                        <p className="text-xs text-emerald-50/75">
+                          {access.isPreviewMode
+                            ? `${access.effectiveRole.replace("_", " ")} preview`
+                            : access.user.role.replace("_", " ")}
+                        </p>
                       </div>
                       <ChevronDown className="h-4 w-4 shrink-0 text-emerald-100 transition group-open:rotate-180" />
                     </div>
@@ -85,7 +92,11 @@ async function PortalShellInner({
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Workspace</p>
                       <p className="mt-1 font-medium text-white">{access.company.name}</p>
                       <p className="text-xs text-emerald-50/75">
-                        {isSupportAdmin ? "Support administration" : `${access.subscription.planName} · ${subscriberTypeLabel}`}
+                        {access.isPreviewMode
+                          ? `${access.effectiveRole.replace("_", " ")} preview · read only`
+                          : isSupportAdmin
+                            ? "Support administration"
+                            : `${access.subscription.planName} · ${subscriberTypeLabel}`}
                       </p>
                     </div>
                     {isCrossWorkspaceSession ? (
@@ -144,10 +155,15 @@ async function PortalShellInner({
         </header>
 
         <div className="mt-6 flex flex-col gap-5 xl:flex-row">
-          <PortalSidebar role={access.user.role} accessibleCompanies={access.accessibleCompanies} />
+          <PortalSidebar role={access.effectiveRole} accessibleCompanies={access.accessibleCompanies} />
           <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>
+      <PreviewModeControls
+        workspaceName={access.company.name}
+        previewRole={access.previewRole}
+        previewableRoles={access.previewableRoles}
+      />
     </div>
   );
 }

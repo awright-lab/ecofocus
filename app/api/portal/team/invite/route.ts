@@ -24,6 +24,9 @@ export async function POST(req: NextRequest) {
   if (!access || !isPortalWorkspaceManager(access.user.role)) {
     return asJson({ error: "Unauthorized" }, 401);
   }
+  if (access.isPreviewMode) {
+    return asJson({ error: "Support preview mode is read-only. Exit preview mode to invite teammates." }, 403);
+  }
 
   let body: InviteBody;
   try {

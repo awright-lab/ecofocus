@@ -14,8 +14,8 @@ export const metadata = buildPortalMetadata(
 
 export default async function TeamPage() {
   const access = await requirePortalRole("client_admin", "/portal/team");
-  const canManageTeam = isPortalWorkspaceManager(access.user.role);
-  const teamMembers = await getPortalTeamMembers(access.user, access.company.id);
+  const canManageTeam = isPortalWorkspaceManager(access.effectiveRole) && !access.isPreviewMode;
+  const teamMembers = await getPortalTeamMembers(access.effectiveUser, access.company.id);
   const inviteHistory = canManageTeam ? await getPortalTeamInvitesByCompany(access.company.id) : [];
   const inviteActorIds = Array.from(new Set(inviteHistory.map((invite) => invite.invitedByUserId)));
   const inviteActors = await getPortalUsersByIds(inviteActorIds);
@@ -30,7 +30,11 @@ export default async function TeamPage() {
         <SectionHeader
           eyebrow="Team"
           title="Team and seat management"
-          description="Review seat availability, see active teammates, and prepare access updates for your organization."
+          description={
+            access.isPreviewMode
+              ? "This read-only preview shows the team management workspace as the simulated admin role would see it."
+              : "Review seat availability, see active teammates, and prepare access updates for your organization."
+          }
         />
       </section>
 
@@ -61,7 +65,9 @@ export default async function TeamPage() {
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Invite teammate</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Add a teammate by reserving a seat and marking the user as invited for this account.
+              {access.isPreviewMode
+                ? "Invites are disabled in support preview mode so you can inspect the screen without changing access."
+                : "Add a teammate by reserving a seat and marking the user as invited for this account."}
             </p>
             <TeamInviteForm
               canManage={canManageTeam}
