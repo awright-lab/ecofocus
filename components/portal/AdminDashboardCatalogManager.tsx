@@ -26,9 +26,11 @@ function buildState(dashboard?: PortalDashboard): DashboardCatalogFormState {
 export function AdminDashboardCatalogManager({
   dashboards,
   storageReady,
+  compact = false,
 }: {
   dashboards: PortalDashboard[];
   storageReady: boolean;
+  compact?: boolean;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -117,7 +119,7 @@ export function AdminDashboardCatalogManager({
   }
 
   return (
-    <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+    <section className={compact ? "space-y-5" : "rounded-[32px] border border-slate-200 bg-white p-6"}>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-950">Dashboard catalog</h3>

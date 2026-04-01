@@ -19,11 +19,13 @@ export function AdminDashboardConfigForm({
   companyName,
   dashboards,
   introTitle = "Manage which dashboards are live for this company and keep each dashboard URL stored on the server.",
+  compact = false,
 }: {
   companyId: string;
   companyName: string;
   dashboards: DashboardConfigItem[];
   introTitle?: string;
+  compact?: boolean;
 }) {
   const router = useRouter();
   const initialState = useMemo(
@@ -110,15 +112,15 @@ export function AdminDashboardConfigForm({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-[24px] bg-slate-50 p-5">
+    <div className={compact ? "space-y-4" : "space-y-4"}>
+      <div className={`${compact ? "rounded-[24px] border border-slate-200 bg-slate-50" : "rounded-[24px] bg-slate-50"} p-5`}>
         <p className="text-sm font-semibold text-slate-900">{companyName}</p>
         <p className="mt-1 text-sm text-slate-600">
           {introTitle}
         </p>
       </div>
 
-      <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+      <div className={`${compact ? "rounded-[24px] border border-slate-200 bg-slate-50" : "rounded-[24px] border border-slate-200 bg-white"} p-5`}>
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
           <label className="flex items-center gap-3 rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-600">
             <Search className="h-4 w-4 text-slate-400" />
@@ -155,7 +157,10 @@ export function AdminDashboardConfigForm({
           const messages = feedback[dashboard.slug] || {};
 
           return (
-            <div key={dashboard.slug} className="rounded-[24px] border border-slate-200 bg-white p-5">
+            <div
+              key={dashboard.slug}
+              className={`rounded-[24px] border border-slate-200 ${compact ? "bg-white" : "bg-white"} p-5`}
+            >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">

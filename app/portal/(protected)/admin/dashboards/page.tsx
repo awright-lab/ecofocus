@@ -141,18 +141,36 @@ export default async function AdminDashboardsPage({
                   </div>
                 </div>
 
-                {selectedCompany ? (
-                  <AdminDashboardConfigForm
-                    companyId={selectedCompany.id}
-                    companyName={selectedCompany.name}
-                    dashboards={companyDashboardEditorItems}
-                    introTitle="Manage which dashboards are live for this company, replace Displayr URLs quickly, and keep public-link handling limited to this protected admin workspace."
-                  />
-                ) : (
-                  <div className="rounded-[32px] border border-slate-200 bg-white p-6 text-sm text-slate-600">
-                    No client companies are available yet.
+                <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-950">Catalog and workspace access</h3>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        Create or retire dashboards, update their category details, and manage how the selected workspace connects to each dashboard from one place.
+                      </p>
+                    </div>
+
+                    <AdminDashboardCatalogManager
+                      dashboards={dashboardCatalog}
+                      storageReady={isCatalogStorageReady}
+                      compact
+                    />
+
+                    {selectedCompany ? (
+                      <AdminDashboardConfigForm
+                        companyId={selectedCompany.id}
+                        companyName={selectedCompany.name}
+                        dashboards={companyDashboardEditorItems}
+                        introTitle="Manage which dashboards are live for this company, replace Displayr URLs quickly, and keep public-link handling limited to this protected admin workspace."
+                        compact
+                      />
+                    ) : (
+                      <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-6 text-sm text-slate-600">
+                        No client companies are available yet.
+                      </div>
+                    )}
                   </div>
-                )}
+                </section>
 
                 {selectedCompany ? (
                   <section className="rounded-[32px] border border-slate-200 bg-white p-6">
@@ -245,11 +263,6 @@ export default async function AdminDashboardsPage({
                 ) : null}
               </div>
             </section>
-
-            <AdminDashboardCatalogManager
-              dashboards={dashboardCatalog}
-              storageReady={isCatalogStorageReady}
-            />
           </div>
         );
       }}
