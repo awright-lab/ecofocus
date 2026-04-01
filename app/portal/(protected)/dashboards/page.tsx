@@ -20,11 +20,9 @@ export default async function PortalDashboardsPage() {
   const access = await requirePortalAccess("/portal/dashboards");
   const baseDashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
   const activeWorkspaceConfigs =
-    access.effectiveUser.role === "support_admin"
-      ? access.company.subscriberType === "internal"
-        ? await getPortalActiveDashboardConfigs()
-        : (await getPortalDashboardConfigsByCompany(access.company.id)).filter((config) => config.isActive)
-      : [];
+    access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
+      ? await getPortalActiveDashboardConfigs()
+      : (await getPortalDashboardConfigsByCompany(access.company.id)).filter((config) => config.isActive);
   const activeWorkspaceConfigsBySlug = new Map(
     activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),
   );
