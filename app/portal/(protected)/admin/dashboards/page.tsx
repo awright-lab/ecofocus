@@ -48,6 +48,10 @@ export default async function AdminDashboardsPage({
             notes: config?.notes ?? "",
           };
         });
+        const visibleDashboardEditorItems =
+          selectedCompany?.subscriberType === "internal"
+            ? companyDashboardEditorItems
+            : companyDashboardEditorItems.filter((item) => item.isActive && item.displayrEmbedUrl);
 
         const configuredCount = companyDashboardEditorItems.filter((item) => item.isActive && item.displayrEmbedUrl).length;
         const workspaceOptions = companies.map((company) => ({
@@ -93,7 +97,7 @@ export default async function AdminDashboardsPage({
                     id: company.id,
                     name: company.name,
                   }))}
-                  dashboards={companyDashboardEditorItems}
+                  dashboards={visibleDashboardEditorItems}
                   storageReady={isCatalogStorageReady}
                 />
               ) : (
