@@ -107,7 +107,7 @@ export default async function PortalDashboardDetailPage({
             <DashboardUsageTracker
               dashboardId={dashboard.id}
               dashboardName={dashboard.name}
-              enabled={embedState.isConfigured && !isSupportAdmin}
+              enabled={embedState.isConfigured && !isSupportAdmin && !access.isPreviewMode}
             />
             <DisplayrEmbedFrame
               dashboard={dashboard}
@@ -201,6 +201,10 @@ export default async function PortalDashboardDetailPage({
                 Configuration source: <span className="font-semibold text-slate-900">{embedState.configSource}</span>. In production, embeds should come from company-specific private portal configuration storage.
                 {" "}Internal support views do not post dashboard session minutes to the standard usage tracker.
                 {` Current dashboard company context: ${selectedCompany.name}.`}
+              </div>
+            ) : access.isPreviewMode ? (
+              <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-600">
+                Support preview mode uses this company&apos;s dashboard and allowance context for rendering, but it does not post viewer-session minutes or consume the company&apos;s tracked hours.
               </div>
             ) : null}
           </div>
