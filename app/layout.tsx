@@ -13,6 +13,7 @@ const SITE_URL = "https://ecofocusresearch.com";
 const SITE_NAME = "EcoFocus Research";
 const SITE_DESC =
   "EcoFocus provides sustainability research, custom studies, and actionable insights to help businesses make informed decisions.";
+const GA_TRACKING_ID = "G-72B359EBQC";
 
 // 3) Viewport + theme color
 export const viewport: Viewport = {
@@ -152,6 +153,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           />
         ) : null}
 
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+        />
+        <Script id="google-analytics-config" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_TRACKING_ID}');
+          `}
+        </Script>
+
         {/* ✅ Full favicon + Apple icon set for macOS/iOS */}
         {/* Modern scalable favicon */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -206,6 +221,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://js.hs-scripts.com" />
         <link rel="dns-prefetch" href="https://js.hs-scripts.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
 
       <body
@@ -216,5 +233,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
