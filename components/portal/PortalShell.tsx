@@ -144,11 +144,7 @@ async function PortalShellInner({
         </header>
 
         <div className="mt-6 flex flex-col gap-5 xl:flex-row">
-          <PortalSidebar
-            role={access.user.role}
-            accessibleCompanies={access.accessibleCompanies}
-            currentCompanyId={access.company.id}
-          />
+          <PortalSidebar role={access.user.role} accessibleCompanies={access.accessibleCompanies} />
           <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>

@@ -12,12 +12,12 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import { WorkspaceSwitcher } from "@/components/portal/WorkspaceSwitcher";
 import { cx } from "@/lib/utils";
 import type { PortalCompany, PortalRole } from "@/lib/portal/types";
 
 const clientNavItems = [
   { href: "/portal/home", label: "Home", icon: Home },
+  { href: "/portal/workspaces", label: "Workspaces", icon: PanelsTopLeft },
   { href: "/portal/dashboards", label: "My Dashboards", icon: BarChart3 },
   { href: "/portal/support", label: "Support Center", icon: LifeBuoy },
   { href: "/portal/help", label: "Knowledge Base", icon: CircleHelp },
@@ -26,6 +26,7 @@ const clientNavItems = [
 
 const supportAdminNavItems = [
   { href: "/portal/home", label: "Overview", icon: Home },
+  { href: "/portal/workspaces", label: "Workspaces", icon: PanelsTopLeft },
   { href: "/portal/admin/library", label: "All Dashboards", icon: BarChart3 },
   { href: "/portal/admin/support", label: "Support Queue", icon: LifeBuoy },
   { href: "/portal/admin/dashboards", label: "Dashboard Access", icon: ShieldCheck },
@@ -36,11 +37,9 @@ const supportAdminNavItems = [
 export function PortalSidebar({
   role,
   accessibleCompanies,
-  currentCompanyId,
 }: {
   role: PortalRole;
   accessibleCompanies: PortalCompany[];
-  currentCompanyId: string;
 }) {
   const pathname = usePathname();
   const normalizedPathname =
@@ -53,6 +52,10 @@ export function PortalSidebar({
   const canManageTeam = role === "client_admin" || role === "agency_admin" || role === "support_admin";
   const visibleNavItems = navItems.filter((item) => item.href !== "/portal/team" || canManageTeam);
   const navLabel = role === "support_admin" ? "EcoFocus Workspace" : "Portal Navigation";
+  const shouldShowWorkspaceLink = role === "support_admin" || accessibleCompanies.length > 1;
+  const filteredNavItems = visibleNavItems.filter(
+    (item) => item.href !== "/portal/workspaces" || shouldShowWorkspaceLink,
+  );
 
   return (
     <aside className="w-full xl:w-64 2xl:w-72">
@@ -61,25 +64,8 @@ export function PortalSidebar({
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">
             {navLabel}
           </p>
-          {accessibleCompanies.length > 1 ? (
-            <div className="mt-4">
-              <div className="flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                <PanelsTopLeft className="h-3.5 w-3.5" />
-                <span>Workspaces</span>
-              </div>
-              <WorkspaceSwitcher
-                companies={accessibleCompanies.map((company) => ({
-                  id: company.id,
-                  name: company.name,
-                  subscriberType: company.subscriberType,
-                }))}
-                currentCompanyId={currentCompanyId}
-                variant="sidebar"
-              />
-            </div>
-          ) : null}
           <nav className="mt-4 space-y-1">
-            {visibleNavItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const isActive =
                 normalizedPathname === item.href || normalizedPathname.startsWith(`${item.href}/`);
               const Icon = item.icon;

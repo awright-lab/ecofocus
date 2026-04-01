@@ -37,7 +37,7 @@ export default async function PortalHomePage() {
       })
     )
       .filter((log) => log.eventType !== "viewer_session")
-      .slice(0, 5);
+      .slice(0, 3);
     const openTickets = tickets.filter((ticket) => ticket.status === "open");
     const urgentTickets = tickets.filter((ticket) => ticket.priority === "urgent");
 
@@ -48,37 +48,31 @@ export default async function PortalHomePage() {
             eyebrow="Overview"
             title={`Welcome back, ${access.user.name.split(" ")[0]}`}
             description="Manage support, dashboard access, and internal operations from one admin view."
-            actions={
-              <>
-                <Link href="/portal/admin/support" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-                  Open support queue
-                </Link>
-                <Link href="/portal/admin/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-                  Manage dashboard access
-                </Link>
-              </>
-            }
           />
-          <div className="mt-6 grid gap-4 md:grid-cols-4">
-            <div className="rounded-[28px] bg-slate-950 p-5 text-white">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Client companies</p>
-              <p className="mt-2 text-3xl font-semibold">{clientCompanies.length}</p>
-              <p className="mt-2 text-sm text-slate-300">Accounts currently in view</p>
+          <div className="mt-6 grid gap-4 xl:grid-cols-[1.3fr_0.7fr]">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700">Open queue</p>
+                <p className="mt-2 text-3xl font-semibold text-amber-900">{openTickets.length}</p>
+                <p className="mt-2 text-sm text-amber-800">Live client issues across the portal</p>
+              </div>
+              <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-rose-700">Urgent tickets</p>
+                <p className="mt-2 text-3xl font-semibold text-rose-900">{urgentTickets.length}</p>
+                <p className="mt-2 text-sm text-rose-800">Needs escalation or same-day follow-up</p>
+              </div>
             </div>
-            <div className="rounded-[28px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">Dashboard catalog</p>
-              <p className="mt-2 text-3xl font-semibold text-slate-950">{dashboardCatalog.length}</p>
-              <p className="mt-2 text-sm text-slate-600">Available across the admin workspace</p>
-            </div>
-            <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-rose-700">Urgent tickets</p>
-              <p className="mt-2 text-3xl font-semibold text-rose-900">{urgentTickets.length}</p>
-              <p className="mt-2 text-sm text-rose-800">Needs escalation or same-day follow-up</p>
-            </div>
-            <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-5">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700">Open queue</p>
-              <p className="mt-2 text-3xl font-semibold text-amber-900">{openTickets.length}</p>
-              <p className="mt-2 text-sm text-amber-800">Live client issues across the portal</p>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-[28px] bg-slate-950 p-5 text-white">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">Client companies</p>
+                <p className="mt-2 text-3xl font-semibold">{clientCompanies.length}</p>
+                <p className="mt-2 text-sm text-slate-300">Accounts currently in view</p>
+              </div>
+              <div className="rounded-[28px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">Dashboard catalog</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-950">{dashboardCatalog.length}</p>
+                <p className="mt-2 text-sm text-slate-600">Available across the admin workspace</p>
+              </div>
             </div>
           </div>
         </section>
@@ -90,6 +84,14 @@ export default async function PortalHomePage() {
                 eyebrow="Actions"
                 title="Admin tools"
                 description="Jump into queue management or dashboard access controls."
+                actions={
+                  <Link
+                    href="/portal/workspaces"
+                    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                  >
+                    View all workspaces
+                  </Link>
+                }
               />
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <Link href="/portal/admin/support" className="rounded-[28px] border border-slate-200 bg-slate-50 p-5 transition hover:border-emerald-300 hover:bg-emerald-50/60">
@@ -103,6 +105,7 @@ export default async function PortalHomePage() {
                   <p className="mt-3 text-sm leading-6 text-slate-600">
                     Review tickets, assignments, and allowance exceptions in one place.
                   </p>
+                  <p className="mt-4 text-sm font-semibold text-emerald-700">Open support queue</p>
                 </Link>
                 <Link href="/portal/admin/dashboards" className="rounded-[28px] border border-slate-200 bg-slate-50 p-5 transition hover:border-emerald-300 hover:bg-emerald-50/60">
                   <div className="flex items-center justify-between gap-3">
@@ -115,6 +118,7 @@ export default async function PortalHomePage() {
                   <p className="mt-3 text-sm leading-6 text-slate-600">
                     Update Displayr URLs and review dashboard access details when needed.
                   </p>
+                  <p className="mt-4 text-sm font-semibold text-emerald-700">Manage dashboard access</p>
                 </Link>
               </div>
             </div>
@@ -123,20 +127,30 @@ export default async function PortalHomePage() {
               <SectionHeader
                 eyebrow="Client Coverage"
                 title="Managed companies"
-                description="Open a company’s access controls from the admin workspace."
+                description="Jump into company-level access controls without scrolling through a long directory."
+                actions={
+                  <Link
+                    href="/portal/workspaces"
+                    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                  >
+                    Browse workspace directory
+                  </Link>
+                }
               />
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="mt-6 space-y-3">
                 {clientCompanies.slice(0, 4).map((company) => (
                   <Link
                     key={company.id}
                     href={`/portal/admin/dashboards?company=${encodeURIComponent(company.id)}`}
-                    className="rounded-[24px] bg-slate-50 p-4 transition hover:bg-slate-100"
+                    className="flex items-center justify-between gap-4 rounded-[24px] bg-slate-50 px-4 py-4 transition hover:bg-slate-100"
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Client workspace</p>
-                    <h3 className="mt-2 text-base font-semibold text-slate-900">{company.name}</h3>
-                    <p className="mt-2 text-sm text-slate-600">{company.id}</p>
-                    <p className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">
-                      Open access controls
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Client workspace</p>
+                      <h3 className="mt-1 text-base font-semibold text-slate-900">{company.name}</h3>
+                      <p className="mt-1 text-sm text-slate-600">{company.id}</p>
+                    </div>
+                    <p className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-emerald-700">
+                      Open access
                       <ArrowRight className="h-4 w-4" />
                     </p>
                   </Link>
@@ -151,8 +165,16 @@ export default async function PortalHomePage() {
                 eyebrow="Queue Snapshot"
                 title="Recent ticket movement"
                 description="A quick view of recent support activity."
+                actions={
+                  <Link
+                    href="/portal/admin/support"
+                    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                  >
+                    View full queue
+                  </Link>
+                }
               />
-              <div className="mt-6 space-y-4">
+              <div className="mt-6 space-y-3">
                 {tickets.length ? (
                   tickets.map((ticket) => (
                     <Link key={ticket.id} href={`/portal/support/tickets/${ticket.id}`} className="block rounded-[24px] bg-slate-50 p-4">
@@ -160,8 +182,8 @@ export default async function PortalHomePage() {
                         <TicketStatusBadge status={ticket.status} />
                         <PriorityBadge priority={ticket.priority} />
                       </div>
-                      <h3 className="mt-3 text-base font-semibold text-slate-900">{ticket.subject}</h3>
-                      <div className="mt-2 flex items-center justify-between gap-3 text-sm text-slate-600">
+                      <h3 className="mt-2 text-base font-semibold text-slate-900">{ticket.subject}</h3>
+                      <div className="mt-1 flex items-center justify-between gap-3 text-sm text-slate-600">
                         <span>{ticket.dashboardName}</span>
                         <span>Updated {formatDate(ticket.updatedAt)}</span>
                       </div>
@@ -180,6 +202,14 @@ export default async function PortalHomePage() {
                 eyebrow="Operational Audit"
                 title="Recent internal events"
                 description="Recent non-session events across the admin workspace."
+                actions={
+                  <Link
+                    href="/portal/admin/library"
+                    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700"
+                  >
+                    Open dashboard library
+                  </Link>
+                }
               />
               <div className="mt-6 space-y-3">
                 {recentOperationalEvents.length ? (
