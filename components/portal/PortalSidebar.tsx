@@ -5,22 +5,22 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   CircleHelp,
-  CreditCard,
   FolderKanban,
   Home,
   LifeBuoy,
+  PanelsTopLeft,
   ShieldCheck,
   Users,
 } from "lucide-react";
+import { WorkspaceSwitcher } from "@/components/portal/WorkspaceSwitcher";
 import { cx } from "@/lib/utils";
-import type { PortalRole } from "@/lib/portal/types";
+import type { PortalCompany, PortalRole } from "@/lib/portal/types";
 
 const clientNavItems = [
   { href: "/portal/home", label: "Home", icon: Home },
   { href: "/portal/dashboards", label: "My Dashboards", icon: BarChart3 },
   { href: "/portal/support", label: "Support Center", icon: LifeBuoy },
   { href: "/portal/help", label: "Knowledge Base", icon: CircleHelp },
-  { href: "/portal/account", label: "Account", icon: CreditCard },
   { href: "/portal/team", label: "Team", icon: Users },
 ];
 
@@ -31,10 +31,17 @@ const supportAdminNavItems = [
   { href: "/portal/admin/dashboards", label: "Dashboard Access", icon: ShieldCheck },
   { href: "/portal/support/tickets", label: "Ticket Inbox", icon: FolderKanban },
   { href: "/portal/help", label: "Knowledge Base", icon: CircleHelp },
-  { href: "/portal/account", label: "Account", icon: CreditCard },
 ];
 
-export function PortalSidebar({ role }: { role: PortalRole }) {
+export function PortalSidebar({
+  role,
+  accessibleCompanies,
+  currentCompanyId,
+}: {
+  role: PortalRole;
+  accessibleCompanies: PortalCompany[];
+  currentCompanyId: string;
+}) {
   const pathname = usePathname();
   const normalizedPathname =
     pathname === "/"
@@ -54,6 +61,23 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">
             {navLabel}
           </p>
+          {accessibleCompanies.length > 1 ? (
+            <div className="mt-4">
+              <div className="flex items-center gap-2 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                <PanelsTopLeft className="h-3.5 w-3.5" />
+                <span>Workspaces</span>
+              </div>
+              <WorkspaceSwitcher
+                companies={accessibleCompanies.map((company) => ({
+                  id: company.id,
+                  name: company.name,
+                  subscriberType: company.subscriberType,
+                }))}
+                currentCompanyId={currentCompanyId}
+                variant="sidebar"
+              />
+            </div>
+          ) : null}
           <nav className="mt-4 space-y-1">
             {visibleNavItems.map((item) => {
               const isActive =
