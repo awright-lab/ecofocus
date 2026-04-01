@@ -1005,6 +1005,16 @@ export async function getPortalSubscription(user: PortalUser) {
   return portalSubscriptions.find((subscription) => subscription.id === company.subscriptionId) ?? null;
 }
 
+export async function getPortalSubscriptionByCompany(companyId: string) {
+  const runtimeCompany = await queryPortalCompanyById(companyId);
+  const company = runtimeCompany || portalCompanies.find((item) => item.id === companyId) || null;
+  if (!company) return null;
+
+  const runtimeSubscription = await queryPortalSubscriptionById(company.subscriptionId);
+  if (runtimeSubscription) return runtimeSubscription;
+  return portalSubscriptions.find((subscription) => subscription.id === company.subscriptionId) ?? null;
+}
+
 export async function getPortalTeamMembers(user: PortalUser, companyId = user.companyId) {
   const runtimeTeamMembers = await queryPortalTeamMembers(companyId);
   if (runtimeTeamMembers.length) return runtimeTeamMembers;

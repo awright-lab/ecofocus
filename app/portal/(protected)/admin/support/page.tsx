@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { AdminDashboardConfigForm } from "@/components/portal/AdminDashboardConfigForm";
-import { AdminUsageAllowanceForm } from "@/components/portal/AdminUsageAllowanceForm";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
@@ -12,8 +11,6 @@ import {
   getPortalTeamMembersByCompany,
   getPortalTeamInvitesByCompany,
   getPortalTicketsForUser,
-  getPortalUsageAllowanceByCompany,
-  getPortalUsageLogsForAdmin,
   getPortalUsersByIds,
 } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
@@ -35,7 +32,6 @@ const timelineFilterOptions = [
   { value: "team", label: "Invites" },
   { value: "dashboard", label: "Dashboard access" },
   { value: "support", label: "Support" },
-  { value: "usage", label: "Usage review" },
 ] as const;
 
 export default async function AdminSupportPage({
@@ -45,9 +41,6 @@ export default async function AdminSupportPage({
 }) {
   const params = (await searchParams) || {};
   const selectedCompanyParam = Array.isArray(params.company) ? params.company[0] : params.company;
-  const selectedUserParam = Array.isArray(params.user) ? params.user[0] : params.user;
-  const selectedStartParam = Array.isArray(params.start) ? params.start[0] : params.start;
-  const selectedEndParam = Array.isArray(params.end) ? params.end[0] : params.end;
   const selectedTimelineParam = Array.isArray(params.timeline) ? params.timeline[0] : params.timeline;
   const timelineFilter =
     timelineFilterOptions.some((option) => option.value === selectedTimelineParam) ? selectedTimelineParam || "all" : "all";
@@ -62,22 +55,9 @@ export default async function AdminSupportPage({
         const companies = (await getPortalCompanies()).filter((company) => company.id !== access.company.id);
         const selectedCompanyId = selectedCompanyParam || companies[0]?.id || "";
         const selectedCompany = companies.find((company) => company.id === selectedCompanyId) || null;
-        const selectedCompanyUsers = selectedCompanyId ? await getPortalTeamMembersByCompany(selectedCompanyId) : [];
         const selectedCompanyDashboardConfigs = selectedCompanyId ? await getPortalDashboardConfigsByCompany(selectedCompanyId) : [];
         const selectedCompanyInvites = selectedCompanyId ? await getPortalTeamInvitesByCompany(selectedCompanyId) : [];
         const dashboardCatalog = await getPortalDashboardCatalog();
-        const usageAllowance = selectedCompanyId
-          ? await getPortalUsageAllowanceByCompany(selectedCompanyId)
-          : null;
-        const usageLogs = await getPortalUsageLogsForAdmin({
-          companyId: selectedCompanyId || undefined,
-          userId: selectedUserParam || undefined,
-          startAt: selectedStartParam ? `${selectedStartParam}T00:00:00Z` : undefined,
-          endAt: selectedEndParam ? `${selectedEndParam}T23:59:59Z` : undefined,
-          limit: 20,
-        });
-        const usageLogUsers = await getPortalUsersByIds(Array.from(new Set(usageLogs.map((log) => log.userId))));
-        const usageLogUsersById = new Map(usageLogUsers.map((user) => [user.id, user]));
         const openCount = tickets.filter((ticket) => ticket.status === "open").length;
         const urgentCount = tickets.filter((ticket) => ticket.priority === "urgent").length;
         const unassignedCount = tickets.filter((ticket) => !ticket.ownerId).length;
@@ -97,12 +77,6 @@ export default async function AdminSupportPage({
         const inviteActorIds = Array.from(new Set(selectedCompanyInvites.map((invite) => invite.invitedByUserId)));
         const inviteActors = await getPortalUsersByIds(inviteActorIds);
         const inviteActorsById = new Map(inviteActors.map((user) => [user.id, user]));
-        const operationalUsageEvents = (
-          await getPortalUsageLogsForAdmin({
-            companyId: selectedCompanyId || undefined,
-            limit: 50,
-          })
-        ).filter((log) => log.eventType !== "viewer_session" && log.eventType !== "viewer_opened");
         const auditTimeline = [
           ...selectedCompanyInvites.map((invite) => ({
             id: `invite-${invite.id}`,
@@ -141,17 +115,6 @@ export default async function AdminSupportPage({
             surfaceKey: "support",
             href: `/portal/support/tickets/${ticket.id}`,
             linkLabel: "Open ticket",
-          })),
-          ...operationalUsageEvents.map((log) => ({
-            id: `usage-${log.id}`,
-            eventAt: log.eventAt,
-            title: `${log.dashboardName} usage review event`,
-            detail: log.notes || log.eventType.replaceAll("_", " "),
-            actor: usageLogUsersById.get(log.userId)?.name || log.userId,
-            surface: "Usage",
-            surfaceKey: "usage",
-            href: `/portal/admin/support?company=${encodeURIComponent(selectedCompanyId)}#usage-review`,
-            linkLabel: "Open usage review",
           })),
         ]
           .filter((event) => timelineFilter === "all" || event.surfaceKey === timelineFilter)
@@ -228,156 +191,33 @@ export default async function AdminSupportPage({
               ))}
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+            <section className="grid gap-6 xl:grid-cols-2">
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-                <h3 className="text-lg font-semibold text-slate-950">Usage allowance controls</h3>
+                <h3 className="text-lg font-semibold text-slate-950">Usage and subscription controls</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Review the current dashboard hour allowance for a client company and adjust the tracked total or access period when support review requires it.
+                  Allowance changes, seat capacity updates, and other subscription controls now live on their own admin page so the support queue stays focused on ticket operations.
                 </p>
-
-                <form method="get" className="mt-5 grid gap-4">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-800">Client company</span>
-                    <select
-                      name="company"
-                      defaultValue={selectedCompanyId}
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                    >
-                      {companies.map((company) => (
-                        <option key={company.id} value={company.id}>
-                          {company.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <button
-                    type="submit"
-                    className="w-fit rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Link
+                    href={`/portal/admin/usage${selectedCompanyId ? `?company=${encodeURIComponent(selectedCompanyId)}` : ""}`}
+                    className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
-                    Load company
-                  </button>
-                </form>
-
-                {selectedCompany && usageAllowance ? (
-                  <div className="mt-6 rounded-[24px] bg-slate-50 p-5">
-                    <p className="text-sm font-semibold text-slate-900">{selectedCompany.name}</p>
-                    <p className="mt-1 text-sm text-slate-600">
-                      Current period: {formatDate(usageAllowance.periodStart)} to {formatDate(usageAllowance.periodEnd)}
-                    </p>
-                    <div className="mt-4">
-                      <AdminUsageAllowanceForm
-                        companyId={selectedCompany.id}
-                        annualHoursLimit={usageAllowance.annualHoursLimit}
-                        hoursUsed={usageAllowance.hoursUsed}
-                        periodStart={usageAllowance.periodStart}
-                        periodEnd={usageAllowance.periodEnd}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-6 rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
-                    Select a client company to review or seed an allowance record before making updates.
-                  </div>
-                )}
-              </div>
-
-              <div id="usage-review" className="rounded-[32px] border border-slate-200 bg-white p-6">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-950">Usage review</h3>
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
-                      Filter recent dashboard usage by company, user, and date range when investigating allowance disputes or client access questions.
-                    </p>
-                  </div>
-                  <Link href="/api/portal/usage/export" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-                    Export current user log
+                    Open usage controls
+                  </Link>
+                  <Link
+                    href={`/portal/admin/audit${selectedCompanyId ? `?company=${encodeURIComponent(selectedCompanyId)}` : ""}`}
+                    className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+                  >
+                    Review usage audit
                   </Link>
                 </div>
+              </div>
 
-                <form method="get" className="mt-5 grid gap-4 md:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-800">Company</span>
-                    <select
-                      name="company"
-                      defaultValue={selectedCompanyId}
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                    >
-                      {companies.map((company) => (
-                        <option key={company.id} value={company.id}>
-                          {company.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-800">User</span>
-                    <select
-                      name="user"
-                      defaultValue={selectedUserParam || ""}
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                    >
-                      <option value="">All users</option>
-                      {selectedCompanyUsers.map((member) => (
-                        <option key={member.id} value={member.id}>
-                          {member.name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-800">Start date</span>
-                    <input
-                      type="date"
-                      name="start"
-                      defaultValue={selectedStartParam || ""}
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                    />
-                  </label>
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-800">End date</span>
-                    <input
-                      type="date"
-                      name="end"
-                      defaultValue={selectedEndParam || ""}
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                    />
-                  </label>
-                  <div className="md:col-span-2">
-                    <button
-                      type="submit"
-                      className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-                    >
-                      Apply usage filters
-                    </button>
-                  </div>
-                </form>
-
-                <div className="mt-6 space-y-3">
-                  {usageLogs.length ? (
-                    usageLogs.map((log) => (
-                      <div key={log.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.1fr_1fr_0.55fr_0.85fr] md:items-center">
-                        <div>
-                          <p className="font-semibold text-slate-900">{log.dashboardName}</p>
-                          <p className="mt-1 text-sm text-slate-600">{log.notes || log.eventType.replaceAll("_", " ")}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-slate-900">
-                            {usageLogUsersById.get(log.userId)?.name || "EcoFocus portal user"}
-                          </p>
-                          <p className="mt-1 text-sm text-slate-600">
-                            {usageLogUsersById.get(log.userId)?.email || log.userId}
-                          </p>
-                        </div>
-                        <div className="text-sm text-slate-700">{log.minutesTracked} min</div>
-                        <div className="text-sm text-slate-500">{formatDateTime(log.eventAt)}</div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
-                      No usage events match the current filter set.
-                    </div>
-                  )}
-                </div>
+              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+                <h3 className="text-lg font-semibold text-slate-950">Operational scope</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  The support queue is now scoped to tickets, dashboard access, company operations, and recent account activity. Use Audit for usage investigation and Usage Controls for contract or allowance updates.
+                </p>
               </div>
             </section>
 
@@ -406,16 +246,13 @@ export default async function AdminSupportPage({
               <div className="rounded-[32px] border border-slate-200 bg-white p-6 xl:col-span-3">
                 <h3 className="text-lg font-semibold text-slate-950">Account timeline</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Review recent operational activity for the selected company across invites, dashboard access changes, support work, and allowance-related usage events.
+                  Review recent operational activity for the selected company across invites, dashboard access changes, and support work.
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   {timelineFilterOptions.map((option) => {
                     const href = new URLSearchParams();
                     if (selectedCompanyId) href.set("company", selectedCompanyId);
-                    if (selectedUserParam) href.set("user", selectedUserParam);
-                    if (selectedStartParam) href.set("start", selectedStartParam);
-                    if (selectedEndParam) href.set("end", selectedEndParam);
                     if (option.value !== "all") href.set("timeline", option.value);
 
                     return (

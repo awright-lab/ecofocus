@@ -77,6 +77,14 @@ export default async function AdminAuditPage({
                 eyebrow="Internal Audit"
                 title="Embed and usage audit"
                 description="Review dashboard token issuance, redirect activity, and tracked usage across the selected workspace from one audit view."
+                actions={
+                  <Link
+                    href={`/portal/admin/usage${selectedCompanyId ? `?company=${encodeURIComponent(selectedCompanyId)}` : ""}`}
+                    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+                  >
+                    Open usage controls
+                  </Link>
+                }
               />
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 <div className="rounded-[24px] bg-slate-950 p-4 text-white">
