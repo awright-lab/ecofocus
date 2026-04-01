@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/portal/EmptyState";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import {
+  getPortalActiveDashboardConfigs,
   getPortalDashboardConfigsByCompany,
   getPortalDashboardsForUser,
   getPortalUsageStatus,
@@ -20,7 +21,9 @@ export default async function PortalDashboardsPage() {
   const baseDashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
   const activeWorkspaceConfigs =
     access.effectiveUser.role === "support_admin"
-      ? (await getPortalDashboardConfigsByCompany(access.company.id)).filter((config) => config.isActive)
+      ? access.company.subscriberType === "internal"
+        ? await getPortalActiveDashboardConfigs()
+        : (await getPortalDashboardConfigsByCompany(access.company.id)).filter((config) => config.isActive)
       : [];
   const activeWorkspaceConfigsBySlug = new Map(
     activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),

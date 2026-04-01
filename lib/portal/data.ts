@@ -474,6 +474,38 @@ async function queryPortalDashboardConfigs(companyId: string): Promise<PortalDas
   }
 }
 
+async function queryActivePortalDashboardConfigs(): Promise<PortalDashboardConfig[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_dashboard_configs")
+      .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, notes, created_at, updated_at")
+      .eq("is_active", true)
+      .order("updated_at", { ascending: false });
+
+    if (error) {
+      console.warn("[portal/data] portal_dashboard_configs active lookup failed.", { error: error.message });
+      return null;
+    }
+
+    return (data || []).map((config) => ({
+      id: String(config.id),
+      companyId: String(config.company_id),
+      dashboardSlug: String(config.dashboard_slug),
+      displayrEmbedUrl: String(config.displayr_embed_url),
+      isActive: Boolean(config.is_active),
+      notes: config.notes || null,
+      createdAt: String(config.created_at),
+      updatedAt: String(config.updated_at),
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_dashboard_configs active storage unavailable.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
 async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]> {
   try {
     const admin = getServiceSupabase();
@@ -829,6 +861,41 @@ export async function getPortalDashboardConfigsByCompany(companyId: string) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }));
+}
+
+export async function getPortalActiveDashboardConfigs() {
+  const runtimeConfigs = await queryActivePortalDashboardConfigs();
+  if (runtimeConfigs) return runtimeConfigs;
+
+  const dashboardCatalog = await getPortalDashboardCatalog();
+  return portalDashboardEntitlements
+    .filter((entitlement) => entitlement.companyId)
+    .flatMap((entitlement) => {
+      const dashboard = dashboardCatalog.find((item) => item.id === entitlement.dashboardId);
+      if (!dashboard || !dashboard.embedUrl) return [];
+      return [
+        {
+          id: `mock-${entitlement.companyId}-${dashboard.slug}`,
+          companyId: String(entitlement.companyId),
+          dashboardSlug: dashboard.slug,
+          displayrEmbedUrl: dashboard.embedUrl,
+          isActive: true,
+          notes: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+    });
+}
+
+export async function getPortalDashboardConfig(companyId: string, dashboardSlug: string) {
+  const configs = await getPortalDashboardConfigsByCompany(companyId);
+  return configs.find((config) => config.dashboardSlug === dashboardSlug) || null;
+}
+
+export async function getPortalAnyActiveDashboardConfigBySlug(dashboardSlug: string) {
+  const configs = await getPortalActiveDashboardConfigs();
+  return configs.find((config) => config.dashboardSlug === dashboardSlug) || null;
 }
 
 export async function getPortalUsageAllowanceByCompany(companyId: string) {

@@ -71,6 +71,7 @@ export function AdminDashboardManagementCard({
   const [isSavingCatalog, setIsSavingCatalog] = useState(false);
   const [isSavingAccess, setIsSavingAccess] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingAssignment, setIsLoadingAssignment] = useState(false);
   const [feedback, setFeedback] = useState<{ error?: string; success?: string }>({});
 
   const assignedCompany = companies.find((company) => company.id === assignedCompanyId) || null;
@@ -104,6 +105,63 @@ export function AdminDashboardManagementCard({
     }
   }, [page, totalPages]);
 
+  useEffect(() => {
+    if (!isModalOpen || !selectedSlug) {
+      return;
+    }
+
+    const dashboardSlug = selectedSlug;
+    let isCancelled = false;
+
+    async function loadAssignment() {
+      setIsLoadingAssignment(true);
+      try {
+        const response = await fetch(
+          `/api/portal/dashboard-configs?companyId=${encodeURIComponent(assignedCompanyId)}&dashboardSlug=${encodeURIComponent(dashboardSlug)}`,
+          { cache: "no-store" },
+        );
+        const data = (await response.json()) as {
+          error?: string;
+          config?: {
+            displayrEmbedUrl: string;
+            isActive: boolean;
+            notes: string;
+          } | null;
+        };
+
+        if (!response.ok) {
+          if (!isCancelled) {
+            setFeedback({ error: data.error || "We couldn't load workspace access for this dashboard." });
+          }
+          return;
+        }
+
+        if (!isCancelled) {
+          setFormState((current) => ({
+            ...current,
+            isActive: data.config?.isActive ?? false,
+            displayrEmbedUrl: data.config?.displayrEmbedUrl ?? "",
+            notes: data.config?.notes ?? "",
+          }));
+        }
+      } catch {
+        if (!isCancelled) {
+          setFeedback({ error: "We couldn't load workspace access for this dashboard." });
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoadingAssignment(false);
+        }
+      }
+    }
+
+    void loadAssignment();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [assignedCompanyId, isModalOpen, selectedSlug]);
+
   function openDashboard(slug: string | null) {
     const dashboard = dashboards.find((item) => item.slug === slug);
     setSelectedSlug(slug);
@@ -121,8 +179,9 @@ export function AdminDashboardManagementCard({
     setFeedback({});
   }
 
-  async function saveCatalog() {
+  async function saveDashboard() {
     setIsSavingCatalog(true);
+    setIsSavingAccess(true);
     setFeedback({});
     const isCreatingDashboard = !selectedSlug;
 
@@ -142,78 +201,41 @@ export function AdminDashboardManagementCard({
       if (!response.ok) {
         setFeedback({ error: data.error || "We couldn't save this dashboard right now." });
         setIsSavingCatalog(false);
-        return;
-      }
-
-      const persistedSlug = data.slug || formState.slug;
-
-      if (isCreatingDashboard) {
-        const shouldAssignWorkspace =
-          formState.isActive || Boolean(formState.displayrEmbedUrl.trim()) || Boolean(formState.notes.trim());
-
-        if (shouldAssignWorkspace) {
-          const configResponse = await fetch("/api/portal/dashboard-configs", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              companyId: assignedCompanyId,
-              dashboardSlug: persistedSlug,
-              isActive: formState.isActive,
-              displayrEmbedUrl: formState.displayrEmbedUrl,
-              notes: formState.notes,
-            }),
-          });
-          const configData = (await configResponse.json()) as { error?: string };
-
-          if (!configResponse.ok) {
-            setFeedback({
-              error: configData.error || "The dashboard was created, but workspace access could not be assigned.",
-            });
-            setIsSavingCatalog(false);
-            return;
-          }
-        }
-      }
-
-      setIsSavingCatalog(false);
-      setIsModalOpen(false);
-      if (isCreatingDashboard && assignedCompanyId !== companyId) {
-        const nextParams = new URLSearchParams(searchParams.toString());
-        nextParams.set("company", assignedCompanyId);
-        router.push(`${pathname}?${nextParams.toString()}`);
-        return;
-      }
-
-      router.refresh();
-    } catch {
-      setFeedback({ error: "We couldn't save this dashboard right now." });
-      setIsSavingCatalog(false);
-    }
-  }
-
-  async function saveWorkspaceAccess() {
-    setIsSavingAccess(true);
-    setFeedback({});
-
-    try {
-      const response = await fetch("/api/portal/dashboard-configs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          companyId: assignedCompanyId,
-          dashboardSlug: formState.slug,
-          isActive: formState.isActive,
-          displayrEmbedUrl: formState.displayrEmbedUrl,
-          notes: formState.notes,
-        }),
-      });
-      const data = (await response.json()) as { error?: string };
-      if (!response.ok) {
-        setFeedback({ error: data.error || "We couldn't update workspace access right now." });
         setIsSavingAccess(false);
         return;
       }
 
+      const persistedSlug = data.slug || formState.slug;
+      const shouldAssignWorkspace =
+        formState.isActive || Boolean(formState.displayrEmbedUrl.trim()) || Boolean(formState.notes.trim());
+
+      if (shouldAssignWorkspace || selectedSlug) {
+        const configResponse = await fetch("/api/portal/dashboard-configs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            companyId: assignedCompanyId,
+            dashboardSlug: persistedSlug,
+            isActive: formState.isActive,
+            displayrEmbedUrl: formState.displayrEmbedUrl,
+            notes: formState.notes,
+          }),
+        });
+        const configData = (await configResponse.json()) as { error?: string };
+
+        if (!configResponse.ok) {
+          setFeedback({
+            error:
+              configData.error ||
+              "The dashboard was saved, but workspace access could not be assigned.",
+          });
+          setIsSavingCatalog(false);
+          setIsSavingAccess(false);
+          return;
+        }
+      }
+
+      setIsSavingCatalog(false);
       setIsSavingAccess(false);
       setIsModalOpen(false);
       if (assignedCompanyId !== companyId) {
@@ -225,7 +247,8 @@ export function AdminDashboardManagementCard({
 
       router.refresh();
     } catch {
-      setFeedback({ error: "We couldn't update workspace access right now." });
+      setFeedback({ error: "We couldn't save this dashboard right now." });
+      setIsSavingCatalog(false);
       setIsSavingAccess(false);
     }
   }
@@ -479,8 +502,7 @@ export function AdminDashboardManagementCard({
                     <select
                       value={assignedCompanyId}
                       onChange={(event) => setAssignedCompanyId(event.target.value)}
-                      disabled={Boolean(selectedSlug)}
-                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                     >
                       {companies.map((company) => (
                         <option key={company.id} value={company.id}>
@@ -489,11 +511,15 @@ export function AdminDashboardManagementCard({
                       ))}
                     </select>
                     <p className="mt-2 text-xs text-slate-500">
-                      {selectedSlug
-                        ? "To edit this dashboard for another workspace, switch the workspace selector at the top of the page."
-                        : "Choose the workspace that should receive this dashboard assignment when it is created."}
+                      Choose the workspace that should carry this dashboard assignment and URL.
                     </p>
                   </label>
+
+                  {isLoadingAssignment ? (
+                    <div className="rounded-2xl bg-white px-4 py-3 text-sm text-slate-600">
+                      Loading saved access for {assignedCompany?.name || companyName}…
+                    </div>
+                  ) : null}
 
                   <label className="inline-flex items-center gap-3 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-800">
                     <input
@@ -551,19 +577,15 @@ export function AdminDashboardManagementCard({
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={saveCatalog}
+                onClick={saveDashboard}
                 disabled={isSavingCatalog || !storageReady}
                 className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSavingCatalog ? "Saving..." : selectedSlug ? "Save catalog changes" : "Create dashboard and assign"}
-              </button>
-              <button
-                type="button"
-                onClick={saveWorkspaceAccess}
-                disabled={isSavingAccess || !formState.slug}
-                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isSavingAccess ? "Saving..." : "Save workspace access"}
+                {isSavingCatalog || isSavingAccess
+                  ? "Saving..."
+                  : selectedSlug
+                    ? "Save dashboard and workspace access"
+                    : "Create dashboard and assign"}
               </button>
               {feedback.success ? <p className="text-xs font-medium text-emerald-700">{feedback.success}</p> : null}
               {feedback.error ? <p className="text-xs font-medium text-rose-600">{feedback.error}</p> : null}

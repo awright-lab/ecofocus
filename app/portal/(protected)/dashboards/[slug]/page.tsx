@@ -4,7 +4,13 @@ import { ArrowLeft, Clock3, ExternalLink, FileWarning, LifeBuoy } from "lucide-r
 import { DashboardUsageTracker } from "@/components/portal/DashboardUsageTracker";
 import { DisplayrEmbedFrame } from "@/components/portal/DisplayrEmbedFrame";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalArticles, getPortalCompanies, getPortalDashboardForUser, getPortalUsageStatus } from "@/lib/portal/data";
+import {
+  getPortalAnyActiveDashboardConfigBySlug,
+  getPortalArticles,
+  getPortalCompanies,
+  getPortalDashboardForUser,
+  getPortalUsageStatus,
+} from "@/lib/portal/data";
 import { getDisplayrEmbedState } from "@/lib/portal/displayr";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
@@ -29,9 +35,15 @@ export default async function PortalDashboardDetailPage({
   const isSupportAdmin = access.effectiveRole === "support_admin";
   const selectedCompanyParam = Array.isArray(query.company) ? query.company[0] : query.company;
   const availableCompanies = isSupportAdmin ? await getPortalCompanies() : [];
+  const fallbackCompanyConfig =
+    isSupportAdmin && access.company.subscriberType === "internal" && !selectedCompanyParam
+      ? await getPortalAnyActiveDashboardConfigBySlug(slug)
+      : null;
   const selectedCompany =
     isSupportAdmin && selectedCompanyParam
       ? availableCompanies.find((company) => company.id === selectedCompanyParam) || access.company
+      : fallbackCompanyConfig
+        ? availableCompanies.find((company) => company.id === fallbackCompanyConfig.companyId) || access.company
       : access.company;
   const dashboard = await getPortalDashboardForUser(access.effectiveUser, slug, access.company.id);
   if (!dashboard) {
@@ -46,6 +58,7 @@ export default async function PortalDashboardDetailPage({
     selectedCompany.id,
     access.effectiveUser.id,
     access.company.id,
+    access.company.subscriberType === "internal",
   );
 
   const relatedArticles = getPortalArticles().slice(0, 3);

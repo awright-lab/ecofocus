@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
-import { getPortalCompanies, getPortalDashboardCatalog, getPortalDashboardConfigsByCompany } from "@/lib/portal/data";
+import { getPortalCompanies, getPortalDashboardCatalog, getPortalDashboardConfig, getPortalDashboardConfigsByCompany } from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -110,4 +110,32 @@ export async function POST(req: NextRequest) {
       503,
     );
   }
+}
+
+export async function GET(req: NextRequest) {
+  const access = await getPortalAccessContext();
+  if (!access || access.user.role !== "support_admin") {
+    return asJson({ error: "Unauthorized" }, 401);
+  }
+
+  const companyId = String(req.nextUrl.searchParams.get("companyId") || "").trim();
+  const dashboardSlug = String(req.nextUrl.searchParams.get("dashboardSlug") || "").trim();
+
+  if (!companyId || !dashboardSlug) {
+    return asJson({ error: "companyId and dashboardSlug are required." }, 400);
+  }
+
+  const config = await getPortalDashboardConfig(companyId, dashboardSlug);
+  return asJson({
+    ok: true,
+    config: config
+      ? {
+          companyId: config.companyId,
+          dashboardSlug: config.dashboardSlug,
+          displayrEmbedUrl: config.displayrEmbedUrl,
+          isActive: config.isActive,
+          notes: config.notes || "",
+        }
+      : null,
+  });
 }

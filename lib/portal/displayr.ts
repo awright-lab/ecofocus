@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { PortalDashboard } from "@/lib/portal/types";
+import { getPortalAnyActiveDashboardConfigBySlug } from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 type DisplayrEmbedState = {
@@ -157,11 +158,20 @@ export async function getDisplayrEmbedState(
   targetCompanyId: string,
   userId: string,
   viewerCompanyId = targetCompanyId,
+  allowGlobalFallback = false,
 ): Promise<DisplayrEmbedState> {
   const databaseUrl = await getCompanyDashboardConfigUrl(targetCompanyId, dashboard.slug);
+  const fallbackConfig = !databaseUrl && allowGlobalFallback ? await getPortalAnyActiveDashboardConfigBySlug(dashboard.slug) : null;
+  const fallbackUrl = fallbackConfig ? normalizeDisplayrUrl(fallbackConfig.displayrEmbedUrl) : null;
   const devFallbackUrl = getDevFallbackUrl(dashboard);
-  const resolvedUrl = databaseUrl || devFallbackUrl;
-  const configSource = databaseUrl ? "database" : devFallbackUrl ? "development_fallback" : "missing";
+  const resolvedUrl = databaseUrl || fallbackUrl || devFallbackUrl;
+  const configSource = databaseUrl
+    ? "database"
+    : fallbackUrl
+      ? "database"
+      : devFallbackUrl
+        ? "development_fallback"
+        : "missing";
   const iframeSrc = resolvedUrl
     ? `/api/portal/displayr/embed?token=${encodeURIComponent(
         buildDisplayrEmbedToken({

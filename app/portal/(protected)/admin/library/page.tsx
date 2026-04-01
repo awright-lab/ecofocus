@@ -4,6 +4,7 @@ import { DashboardLibrary } from "@/components/portal/DashboardLibrary";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import {
+  getPortalActiveDashboardConfigs,
   getPortalCompanies,
   getPortalDashboardCatalog,
   getPortalDashboardConfigsByCompany,
@@ -32,9 +33,10 @@ export default async function AdminDashboardLibraryPage({
           : null;
         const dashboardCatalog = await getPortalDashboardCatalog();
         const availabilityCompanyId = selectedCompany?.id || access.company.id;
-        const availabilityConfigs = (await getPortalDashboardConfigsByCompany(availabilityCompanyId)).filter(
-          (config) => config.isActive,
-        );
+        const availabilityConfigs =
+          !selectedCompany && access.company.subscriberType === "internal"
+            ? await getPortalActiveDashboardConfigs()
+            : (await getPortalDashboardConfigsByCompany(availabilityCompanyId)).filter((config) => config.isActive);
         const availabilityConfigsBySlug = new Map(
           availabilityConfigs.map((config) => [config.dashboardSlug, config]),
         );
