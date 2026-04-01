@@ -7,7 +7,7 @@ import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalTicketMessages, getPortalUsersByIds } from "@/lib/portal/data";
+import { getPortalCompanies, getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalTicketMessages, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
@@ -27,6 +27,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   const authorIds = Array.from(new Set(messages.map((message) => message.authorId).concat([ticket.requesterId, ticket.ownerId || ""]).filter(Boolean)));
   const authors = await getPortalUsersByIds(authorIds);
   const authorsById = new Map(authors.map((author) => [author.id, author]));
+  const companies = await getPortalCompanies();
+  const companiesById = new Map(companies.map((company) => [company.id, company]));
+  const requester = authorsById.get(ticket.requesterId) || null;
+  const requesterCompanyId = requester?.homeCompanyId || requester?.companyId || ticket.companyId;
+  const requesterCompanyName = companiesById.get(requesterCompanyId)?.name || requesterCompanyId;
   const supportTeam = showInternal ? await getPortalTeamMembersByCompany(access.company.id) : [];
   const supportOwners = supportTeam
     .filter((member) => member.role === "support_admin" && member.status !== "inactive")
@@ -92,6 +97,10 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
               <div className="flex items-center justify-between gap-4">
                 <dt>Requester</dt>
                 <dd className="font-medium text-slate-900">{authorsById.get(ticket.requesterId)?.name || ticket.requesterId}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <dt>Requester company</dt>
+                <dd className="font-medium text-slate-900">{requesterCompanyName}</dd>
               </div>
               <div className="flex items-center justify-between gap-4">
                 <dt>Owner</dt>
