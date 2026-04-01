@@ -49,20 +49,24 @@ async function PortalShellInner({
               </p>
             </div>
 
-            <div className="w-full max-w-sm xl:min-w-[320px]">
-              <details className="group rounded-2xl border border-white/15 bg-white/10">
+            <div className="relative z-20 w-full max-w-sm xl:min-w-[320px]">
+              <details className="group">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3">
-                  <div>
-                    <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
-                      <Shield className="h-3.5 w-3.5" />
-                      <span>Signed In</span>
+                  <div className="w-full rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
+                          <Shield className="h-3.5 w-3.5" />
+                          <span>Signed In</span>
+                        </div>
+                        <p className="mt-2 text-sm font-medium text-white">{access.user.name}</p>
+                        <p className="text-xs text-emerald-50/75">{access.user.role.replace("_", " ")}</p>
+                      </div>
+                      <ChevronDown className="h-4 w-4 shrink-0 text-emerald-100 transition group-open:rotate-180" />
                     </div>
-                    <p className="mt-2 text-sm font-medium text-white">{access.user.name}</p>
-                    <p className="text-xs text-emerald-50/75">{access.user.role.replace("_", " ")}</p>
                   </div>
-                  <ChevronDown className="h-4 w-4 text-emerald-100 transition group-open:rotate-180" />
                 </summary>
-                <div className="border-t border-white/10 px-4 py-3 text-sm text-emerald-50/85">
+                <div className="absolute right-0 top-[calc(100%+0.75rem)] w-full overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 px-4 py-3 text-sm text-emerald-50/85 shadow-[0_24px_80px_-40px_rgba(2,44,34,0.9)] backdrop-blur">
                   <div className="space-y-3">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Workspace</p>
