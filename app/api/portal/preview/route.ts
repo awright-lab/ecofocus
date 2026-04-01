@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   PORTAL_PREVIEW_ROLE_COOKIE,
+  PORTAL_WORKSPACE_COOKIE,
   getPortalAccessContext,
 } from "@/lib/portal/auth";
 import type { PortalPreviewRole } from "@/lib/portal/types";
@@ -38,6 +39,15 @@ export async function POST(req: NextRequest) {
       path: "/",
       secure: process.env.NODE_ENV === "production",
       maxAge: 0,
+    });
+    response.cookies.set({
+      name: PORTAL_WORKSPACE_COOKIE,
+      value: access.homeCompany.id,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 30,
     });
     return response;
   }
