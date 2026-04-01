@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Clock3, ExternalLink, FileWarning, LifeBuoy } from "lucide-react";
 import { DashboardUsageTracker } from "@/components/portal/DashboardUsageTracker";
 import { DisplayrEmbedFrame } from "@/components/portal/DisplayrEmbedFrame";
@@ -34,7 +34,12 @@ export default async function PortalDashboardDetailPage({
       ? availableCompanies.find((company) => company.id === selectedCompanyParam) || access.company
       : access.company;
   const dashboard = await getPortalDashboardForUser(access.effectiveUser, slug, access.company.id);
-  if (!dashboard) notFound();
+  if (!dashboard) {
+    if (access.isPreviewMode) {
+      redirect("/portal/home");
+    }
+    notFound();
+  }
   const usage = await getPortalUsageStatus(access.effectiveUser);
   const embedState = await getDisplayrEmbedState(
     dashboard,

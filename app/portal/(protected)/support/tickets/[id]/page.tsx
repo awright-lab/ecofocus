@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { MessageSquarePlus, ShieldCheck } from "lucide-react";
 import { TicketAdminControls } from "@/components/portal/TicketAdminControls";
@@ -20,7 +20,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const access = await requirePortalAccess(`/portal/support/tickets/${id}`);
   const ticket = await getPortalTicketForUser(access.effectiveUser, id);
-  if (!ticket) notFound();
+  if (!ticket) {
+    if (access.isPreviewMode) {
+      redirect("/portal/home");
+    }
+    notFound();
+  }
 
   const showInternal = access.effectiveRole === "support_admin";
   const messages = await getPortalTicketMessages(ticket.id, showInternal);
