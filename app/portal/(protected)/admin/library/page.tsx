@@ -34,9 +34,17 @@ export default async function AdminDashboardLibraryPage({
         const selectedCompanyConfigs = selectedCompany
           ? (await getPortalDashboardConfigsByCompany(selectedCompany.id)).filter((config) => config.isActive)
           : [];
-        const configuredDashboardSlugs = new Set(selectedCompanyConfigs.map((config) => config.dashboardSlug));
+        const selectedCompanyConfigsBySlug = new Map(
+          selectedCompanyConfigs.map((config) => [config.dashboardSlug, config]),
+        );
+        const configuredDashboardSlugs = new Set(selectedCompanyConfigsBySlug.keys());
         const dashboards = selectedCompany
-          ? dashboardCatalog.filter((dashboard) => configuredDashboardSlugs.has(dashboard.slug))
+          ? dashboardCatalog
+              .filter((dashboard) => configuredDashboardSlugs.has(dashboard.slug))
+              .map((dashboard) => ({
+                ...dashboard,
+                embedUrl: selectedCompanyConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
+              }))
           : dashboardCatalog;
 
         return (
