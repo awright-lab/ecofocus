@@ -31,21 +31,25 @@ export default async function AdminDashboardLibraryPage({
           ? companies.find((company) => company.id === selectedCompanyParam) || null
           : null;
         const dashboardCatalog = await getPortalDashboardCatalog();
-        const selectedCompanyConfigs = selectedCompany
-          ? (await getPortalDashboardConfigsByCompany(selectedCompany.id)).filter((config) => config.isActive)
-          : [];
-        const selectedCompanyConfigsBySlug = new Map(
-          selectedCompanyConfigs.map((config) => [config.dashboardSlug, config]),
+        const availabilityCompanyId = selectedCompany?.id || access.company.id;
+        const availabilityConfigs = (await getPortalDashboardConfigsByCompany(availabilityCompanyId)).filter(
+          (config) => config.isActive,
         );
-        const configuredDashboardSlugs = new Set(selectedCompanyConfigsBySlug.keys());
+        const availabilityConfigsBySlug = new Map(
+          availabilityConfigs.map((config) => [config.dashboardSlug, config]),
+        );
+        const configuredDashboardSlugs = new Set(availabilityConfigsBySlug.keys());
         const dashboards = selectedCompany
           ? dashboardCatalog
               .filter((dashboard) => configuredDashboardSlugs.has(dashboard.slug))
               .map((dashboard) => ({
                 ...dashboard,
-                embedUrl: selectedCompanyConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
+                embedUrl: availabilityConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
               }))
-          : dashboardCatalog;
+          : dashboardCatalog.map((dashboard) => ({
+              ...dashboard,
+              embedUrl: availabilityConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
+            }));
 
         return (
           <div className="space-y-6">
@@ -122,7 +126,7 @@ export default async function AdminDashboardLibraryPage({
             </section>
 
             {dashboards.length ? (
-              <DashboardLibrary dashboards={dashboards} companyId={selectedCompany?.id || null} />
+              <DashboardLibrary dashboards={dashboards} companyId={selectedCompany?.id || access.company.id} />
             ) : (
               <div className="rounded-[32px] border border-slate-200 bg-white p-10 text-center">
                 <BarChart3 className="mx-auto h-10 w-10 text-slate-400" />
