@@ -1,4 +1,7 @@
-import { MonitorPlay } from "lucide-react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Expand, Minimize, MonitorPlay } from "lucide-react";
 import type { PortalDashboard } from "@/lib/portal/types";
 
 export function DisplayrEmbedFrame({
@@ -12,6 +15,31 @@ export function DisplayrEmbedFrame({
   isConfigured: boolean;
   isSupportAdmin?: boolean;
 }) {
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    function handleFullscreenChange() {
+      setIsFullscreen(document.fullscreenElement === frameRef.current);
+    }
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  async function toggleFullscreen() {
+    if (!frameRef.current) return;
+
+    if (document.fullscreenElement === frameRef.current) {
+      await document.exitFullscreen().catch(() => undefined);
+      return;
+    }
+
+    await frameRef.current.requestFullscreen().catch(() => undefined);
+  }
+
   if (!isConfigured || !iframeSrc) {
     return (
       <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_16px_50px_-40px_rgba(15,23,42,0.45)]">
@@ -58,7 +86,24 @@ export function DisplayrEmbedFrame({
         <span>{isSupportAdmin ? "Do not forward or redistribute dashboard access outside your approved portal team." : "Licensed for your approved portal team."}</span>
       </div>
 
-      <div className="h-[460px] overflow-hidden rounded-[24px] border border-slate-200 bg-slate-100 xl:h-[560px]">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+        <span>{isFullscreen ? "Fullscreen viewer active" : "Expand the dashboard for a larger working view."}</span>
+        <button
+          type="button"
+          onClick={toggleFullscreen}
+          className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+        >
+          {isFullscreen ? <Minimize className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
+          {isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+        </button>
+      </div>
+
+      <div
+        ref={frameRef}
+        className={`overflow-hidden rounded-[24px] border border-slate-200 bg-slate-100 ${
+          isFullscreen ? "h-screen rounded-none border-0 bg-white" : "h-[460px] xl:h-[560px]"
+        }`}
+      >
         <iframe
           title={dashboard.name}
           src={iframeSrc}
@@ -66,6 +111,7 @@ export function DisplayrEmbedFrame({
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
           allow="fullscreen"
+          allowFullScreen
         />
       </div>
     </div>
