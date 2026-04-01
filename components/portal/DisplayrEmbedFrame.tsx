@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Expand, MonitorPlay, X } from "lucide-react";
 import type { PortalDashboard } from "@/lib/portal/types";
 
@@ -16,6 +16,17 @@ export function DisplayrEmbedFrame({
   isSupportAdmin?: boolean;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isModalOpen]);
 
   if (!isConfigured || !iframeSrc) {
     return (
@@ -75,7 +86,39 @@ export function DisplayrEmbedFrame({
         </button>
       </div>
 
-      <div className="h-[460px] overflow-hidden rounded-[24px] border border-slate-200 bg-slate-100 xl:h-[560px]">
+      {isModalOpen ? (
+        <button
+          type="button"
+          aria-label="Close large dashboard view"
+          onClick={() => setIsModalOpen(false)}
+          className="fixed inset-0 z-[139] bg-slate-950/70"
+        />
+      ) : null}
+
+      <div
+        className={
+          isModalOpen
+            ? "fixed inset-x-4 bottom-4 top-4 z-[140] flex flex-col overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_28px_120px_-36px_rgba(15,23,42,0.6)]"
+            : "h-[460px] overflow-hidden rounded-[24px] border border-slate-200 bg-slate-100 xl:h-[560px]"
+        }
+      >
+        {isModalOpen ? (
+          <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Large view</p>
+              <h3 className="mt-1 text-lg font-semibold text-slate-950">{dashboard.name}</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-rose-300 hover:text-rose-600"
+            >
+              <X className="h-4 w-4" />
+              Close
+            </button>
+          </div>
+        ) : null}
+
         <iframe
           title={dashboard.name}
           src={iframeSrc}
@@ -86,46 +129,6 @@ export function DisplayrEmbedFrame({
           allowFullScreen
         />
       </div>
-
-      {isModalOpen ? (
-        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-950/70 p-4">
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${dashboard.name} large view`}
-            className="flex h-[92vh] w-full max-w-[96vw] flex-col overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_28px_120px_-36px_rgba(15,23,42,0.6)]"
-          >
-            <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Large view</p>
-                <h3 className="mt-1 text-lg font-semibold text-slate-950">{dashboard.name}</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-rose-300 hover:text-rose-600"
-              >
-                <X className="h-4 w-4" />
-                Close
-              </button>
-            </div>
-
-            <div className="flex-1 bg-slate-100 p-4">
-              <div className="h-full overflow-hidden rounded-[24px] border border-slate-200 bg-white">
-                <iframe
-                  title={`${dashboard.name} large view`}
-                  src={iframeSrc}
-                  className="h-full w-full"
-                  loading="lazy"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allow="fullscreen"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
