@@ -25,14 +25,14 @@ async function PortalShellInner({
   const showDevBypassSession = devToolsEnabled && !access.session;
   const usageOverride = devToolsEnabled ? await getPortalDevUsageOverrideFromCookies() : null;
   const isSupportAdmin = access.user.role === "support_admin";
-  const shellEyebrow = isSupportAdmin ? "EcoFocus Internal Workspace" : "Private EcoFocus Portal";
-  const shellTitle = isSupportAdmin ? "Support Operations + Client Access" : "Support + Data Portal";
+  const shellEyebrow = isSupportAdmin ? "EcoFocus Admin" : "Private EcoFocus Portal";
+  const shellTitle = isSupportAdmin ? "Support workspace" : "Support + Data Portal";
   const shellDescription = isSupportAdmin
-    ? "Internal workspace for client support operations, dashboard access controls, and EcoFocus-only review workflows."
+    ? "Manage support, dashboard access, and internal review work from one place."
     : "Licensed dashboard access, support workflows, and account management in one authenticated workspace.";
   const companyChipLabel = isSupportAdmin ? "Internal Workspace" : "Company";
   const workspaceChipText = isSupportAdmin ? "Support administration" : access.subscription.planName;
-  const workspaceBadge = isSupportAdmin ? "Internal operations workspace" : "Private client workspace";
+  const workspaceBadge = isSupportAdmin ? "Internal admin view" : "Private client workspace";
   const showWorkspaceSwitcher = access.accessibleCompanies.length > 1;
   const subscriberTypeLabel = access.company.subscriberType ? access.company.subscriberType.replace("_", " ") : "subscriber";
   const isCrossWorkspaceSession = access.company.id !== access.homeCompany.id;
@@ -40,19 +40,19 @@ async function PortalShellInner({
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
       <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
-        <header className="rounded-[32px] border border-white/70 bg-[radial-gradient(circle_at_top_left,#0f766e_0%,#064e3b_44%,#0f172a_100%)] px-6 py-6 text-white shadow-[0_24px_80px_-40px_rgba(2,44,34,0.65)]">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
+        <header className="rounded-[32px] border border-white/70 bg-[radial-gradient(circle_at_top_left,#0f766e_0%,#064e3b_44%,#0f172a_100%)] px-6 py-5 text-white shadow-[0_24px_80px_-40px_rgba(2,44,34,0.65)]">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div className="max-w-2xl">
               <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-emerald-200">
                 {shellEyebrow}
               </p>
-              <h1 className="mt-2 text-2xl font-semibold sm:text-3xl">{shellTitle}</h1>
-              <p className="mt-2 max-w-2xl text-sm text-emerald-50/85 sm:text-base">
+              <h1 className="mt-2 text-2xl font-semibold sm:text-[2rem]">{shellTitle}</h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-emerald-50/85">
                 {shellDescription}
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[560px] xl:max-w-[760px] xl:grid-cols-2">
               {showWorkspaceSwitcher ? (
                 <WorkspaceSwitcher
                   companies={access.accessibleCompanies.map((company) => ({
@@ -95,7 +95,7 @@ async function PortalShellInner({
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-emerald-50/80">
+          <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs text-emerald-50/80">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">{workspaceBadge}</span>
             {devToolsEnabled && isSupportAdmin ? (
               <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">

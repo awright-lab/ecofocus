@@ -49,7 +49,7 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
 
   return (
     <aside className="w-full xl:w-64 2xl:w-72">
-      <div className="sticky top-6 space-y-4">
+      <div className="sticky top-6">
         <div className="rounded-[28px] border border-emerald-100 bg-white/90 p-4 shadow-[0_18px_60px_-35px_rgba(6,95,70,0.45)] backdrop-blur">
           <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">
             {navLabel}
@@ -77,17 +77,6 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
             })}
           </nav>
         </div>
-
-        {role === "support_admin" ? (
-          <div className="rounded-[28px] border border-slate-200 bg-slate-950 p-4 text-white">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-300">
-              Internal Scope
-            </p>
-            <p className="mt-3 text-sm leading-6 text-white/80">
-              Internal routes are separated from the client workspace so EcoFocus reviews and configuration work stay operationally distinct.
-            </p>
-          </div>
-        ) : null}
       </div>
     </aside>
   );
