@@ -166,6 +166,7 @@ async function PortalShellInner({
         workspaceName={access.company.name}
         previewRole={access.previewRole}
         previewableRoles={access.previewableRoles}
+        showWhenInactive={access.user.role === "support_admin" && isCrossWorkspaceSession}
       />
     </div>
   );

@@ -14,10 +14,12 @@ export function PreviewModeControls({
   workspaceName,
   previewRole,
   previewableRoles,
+  showWhenInactive = false,
 }: {
   workspaceName: string;
   previewRole: PortalPreviewRole | null;
   previewableRoles: PortalPreviewRole[];
+  showWhenInactive?: boolean;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export function PreviewModeControls({
     setIsOpen(false);
   }, [previewRole]);
 
-  if (!previewableRoles.length || !previewRole) {
+  if (!previewableRoles.length || (!previewRole && !showWhenInactive)) {
     return null;
   }
 
@@ -61,7 +63,7 @@ export function PreviewModeControls({
     });
   }
 
-  const currentLabel = formatRoleLabel(previewRole);
+  const currentLabel = formatRoleLabel(previewRole || "off");
 
   return (
     <div className="fixed bottom-5 right-5 z-50 w-[min(360px,calc(100vw-2rem))]">
