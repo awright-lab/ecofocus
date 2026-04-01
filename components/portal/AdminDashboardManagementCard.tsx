@@ -72,6 +72,8 @@ export function AdminDashboardManagementCard({
   const [isSavingAccess, setIsSavingAccess] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoadingAssignment, setIsLoadingAssignment] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [feedback, setFeedback] = useState<{ error?: string; success?: string }>({});
 
   const assignedCompany = companies.find((company) => company.id === assignedCompanyId) || null;
@@ -176,6 +178,8 @@ export function AdminDashboardManagementCard({
     setSelectedSlug(null);
     setFormState(buildFormState());
     setAssignedCompanyId(companyId);
+    setIsDeleteModalOpen(false);
+    setDeleteConfirmation("");
     setFeedback({});
   }
 
@@ -255,7 +259,6 @@ export function AdminDashboardManagementCard({
 
   async function deleteDashboard() {
     if (!selectedSlug) return;
-    if (!window.confirm("Delete this dashboard from the catalog and remove all company assignments?")) return;
 
     setIsDeleting(true);
     setFeedback({});
@@ -272,6 +275,8 @@ export function AdminDashboardManagementCard({
       }
 
       setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+      setDeleteConfirmation("");
       setIsModalOpen(false);
       router.refresh();
     } catch {
@@ -412,7 +417,10 @@ export function AdminDashboardManagementCard({
                   {selectedSlug ? (
                     <button
                       type="button"
-                      onClick={deleteDashboard}
+                      onClick={() => {
+                        setDeleteConfirmation("");
+                        setIsDeleteModalOpen(true);
+                      }}
                       disabled={isDeleting || !storageReady}
                       className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -589,6 +597,73 @@ export function AdminDashboardManagementCard({
               </button>
               {feedback.success ? <p className="text-xs font-medium text-emerald-700">{feedback.success}</p> : null}
               {feedback.error ? <p className="text-xs font-medium text-rose-600">{feedback.error}</p> : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isDeleteModalOpen ? (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-slate-950/55 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm dashboard deletion"
+            className="w-full max-w-lg rounded-[32px] bg-white p-6 shadow-[0_28px_120px_-36px_rgba(15,23,42,0.55)]"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-rose-700">Delete dashboard</p>
+                <h4 className="mt-2 text-2xl font-semibold text-slate-950">
+                  Confirm deletion
+                </h4>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  This will remove <span className="font-semibold text-slate-950">{formState.name || selectedSlug}</span> from the dashboard catalog and remove all workspace assignments tied to it.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setDeleteConfirmation("");
+                }}
+                className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-4 rounded-[24px] border border-rose-200 bg-rose-50 p-5">
+              <p className="text-sm text-rose-900">
+                Type <span className="font-semibold">DELETE</span> to confirm.
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmation}
+                onChange={(event) => setDeleteConfirmation(event.target.value)}
+                placeholder="Type DELETE"
+                className="w-full rounded-2xl border border-rose-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+              />
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={deleteDashboard}
+                disabled={deleteConfirmation !== "DELETE" || isDeleting}
+                className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete dashboard"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setDeleteConfirmation("");
+                }}
+                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
