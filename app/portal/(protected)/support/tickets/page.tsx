@@ -26,7 +26,7 @@ export default async function TicketsPage() {
           description={
             access.isPreviewMode
               ? "This read-only preview shows the ticket list available to the simulated workspace role."
-              : "View request status, priority, and last activity. Client users only see their own tickets; support admins can see the full queue in the admin view."
+              : "View request status, priority, and last activity. Company admins can see tickets across their workspace, while individual users only see their own requests."
           }
         />
       </section>

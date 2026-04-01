@@ -577,6 +577,33 @@ async function queryPortalTickets(user: PortalUser): Promise<PortalTicket[] | nu
       }));
     }
 
+    if (user.role === "client_admin" || user.role === "agency_admin") {
+      const { data, error } = await query.eq("company_id", user.companyId).limit(100);
+
+      if (error) {
+        console.warn("[portal/data] portal_tickets company-admin lookup failed.", {
+          userId: user.id,
+          companyId: user.companyId,
+          error: error.message,
+        });
+        return null;
+      }
+
+      return (data || []).map((ticket) => ({
+        id: ticket.id,
+        companyId: ticket.company_id,
+        subject: ticket.subject,
+        dashboardName: ticket.dashboard_name,
+        issueType: ticket.issue_type,
+        priority: ticket.priority,
+        status: ticket.status,
+        createdAt: ticket.created_at,
+        updatedAt: ticket.updated_at,
+        requesterId: ticket.requester_id,
+        ownerId: ticket.owner_id,
+      }));
+    }
+
     const { data, error } = await query.eq("requester_id", user.id).limit(100);
 
     if (error) {
@@ -879,6 +906,11 @@ export async function getPortalTicketsForUser(user: PortalUser): Promise<PortalT
   if (user.role === "support_admin") {
     return [...portalTickets].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
+  if (user.role === "client_admin" || user.role === "agency_admin") {
+    return portalTickets
+      .filter((ticket) => ticket.companyId === user.companyId)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  }
   return portalTickets
     .filter((ticket) => ticket.requesterId === user.id)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -892,7 +924,13 @@ export async function getPortalTicketForUser(user: PortalUser, ticketId: string)
 
   const ticket = portalTickets.find((item) => item.id === ticketId) ?? null;
   if (!ticket) return null;
-  if (user.role === "support_admin" || ticket.requesterId === user.id) return ticket;
+  if (
+    user.role === "support_admin" ||
+    ((user.role === "client_admin" || user.role === "agency_admin") && ticket.companyId === user.companyId) ||
+    ticket.requesterId === user.id
+  ) {
+    return ticket;
+  }
   return null;
 }
 
