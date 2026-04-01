@@ -89,6 +89,10 @@ export default async function AdminDashboardsPage({
                 <AdminDashboardManagementCard
                   companyId={selectedCompany.id}
                   companyName={selectedCompany.name}
+                  companies={companies.map((company) => ({
+                    id: company.id,
+                    name: company.name,
+                  }))}
                   dashboards={companyDashboardEditorItems}
                   storageReady={isCatalogStorageReady}
                 />

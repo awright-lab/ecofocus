@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, Trash2, X } from "lucide-react";
 
 const DASHBOARDS_PER_PAGE = 6;
@@ -28,6 +28,11 @@ type FormState = {
   notes: string;
 };
 
+type CompanyOption = {
+  id: string;
+  name: string;
+};
+
 function buildFormState(dashboard?: DashboardEditorItem): FormState {
   return {
     slug: dashboard?.slug || "",
@@ -44,24 +49,31 @@ function buildFormState(dashboard?: DashboardEditorItem): FormState {
 export function AdminDashboardManagementCard({
   companyId,
   companyName,
+  companies,
   dashboards,
   storageReady,
 }: {
   companyId: string;
   companyName: string;
+  companies: CompanyOption[];
   dashboards: DashboardEditorItem[];
   storageReady: boolean;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [formState, setFormState] = useState<FormState>(buildFormState());
+  const [assignedCompanyId, setAssignedCompanyId] = useState(companyId);
   const [isSavingCatalog, setIsSavingCatalog] = useState(false);
   const [isSavingAccess, setIsSavingAccess] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [feedback, setFeedback] = useState<{ error?: string; success?: string }>({});
+
+  const assignedCompany = companies.find((company) => company.id === assignedCompanyId) || null;
 
   const filteredDashboards = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -96,6 +108,7 @@ export function AdminDashboardManagementCard({
     const dashboard = dashboards.find((item) => item.slug === slug);
     setSelectedSlug(slug);
     setFormState(buildFormState(dashboard));
+    setAssignedCompanyId(companyId);
     setFeedback({});
     setIsModalOpen(true);
   }
@@ -104,6 +117,7 @@ export function AdminDashboardManagementCard({
     setIsModalOpen(false);
     setSelectedSlug(null);
     setFormState(buildFormState());
+    setAssignedCompanyId(companyId);
     setFeedback({});
   }
 
@@ -142,7 +156,7 @@ export function AdminDashboardManagementCard({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              companyId,
+              companyId: assignedCompanyId,
               dashboardSlug: persistedSlug,
               isActive: formState.isActive,
               displayrEmbedUrl: formState.displayrEmbedUrl,
@@ -163,6 +177,13 @@ export function AdminDashboardManagementCard({
 
       setIsSavingCatalog(false);
       setIsModalOpen(false);
+      if (isCreatingDashboard && assignedCompanyId !== companyId) {
+        const nextParams = new URLSearchParams(searchParams.toString());
+        nextParams.set("company", assignedCompanyId);
+        router.push(`${pathname}?${nextParams.toString()}`);
+        return;
+      }
+
       router.refresh();
     } catch {
       setFeedback({ error: "We couldn't save this dashboard right now." });
@@ -179,7 +200,7 @@ export function AdminDashboardManagementCard({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyId,
+          companyId: assignedCompanyId,
           dashboardSlug: formState.slug,
           isActive: formState.isActive,
           displayrEmbedUrl: formState.displayrEmbedUrl,
@@ -195,6 +216,13 @@ export function AdminDashboardManagementCard({
 
       setIsSavingAccess(false);
       setIsModalOpen(false);
+      if (assignedCompanyId !== companyId) {
+        const nextParams = new URLSearchParams(searchParams.toString());
+        nextParams.set("company", assignedCompanyId);
+        router.push(`${pathname}?${nextParams.toString()}`);
+        return;
+      }
+
       router.refresh();
     } catch {
       setFeedback({ error: "We couldn't update workspace access right now." });
@@ -338,8 +366,8 @@ export function AdminDashboardManagementCard({
                   {selectedSlug ? formState.name || "Edit dashboard" : "Create dashboard"}
                 </h4>
                 <p className="mt-2 text-sm text-slate-600">
-                  Update catalog details and workspace access for {companyName} without leaving the dashboard grid.
-                  {!selectedSlug ? " New dashboards can be assigned to this workspace as part of creation." : ""}
+                  Update catalog details and workspace access without leaving the dashboard grid.
+                  {!selectedSlug ? " New dashboards can be assigned to a workspace as part of creation." : ""}
                 </p>
               </div>
               <button
@@ -442,10 +470,31 @@ export function AdminDashboardManagementCard({
               <div className="rounded-[24px] bg-slate-50 p-5">
                 <p className="text-sm font-semibold text-slate-900">Workspace access</p>
                 <p className="mt-1 text-sm text-slate-600">
-                  Control whether {companyName} can open this dashboard and which Displayr URL is used.
+                  Control which workspace can open this dashboard and which Displayr URL is used.
                 </p>
 
                 <div className="mt-5 space-y-4">
+                  <label className="block">
+                    <span className="mb-2 block text-sm font-medium text-slate-800">Assigned workspace</span>
+                    <select
+                      value={assignedCompanyId}
+                      onChange={(event) => setAssignedCompanyId(event.target.value)}
+                      disabled={Boolean(selectedSlug)}
+                      className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+                    >
+                      {companies.map((company) => (
+                        <option key={company.id} value={company.id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-2 text-xs text-slate-500">
+                      {selectedSlug
+                        ? "To edit this dashboard for another workspace, switch the workspace selector at the top of the page."
+                        : "Choose the workspace that should receive this dashboard assignment when it is created."}
+                    </p>
+                  </label>
+
                   <label className="inline-flex items-center gap-3 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-800">
                     <input
                       type="checkbox"
@@ -458,7 +507,7 @@ export function AdminDashboardManagementCard({
                       }
                       className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                     />
-                    Enable access for {companyName}
+                    Enable access for {assignedCompany?.name || companyName}
                   </label>
 
                   <label className="block">
