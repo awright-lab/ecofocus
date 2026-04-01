@@ -137,7 +137,7 @@ export type PortalTicket = {
   dashboardName: string;
   issueType: string;
   priority: "low" | "medium" | "high" | "urgent";
-  status: "open" | "in_progress" | "waiting_on_client" | "resolved";
+  status: "open" | "in_progress" | "waiting_on_client" | "archived";
   createdAt: string;
   updatedAt: string;
   requesterId: string;

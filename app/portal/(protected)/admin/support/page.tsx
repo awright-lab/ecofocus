@@ -25,7 +25,7 @@ export const metadata = buildPortalMetadata(
 );
 
 const filterOptions = {
-  status: ["open", "in_progress", "waiting_on_client", "resolved"],
+  status: ["open", "in_progress", "waiting_on_client", "archived"],
   priority: ["low", "medium", "high", "urgent"],
   issueType: ["Login / Access", "Dashboard Navigation", "Chart Export", "Data Question", "Possible Bug", "Feature Request", "Training Request"],
 };

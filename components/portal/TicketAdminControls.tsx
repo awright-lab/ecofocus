@@ -12,7 +12,7 @@ const statusOptions = [
   { value: "open", label: "Open" },
   { value: "in_progress", label: "In progress" },
   { value: "waiting_on_client", label: "Waiting on client" },
-  { value: "resolved", label: "Resolved" },
+  { value: "archived", label: "Archived" },
 ] as const;
 
 export function TicketAdminControls({

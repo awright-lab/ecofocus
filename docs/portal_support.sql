@@ -11,7 +11,7 @@ create table if not exists public.portal_tickets (
   dashboard_name text not null,
   issue_type text not null,
   priority text not null check (priority in ('low', 'medium', 'high', 'urgent')),
-  status text not null default 'open' check (status in ('open', 'in_progress', 'waiting_on_client', 'resolved')),
+  status text not null default 'open' check (status in ('open', 'in_progress', 'waiting_on_client', 'archived')),
   requester_id text not null references public.portal_users(id) on delete restrict,
   owner_id text references public.portal_users(id) on delete set null,
   created_at timestamptz not null default now(),

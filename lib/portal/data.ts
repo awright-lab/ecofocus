@@ -58,6 +58,23 @@ export function normalizePortalRole(input?: string | null): PortalRole {
   return "client_user";
 }
 
+function normalizePortalTicketStatus(input?: string | null): PortalTicket["status"] {
+  if (
+    input === "open" ||
+    input === "in_progress" ||
+    input === "waiting_on_client" ||
+    input === "archived"
+  ) {
+    return input;
+  }
+
+  if (input === "resolved") {
+    return "archived";
+  }
+
+  return "open";
+}
+
 export function normalizePortalSubscriberType(input?: string | null): PortalSubscriberType {
   if (input === "agency" || input === "brand" || input === "internal") {
     return input;
@@ -546,7 +563,10 @@ async function queryPortalUsageAllowance(companyId: string): Promise<PortalUsage
   }
 }
 
-async function queryPortalTickets(user: PortalUser): Promise<PortalTicket[] | null> {
+async function queryPortalTickets(
+  user: PortalUser,
+  { includeArchived = false }: { includeArchived?: boolean } = {},
+): Promise<PortalTicket[] | null> {
   try {
     const admin = getServiceSupabase();
     const query = admin
@@ -562,19 +582,21 @@ async function queryPortalTickets(user: PortalUser): Promise<PortalTicket[] | nu
         return null;
       }
 
-      return (data || []).map((ticket) => ({
+      return (data || [])
+        .map((ticket) => ({
         id: ticket.id,
         companyId: ticket.company_id,
         subject: ticket.subject,
         dashboardName: ticket.dashboard_name,
         issueType: ticket.issue_type,
         priority: ticket.priority,
-        status: ticket.status,
+        status: normalizePortalTicketStatus(ticket.status),
         createdAt: ticket.created_at,
         updatedAt: ticket.updated_at,
         requesterId: ticket.requester_id,
         ownerId: ticket.owner_id,
-      }));
+      }))
+        .filter((ticket) => includeArchived || ticket.status !== "archived");
     }
 
     if (user.role === "client_admin" || user.role === "agency_admin") {
@@ -589,19 +611,21 @@ async function queryPortalTickets(user: PortalUser): Promise<PortalTicket[] | nu
         return null;
       }
 
-      return (data || []).map((ticket) => ({
+      return (data || [])
+        .map((ticket) => ({
         id: ticket.id,
         companyId: ticket.company_id,
         subject: ticket.subject,
         dashboardName: ticket.dashboard_name,
         issueType: ticket.issue_type,
         priority: ticket.priority,
-        status: ticket.status,
+        status: normalizePortalTicketStatus(ticket.status),
         createdAt: ticket.created_at,
         updatedAt: ticket.updated_at,
         requesterId: ticket.requester_id,
         ownerId: ticket.owner_id,
-      }));
+      }))
+        .filter((ticket) => includeArchived || ticket.status !== "archived");
     }
 
     const { data, error } = await query.eq("requester_id", user.id).limit(100);
@@ -611,19 +635,21 @@ async function queryPortalTickets(user: PortalUser): Promise<PortalTicket[] | nu
       return null;
     }
 
-    return (data || []).map((ticket) => ({
+    return (data || [])
+      .map((ticket) => ({
       id: ticket.id,
       companyId: ticket.company_id,
       subject: ticket.subject,
       dashboardName: ticket.dashboard_name,
       issueType: ticket.issue_type,
       priority: ticket.priority,
-      status: ticket.status,
+      status: normalizePortalTicketStatus(ticket.status),
       createdAt: ticket.created_at,
       updatedAt: ticket.updated_at,
       requesterId: ticket.requester_id,
       ownerId: ticket.owner_id,
-    }));
+    }))
+      .filter((ticket) => includeArchived || ticket.status !== "archived");
   } catch (error) {
     console.warn("[portal/data] portal_tickets storage unavailable.", {
       userId: user.id,
@@ -904,25 +930,32 @@ export async function getPortalTicketsForUser(user: PortalUser): Promise<PortalT
   if (runtimeTickets) return runtimeTickets;
 
   if (user.role === "support_admin") {
-    return [...portalTickets].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    return [...portalTickets]
+      .map((ticket) => ({ ...ticket, status: normalizePortalTicketStatus(ticket.status) }))
+      .filter((ticket) => ticket.status !== "archived")
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   if (user.role === "client_admin" || user.role === "agency_admin") {
     return portalTickets
-      .filter((ticket) => ticket.companyId === user.companyId)
+      .map((ticket) => ({ ...ticket, status: normalizePortalTicketStatus(ticket.status) }))
+      .filter((ticket) => ticket.companyId === user.companyId && ticket.status !== "archived")
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   return portalTickets
-    .filter((ticket) => ticket.requesterId === user.id)
+    .map((ticket) => ({ ...ticket, status: normalizePortalTicketStatus(ticket.status) }))
+    .filter((ticket) => ticket.requesterId === user.id && ticket.status !== "archived")
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 
 export async function getPortalTicketForUser(user: PortalUser, ticketId: string): Promise<PortalTicket | null> {
-  const runtimeTickets = await queryPortalTickets(user);
+  const runtimeTickets = await queryPortalTickets(user, { includeArchived: true });
   if (runtimeTickets) {
     return runtimeTickets.find((item) => item.id === ticketId) ?? null;
   }
 
-  const ticket = portalTickets.find((item) => item.id === ticketId) ?? null;
+  const ticket = portalTickets
+    .map((item) => ({ ...item, status: normalizePortalTicketStatus(item.status) }))
+    .find((item) => item.id === ticketId) ?? null;
   if (!ticket) return null;
   if (
     user.role === "support_admin" ||
