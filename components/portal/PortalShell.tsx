@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ChevronDown, LogOut, Shield } from "lucide-react";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import type { PortalAccessContext } from "@/lib/portal/auth";
@@ -39,6 +40,19 @@ async function PortalShellInner({
         <header className="rounded-[32px] border border-white/70 bg-[radial-gradient(circle_at_top_left,#0f766e_0%,#064e3b_44%,#0f172a_100%)] px-6 py-5 text-white shadow-[0_24px_80px_-40px_rgba(2,44,34,0.65)]">
           <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
             <div className="max-w-2xl">
+              {isSupportAdmin ? (
+                <div className="mb-4">
+                  <Image
+                    src="/images/ef-logo-3.png"
+                    alt="EcoFocus"
+                    width={150}
+                    height={44}
+                    sizes="150px"
+                    className="h-auto w-[150px]"
+                    priority
+                  />
+                </div>
+              ) : null}
               <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-emerald-200">
                 {shellEyebrow}
               </p>
@@ -65,7 +79,7 @@ async function PortalShellInner({
                     </div>
                   </div>
                 </summary>
-                <div className="absolute right-0 top-[calc(100%+0.75rem)] w-full overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 px-4 py-3 text-sm text-emerald-50/85 shadow-[0_24px_80px_-40px_rgba(2,44,34,0.9)] backdrop-blur">
+                <div className="absolute top-[calc(100%+0.75rem)] right-4 w-[calc(100%-2rem)] overflow-hidden rounded-2xl border border-white/15 bg-slate-950/95 px-4 py-3 text-sm text-emerald-50/85 shadow-[0_24px_80px_-40px_rgba(2,44,34,0.9)] backdrop-blur">
                   <div className="space-y-3">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200">Workspace</p>
