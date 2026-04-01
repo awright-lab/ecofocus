@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { AdminDashboardCatalogManager } from "@/components/portal/AdminDashboardCatalogManager";
 import { AdminDashboardConfigForm } from "@/components/portal/AdminDashboardConfigForm";
+import { AdminDashboardWorkspaceSelector } from "@/components/portal/AdminDashboardWorkspaceSelector";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import {
@@ -52,6 +54,11 @@ export default async function AdminDashboardsPage({
         });
 
         const configuredCount = companyDashboardEditorItems.filter((item) => item.isActive && item.displayrEmbedUrl).length;
+        const workspaceOptions = companies.map((company) => ({
+          id: company.id,
+          name: company.name,
+          subtitle: company.id === access.company.id ? "EcoFocus internal workspace" : "Client workspace",
+        }));
         const embedAuditLogs = selectedCompanyId
           ? (await getPortalUsageLogsForAdmin({
               companyId: selectedCompanyId,
@@ -72,8 +79,8 @@ export default async function AdminDashboardsPage({
             <section className="rounded-[32px] border border-slate-200 bg-white p-6">
               <SectionHeader
                 eyebrow="Internal Admin"
-                title="Dashboard access and URL management"
-                description="Review company dashboard mappings, replace Displayr URLs, and keep public-link exposure limited to server-side portal configuration."
+                title="Dashboard access and catalog management"
+                description="Search workspaces, manage company-specific Displayr URLs, and keep the shared dashboard catalog organized without relying on a tiny static company list."
               />
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 <div className="rounded-[24px] bg-slate-950 p-4 text-white">
@@ -84,51 +91,52 @@ export default async function AdminDashboardsPage({
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Configured for selected company</p>
                   <p className="mt-2 text-3xl font-semibold text-emerald-900">{configuredCount}</p>
                 </div>
-                <div className="rounded-[24px] bg-amber-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">Recommended practice</p>
-                  <p className="mt-2 text-sm font-medium text-amber-900">Use one Displayr publish URL per company and rotate it if exposure is suspected.</p>
+                <div className="rounded-[24px] bg-sky-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700">Catalog size</p>
+                  <p className="mt-2 text-3xl font-semibold text-sky-900">{dashboardCatalog.length}</p>
                 </div>
               </div>
             </section>
 
-            <section className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
-              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-                <h3 className="text-lg font-semibold text-slate-950">Companies</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Choose any company workspace, including EcoFocus, to review current dashboard assignments and replace Displayr URLs from one place.
-                </p>
-                <div className="mt-5 space-y-3">
-                  {companies.map((company) => {
-                    const isSelected = company.id === selectedCompanyId;
-                    return (
-                      <Link
-                        key={company.id}
-                        href={`/portal/admin/dashboards?company=${encodeURIComponent(company.id)}`}
-                        className={`block rounded-[24px] border px-4 py-4 transition ${
-                          isSelected
-                            ? "border-emerald-500 bg-emerald-50"
-                            : "border-slate-200 bg-slate-50 hover:border-emerald-300 hover:bg-emerald-50/50"
-                        }`}
-                      >
-                        <p className="font-semibold text-slate-900">{company.name}</p>
-                        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                          {company.id === access.company.id ? "EcoFocus internal workspace" : "Client workspace"}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-600">{company.id}</p>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-
+            <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+              <AdminDashboardWorkspaceSelector
+                companies={workspaceOptions}
+                selectedCompanyId={selectedCompanyId}
+              />
               <div className="space-y-6">
                 <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-                  <h3 className="text-lg font-semibold text-slate-950">Selected company</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                    {selectedCompany
-                      ? `${selectedCompany.name} is currently selected for dashboard URL management.`
-                      : "Choose a company from the left to manage dashboard URLs."}
-                  </p>
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-950">Selected workspace</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">
+                        {selectedCompany
+                          ? `${selectedCompany.name} is currently selected for dashboard URL management.`
+                          : "Choose a company from the selector to manage dashboard URLs."}
+                      </p>
+                    </div>
+                    {selectedCompany ? (
+                      <Link
+                        href={`/portal/admin/library?company=${encodeURIComponent(selectedCompany.id)}`}
+                        className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+                      >
+                        View workspace library
+                      </Link>
+                    ) : null}
+                  </div>
+                  <div className="mt-5 grid gap-4 md:grid-cols-3">
+                    <div className="rounded-[24px] bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Workspace</p>
+                      <p className="mt-2 text-sm font-semibold text-slate-900">{selectedCompany?.name || "No workspace selected"}</p>
+                    </div>
+                    <div className="rounded-[24px] bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Assigned dashboards</p>
+                      <p className="mt-2 text-sm font-semibold text-slate-900">{configuredCount} currently live</p>
+                    </div>
+                    <div className="rounded-[24px] bg-slate-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Recommended practice</p>
+                      <p className="mt-2 text-sm font-semibold text-slate-900">Rotate publish URLs if exposure is suspected.</p>
+                    </div>
+                  </div>
                 </div>
 
                 {selectedCompany ? (
@@ -235,6 +243,8 @@ export default async function AdminDashboardsPage({
                 ) : null}
               </div>
             </section>
+
+            <AdminDashboardCatalogManager dashboards={dashboardCatalog} />
           </div>
         );
       }}

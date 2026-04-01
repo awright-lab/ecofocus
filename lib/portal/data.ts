@@ -399,13 +399,45 @@ async function queryCompanyDashboards(companyId: string): Promise<PortalDashboar
     }
 
     const slugs = new Set((data || []).map((item) => item.dashboard_slug));
-    return portalDashboards.filter((dashboard) => slugs.has(dashboard.slug));
+    const dashboardCatalog = await getPortalDashboardCatalog();
+    return dashboardCatalog.filter((dashboard) => slugs.has(dashboard.slug));
   } catch (error) {
     console.warn("[portal/data] portal_dashboard_configs storage unavailable.", {
       companyId,
       error: error instanceof Error ? error.message : String(error),
     });
     return [];
+  }
+}
+
+async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_dashboards")
+      .select("id, slug, name, description, access_tag, embed_access")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.warn("[portal/data] portal_dashboards catalog lookup failed.", { error: error.message });
+      return null;
+    }
+
+    return (data || []).map((dashboard) => ({
+      id: String(dashboard.id),
+      slug: String(dashboard.slug),
+      name: String(dashboard.name),
+      description: String(dashboard.description || ""),
+      accessTag: String(dashboard.access_tag || "Uncategorized"),
+      embedUrl: null,
+      embedAccess:
+        dashboard.embed_access === "displayr_login_required" ? "displayr_login_required" : "public_link",
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_dashboards storage unavailable.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
   }
 }
 
@@ -771,6 +803,8 @@ export async function getPortalCompanies() {
 }
 
 export async function getPortalDashboardCatalog() {
+  const runtimeDashboards = await queryPortalDashboardCatalog();
+  if (runtimeDashboards) return runtimeDashboards;
   return [...portalDashboards].sort((a, b) => a.name.localeCompare(b.name));
 }
 
@@ -778,7 +812,8 @@ export async function getPortalDashboardConfigsByCompany(companyId: string) {
   const runtimeConfigs = await queryPortalDashboardConfigs(companyId);
   if (runtimeConfigs) return runtimeConfigs;
 
-  return portalDashboards
+  const dashboardCatalog = await getPortalDashboardCatalog();
+  return dashboardCatalog
     .filter((dashboard) => portalDashboardEntitlements.some((entitlement) => entitlement.companyId === companyId && entitlement.dashboardId === dashboard.id))
     .map((dashboard) => ({
       id: `mock-${companyId}-${dashboard.slug}`,

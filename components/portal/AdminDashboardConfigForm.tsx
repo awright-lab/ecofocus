@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 
 type DashboardConfigItem = {
   slug: string;
@@ -43,6 +44,27 @@ export function AdminDashboardConfigForm({
   const [formState, setFormState] = useState(initialState);
   const [savingSlug, setSavingSlug] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<Record<string, { error?: string; success?: string }>>({});
+  const [query, setQuery] = useState("");
+  const [tagFilter, setTagFilter] = useState("All");
+
+  const tags = useMemo(
+    () => ["All", ...Array.from(new Set(dashboards.map((dashboard) => dashboard.accessTag)))],
+    [dashboards],
+  );
+  const filteredDashboards = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return dashboards.filter((dashboard) => {
+      const matchesTag = tagFilter === "All" || dashboard.accessTag === tagFilter;
+      if (!matchesTag) return false;
+      if (!normalizedQuery) return true;
+
+      return (
+        dashboard.name.toLowerCase().includes(normalizedQuery) ||
+        dashboard.slug.toLowerCase().includes(normalizedQuery) ||
+        dashboard.description.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [dashboards, query, tagFilter]);
 
   async function saveDashboard(slug: string) {
     const payload = formState[slug];
@@ -96,8 +118,39 @@ export function AdminDashboardConfigForm({
         </p>
       </div>
 
+      <div className="rounded-[24px] border border-slate-200 bg-white p-5">
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+          <label className="flex items-center gap-3 rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-600">
+            <Search className="h-4 w-4 text-slate-400" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search dashboards by name, slug, or description"
+              className="w-full bg-transparent outline-none"
+            />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => {
+              const isActive = tag === tagFilter;
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setTagFilter(tag)}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                    isActive ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
       <div className="space-y-4">
-        {dashboards.map((dashboard) => {
+        {filteredDashboards.map((dashboard) => {
           const state = formState[dashboard.slug];
           const messages = feedback[dashboard.slug] || {};
 
@@ -198,6 +251,12 @@ export function AdminDashboardConfigForm({
             </div>
           );
         })}
+
+        {!filteredDashboards.length ? (
+          <div className="rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
+            No dashboards match this workspace filter.
+          </div>
+        ) : null}
       </div>
     </div>
   );
