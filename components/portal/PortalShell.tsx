@@ -30,7 +30,6 @@ async function PortalShellInner({
   const shellDescription = isSupportAdmin
     ? "Manage support, dashboard access, and internal review work from one place."
     : "Licensed dashboard access, support workflows, and account management in one authenticated workspace.";
-  const workspaceBadge = isSupportAdmin ? "Internal admin view" : "Private client workspace";
   const subscriberTypeLabel = access.company.subscriberType ? access.company.subscriberType.replace("_", " ") : "subscriber";
   const isCrossWorkspaceSession = access.company.id !== access.homeCompany.id;
 
@@ -118,50 +117,16 @@ async function PortalShellInner({
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs text-emerald-50/80">
-            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">{workspaceBadge}</span>
-            {devToolsEnabled && isSupportAdmin ? (
-              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
-                Testing mode
-              </span>
-            ) : null}
-            {showDevBypassSession ? (
-              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
-                Test sign-in session
-              </span>
-            ) : null}
-            {devToolsEnabled && isSupportAdmin && usageOverride ? (
-              <span className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1.5 text-sky-100">
-                {usageOverride === "available" ? "Hours set to available" : "Hours set to exhausted"}
-              </span>
-            ) : null}
-            {devToolsEnabled && isSupportAdmin ? (
-              <form action="/portal/dev-usage" method="post" className="inline-flex">
-                <input type="hidden" name="redirect" value="/portal/home" />
-                <button
-                  type="submit"
-                  name="mode"
-                  value="available"
-                  className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
-                >
-                  Set hours available
-                </button>
-              </form>
-            ) : null}
-            {devToolsEnabled && isSupportAdmin ? (
-              <form action="/portal/dev-usage" method="post" className="inline-flex">
-                <input type="hidden" name="redirect" value="/portal/home" />
-                <button
-                  type="submit"
-                  name="mode"
-                  value="exhausted"
-                  className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-white transition hover:bg-white/15"
-                >
-                  Set hours exhausted
-                </button>
-              </form>
-            ) : null}
-          </div>
+          {!isSupportAdmin ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs text-emerald-50/80">
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Private client workspace</span>
+              {showDevBypassSession ? (
+                <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
+                  Test sign-in session
+                </span>
+              ) : null}
+            </div>
+          ) : null}
         </header>
 
         <div className="mt-6 flex flex-col gap-5 xl:flex-row">

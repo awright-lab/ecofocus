@@ -747,7 +747,9 @@ export async function getPortalUsageAllowanceByCompany(companyId: string) {
 
 export async function getPortalUsageStatus(user: PortalUser) {
   const billingCompanyId = user.homeCompanyId || user.companyId;
-  const allowance = user.role === "support_admin" ? null : await getPortalUsageAllowanceByCompany(billingCompanyId);
+  const homeCompany = await getPortalHomeCompany(user);
+  const hasUnlimitedInternalUsage = user.role === "support_admin" || homeCompany?.subscriberType === "internal";
+  const allowance = hasUnlimitedInternalUsage ? null : await getPortalUsageAllowanceByCompany(billingCompanyId);
   if (!allowance) {
     return {
       allowance: null,
