@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { cx } from "@/lib/utils";
-import type { PortalCompany, PortalRole } from "@/lib/portal/types";
+import type { PortalRole } from "@/lib/portal/types";
 
 const clientNavItems = [
   { href: "/portal/home", label: "Home", icon: Home },
@@ -36,10 +36,10 @@ const supportAdminNavItems = [
 
 export function PortalSidebar({
   role,
-  accessibleCompanies,
+  showWorkspaceDirectory,
 }: {
   role: PortalRole;
-  accessibleCompanies: PortalCompany[];
+  showWorkspaceDirectory: boolean;
 }) {
   const pathname = usePathname();
   const normalizedPathname =
@@ -52,9 +52,8 @@ export function PortalSidebar({
   const canManageTeam = role === "client_admin" || role === "agency_admin" || role === "support_admin";
   const visibleNavItems = navItems.filter((item) => item.href !== "/portal/team" || canManageTeam);
   const navLabel = role === "support_admin" ? "EcoFocus Workspace" : "Portal Navigation";
-  const shouldShowWorkspaceLink = role === "support_admin" || accessibleCompanies.length > 1;
   const filteredNavItems = visibleNavItems.filter(
-    (item) => item.href !== "/portal/workspaces" || shouldShowWorkspaceLink,
+    (item) => item.href !== "/portal/workspaces" || showWorkspaceDirectory,
   );
 
   return (

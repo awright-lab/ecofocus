@@ -88,19 +88,26 @@ export function PreviewModeControls({
           </div>
 
           <div className="mt-4 space-y-2">
-            <button
-              type="button"
-              onClick={() => updatePreview("off")}
-              disabled={isPending}
-              className={`w-full rounded-2xl border px-3 py-3 text-left text-sm transition ${
-                !previewRole
-                  ? "border-emerald-300 bg-emerald-500/15 text-white"
-                  : "border-white/10 bg-white/5 text-emerald-50/85 hover:bg-white/10"
-              }`}
-            >
-              <div className="font-semibold">EcoFocus admin</div>
-              <div className="mt-1 text-xs text-emerald-100/70">Return to the full internal support workspace.</div>
-            </button>
+            {previewRole ? (
+              <button
+                type="button"
+                onClick={() => updatePreview("off")}
+                disabled={isPending}
+                className="w-full rounded-2xl border border-rose-300/25 bg-rose-400/10 px-3 py-3 text-left text-sm text-white transition hover:bg-rose-400/15"
+              >
+                <div className="font-semibold">Exit preview</div>
+                <div className="mt-1 text-xs text-rose-100/80">
+                  Return to the full EcoFocus admin workspace.
+                </div>
+              </button>
+            ) : (
+              <div className="rounded-2xl border border-emerald-300 bg-emerald-500/15 px-3 py-3 text-left text-sm text-white">
+                <div className="font-semibold">EcoFocus admin</div>
+                <div className="mt-1 text-xs text-emerald-100/70">
+                  You are currently outside of preview mode.
+                </div>
+              </div>
+            )}
 
             {previewableRoles.map((role) => {
               const active = previewRole === role;

@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { WorkspacesDirectory } from "@/components/portal/WorkspacesDirectory";
 import { requirePortalAccess } from "@/lib/portal/auth";
@@ -10,6 +11,13 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalWorkspacesPage() {
   const access = await requirePortalAccess("/portal/workspaces");
+  const canAccessWorkspaceDirectory =
+    !access.isPreviewMode &&
+    (access.effectiveRole === "support_admin" || access.accessibleCompanies.length > 1);
+
+  if (!canAccessWorkspaceDirectory) {
+    redirect("/portal/home");
+  }
 
   return (
     <div className="space-y-6">

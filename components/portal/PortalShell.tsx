@@ -36,6 +36,9 @@ async function PortalShellInner({
       : "Licensed dashboard access, support workflows, and account management in one authenticated workspace.";
   const subscriberTypeLabel = access.company.subscriberType ? access.company.subscriberType.replace("_", " ") : "subscriber";
   const isCrossWorkspaceSession = access.company.id !== access.homeCompany.id;
+  const showWorkspaceDirectory =
+    !access.isPreviewMode &&
+    (access.effectiveRole === "support_admin" || access.accessibleCompanies.length > 1);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
@@ -155,7 +158,7 @@ async function PortalShellInner({
         </header>
 
         <div className="mt-6 flex flex-col gap-5 xl:flex-row">
-          <PortalSidebar role={access.effectiveRole} accessibleCompanies={access.accessibleCompanies} />
+          <PortalSidebar role={access.effectiveRole} showWorkspaceDirectory={showWorkspaceDirectory} />
           <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>
