@@ -21,7 +21,14 @@ export async function getPortalDevUserFromCookies(): Promise<PortalUser | null> 
   const cookieStore = await cookies();
   const role = cookieStore.get(PORTAL_DEV_COOKIE)?.value as PortalRole | undefined;
   if (!role) return null;
-  if (role !== "client_user" && role !== "client_admin" && role !== "support_admin") {
+  if (
+    role !== "client_user" &&
+    role !== "client_admin" &&
+    role !== "agency_user" &&
+    role !== "agency_admin" &&
+    role !== "external_collaborator" &&
+    role !== "support_admin"
+  ) {
     return null;
   }
   return getDevPortalUserByRole(role);

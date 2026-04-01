@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { isPortalWorkspaceManager } from "@/lib/portal/data";
 import { getPortalOrigin } from "@/lib/portal/host";
 import { createPortalTeamInvite } from "@/lib/portal/provisioning";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -11,7 +12,7 @@ const NOINDEX_HEADERS = {
 type InviteBody = {
   name?: string;
   email?: string;
-  role?: "client_user" | "client_admin";
+  role?: "client_user" | "client_admin" | "agency_user" | "agency_admin";
 };
 
 function asJson(body: Record<string, unknown>, status = 200) {
@@ -20,7 +21,7 @@ function asJson(body: Record<string, unknown>, status = 200) {
 
 export async function POST(req: NextRequest) {
   const access = await getPortalAccessContext();
-  if (!access || (access.user.role !== "client_admin" && access.user.role !== "support_admin")) {
+  if (!access || !isPortalWorkspaceManager(access.user.role)) {
     return asJson({ error: "Unauthorized" }, 401);
   }
 
@@ -33,7 +34,15 @@ export async function POST(req: NextRequest) {
 
   const name = String(body.name || "").trim();
   const email = String(body.email || "").trim();
-  const role = body.role === "client_admin" ? "client_admin" : "client_user";
+  const companyType = access.company.subscriberType || "brand";
+  const role =
+    companyType === "agency"
+      ? body.role === "agency_admin"
+        ? "agency_admin"
+        : "agency_user"
+      : body.role === "client_admin"
+        ? "client_admin"
+        : "client_user";
 
   if (!name || !email) {
     return asJson({ error: "Name and email are required." }, 400);

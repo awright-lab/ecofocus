@@ -17,7 +17,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.redirect(new URL("/portal/login", request.url));
   }
 
-  if (role !== "client_user" && role !== "client_admin" && role !== "support_admin") {
+  if (
+    role !== "client_user" &&
+    role !== "client_admin" &&
+    role !== "agency_user" &&
+    role !== "agency_admin" &&
+    role !== "external_collaborator" &&
+    role !== "support_admin"
+  ) {
     const loginUrl = new URL("/portal/login", request.url);
     loginUrl.searchParams.set("redirect", next);
     loginUrl.searchParams.set("error", "invalid_dev_role");

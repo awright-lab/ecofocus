@@ -43,7 +43,8 @@ export function PortalSidebar({ role }: { role: PortalRole }) {
         ? pathname
         : `/portal${pathname}`;
   const navItems = role === "support_admin" ? supportAdminNavItems : clientNavItems;
-  const visibleNavItems = navItems.filter((item) => item.href !== "/portal/team" || role !== "client_user");
+  const canManageTeam = role === "client_admin" || role === "agency_admin" || role === "support_admin";
+  const visibleNavItems = navItems.filter((item) => item.href !== "/portal/team" || canManageTeam);
   const navLabel = role === "support_admin" ? "EcoFocus Workspace" : "Portal Navigation";
 
   return (

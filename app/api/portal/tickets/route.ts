@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     return asJson({ error: "dashboardName, issueType, and description are required." }, 400);
   }
 
-  const allowedDashboard = (await getPortalDashboardsForUser(access.user)).find((dashboard) => dashboard.name === dashboardName);
+  const allowedDashboard = (await getPortalDashboardsForUser(access.user, access.company.id)).find((dashboard) => dashboard.name === dashboardName);
   if (!allowedDashboard) {
     return asJson({ error: "Dashboard not available for this user." }, 403);
   }

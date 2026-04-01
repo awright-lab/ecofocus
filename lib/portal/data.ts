@@ -20,6 +20,7 @@ import type {
   PortalDashboardConfig,
   PortalHelpArticle,
   PortalRole,
+  PortalSubscriberType,
   PortalSubscription,
   PortalTeamInvite,
   PortalTicket,
@@ -29,23 +30,63 @@ import type {
   PortalUsageLogFilters,
   PortalUsageLog,
   PortalUser,
+  PortalWorkspaceMembership,
+  PortalWorkspaceMembershipRole,
+  PortalWorkspaceVisibilityScope,
 } from "@/lib/portal/types";
 
 const roleRank: Record<PortalRole, number> = {
   client_user: 1,
+  agency_user: 1,
+  external_collaborator: 1,
   client_admin: 2,
+  agency_admin: 2,
   support_admin: 3,
 };
 
 export function normalizePortalRole(input?: string | null): PortalRole {
-  if (input === "support_admin" || input === "client_admin" || input === "client_user") {
+  if (
+    input === "support_admin" ||
+    input === "client_admin" ||
+    input === "client_user" ||
+    input === "agency_admin" ||
+    input === "agency_user" ||
+    input === "external_collaborator"
+  ) {
     return input;
   }
   return "client_user";
 }
 
+export function normalizePortalSubscriberType(input?: string | null): PortalSubscriberType {
+  if (input === "agency" || input === "brand" || input === "internal") {
+    return input;
+  }
+  return "brand";
+}
+
+export function normalizeWorkspaceMembershipRole(input?: string | null): PortalWorkspaceMembershipRole {
+  if (
+    input === "workspace_member" ||
+    input === "workspace_admin" ||
+    input === "external_collaborator" ||
+    input === "support_admin"
+  ) {
+    return input;
+  }
+  return "workspace_member";
+}
+
+export function normalizeWorkspaceVisibilityScope(input?: string | null): PortalWorkspaceVisibilityScope {
+  return input === "limited" ? "limited" : "full";
+}
+
 export function hasRequiredRole(userRole: PortalRole, requiredRole: PortalRole) {
   return roleRank[userRole] >= roleRank[requiredRole];
+}
+
+export function isPortalWorkspaceManager(role: PortalRole) {
+  return role === "client_admin" || role === "agency_admin" || role === "support_admin";
 }
 
 async function queryPortalUserByEmail(email?: string | null): Promise<PortalUser | null> {
@@ -55,7 +96,7 @@ async function queryPortalUserByEmail(email?: string | null): Promise<PortalUser
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_users")
-      .select("id, name, email, company_id, role, status")
+      .select("*")
       .ilike("email", email)
       .maybeSingle();
 
@@ -71,6 +112,7 @@ async function queryPortalUserByEmail(email?: string | null): Promise<PortalUser
       name: data.name,
       email: data.email,
       companyId: data.company_id,
+      homeCompanyId: data.home_company_id || data.company_id,
       role: normalizePortalRole(data.role),
       status: data.status,
     };
@@ -88,7 +130,7 @@ async function queryPortalCompanyById(companyId: string): Promise<PortalCompany 
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_companies")
-      .select("id, name, subscription_id")
+      .select("*")
       .eq("id", companyId)
       .maybeSingle();
 
@@ -103,6 +145,9 @@ async function queryPortalCompanyById(companyId: string): Promise<PortalCompany 
       id: data.id,
       name: data.name,
       subscriptionId: data.subscription_id,
+      subscriberType: normalizePortalSubscriberType(data.subscriber_type),
+      allowExternalCollaborators: Boolean(data.allow_external_collaborators),
+      externalAccessPolicy: data.external_access_policy || null,
     };
   } catch (error) {
     console.warn("[portal/data] portal_companies storage unavailable.", {
@@ -118,7 +163,7 @@ async function queryPortalCompanies(): Promise<PortalCompany[] | null> {
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_companies")
-      .select("id, name, subscription_id")
+      .select("*")
       .order("name", { ascending: true });
 
     if (error) {
@@ -130,9 +175,44 @@ async function queryPortalCompanies(): Promise<PortalCompany[] | null> {
       id: company.id,
       name: company.name,
       subscriptionId: company.subscription_id,
+      subscriberType: normalizePortalSubscriberType(company.subscriber_type),
+      allowExternalCollaborators: Boolean(company.allow_external_collaborators),
+      externalAccessPolicy: company.external_access_policy || null,
     }));
   } catch (error) {
     console.warn("[portal/data] portal_companies list storage unavailable.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function queryWorkspaceMembershipsByUser(userId: string): Promise<PortalWorkspaceMembership[] | null> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_workspace_memberships")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.warn("[portal/data] portal_workspace_memberships lookup failed.", { userId, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((membership) => ({
+      id: String(membership.id),
+      userId: String(membership.user_id),
+      workspaceCompanyId: String(membership.workspace_company_id),
+      membershipRole: normalizeWorkspaceMembershipRole(membership.membership_role),
+      visibilityScope: normalizeWorkspaceVisibilityScope(membership.visibility_scope),
+      createdAt: String(membership.created_at),
+      updatedAt: String(membership.updated_at),
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_workspace_memberships storage unavailable.", {
+      userId,
       error: error instanceof Error ? error.message : String(error),
     });
     return null;
@@ -177,7 +257,7 @@ async function queryPortalTeamMembers(companyId: string): Promise<PortalTeamMemb
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_users")
-      .select("id, company_id, name, email, role, status")
+      .select("*")
       .eq("company_id", companyId)
       .order("name", { ascending: true });
 
@@ -189,6 +269,8 @@ async function queryPortalTeamMembers(companyId: string): Promise<PortalTeamMemb
     return (data || []).map((member) => ({
       id: member.id,
       companyId: member.company_id,
+      homeCompanyId: member.home_company_id || member.company_id,
+      homeCompanyName: null,
       name: member.name,
       email: member.email,
       role: normalizePortalRole(member.role),
@@ -210,7 +292,7 @@ async function queryPortalUsersByIds(userIds: string[]): Promise<PortalUser[] | 
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_users")
-      .select("id, name, email, company_id, role, status")
+      .select("*")
       .in("id", userIds);
 
     if (error) {
@@ -223,6 +305,7 @@ async function queryPortalUsersByIds(userIds: string[]): Promise<PortalUser[] | 
       name: user.name,
       email: user.email,
       companyId: user.company_id,
+      homeCompanyId: user.home_company_id || user.company_id,
       role: normalizePortalRole(user.role),
       status: user.status,
     }));
@@ -240,7 +323,7 @@ async function queryPortalTeamInvites(companyId: string): Promise<PortalTeamInvi
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_team_invites")
-      .select("id, company_id, invited_user_id, invited_name, invited_email, invited_role, invited_by_user_id, invite_url, delivery_status, delivery_message, created_at, updated_at, last_sent_at")
+      .select("*")
       .eq("company_id", companyId)
       .order("created_at", { ascending: false })
       .limit(20);
@@ -256,7 +339,12 @@ async function queryPortalTeamInvites(companyId: string): Promise<PortalTeamInvi
       invitedUserId: invite.invited_user_id ? String(invite.invited_user_id) : null,
       invitedName: String(invite.invited_name),
       invitedEmail: String(invite.invited_email),
-      invitedRole: invite.invited_role === "client_admin" ? "client_admin" : "client_user",
+      invitedRole:
+        invite.invited_role === "client_admin" ||
+        invite.invited_role === "agency_admin" ||
+        invite.invited_role === "agency_user"
+          ? invite.invited_role
+          : "client_user",
       invitedByUserId: String(invite.invited_by_user_id),
       inviteUrl: String(invite.invite_url),
       deliveryStatus:
@@ -342,7 +430,7 @@ async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_usage_logs")
-      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes, metadata")
+      .select("*")
       .eq("company_id", companyId)
       .order("event_at", { ascending: false })
       .limit(50);
@@ -356,6 +444,9 @@ async function queryPortalUsageLogs(companyId: string): Promise<PortalUsageLog[]
       id: String(log.id),
       userId: String(log.user_id),
       companyId: String(log.company_id),
+      workspaceCompanyId: log.workspace_company_id ? String(log.workspace_company_id) : String(log.company_id),
+      billingCompanyId: log.billing_company_id ? String(log.billing_company_id) : String(log.company_id),
+      userHomeCompanyId: log.user_home_company_id ? String(log.user_home_company_id) : undefined,
       dashboardId: String(log.dashboard_id),
       dashboardName: String(log.dashboard_name),
       eventType: log.event_type,
@@ -379,11 +470,13 @@ async function queryPortalUsageLogsWithFilters(filters: PortalUsageLogFilters = 
     const admin = getServiceSupabase();
     let query = admin
       .from("portal_usage_logs")
-      .select("id, user_id, company_id, dashboard_id, dashboard_name, event_type, event_at, minutes_tracked, source, notes, metadata")
+      .select("*")
       .order("event_at", { ascending: false })
       .limit(filters.limit ?? 100);
 
     if (filters.companyId) query = query.eq("company_id", filters.companyId);
+    if (filters.workspaceCompanyId) query = query.eq("workspace_company_id", filters.workspaceCompanyId);
+    if (filters.billingCompanyId) query = query.eq("billing_company_id", filters.billingCompanyId);
     if (filters.userId) query = query.eq("user_id", filters.userId);
     if (filters.dashboardId) query = query.eq("dashboard_id", filters.dashboardId);
     if (filters.startAt) query = query.gte("event_at", filters.startAt);
@@ -400,6 +493,9 @@ async function queryPortalUsageLogsWithFilters(filters: PortalUsageLogFilters = 
       id: String(log.id),
       userId: String(log.user_id),
       companyId: String(log.company_id),
+      workspaceCompanyId: log.workspace_company_id ? String(log.workspace_company_id) : String(log.company_id),
+      billingCompanyId: log.billing_company_id ? String(log.billing_company_id) : String(log.company_id),
+      userHomeCompanyId: log.user_home_company_id ? String(log.user_home_company_id) : undefined,
       dashboardId: String(log.dashboard_id),
       dashboardName: String(log.dashboard_name),
       eventType: log.event_type,
@@ -554,25 +650,65 @@ export async function getPortalUserByEmail(email?: string | null): Promise<Porta
   return portalUsers.find((user) => user.email.toLowerCase() === email.toLowerCase()) ?? null;
 }
 
-export async function getPortalDashboardsForUser(user: PortalUser): Promise<PortalDashboard[]> {
+export async function getPortalHomeCompany(user: PortalUser) {
+  const companyId = user.homeCompanyId || user.companyId;
+  const runtimeCompany = await queryPortalCompanyById(companyId);
+  if (runtimeCompany) return runtimeCompany;
+  return portalCompanies.find((company) => company.id === companyId) ?? null;
+}
+
+export async function getPortalWorkspaceMembershipsForUser(user: PortalUser) {
+  const runtimeMemberships = await queryWorkspaceMembershipsByUser(user.id);
+  if (runtimeMemberships) return runtimeMemberships;
+
+  return [
+    {
+      id: `default-${user.id}-${user.companyId}`,
+      userId: user.id,
+      workspaceCompanyId: user.companyId,
+      membershipRole: isPortalWorkspaceManager(user.role) ? "workspace_admin" : "workspace_member",
+      visibilityScope: "full" as const,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
+  ];
+}
+
+export async function getPortalAccessibleCompaniesForUser(user: PortalUser) {
+  if (user.role === "support_admin") {
+    return getPortalCompanies();
+  }
+
+  const companies = await getPortalCompanies();
+  const memberships = await getPortalWorkspaceMembershipsForUser(user);
+  const companyIds = new Set<string>([user.companyId, user.homeCompanyId || user.companyId]);
+
+  memberships.forEach((membership) => {
+    companyIds.add(membership.workspaceCompanyId);
+  });
+
+  return companies.filter((company) => companyIds.has(company.id));
+}
+
+export async function getPortalDashboardsForUser(user: PortalUser, companyId = user.companyId): Promise<PortalDashboard[]> {
   if (user.role === "support_admin") {
     return getPortalDashboardCatalog();
   }
 
-  const runtimeDashboards = await queryCompanyDashboards(user.companyId);
+  const runtimeDashboards = await queryCompanyDashboards(companyId);
   if (runtimeDashboards.length) return runtimeDashboards;
 
   const entitledIds = new Set(
     portalDashboardEntitlements
-      .filter((entitlement) => entitlement.userId === user.id || entitlement.companyId === user.companyId)
+      .filter((entitlement) => entitlement.userId === user.id || entitlement.companyId === companyId)
       .map((entitlement) => entitlement.dashboardId),
   );
 
   return portalDashboards.filter((dashboard) => entitledIds.has(dashboard.id));
 }
 
-export async function getPortalDashboardForUser(user: PortalUser, slug: string) {
-  return (await getPortalDashboardsForUser(user)).find((dashboard) => dashboard.slug === slug) ?? null;
+export async function getPortalDashboardForUser(user: PortalUser, slug: string, companyId = user.companyId) {
+  return (await getPortalDashboardsForUser(user, companyId)).find((dashboard) => dashboard.slug === slug) ?? null;
 }
 
 export async function getPortalCompanies() {
@@ -610,7 +746,8 @@ export async function getPortalUsageAllowanceByCompany(companyId: string) {
 }
 
 export async function getPortalUsageStatus(user: PortalUser) {
-  const allowance = user.role === "support_admin" ? null : await getPortalUsageAllowanceByCompany(user.companyId);
+  const billingCompanyId = user.homeCompanyId || user.companyId;
+  const allowance = user.role === "support_admin" ? null : await getPortalUsageAllowanceByCompany(billingCompanyId);
   if (!allowance) {
     return {
       allowance: null,
@@ -623,7 +760,7 @@ export async function getPortalUsageStatus(user: PortalUser) {
   }
 
   const loggedUsage = await getPortalUsageLogsForAdmin({
-    companyId: user.companyId,
+    companyId: billingCompanyId,
     startAt: `${allowance.periodStart}T00:00:00Z`,
     endAt: `${allowance.periodEnd}T23:59:59Z`,
     limit: 500,
@@ -656,12 +793,13 @@ export async function getPortalUsageStatus(user: PortalUser) {
 }
 
 export async function getPortalUsageLogsForUser(user: PortalUser): Promise<PortalUsageLog[]> {
-  const runtimeLogs = await queryPortalUsageLogs(user.companyId);
+  const companyId = user.homeCompanyId || user.companyId;
+  const runtimeLogs = await queryPortalUsageLogs(companyId);
   if (runtimeLogs.length) {
     if (user.role === "support_admin") {
       return runtimeLogs;
     }
-    return runtimeLogs.filter((log) => log.companyId === user.companyId);
+    return runtimeLogs.filter((log) => log.companyId === companyId);
   }
 
   if (user.role === "support_admin") {
@@ -669,7 +807,7 @@ export async function getPortalUsageLogsForUser(user: PortalUser): Promise<Porta
   }
 
   return portalUsageLogs
-    .filter((log) => log.companyId === user.companyId)
+    .filter((log) => log.companyId === companyId)
     .sort((a, b) => b.eventAt.localeCompare(a.eventAt));
 }
 
@@ -680,6 +818,8 @@ export async function getPortalUsageLogsForAdmin(filters: PortalUsageLogFilters 
   return portalUsageLogs
     .filter((log) => {
       if (filters.companyId && log.companyId !== filters.companyId) return false;
+      if (filters.workspaceCompanyId && log.workspaceCompanyId !== filters.workspaceCompanyId) return false;
+      if (filters.billingCompanyId && log.billingCompanyId !== filters.billingCompanyId) return false;
       if (filters.userId && log.userId !== filters.userId) return false;
       if (filters.dashboardId && log.dashboardId !== filters.dashboardId) return false;
       if (filters.startAt && log.eventAt < filters.startAt) return false;
@@ -704,10 +844,10 @@ export async function getPortalSubscription(user: PortalUser) {
   return portalSubscriptions.find((subscription) => subscription.id === company.subscriptionId) ?? null;
 }
 
-export async function getPortalTeamMembers(user: PortalUser) {
-  const runtimeTeamMembers = await queryPortalTeamMembers(user.companyId);
+export async function getPortalTeamMembers(user: PortalUser, companyId = user.companyId) {
+  const runtimeTeamMembers = await queryPortalTeamMembers(companyId);
   if (runtimeTeamMembers.length) return runtimeTeamMembers;
-  return portalTeamMembers.filter((member) => member.companyId === user.companyId);
+  return portalTeamMembers.filter((member) => member.companyId === companyId);
 }
 
 export async function getPortalTeamMembersByCompany(companyId: string) {

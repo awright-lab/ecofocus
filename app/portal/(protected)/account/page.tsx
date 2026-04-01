@@ -13,8 +13,8 @@ export const metadata = buildPortalMetadata(
 
 export default async function AccountPage() {
   const access = await requirePortalAccess("/portal/account");
-  const dashboards = await getPortalDashboardsForUser(access.user);
-  const teamMembers = await getPortalTeamMembers(access.user);
+  const dashboards = await getPortalDashboardsForUser(access.user, access.company.id);
+  const teamMembers = await getPortalTeamMembers(access.user, access.company.id);
   const usage = await getPortalUsageStatus(access.user);
   const usageLogs = (await getPortalUsageLogsForUser(access.user)).slice(0, 5);
   const teamMembersById = new Map(teamMembers.map((member) => [member.id, member]));

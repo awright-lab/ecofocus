@@ -41,14 +41,17 @@ export async function POST(req: NextRequest) {
     return asJson({ error: "dashboardId and eventType are required." }, 400);
   }
 
-  const allowedDashboard = (await getPortalDashboardsForUser(access.user)).find((dashboard) => dashboard.id === dashboardId);
+  const allowedDashboard = (await getPortalDashboardsForUser(access.user, access.company.id)).find((dashboard) => dashboard.id === dashboardId);
   if (!allowedDashboard) {
     return asJson({ error: "Dashboard not available for this user." }, 403);
   }
 
   const payload = {
     user_id: access.user.id,
-    company_id: access.company.id,
+    company_id: access.billingCompany.id,
+    workspace_company_id: access.company.id,
+    billing_company_id: access.billingCompany.id,
+    user_home_company_id: access.homeCompany.id,
     dashboard_id: allowedDashboard.id,
     dashboard_name: allowedDashboard.name,
     event_type: eventType,

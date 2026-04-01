@@ -33,7 +33,7 @@ export default async function PortalDashboardDetailPage({
     isSupportAdmin && selectedCompanyParam
       ? availableCompanies.find((company) => company.id === selectedCompanyParam) || access.company
       : access.company;
-  const dashboard = await getPortalDashboardForUser(access.user, slug);
+  const dashboard = await getPortalDashboardForUser(access.user, slug, access.company.id);
   if (!dashboard) notFound();
   const usage = await getPortalUsageStatus(access.user);
   const embedState = await getDisplayrEmbedState(

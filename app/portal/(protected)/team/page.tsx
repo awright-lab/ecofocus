@@ -3,7 +3,7 @@ import { TeamInviteForm } from "@/components/portal/TeamInviteForm";
 import { TeamMemberActions } from "@/components/portal/TeamMemberActions";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalRole } from "@/lib/portal/auth";
-import { getPortalTeamInvitesByCompany, getPortalTeamMembers, getPortalUsersByIds } from "@/lib/portal/data";
+import { getPortalTeamInvitesByCompany, getPortalTeamMembers, getPortalUsersByIds, isPortalWorkspaceManager } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDateTime } from "@/lib/utils";
 
@@ -14,8 +14,8 @@ export const metadata = buildPortalMetadata(
 
 export default async function TeamPage() {
   const access = await requirePortalRole("client_admin", "/portal/team");
-  const canManageTeam = true;
-  const teamMembers = await getPortalTeamMembers(access.user);
+  const canManageTeam = isPortalWorkspaceManager(access.user.role);
+  const teamMembers = await getPortalTeamMembers(access.user, access.company.id);
   const inviteHistory = canManageTeam ? await getPortalTeamInvitesByCompany(access.company.id) : [];
   const inviteActorIds = Array.from(new Set(inviteHistory.map((invite) => invite.invitedByUserId)));
   const inviteActors = await getPortalUsersByIds(inviteActorIds);
@@ -63,7 +63,11 @@ export default async function TeamPage() {
             <p className="mt-3 text-sm leading-6 text-slate-600">
               Add a teammate by reserving a seat and marking the user as invited for this account.
             </p>
-            <TeamInviteForm canManage={canManageTeam} seatsAvailable={seatsAvailable} />
+            <TeamInviteForm
+              canManage={canManageTeam}
+              seatsAvailable={seatsAvailable}
+              subscriberType={access.company.subscriberType || "brand"}
+            />
           </div>
         </div>
 

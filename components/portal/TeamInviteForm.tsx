@@ -6,15 +6,18 @@ import { useRouter } from "next/navigation";
 export function TeamInviteForm({
   canManage,
   seatsAvailable,
+  subscriberType,
 }: {
   canManage: boolean;
   seatsAvailable: number;
+  subscriberType: "brand" | "agency" | "internal";
 }) {
   const router = useRouter();
+  const defaultRole = subscriberType === "agency" ? "agency_user" : "client_user";
   const [form, setForm] = useState({
     name: "",
     email: "",
-    role: "client_user",
+    role: defaultRole,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +67,7 @@ export function TeamInviteForm({
       setInviteUrl(data.inviteUrl || null);
       setEmailStatus(data.emailSent ? "sent" : "manual");
       setEmailWarning(data.emailWarning || null);
-      setForm({ name: "", email: "", role: "client_user" });
+      setForm({ name: "", email: "", role: defaultRole });
       setIsSubmitting(false);
       router.refresh();
     } catch {
@@ -106,8 +109,17 @@ export function TeamInviteForm({
         disabled={!canManage || seatsAvailable <= 0}
         className="rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100"
       >
-        <option value="client_user">client user</option>
-        <option value="client_admin">client admin</option>
+        {subscriberType === "agency" ? (
+          <>
+            <option value="agency_user">agency user</option>
+            <option value="agency_admin">agency admin</option>
+          </>
+        ) : (
+          <>
+            <option value="client_user">client user</option>
+            <option value="client_admin">client admin</option>
+          </>
+        )}
       </select>
       <button
         type="submit"
@@ -116,7 +128,7 @@ export function TeamInviteForm({
       >
         {isSubmitting ? "Preparing invite..." : "Prepare team invite"}
       </button>
-      {!canManage ? <p className="text-xs text-slate-500">Only client admins and EcoFocus support admins can add teammates.</p> : null}
+      {!canManage ? <p className="text-xs text-slate-500">Only workspace admins and EcoFocus support admins can add teammates.</p> : null}
       {canManage && seatsAvailable <= 0 ? <p className="text-xs text-amber-700">All purchased seats are currently assigned. Increase the seat count before inviting another teammate.</p> : null}
       {success ? <p className="text-xs font-medium text-emerald-700">{success}</p> : null}
       {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}

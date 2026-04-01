@@ -23,7 +23,7 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
-  const dashboards = (await getPortalDashboardsForUser(access.user)).slice(0, 3);
+  const dashboards = (await getPortalDashboardsForUser(access.user, access.company.id)).slice(0, 3);
   const tickets = (await getPortalTicketsForUser(access.user)).slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
 

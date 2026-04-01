@@ -1,5 +1,6 @@
 import { Building2, LogOut, Shield } from "lucide-react";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
+import { WorkspaceSwitcher } from "@/components/portal/WorkspaceSwitcher";
 import type { PortalAccessContext } from "@/lib/portal/auth";
 import { getPortalDevUsageOverrideFromCookies, isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
 
@@ -32,6 +33,9 @@ async function PortalShellInner({
   const companyChipLabel = isSupportAdmin ? "Internal Workspace" : "Company";
   const workspaceChipText = isSupportAdmin ? "Support administration" : access.subscription.planName;
   const workspaceBadge = isSupportAdmin ? "Internal operations workspace" : "Private client workspace";
+  const showWorkspaceSwitcher = access.accessibleCompanies.length > 1;
+  const subscriberTypeLabel = access.company.subscriberType ? access.company.subscriberType.replace("_", " ") : "subscriber";
+  const isCrossWorkspaceSession = access.company.id !== access.homeCompany.id;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
@@ -48,14 +52,27 @@ async function PortalShellInner({
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {showWorkspaceSwitcher ? (
+                <WorkspaceSwitcher
+                  companies={access.accessibleCompanies.map((company) => ({
+                    id: company.id,
+                    name: company.name,
+                    subscriberType: company.subscriberType,
+                  }))}
+                  currentCompanyId={access.company.id}
+                />
+              ) : null}
               <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
                   <Building2 className="h-3.5 w-3.5" />
                   <span>{companyChipLabel}</span>
                 </div>
                 <p className="mt-2 text-sm font-medium text-white">{access.company.name}</p>
-                <p className="text-xs text-emerald-50/75">{workspaceChipText}</p>
+                <p className="text-xs text-emerald-50/75">
+                  {workspaceChipText}
+                  {!isSupportAdmin ? ` · ${subscriberTypeLabel}` : ""}
+                </p>
               </div>
               <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
                 <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
@@ -65,6 +82,16 @@ async function PortalShellInner({
                 <p className="mt-2 text-sm font-medium text-white">{access.user.name}</p>
                 <p className="text-xs text-emerald-50/75">{access.user.role.replace("_", " ")}</p>
               </div>
+              {isCrossWorkspaceSession ? (
+                <div className="rounded-2xl border border-white/15 bg-white/10 px-4 py-3">
+                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
+                    <Shield className="h-3.5 w-3.5" />
+                    <span>Billed To</span>
+                  </div>
+                  <p className="mt-2 text-sm font-medium text-white">{access.billingCompany.name}</p>
+                  <p className="text-xs text-emerald-50/75">Seats and usage stay with the subscriber that owns this login.</p>
+                </div>
+              ) : null}
             </div>
           </div>
 

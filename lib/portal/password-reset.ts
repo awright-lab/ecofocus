@@ -173,7 +173,14 @@ async function bootstrapPortalUserFromAuth(admin: ReturnType<typeof getServiceSu
       ? metadata.name.trim()
       : email.split("@")[0] || "EcoFocus User";
 
-  if (roleValue !== "client_user" && roleValue !== "client_admin" && roleValue !== "support_admin") {
+  if (
+    roleValue !== "client_user" &&
+    roleValue !== "client_admin" &&
+    roleValue !== "agency_user" &&
+    roleValue !== "agency_admin" &&
+    roleValue !== "external_collaborator" &&
+    roleValue !== "support_admin"
+  ) {
     return null;
   }
 
@@ -187,6 +194,7 @@ async function bootstrapPortalUserFromAuth(admin: ReturnType<typeof getServiceSu
       name,
       email,
       company_id: companyId,
+      home_company_id: companyId,
       role: roleValue,
       status: "active",
       updated_at: new Date().toISOString(),

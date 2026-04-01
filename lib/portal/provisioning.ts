@@ -11,6 +11,7 @@ export type PortalDashboardProvisioningInput = {
 export type PortalAccountProvisioningInput = {
   companyId: string;
   companyName: string;
+  subscriberType?: "brand" | "agency" | "internal";
   subscriptionId: string;
   planName: string;
   seatsPurchased: number;
@@ -20,7 +21,7 @@ export type PortalAccountProvisioningInput = {
   adminUserId: string;
   adminName: string;
   adminEmail: string;
-  adminRole: "client_admin";
+  adminRole: "client_admin" | "agency_admin";
 };
 
 export type PortalTeamInviteInput = {
@@ -28,7 +29,7 @@ export type PortalTeamInviteInput = {
   subscriptionId: string;
   name: string;
   email: string;
-  role: "client_user" | "client_admin";
+  role: "client_user" | "client_admin" | "agency_user" | "agency_admin";
 };
 
 export type PortalTeamStatusUpdateInput = {
@@ -91,6 +92,10 @@ function slugifyUserId(email: string) {
 
 function normalizeEmail(value?: string | null) {
   return normalizeProvisioningValue(value).toLowerCase();
+}
+
+function normalizeSubscriberType(value?: string | null) {
+  return value === "agency" || value === "internal" ? value : "brand";
 }
 
 function buildSubscriptionId(companyId: string) {
@@ -156,6 +161,7 @@ export async function upsertPortalDashboardConfig(input: PortalDashboardProvisio
 
 export async function upsertPortalAccountRecords(input: PortalAccountProvisioningInput) {
   const admin = getServiceSupabase();
+  const subscriberType = normalizeSubscriberType(input.subscriberType);
 
   const { error: subscriptionError } = await admin.from("portal_subscriptions").upsert(
     {
@@ -176,6 +182,9 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
       id: input.companyId,
       name: input.companyName,
       subscription_id: input.subscriptionId,
+      subscriber_type: subscriberType,
+      allow_external_collaborators: subscriberType === "internal",
+      external_access_policy: subscriberType === "internal" ? "support_admin_only" : null,
     },
     { onConflict: "id" },
   );
@@ -188,6 +197,7 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
       name: input.adminName,
       email: input.adminEmail,
       company_id: input.companyId,
+      home_company_id: input.companyId,
       role: input.adminRole,
       status: "active",
     },
@@ -195,6 +205,19 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
   );
 
   if (userError) throw new Error(userError.message);
+
+  const membershipRole = input.adminRole === "agency_admin" ? "workspace_admin" : "workspace_admin";
+  const { error: membershipError } = await admin.from("portal_workspace_memberships").upsert(
+    {
+      workspace_company_id: input.companyId,
+      user_id: input.adminUserId,
+      membership_role: membershipRole,
+      visibility_scope: "full",
+    },
+    { onConflict: "workspace_company_id,user_id" },
+  );
+
+  if (membershipError) throw new Error(membershipError.message);
 }
 
 export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
@@ -208,11 +231,16 @@ export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
 
   const { data: existingUser, error: existingUserError } = await admin
     .from("portal_users")
-    .select("id, company_id, status")
+    .select("id, company_id, home_company_id, status")
     .ilike("email", email)
     .maybeSingle();
 
   if (existingUserError) throw new Error(existingUserError.message);
+  if (existingUser && (existingUser.home_company_id || existingUser.company_id) !== input.companyId) {
+    throw new Error(
+      "A portal user with this email already belongs to a different subscriber account. Cross-account access should be granted through workspace memberships, not by moving the user.",
+    );
+  }
   if (existingUser && existingUser.company_id === input.companyId && existingUser.status !== "inactive") {
     throw new Error("A portal user with this email already exists for the selected company.");
   }
@@ -237,6 +265,7 @@ export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
       name,
       email,
       company_id: input.companyId,
+      home_company_id: input.companyId,
       role: input.role,
       status: "invited",
     },
@@ -244,6 +273,18 @@ export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
   );
 
   if (userError) throw new Error(userError.message);
+
+  const { error: membershipError } = await admin.from("portal_workspace_memberships").upsert(
+    {
+      workspace_company_id: input.companyId,
+      user_id: userId,
+      membership_role: input.role === "client_admin" || input.role === "agency_admin" ? "workspace_admin" : "workspace_member",
+      visibility_scope: "full",
+    },
+    { onConflict: "workspace_company_id,user_id" },
+  );
+
+  if (membershipError) throw new Error(membershipError.message);
 
   const seatsUsedIncrement = existingUser?.status === "inactive" || !existingUser ? 1 : 0;
   const { error: subscriptionUpdateError } = await admin

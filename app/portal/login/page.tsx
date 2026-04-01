@@ -76,6 +76,8 @@ export default async function PortalLoginPage({
                   {[
                     ["client_user", "Client User"],
                     ["client_admin", "Client Admin"],
+                    ["agency_user", "Agency User"],
+                    ["agency_admin", "Agency Admin"],
                     ["support_admin", "Support Admin"],
                   ].map(([value, label]) => (
                     <button

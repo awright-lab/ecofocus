@@ -1,10 +1,27 @@
-export type PortalRole = "client_user" | "client_admin" | "support_admin";
+export type PortalSubscriberType = "brand" | "agency" | "internal";
+
+export type PortalRole =
+  | "client_user"
+  | "client_admin"
+  | "agency_user"
+  | "agency_admin"
+  | "external_collaborator"
+  | "support_admin";
+
+export type PortalWorkspaceMembershipRole =
+  | "workspace_member"
+  | "workspace_admin"
+  | "external_collaborator"
+  | "support_admin";
+
+export type PortalWorkspaceVisibilityScope = "full" | "limited";
 
 export type PortalUser = {
   id: string;
   name: string;
   email: string;
   companyId: string;
+  homeCompanyId?: string;
   role: PortalRole;
   status?: "active" | "invited" | "inactive";
 };
@@ -13,10 +30,25 @@ export type PortalCompany = {
   id: string;
   name: string;
   subscriptionId: string;
+  subscriberType?: PortalSubscriberType;
+  allowExternalCollaborators?: boolean;
+  externalAccessPolicy?: string | null;
+};
+
+export type PortalWorkspaceMembership = {
+  id: string;
+  userId: string;
+  workspaceCompanyId: string;
+  membershipRole: PortalWorkspaceMembershipRole;
+  visibilityScope: PortalWorkspaceVisibilityScope;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type PortalUsageLogFilters = {
   companyId?: string;
+  workspaceCompanyId?: string;
+  billingCompanyId?: string;
   userId?: string;
   dashboardId?: string;
   startAt?: string;
@@ -79,6 +111,9 @@ export type PortalUsageLog = {
   id: string;
   userId: string;
   companyId: string;
+  workspaceCompanyId?: string;
+  billingCompanyId?: string;
+  userHomeCompanyId?: string;
   dashboardId: string;
   dashboardName: string;
   eventType: PortalUsageLogEvent;
@@ -124,6 +159,8 @@ export type PortalHelpArticle = {
 export type PortalTeamMember = {
   id: string;
   companyId: string;
+  homeCompanyId?: string;
+  homeCompanyName?: string | null;
   name: string;
   email: string;
   role: PortalRole;
@@ -136,7 +173,7 @@ export type PortalTeamInvite = {
   invitedUserId?: string | null;
   invitedName: string;
   invitedEmail: string;
-  invitedRole: "client_user" | "client_admin";
+  invitedRole: Exclude<PortalRole, "external_collaborator" | "support_admin">;
   invitedByUserId: string;
   inviteUrl: string;
   deliveryStatus: "sent" | "manual_only" | "failed";

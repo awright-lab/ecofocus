@@ -19,7 +19,7 @@ create index if not exists portal_usage_allowances_period_idx
 alter table public.portal_usage_allowances enable row level security;
 
 comment on table public.portal_usage_allowances is
-  'Company-level dashboard hour allowances for the EcoFocus portal.';
+  'Subscriber-account dashboard hour allowances for the EcoFocus portal. These are the billing-side allowances, not shared workspace totals.';
 
 create or replace function public.set_portal_usage_allowances_updated_at()
 returns trigger

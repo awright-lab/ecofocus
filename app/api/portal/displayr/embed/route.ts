@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Dashboard mapping not available." }, { status: 404, headers: NOINDEX_HEADERS });
   }
 
-  const dashboard = await getPortalDashboardForUser(access.user, payload.dashboardSlug);
+  const dashboard = await getPortalDashboardForUser(access.user, payload.dashboardSlug, access.company.id);
   if (dashboard) {
     await logDisplayrEmbedRedirectEvent({
       userId: access.user.id,

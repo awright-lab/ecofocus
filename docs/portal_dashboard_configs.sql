@@ -29,10 +29,10 @@ alter table public.portal_dashboard_configs enable row level security;
 -- through server-side portal provisioning and dashboard-rendering code.
 
 comment on table public.portal_dashboard_configs is
-  'Private company-scoped dashboard embed configuration for the EcoFocus portal.';
+  'Private workspace-scoped dashboard embed configuration for the EcoFocus portal.';
 
 comment on column public.portal_dashboard_configs.company_id is
-  'Portal company/account identifier. One company can have multiple dashboard slugs configured.';
+  'Workspace owner account identifier. One subscriber workspace can have multiple dashboard slugs configured.';
 
 comment on column public.portal_dashboard_configs.dashboard_slug is
   'Portal dashboard slug, e.g. interactive-dashboard-2024.';

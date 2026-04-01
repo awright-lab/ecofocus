@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { isPortalWorkspaceManager } from "@/lib/portal/data";
 import { updatePortalTeamMemberStatus } from "@/lib/portal/provisioning";
 
 const NOINDEX_HEADERS = {
@@ -16,7 +17,7 @@ function asJson(body: Record<string, unknown>, status = 200) {
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const access = await getPortalAccessContext();
-  if (!access || (access.user.role !== "client_admin" && access.user.role !== "support_admin")) {
+  if (!access || !isPortalWorkspaceManager(access.user.role)) {
     return asJson({ error: "Unauthorized" }, 401);
   }
 

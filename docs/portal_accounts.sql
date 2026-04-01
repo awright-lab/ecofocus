@@ -19,6 +19,9 @@ create table if not exists public.portal_companies (
   id text primary key,
   name text not null,
   subscription_id text not null references public.portal_subscriptions(id) on delete restrict,
+  subscriber_type text not null default 'brand' check (subscriber_type in ('brand', 'agency', 'internal')),
+  allow_external_collaborators boolean not null default false,
+  external_access_policy text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -28,11 +31,27 @@ create table if not exists public.portal_users (
   name text not null,
   email text not null unique,
   company_id text not null references public.portal_companies(id) on delete cascade,
-  role text not null check (role in ('client_user', 'client_admin', 'support_admin')),
+  home_company_id text not null references public.portal_companies(id) on delete cascade,
+  role text not null check (role in ('client_user', 'client_admin', 'agency_user', 'agency_admin', 'external_collaborator', 'support_admin')),
   status text not null default 'active' check (status in ('active', 'invited', 'inactive')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.portal_companies
+  add column if not exists subscriber_type text not null default 'brand',
+  add column if not exists allow_external_collaborators boolean not null default false,
+  add column if not exists external_access_policy text;
+
+alter table public.portal_users
+  add column if not exists home_company_id text references public.portal_companies(id) on delete cascade;
+
+update public.portal_users
+set home_company_id = company_id
+where home_company_id is null;
+
+alter table public.portal_users
+  alter column home_company_id set not null;
 
 create index if not exists portal_users_email_idx
   on public.portal_users (lower(email));
@@ -48,10 +67,10 @@ comment on table public.portal_subscriptions is
   'Private EcoFocus portal subscription records used for seat and renewal management.';
 
 comment on table public.portal_companies is
-  'Private EcoFocus portal company/account records.';
+  'Private EcoFocus portal subscriber accounts and workspace owners.';
 
 comment on table public.portal_users is
-  'Private EcoFocus portal users, including client admins and support admins.';
+  'Private EcoFocus portal users. company_id remains the default workspace, while home_company_id owns seats and usage.';
 
 create or replace function public.set_portal_accounts_updated_at()
 returns trigger
@@ -104,15 +123,21 @@ set
 insert into public.portal_companies (
   id,
   name,
-  subscription_id
+  subscription_id,
+  subscriber_type,
+  allow_external_collaborators,
+  external_access_policy
 )
 values
-  ('company-greenloop', 'GreenLoop Foods', 'sub-greenloop'),
-  ('company-ecofocus', 'EcoFocus Research', 'sub-ecofocus')
+  ('company-greenloop', 'GreenLoop Foods', 'sub-greenloop', 'brand', false, null),
+  ('company-ecofocus', 'EcoFocus Research', 'sub-ecofocus', 'internal', true, 'support_admin_only')
 on conflict (id) do update
 set
   name = excluded.name,
   subscription_id = excluded.subscription_id,
+  subscriber_type = excluded.subscriber_type,
+  allow_external_collaborators = excluded.allow_external_collaborators,
+  external_access_policy = excluded.external_access_policy,
   updated_at = now();
 
 insert into public.portal_users (
@@ -120,18 +145,20 @@ insert into public.portal_users (
   name,
   email,
   company_id,
+  home_company_id,
   role,
   status
 )
 values
-  ('user-maya', 'Maya Hernandez', 'maya@greenloopfoods.com', 'company-greenloop', 'client_admin', 'active'),
-  ('user-elliot', 'Elliot Park', 'elliot@greenloopfoods.com', 'company-greenloop', 'client_user', 'active'),
-  ('user-sam', 'Sam Patel', 'sam@ecofocusresearch.com', 'company-ecofocus', 'support_admin', 'active')
+  ('user-maya', 'Maya Hernandez', 'maya@greenloopfoods.com', 'company-greenloop', 'company-greenloop', 'client_admin', 'active'),
+  ('user-elliot', 'Elliot Park', 'elliot@greenloopfoods.com', 'company-greenloop', 'company-greenloop', 'client_user', 'active'),
+  ('user-sam', 'Sam Patel', 'sam@ecofocusresearch.com', 'company-ecofocus', 'company-ecofocus', 'support_admin', 'active')
 on conflict (id) do update
 set
   name = excluded.name,
   email = excluded.email,
   company_id = excluded.company_id,
+  home_company_id = excluded.home_company_id,
   role = excluded.role,
   status = excluded.status,
   updated_at = now();
