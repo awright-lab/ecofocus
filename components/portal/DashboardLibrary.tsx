@@ -1,10 +1,12 @@
 "use client";
 
-import { useDeferredValue, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { DashboardCard } from "@/components/portal/DashboardCard";
 import { EmptyState } from "@/components/portal/EmptyState";
 import type { PortalDashboard } from "@/lib/portal/types";
+
+const DASHBOARDS_PER_PAGE = 6;
 
 export function DashboardLibrary({
   dashboards,
@@ -17,6 +19,7 @@ export function DashboardLibrary({
 }) {
   const [query, setQuery] = useState("");
   const [tag, setTag] = useState("All");
+  const [page, setPage] = useState(1);
   const deferredQuery = useDeferredValue(query);
 
   const tags = ["All", ...Array.from(new Set(dashboards.map((dashboard) => dashboard.accessTag)))];
@@ -32,6 +35,21 @@ export function DashboardLibrary({
       dashboard.accessTag.toLowerCase().includes(normalizedQuery)
     );
   });
+  const totalPages = Math.max(1, Math.ceil(filteredDashboards.length / DASHBOARDS_PER_PAGE));
+  const paginatedDashboards = filteredDashboards.slice(
+    (page - 1) * DASHBOARDS_PER_PAGE,
+    page * DASHBOARDS_PER_PAGE,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [normalizedQuery, tag]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   return (
     <div className="space-y-5">
@@ -67,20 +85,54 @@ export function DashboardLibrary({
       </div>
 
       {filteredDashboards.length ? (
-        <section className="grid gap-5 xl:grid-cols-2">
-          {filteredDashboards.map((dashboard) => (
-            <DashboardCard
-              key={dashboard.id}
-              dashboard={dashboard}
-              usageLocked={usageLocked}
-              href={
-                companyId
-                  ? `/portal/dashboards/${dashboard.slug}?company=${encodeURIComponent(companyId)}`
-                  : undefined
-              }
-            />
-          ))}
-        </section>
+        <>
+          <section className="grid gap-5 xl:grid-cols-2">
+            {paginatedDashboards.map((dashboard) => (
+              <DashboardCard
+                key={dashboard.id}
+                dashboard={dashboard}
+                usageLocked={usageLocked}
+                href={
+                  companyId
+                    ? `/portal/dashboards/${dashboard.slug}?company=${encodeURIComponent(companyId)}`
+                    : undefined
+                }
+              />
+            ))}
+          </section>
+
+          {totalPages > 1 ? (
+            <div className="flex flex-col gap-3 rounded-[28px] border border-slate-200 bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-slate-600">
+                Showing {(page - 1) * DASHBOARDS_PER_PAGE + 1}
+                {" "}-{" "}
+                {Math.min(page * DASHBOARDS_PER_PAGE, filteredDashboards.length)}
+                {" "}of {filteredDashboards.length} dashboards
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={page === 1}
+                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Previous
+                </button>
+                <span className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                  disabled={page === totalPages}
+                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          ) : null}
+        </>
       ) : (
         <EmptyState
           icon={Search}
