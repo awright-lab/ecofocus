@@ -7,6 +7,7 @@ import { SectionHeader } from "@/components/portal/SectionHeader";
 import {
   getPortalCompanies,
   getPortalDashboardCatalog,
+  isPortalDashboardCatalogStorageReady,
   getPortalDashboardConfigsByCompany,
   getPortalUsageLogsForAdmin,
   getPortalUsersByIds,
@@ -36,6 +37,7 @@ export default async function AdminDashboardsPage({
         const selectedCompanyId = selectedCompanyParam || access.company.id || companies[0]?.id || "";
         const selectedCompany = companies.find((company) => company.id === selectedCompanyId) || null;
         const dashboardCatalog = await getPortalDashboardCatalog();
+        const isCatalogStorageReady = await isPortalDashboardCatalogStorageReady();
         const selectedCompanyDashboardConfigs = selectedCompanyId
           ? await getPortalDashboardConfigsByCompany(selectedCompanyId)
           : [];
@@ -244,7 +246,10 @@ export default async function AdminDashboardsPage({
               </div>
             </section>
 
-            <AdminDashboardCatalogManager dashboards={dashboardCatalog} />
+            <AdminDashboardCatalogManager
+              dashboards={dashboardCatalog}
+              storageReady={isCatalogStorageReady}
+            />
           </div>
         );
       }}

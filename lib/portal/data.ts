@@ -808,6 +808,10 @@ export async function getPortalDashboardCatalog() {
   return [...portalDashboards].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+export async function isPortalDashboardCatalogStorageReady() {
+  return (await queryPortalDashboardCatalog()) !== null;
+}
+
 export async function getPortalDashboardConfigsByCompany(companyId: string) {
   const runtimeConfigs = await queryPortalDashboardConfigs(companyId);
   if (runtimeConfigs) return runtimeConfigs;

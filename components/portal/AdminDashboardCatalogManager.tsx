@@ -25,8 +25,10 @@ function buildState(dashboard?: PortalDashboard): DashboardCatalogFormState {
 
 export function AdminDashboardCatalogManager({
   dashboards,
+  storageReady,
 }: {
   dashboards: PortalDashboard[];
+  storageReady: boolean;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -66,13 +68,17 @@ export function AdminDashboardCatalogManager({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formState),
       });
-      const data = (await response.json()) as { error?: string };
+      const data = (await response.json()) as { error?: string; slug?: string };
       if (!response.ok) {
         setFeedback({ error: data.error || "We couldn't save this dashboard right now." });
         setIsSaving(false);
         return;
       }
 
+      if (data.slug) {
+        setSelectedSlug(data.slug);
+        setFormState((current) => ({ ...current, slug: data.slug || current.slug }));
+      }
       setFeedback({ success: selectedSlug ? "Dashboard details updated." : "Dashboard added to the catalog." });
       setIsSaving(false);
       router.refresh();
@@ -122,11 +128,18 @@ export function AdminDashboardCatalogManager({
         <button
           type="button"
           onClick={() => selectDashboard(null)}
+          disabled={!storageReady}
           className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
         >
           Add dashboard
         </button>
       </div>
+
+      {!storageReady ? (
+        <div className="mt-5 rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Dashboard catalog editing needs runtime storage first. Apply the `portal_dashboards.sql` migration in Supabase to add, remove, or recategorize dashboards from this page.
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="space-y-4">
@@ -183,7 +196,7 @@ export function AdminDashboardCatalogManager({
               <button
                 type="button"
                 onClick={deleteDashboard}
-                disabled={isDeleting}
+                disabled={isDeleting || !storageReady}
                 className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Trash2 className="h-4 w-4" />
@@ -263,7 +276,7 @@ export function AdminDashboardCatalogManager({
             <button
               type="button"
               onClick={saveDashboard}
-              disabled={isSaving}
+              disabled={isSaving || !storageReady}
               className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSaving ? "Saving..." : selectedSlug ? "Save catalog changes" : "Create dashboard"}

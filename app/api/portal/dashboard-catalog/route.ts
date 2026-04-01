@@ -19,6 +19,14 @@ function asJson(body: Record<string, unknown>, status = 200) {
   return NextResponse.json(body, { status, headers: NOINDEX_HEADERS });
 }
 
+function normalizeCatalogStorageError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (message.includes("portal_dashboards")) {
+    return "Dashboard catalog storage is not ready yet. Apply docs/portal_dashboards.sql in Supabase first.";
+  }
+  return message;
+}
+
 function slugify(input: string) {
   return input
     .toLowerCase()
@@ -91,14 +99,14 @@ export async function POST(req: NextRequest) {
     );
 
     if (error) {
-      return asJson({ error: error.message }, 500);
+      return asJson({ error: normalizeCatalogStorageError(error.message) }, 500);
     }
 
     return asJson({ ok: true, slug });
   } catch (error) {
     return asJson(
       {
-        error: error instanceof Error ? error.message : "Dashboard catalog storage unavailable.",
+        error: normalizeCatalogStorageError(error),
       },
       503,
     );
@@ -122,19 +130,19 @@ export async function DELETE(req: NextRequest) {
       .eq("dashboard_slug", slug);
 
     if (deleteConfigsError) {
-      return asJson({ error: deleteConfigsError.message }, 500);
+      return asJson({ error: normalizeCatalogStorageError(deleteConfigsError.message) }, 500);
     }
 
     const { error } = await admin.from("portal_dashboards").delete().eq("slug", slug);
     if (error) {
-      return asJson({ error: error.message }, 500);
+      return asJson({ error: normalizeCatalogStorageError(error.message) }, 500);
     }
 
     return asJson({ ok: true });
   } catch (error) {
     return asJson(
       {
-        error: error instanceof Error ? error.message : "Dashboard catalog storage unavailable.",
+        error: normalizeCatalogStorageError(error),
       },
       503,
     );
