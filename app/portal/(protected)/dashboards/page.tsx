@@ -2,7 +2,11 @@ import { DashboardLibrary } from "@/components/portal/DashboardLibrary";
 import { EmptyState } from "@/components/portal/EmptyState";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalDashboardsForUser, getPortalUsageStatus } from "@/lib/portal/data";
+import {
+  getPortalDashboardConfigsByCompany,
+  getPortalDashboardsForUser,
+  getPortalUsageStatus,
+} from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { LayoutDashboard } from "lucide-react";
 
@@ -13,7 +17,18 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalDashboardsPage() {
   const access = await requirePortalAccess("/portal/dashboards");
-  const dashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
+  const baseDashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
+  const activeWorkspaceConfigs =
+    access.effectiveUser.role === "support_admin"
+      ? (await getPortalDashboardConfigsByCompany(access.company.id)).filter((config) => config.isActive)
+      : [];
+  const activeWorkspaceConfigsBySlug = new Map(
+    activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),
+  );
+  const dashboards = baseDashboards.map((dashboard) => ({
+    ...dashboard,
+    embedUrl: activeWorkspaceConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
+  }));
   const usage = await getPortalUsageStatus(access.effectiveUser);
 
   return (
