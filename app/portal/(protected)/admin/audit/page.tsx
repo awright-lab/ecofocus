@@ -16,6 +16,7 @@ export const metadata = buildPortalMetadata(
 );
 
 const AUDIT_PAGE_SIZE = 6;
+const USAGE_SESSION_GAP_MS = 2 * 60 * 1000;
 
 function formatTrackedDuration(totalMinutes: number) {
   const roundedMinutes = Math.max(Math.round(totalMinutes), 0);
@@ -31,6 +32,19 @@ function formatTrackedDuration(totalMinutes: number) {
   }
 
   return `${hours}h ${minutes}m`;
+}
+
+function formatTimeRange(startAt: string, endAt: string) {
+  const start = new Date(startAt);
+  const end = new Date(endAt);
+
+  return `${start.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  })} - ${end.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  })}`;
 }
 
 export default async function AdminAuditPage({
@@ -70,20 +84,68 @@ export default async function AdminAuditPage({
             (log.metadata?.phase === "token_issued" || log.metadata?.phase === "redirect_served"),
         );
         const usageAuditLogs = allAuditLogs.filter((log) => log.eventType === "viewer_session");
+        const groupedUsageSessions = Array.from(
+          usageAuditLogs
+            .slice()
+            .sort((a, b) => new Date(a.eventAt).getTime() - new Date(b.eventAt).getTime())
+            .reduce((sessions, log) => {
+              const lastSession = sessions.at(-1);
+              const logTime = new Date(log.eventAt).getTime();
+              const logStartTime = logTime - log.minutesTracked * 60_000;
+              const workspaceCompanyId = log.workspaceCompanyId || log.companyId;
+              const sameSurface =
+                lastSession &&
+                lastSession.userId === log.userId &&
+                lastSession.dashboardId === log.dashboardId &&
+                lastSession.workspaceCompanyId === workspaceCompanyId;
+              const closeEnough =
+                lastSession && logStartTime - new Date(lastSession.endAt).getTime() <= USAGE_SESSION_GAP_MS;
+
+              if (sameSurface && closeEnough) {
+                lastSession.endAt = log.eventAt;
+                lastSession.minutesTracked += log.minutesTracked;
+                lastSession.logIds.push(log.id);
+              } else {
+                sessions.push({
+                  id: `session-${log.id}`,
+                  logIds: [log.id],
+                  userId: log.userId,
+                  dashboardId: log.dashboardId,
+                  dashboardName: log.dashboardName,
+                  workspaceCompanyId,
+                  startedAt: new Date(logStartTime).toISOString(),
+                  endAt: log.eventAt,
+                  minutesTracked: log.minutesTracked,
+                });
+              }
+
+              return sessions;
+            }, [] as Array<{
+              id: string;
+              logIds: string[];
+              userId: string;
+              dashboardId: string;
+              dashboardName: string;
+              workspaceCompanyId: string;
+              startedAt: string;
+              endAt: string;
+              minutesTracked: number;
+            }>),
+        ).sort((a, b) => new Date(b.endAt).getTime() - new Date(a.endAt).getTime());
         const totalTrackedMinutes = usageAuditLogs.reduce((sum, log) => sum + log.minutesTracked, 0);
         const totalTrackedDuration = formatTrackedDuration(totalTrackedMinutes);
         const uniqueUsageActors = new Set(usageAuditLogs.map((log) => log.userId)).size;
         const embedPage = Math.max(Number.parseInt(embedPageParam || "1", 10) || 1, 1);
         const usagePage = Math.max(Number.parseInt(usagePageParam || "1", 10) || 1, 1);
         const embedTotalPages = Math.max(Math.ceil(embedAuditLogs.length / AUDIT_PAGE_SIZE), 1);
-        const usageTotalPages = Math.max(Math.ceil(usageAuditLogs.length / AUDIT_PAGE_SIZE), 1);
+        const usageTotalPages = Math.max(Math.ceil(groupedUsageSessions.length / AUDIT_PAGE_SIZE), 1);
         const currentEmbedPage = Math.min(embedPage, embedTotalPages);
         const currentUsagePage = Math.min(usagePage, usageTotalPages);
         const paginatedEmbedAuditLogs = embedAuditLogs.slice(
           (currentEmbedPage - 1) * AUDIT_PAGE_SIZE,
           currentEmbedPage * AUDIT_PAGE_SIZE,
         );
-        const paginatedUsageAuditLogs = usageAuditLogs.slice(
+        const paginatedUsageSessions = groupedUsageSessions.slice(
           (currentUsagePage - 1) * AUDIT_PAGE_SIZE,
           currentUsagePage * AUDIT_PAGE_SIZE,
         );
@@ -345,7 +407,7 @@ export default async function AdminAuditPage({
                   <div>
                     <h3 className="text-lg font-semibold text-slate-950">Usage audit</h3>
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Inspect tracked dashboard sessions and the users responsible for them.
+                      Inspect grouped dashboard sessions and the users responsible for them.
                     </p>
                   </div>
                   <Link
@@ -357,17 +419,18 @@ export default async function AdminAuditPage({
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  {usageAuditLogs.length ? (
-                    paginatedUsageAuditLogs.map((log) => {
-                      const actor = auditUsersById.get(log.userId);
+                  {groupedUsageSessions.length ? (
+                    paginatedUsageSessions.map((session) => {
+                      const actor = auditUsersById.get(session.userId);
                       return (
-                        <div key={log.id} className="rounded-[24px] bg-slate-50 p-4">
+                        <div key={session.id} className="rounded-[24px] bg-slate-50 p-4">
                           <div className="flex items-center justify-between gap-3">
-                            <p className="font-semibold text-slate-900">{log.dashboardName}</p>
-                            <p className="text-sm font-medium text-slate-700">{formatTrackedDuration(log.minutesTracked)}</p>
+                            <p className="font-semibold text-slate-900">{session.dashboardName}</p>
+                            <p className="text-sm font-medium text-slate-700">{formatTrackedDuration(session.minutesTracked)}</p>
                           </div>
-                          <p className="mt-1 text-sm text-slate-600">{actor?.name || log.userId}</p>
-                          <p className="mt-1 text-xs text-slate-500">{formatDateTime(log.eventAt)}</p>
+                          <p className="mt-1 text-sm text-slate-600">{actor?.name || session.userId}</p>
+                          <p className="mt-1 text-xs text-slate-500">{formatDate(session.endAt)}</p>
+                          <p className="mt-1 text-xs text-slate-500">{formatTimeRange(session.startedAt, session.endAt)}</p>
                         </div>
                       );
                     })
@@ -378,7 +441,7 @@ export default async function AdminAuditPage({
                   )}
                 </div>
 
-                {usageAuditLogs.length > AUDIT_PAGE_SIZE ? (
+                {groupedUsageSessions.length > AUDIT_PAGE_SIZE ? (
                   <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
                     <p className="text-sm text-slate-600">
                       Page {currentUsagePage} of {usageTotalPages}
