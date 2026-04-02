@@ -198,14 +198,22 @@ export function AdminSupportQueueTable({
               </div>
             </div>
             <div className="space-y-1 text-slate-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 min-[1180px]:hidden">Workspace</p>
               <p className="font-medium text-slate-900 min-[1180px]:font-normal">{ticket.companyName}</p>
-              <p className="text-xs text-slate-500 min-[1180px]:hidden">Workspace</p>
             </div>
             <div className="hidden self-center min-[1180px]:block">
               <TicketStatusBadge status={ticket.status} />
             </div>
             <div className="hidden self-center min-[1180px]:block">
               <PriorityBadge priority={ticket.priority} />
+            </div>
+            <div className="space-y-2 min-[1180px]:hidden">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Attention</p>
+              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                {ticket.attentionLabel}
+              </span>
+              <p className="text-xs text-slate-500">{ticket.awaitingLabel}</p>
+              <p className="text-xs font-medium text-slate-600">{ticket.escalationLabel}</p>
             </div>
             <div className="hidden self-center min-[1180px]:block">
               <div className="space-y-2">
@@ -217,10 +225,11 @@ export function AdminSupportQueueTable({
               </div>
             </div>
             <div className="space-y-1 text-slate-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 min-[1180px]:hidden">Owner</p>
               <p className="font-medium text-slate-900 min-[1180px]:font-normal">{ticket.ownerName}</p>
-              <p className="text-xs text-slate-500 min-[1180px]:hidden">Owner</p>
             </div>
             <div className="rounded-[24px] bg-slate-50 p-4">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 min-[1180px]:hidden">Queue actions</p>
               <TicketAdminControls
                 ticketId={ticket.id}
                 currentStatus={ticket.status}
@@ -230,6 +239,7 @@ export function AdminSupportQueueTable({
               />
             </div>
             <div className="space-y-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 min-[1180px]:hidden">Updated</p>
               <p className="text-slate-600">{ticket.updatedLabel}</p>
               <p className="text-xs text-slate-500">{formatTicketAge(ticket.ticketAgeMinutes)}</p>
               <Link

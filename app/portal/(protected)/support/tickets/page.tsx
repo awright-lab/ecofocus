@@ -52,7 +52,7 @@ export default async function TicketsPage() {
       </section>
 
       <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white">
-        <div className="grid grid-cols-[1.35fr_0.85fr_0.7fr_0.95fr_1.1fr_0.8fr] gap-4 border-b border-slate-200 px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <div className="hidden grid-cols-[1.35fr_0.85fr_0.7fr_0.95fr_1.1fr_0.8fr] gap-4 border-b border-slate-200 px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 md:grid">
           <span>Ticket</span>
           <span>Status</span>
           <span>Priority</span>
@@ -68,45 +68,66 @@ export default async function TicketsPage() {
           });
 
           return (
-          <div key={ticket.id} className="grid grid-cols-[1.35fr_0.85fr_0.7fr_0.95fr_1.1fr_0.8fr] gap-4 border-b border-slate-100 px-6 py-5 text-sm last:border-b-0">
-            <div>
-              <p className="font-semibold text-slate-900">{ticket.subject}</p>
-              <p className="mt-1 text-slate-600">{ticket.dashboardName}</p>
-              <p className="mt-2 text-xs text-slate-500">{formatResponseTime(lifecycle.firstResponseMinutes)}</p>
+            <div
+              key={ticket.id}
+              className="border-b border-slate-100 px-6 py-5 text-sm last:border-b-0"
+            >
+              <div className="grid gap-4 md:grid-cols-[1.35fr_0.85fr_0.7fr_0.95fr_1.1fr_0.8fr] md:gap-4">
+                <div>
+                  <p className="font-semibold text-slate-900">{ticket.subject}</p>
+                  <p className="mt-1 text-slate-600">{ticket.dashboardName}</p>
+                  <p className="mt-2 text-xs text-slate-500">{formatResponseTime(lifecycle.firstResponseMinutes)}</p>
+                </div>
+                <div className="self-center">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 md:hidden">
+                    Status
+                  </p>
+                  <TicketStatusBadge status={ticket.status} />
+                </div>
+                <div className="self-center">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 md:hidden">
+                    Priority
+                  </p>
+                  <PriorityBadge priority={ticket.priority} />
+                </div>
+                <div className="self-center">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 md:hidden">
+                    Waiting on
+                  </p>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {lifecycle.awaitingLabel}
+                  </span>
+                  {access.effectiveRole === "support_admin" ? (
+                    <p className="mt-2 text-xs font-medium text-slate-600">{lifecycle.escalationLabel}</p>
+                  ) : null}
+                </div>
+                <div className="self-center text-slate-600">
+                  <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 md:hidden">
+                    Updated
+                  </p>
+                  <p>{formatDate(ticket.updatedAt)}</p>
+                  {lifecycle.latestVisibleReplyAuthorName ? (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Last reply by {lifecycle.latestVisibleReplyAuthorName}
+                    </p>
+                  ) : null}
+                  {access.effectiveRole === "support_admin" ? (
+                    <p className="mt-1 text-xs text-slate-500">{lifecycle.attentionLabel}</p>
+                  ) : null}
+                </div>
+                <div className="self-center">
+                  <Link
+                    href={`/portal/support/tickets/${ticket.id}`}
+                    className="inline-flex items-center gap-2 font-semibold text-emerald-700"
+                  >
+                    <MessageSquareText className="h-4 w-4" />
+                    View
+                  </Link>
+                </div>
+              </div>
             </div>
-            <div className="self-center">
-              <TicketStatusBadge status={ticket.status} />
-            </div>
-            <div className="self-center">
-              <PriorityBadge priority={ticket.priority} />
-            </div>
-            <div className="self-center">
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                {lifecycle.awaitingLabel}
-              </span>
-              {access.effectiveRole === "support_admin" ? (
-                <p className="mt-2 text-xs font-medium text-slate-600">{lifecycle.escalationLabel}</p>
-              ) : null}
-            </div>
-            <div className="self-center text-slate-600">
-              <p>{formatDate(ticket.updatedAt)}</p>
-              {lifecycle.latestVisibleReplyAuthorName ? (
-                <p className="mt-1 text-xs text-slate-500">
-                  Last reply by {lifecycle.latestVisibleReplyAuthorName}
-                </p>
-              ) : null}
-              {access.effectiveRole === "support_admin" ? (
-                <p className="mt-1 text-xs text-slate-500">{lifecycle.attentionLabel}</p>
-              ) : null}
-            </div>
-            <div className="self-center">
-              <Link href={`/portal/support/tickets/${ticket.id}`} className="inline-flex items-center gap-2 font-semibold text-emerald-700">
-                <MessageSquareText className="h-4 w-4" />
-                View
-              </Link>
-            </div>
-          </div>
-        )})}
+          );
+        })}
       </section>
     </div>
   );
