@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminAuditFilters } from "@/components/portal/AdminAuditFilters";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import {
@@ -223,69 +224,14 @@ export default async function AdminAuditPage({
             </section>
 
             <section className="rounded-[32px] border border-slate-200 bg-white p-6">
-              <form method="get" className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-800">Workspace</span>
-                  <select
-                    name="company"
-                    defaultValue={selectedCompanyId}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  >
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-800">User</span>
-                  <select
-                    name="user"
-                    defaultValue={selectedUserParam || ""}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  >
-                    <option value="">All users</option>
-                    {selectedCompanyUsers.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-800">Start date</span>
-                  <input
-                    type="date"
-                    name="start"
-                    defaultValue={selectedStartParam || ""}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-800">End date</span>
-                  <input
-                    type="date"
-                    name="end"
-                    defaultValue={selectedEndParam || ""}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  />
-                </label>
-                <div className="flex items-end gap-3">
-                  <button
-                    type="submit"
-                    className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800"
-                  >
-                    Apply filters
-                  </button>
-                  <Link
-                    href="/portal/admin/audit"
-                    className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
-                  >
-                    Clear
-                  </Link>
-                </div>
-              </form>
+              <AdminAuditFilters
+                companies={companies.map((company) => ({ id: company.id, name: company.name }))}
+                selectedCompanyId={selectedCompanyId}
+                selectedUserId={selectedUserParam || ""}
+                selectedStart={selectedStartParam || ""}
+                selectedEnd={selectedEndParam || ""}
+                users={selectedCompanyUsers.map((member) => ({ id: member.id, name: member.name }))}
+              />
             </section>
 
             <section className="rounded-[32px] border border-slate-200 bg-white p-6">
