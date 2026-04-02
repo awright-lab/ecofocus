@@ -17,6 +17,22 @@ export const metadata = buildPortalMetadata(
 
 const AUDIT_PAGE_SIZE = 6;
 
+function formatTrackedDuration(totalMinutes: number) {
+  const roundedMinutes = Math.max(Math.round(totalMinutes), 0);
+  const hours = Math.floor(roundedMinutes / 60);
+  const minutes = roundedMinutes % 60;
+
+  if (hours === 0) {
+    return `${minutes}m`;
+  }
+
+  if (minutes === 0) {
+    return `${hours}h`;
+  }
+
+  return `${hours}h ${minutes}m`;
+}
+
 export default async function AdminAuditPage({
   searchParams,
 }: {
@@ -54,9 +70,8 @@ export default async function AdminAuditPage({
             (log.metadata?.phase === "token_issued" || log.metadata?.phase === "redirect_served"),
         );
         const usageAuditLogs = allAuditLogs.filter((log) => log.eventType === "viewer_session");
-        const totalTrackedHours = Number(
-          (usageAuditLogs.reduce((sum, log) => sum + log.minutesTracked, 0) / 60).toFixed(1),
-        );
+        const totalTrackedMinutes = usageAuditLogs.reduce((sum, log) => sum + log.minutesTracked, 0);
+        const totalTrackedDuration = formatTrackedDuration(totalTrackedMinutes);
         const uniqueUsageActors = new Set(usageAuditLogs.map((log) => log.userId)).size;
         const embedPage = Math.max(Number.parseInt(embedPageParam || "1", 10) || 1, 1);
         const usagePage = Math.max(Number.parseInt(usagePageParam || "1", 10) || 1, 1);
@@ -129,8 +144,8 @@ export default async function AdminAuditPage({
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 <div className="rounded-[24px] bg-slate-950 p-4 text-white">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Tracked usage</p>
-                  <p className="mt-2 text-3xl font-semibold">{totalTrackedHours}</p>
-                  <p className="mt-2 text-sm text-slate-300">Hours in the filtered window</p>
+                  <p className="mt-2 text-3xl font-semibold">{totalTrackedDuration}</p>
+                  <p className="mt-2 text-sm text-slate-300">Tracked time in the filtered window</p>
                 </div>
                 <div className="rounded-[24px] bg-emerald-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Embed events</p>
@@ -235,7 +250,7 @@ export default async function AdminAuditPage({
                         />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{point.hours}h</p>
+                        <p className="text-sm font-semibold text-slate-900">{formatTrackedDuration(point.hours * 60)}</p>
                         <p className="mt-1 text-xs text-slate-500">{formatDate(point.date)}</p>
                       </div>
                     </div>
@@ -349,7 +364,7 @@ export default async function AdminAuditPage({
                         <div key={log.id} className="rounded-[24px] bg-slate-50 p-4">
                           <div className="flex items-center justify-between gap-3">
                             <p className="font-semibold text-slate-900">{log.dashboardName}</p>
-                            <p className="text-sm font-medium text-slate-700">{Number((log.minutesTracked / 60).toFixed(1))}h</p>
+                            <p className="text-sm font-medium text-slate-700">{formatTrackedDuration(log.minutesTracked)}</p>
                           </div>
                           <p className="mt-1 text-sm text-slate-600">{actor?.name || log.userId}</p>
                           <p className="mt-1 text-xs text-slate-500">{formatDateTime(log.eventAt)}</p>
