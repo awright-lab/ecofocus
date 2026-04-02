@@ -159,15 +159,96 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
 
 function renderMessageBody(body: string) {
   const urlPattern = /(https?:\/\/[^\s]+)/g;
-  const isUrl = (value: string) => /^https?:\/\/[^\s]+$/.test(value);
   const lines = body.split("\n");
+  const blocks: Array<
+    | { type: "paragraph"; text: string }
+    | { type: "attachment"; name: string; url?: string; isImage: boolean }
+  > = [];
+  const isImageUrl = (value: string) => /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(value);
 
-  return lines.map((line, index) => {
-    const parts = line.split(urlPattern);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index]?.trim() || "";
+    const nextLine = lines[index + 1]?.trim() || "";
+    const thirdLine = lines[index + 2]?.trim() || "";
+
+    if ((line === "Attachment:" || line === "Attachment noted:") && nextLine) {
+      const attachmentUrl = /^https?:\/\/[^\s]+$/.test(thirdLine) ? thirdLine : undefined;
+      blocks.push({
+        type: "attachment",
+        name: nextLine,
+        url: attachmentUrl,
+        isImage: attachmentUrl ? isImageUrl(attachmentUrl) : false,
+      });
+      index += attachmentUrl ? 2 : 1;
+      continue;
+    }
+
+    if (line) {
+      blocks.push({ type: "paragraph", text: line });
+    }
+  }
+
+  return blocks.map((block, index) => {
+    if (block.type === "attachment") {
+      const cardContent = (
+        <>
+          {block.isImage && block.url ? (
+            <img src={block.url} alt={block.name} className="max-h-72 w-full object-cover" />
+          ) : (
+            <div className="flex items-center justify-between gap-4 px-4 py-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">{block.name}</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {block.url ? "Attachment ready to open" : "Attachment name recorded"}
+                </p>
+              </div>
+              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                {block.isImage ? "Image" : "File"}
+              </span>
+            </div>
+          )}
+          <div className="border-t border-slate-200 px-4 py-3">
+            <p className="text-sm font-semibold text-slate-900">{block.name}</p>
+            {block.url ? (
+              <span className="mt-1 inline-flex text-sm font-medium text-emerald-700 underline underline-offset-2">
+                {block.isImage ? "Open image attachment" : "Open attachment"}
+              </span>
+            ) : (
+              <span className="mt-1 inline-flex text-sm text-slate-500">Attachment URL unavailable</span>
+            )}
+          </div>
+        </>
+      );
+
+      if (block.url) {
+        return (
+          <a
+            key={`${index}-${block.name}`}
+            href={block.url}
+            target="_blank"
+            rel="noreferrer"
+            className="block overflow-hidden rounded-[20px] border border-slate-200 bg-white transition hover:border-emerald-300"
+          >
+            {cardContent}
+          </a>
+        );
+      }
+
+      return (
+        <div
+          key={`${index}-${block.name}`}
+          className="overflow-hidden rounded-[20px] border border-slate-200 bg-white"
+        >
+          {cardContent}
+        </div>
+      );
+    }
+
+    const parts = block.text.split(urlPattern);
     return (
-      <p key={`${index}-${line.slice(0, 12)}`} className="break-words whitespace-pre-wrap">
+      <p key={`${index}-${block.text.slice(0, 12)}`} className="break-words whitespace-pre-wrap">
         {parts.map((part, partIndex) =>
-          isUrl(part) ? (
+          /^https?:\/\/[^\s]+$/.test(part) ? (
             <Link
               key={`${index}-${partIndex}`}
               href={part}

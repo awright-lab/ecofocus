@@ -5,6 +5,8 @@ import { RoleGuard } from "@/components/portal/RoleGuard";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import {
   getPortalCompanies,
+  getPortalTicketMessages,
+  getPortalTicketsForUser,
   getPortalTeamMembersByCompany,
   getPortalUsageLogsForAdmin,
   getPortalUsersByIds,
@@ -134,6 +136,29 @@ export default async function AdminAuditPage({
         const totalTrackedMinutes = usageAuditLogs.reduce((sum, log) => sum + log.minutesTracked, 0);
         const totalTrackedDuration = formatTrackedDuration(totalTrackedMinutes);
         const uniqueUsageActors = new Set(usageAuditLogs.map((log) => log.userId)).size;
+        const averageSessionMinutes = groupedUsageSessions.length
+          ? Math.round(totalTrackedMinutes / groupedUsageSessions.length)
+          : 0;
+        const longestSessionMinutes = groupedUsageSessions.length
+          ? Math.max(...groupedUsageSessions.map((session) => session.minutesTracked))
+          : 0;
+        const topDashboard = Array.from(
+          usageAuditLogs.reduce((map, log) => {
+            map.set(log.dashboardName, (map.get(log.dashboardName) || 0) + log.minutesTracked);
+            return map;
+          }, new Map<string, number>()),
+        ).sort((a, b) => b[1] - a[1])[0];
+        const topUser = Array.from(
+          usageAuditLogs.reduce((map, log) => {
+            map.set(log.userId, (map.get(log.userId) || 0) + log.minutesTracked);
+            return map;
+          }, new Map<string, number>()),
+        )
+          .sort((a, b) => b[1] - a[1])
+          .map(([userId, minutes]) => ({
+            name: auditUsersById.get(userId)?.name || userId,
+            minutes,
+          }))[0];
         const usageExportQuery = new URLSearchParams();
         usageExportQuery.set("company", selectedCompanyId);
         if (selectedUserParam) usageExportQuery.set("user", selectedUserParam);
@@ -159,6 +184,56 @@ export default async function AdminAuditPage({
           .sort((a, b) => a.date.localeCompare(b.date))
           .slice(-7);
         const maxUsageHours = Math.max(...usageByDate.map((point) => point.hours), 1);
+        const supportTickets = (await getPortalTicketsForUser(access.user)).filter(
+          (ticket) => !selectedCompanyId || ticket.companyId === selectedCompanyId,
+        );
+        const supportMessagesByTicket = await Promise.all(
+          supportTickets.slice(0, 40).map(async (ticket) => ({
+            ticket,
+            messages: await getPortalTicketMessages(ticket.id, true),
+          })),
+        );
+        const supportOperationUsers = await getPortalUsersByIds(
+          Array.from(
+            new Set(
+              supportMessagesByTicket.flatMap(({ ticket, messages }) => [
+                ticket.requesterId,
+                ticket.ownerId || "",
+                ...messages.map((message) => message.authorId),
+              ]),
+            ),
+          ).filter(Boolean),
+        );
+        const supportOperationUsersById = new Map(supportOperationUsers.map((user) => [user.id, user]));
+        const supportOperations = supportMessagesByTicket
+          .flatMap(({ ticket, messages }) => {
+            const createdEvent = {
+              id: `${ticket.id}-created`,
+              title: ticket.subject,
+              subtitle: "Ticket created",
+              metaPrimary:
+                supportOperationUsersById.get(ticket.requesterId)?.name || ticket.requesterId,
+              metaSecondary: formatDateTime(ticket.createdAt),
+              sortAt: ticket.createdAt,
+            };
+            const supportReplyEvents = messages
+              .filter((message) => {
+                const author = supportOperationUsersById.get(message.authorId);
+                return author?.role === "support_admin";
+              })
+              .map((message) => ({
+                id: message.id,
+                title: ticket.subject,
+                subtitle: message.isInternal ? "Internal note saved" : "Support reply posted",
+                metaPrimary:
+                  supportOperationUsersById.get(message.authorId)?.name || message.authorId,
+                metaSecondary: formatDateTime(message.createdAt),
+                sortAt: message.createdAt,
+              }));
+            return [createdEvent, ...supportReplyEvents];
+          })
+          .sort((a, b) => new Date(b.sortAt).getTime() - new Date(a.sortAt).getTime())
+          .slice(0, 6);
 
         return (
           <div className="space-y-6">
@@ -176,7 +251,7 @@ export default async function AdminAuditPage({
                   </Link>
                 }
               />
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
+              <div className="mt-5 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
                 <div className="rounded-[24px] bg-slate-950 p-4 text-white">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Tracked usage</p>
                   <p className="mt-2 text-3xl font-semibold">{totalTrackedDuration}</p>
@@ -191,6 +266,25 @@ export default async function AdminAuditPage({
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700">Active users</p>
                   <p className="mt-2 text-3xl font-semibold text-sky-900">{uniqueUsageActors}</p>
                   <p className="mt-2 text-sm text-sky-800">Unique users in tracked sessions</p>
+                </div>
+                <div className="rounded-[24px] bg-violet-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-700">Avg. session</p>
+                  <p className="mt-2 text-3xl font-semibold text-violet-950">{formatTrackedDuration(averageSessionMinutes)}</p>
+                  <p className="mt-2 text-sm text-violet-900/80">Average grouped session length</p>
+                </div>
+                <div className="rounded-[24px] bg-amber-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">Top dashboard</p>
+                  <p className="mt-2 text-lg font-semibold text-amber-950">{topDashboard?.[0] || "No usage yet"}</p>
+                  <p className="mt-2 text-sm text-amber-900/80">
+                    {topDashboard ? formatTrackedDuration(topDashboard[1]) : "Waiting for tracked sessions"}
+                  </p>
+                </div>
+                <div className="rounded-[24px] bg-rose-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-rose-700">Top user</p>
+                  <p className="mt-2 text-lg font-semibold text-rose-950">{topUser?.name || "No usage yet"}</p>
+                  <p className="mt-2 text-sm text-rose-900/80">
+                    {topUser ? formatTrackedDuration(topUser.minutes) : "Waiting for tracked sessions"}
+                  </p>
                 </div>
               </div>
             </section>
@@ -270,6 +364,38 @@ export default async function AdminAuditPage({
                 };
               })}
             />
+
+            <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-950">Support operations</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Recent support-side ticket activity for the filtered workspace, including new tickets, replies, and internal notes.
+                  </p>
+                </div>
+                <p className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
+                  Longest session {formatTrackedDuration(longestSessionMinutes)}
+                </p>
+              </div>
+              <div className="mt-5 grid gap-3 xl:grid-cols-2">
+                {supportOperations.length ? (
+                  supportOperations.map((event) => (
+                    <div key={event.id} className="rounded-[24px] bg-slate-50 p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="font-semibold text-slate-900">{event.title}</p>
+                        <p className="text-sm font-medium text-slate-700">{event.subtitle}</p>
+                      </div>
+                      <p className="mt-2 text-sm text-slate-700">{event.metaPrimary}</p>
+                      <p className="mt-1 text-xs text-slate-500">{event.metaSecondary}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600 xl:col-span-2">
+                    No recent support operations match this workspace and date range yet.
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
         );
       }}

@@ -20,11 +20,13 @@ export function TicketAdminControls({
   currentStatus,
   currentOwnerId,
   ownerOptions,
+  compact = false,
 }: {
   ticketId: string;
   currentStatus: string;
   currentOwnerId: string | null;
   ownerOptions: OwnerOption[];
+  compact?: boolean;
 }) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
@@ -66,13 +68,15 @@ export function TicketAdminControls({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form onSubmit={onSubmit} className={compact ? "space-y-3" : "space-y-4"}>
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-slate-800">Status</span>
         <select
           value={status}
           onChange={(event) => setStatus(event.target.value)}
-          className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+          className={`w-full rounded-2xl border border-slate-300 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 ${
+            compact ? "px-3 py-2.5" : "px-4 py-3"
+          }`}
         >
           {statusOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -87,7 +91,9 @@ export function TicketAdminControls({
         <select
           value={ownerId}
           onChange={(event) => setOwnerId(event.target.value)}
-          className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+          className={`w-full rounded-2xl border border-slate-300 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 ${
+            compact ? "px-3 py-2.5" : "px-4 py-3"
+          }`}
         >
           <option value="">Unassigned</option>
           {ownerOptions.map((owner) => (
@@ -104,7 +110,7 @@ export function TicketAdminControls({
           disabled={isSubmitting}
           className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Saving..." : "Save ticket updates"}
+          {isSubmitting ? "Saving..." : compact ? "Save" : "Save ticket updates"}
         </button>
         {success ? <p className="text-xs font-medium text-emerald-700">{success}</p> : null}
         {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}

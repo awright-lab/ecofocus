@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { getPortalTicketForUser } from "@/lib/portal/data";
+import { appendAttachmentToMessage, uploadSupportAttachment } from "@/lib/portal/support-attachments";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -10,6 +11,7 @@ const NOINDEX_HEADERS = {
 type MessageBody = {
   body?: string;
   isInternal?: boolean;
+  attachmentName?: string;
 };
 
 function asJson(body: Record<string, unknown>, status = 200) {
@@ -32,26 +34,48 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   }
 
   let payload: MessageBody;
+  let attachmentFile: File | null = null;
   try {
-    payload = (await req.json()) as MessageBody;
+    const contentType = req.headers.get("content-type") || "";
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      payload = {
+        body: String(formData.get("body") || ""),
+        isInternal: String(formData.get("isInternal") || "") === "true",
+        attachmentName: String(formData.get("attachmentName") || ""),
+      };
+      const attachment = formData.get("attachment");
+      attachmentFile = attachment instanceof File && attachment.size > 0 ? attachment : null;
+    } else {
+      payload = (await req.json()) as MessageBody;
+    }
   } catch {
     return asJson({ error: "Invalid body" }, 400);
   }
 
   const body = String(payload.body || "").trim();
   const isInternal = access.user.role === "support_admin" ? Boolean(payload.isInternal) : false;
+  const attachmentName = String(payload.attachmentName || "").trim();
 
-  if (!body) {
-    return asJson({ error: "Reply body is required." }, 400);
+  if (!body && !attachmentFile) {
+    return asJson({ error: "Reply text or an attachment is required." }, 400);
   }
 
   try {
     const admin = getServiceSupabase();
     const now = new Date().toISOString();
+    const attachment = attachmentFile
+      ? await uploadSupportAttachment({
+          ticketId: ticket.id,
+          companyId: access.company.id,
+          file: attachmentFile,
+        })
+      : null;
+    const messageBody = appendAttachmentToMessage(body || "Attachment added.", attachment, attachmentName);
     const { error } = await admin.from("portal_ticket_messages").insert({
       ticket_id: ticket.id,
       author_id: access.user.id,
-      body,
+      body: messageBody,
       is_internal: isInternal,
       created_at: now,
     });

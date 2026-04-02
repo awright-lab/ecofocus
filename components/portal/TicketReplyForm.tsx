@@ -15,6 +15,8 @@ export function TicketReplyForm({
   const router = useRouter();
   const [body, setBody] = useState("");
   const [isInternal, setIsInternal] = useState(false);
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
+  const [attachmentName, setAttachmentName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,8 +26,8 @@ export function TicketReplyForm({
       setError("Replies are disabled while support preview mode is active.");
       return;
     }
-    if (!body.trim()) {
-      setError("Reply text is required.");
+    if (!body.trim() && !attachmentFile) {
+      setError("Reply text or an attachment is required.");
       return;
     }
 
@@ -33,13 +35,17 @@ export function TicketReplyForm({
     setError(null);
 
     try {
+      const payload = new FormData();
+      payload.set("body", body);
+      payload.set("isInternal", String(isInternal));
+      payload.set("attachmentName", attachmentName);
+      if (attachmentFile) {
+        payload.set("attachment", attachmentFile);
+      }
+
       const response = await fetch(`/api/portal/tickets/${ticketId}/messages`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          body,
-          isInternal,
-        }),
+        body: payload,
       });
 
       const data = (await response.json()) as { error?: string };
@@ -51,6 +57,8 @@ export function TicketReplyForm({
 
       setBody("");
       setIsInternal(false);
+      setAttachmentFile(null);
+      setAttachmentName("");
       setIsSubmitting(false);
       router.refresh();
     } catch {
@@ -69,6 +77,21 @@ export function TicketReplyForm({
         className="w-full rounded-[24px] border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
         placeholder={allowInternalNotes ? "Add a client reply or internal support note." : "Reply with any additional context, screenshots, or follow-up questions."}
       />
+      <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-4">
+        <input
+          type="file"
+          onChange={(event) => {
+            const file = event.target.files?.[0] || null;
+            setAttachmentFile(file);
+            setAttachmentName(file?.name || "");
+          }}
+          disabled={readOnly}
+          className="block w-full text-sm text-slate-600"
+        />
+        <p className="mt-2 text-xs text-slate-500">
+          Attach a screenshot or file to include it in the reply. {attachmentName ? `Selected: ${attachmentName}` : ""}
+        </p>
+      </div>
       {allowInternalNotes ? (
         <label className="flex items-center gap-3 text-sm text-slate-700">
           <input

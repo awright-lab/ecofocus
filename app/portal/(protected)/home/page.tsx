@@ -110,8 +110,8 @@ export default async function PortalHomePage() {
             <div className="rounded-[32px] border border-slate-200 bg-white p-6">
               <SectionHeader
                 eyebrow="Operational Audit"
-                title="Recent internal events"
-                description="Recent non-session events across the admin workspace."
+                title="Recent audit events"
+                description="Recent non-session usage and embed events across the admin workspace."
                 actions={
                   <Link
                     href="/portal/admin/library"

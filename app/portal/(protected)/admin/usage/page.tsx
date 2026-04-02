@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminWorkspacePicker } from "@/components/portal/AdminWorkspacePicker";
 import { AdminSubscriptionCapacityForm } from "@/components/portal/AdminSubscriptionCapacityForm";
 import { AdminUsageAllowanceForm } from "@/components/portal/AdminUsageAllowanceForm";
 import { RoleGuard } from "@/components/portal/RoleGuard";
@@ -55,29 +56,37 @@ export default async function AdminUsagePage({
               />
             </section>
 
-            <section className="rounded-[32px] border border-slate-200 bg-white p-6">
-              <form method="get" className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-800">Client company</span>
-                  <select
-                    name="company"
-                    defaultValue={selectedCompanyId}
-                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                  >
-                    {companies.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <button
-                  type="submit"
-                  className="w-fit rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
-                >
-                  Load company
-                </button>
-              </form>
+            <AdminWorkspacePicker
+              companies={companies.map((company) => ({
+                id: company.id,
+                name: company.name,
+                subtitle: company.subscriberType === "agency" ? "Agency workspace" : "Client workspace",
+              }))}
+              selectedCompanyId={selectedCompanyId}
+            />
+
+            <section className="grid gap-4 md:grid-cols-4">
+              <div className="rounded-[28px] border border-slate-200 bg-white p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Selected workspace</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950">{selectedCompany?.name || "No workspace selected"}</p>
+              </div>
+              <div className="rounded-[28px] border border-emerald-200 bg-emerald-50 p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">Annual hours</p>
+                <p className="mt-2 text-3xl font-semibold text-emerald-950">{usageAllowance?.annualHoursLimit ?? 0}</p>
+                <p className="mt-2 text-sm text-emerald-900/80">Configured allowance</p>
+              </div>
+              <div className="rounded-[28px] border border-sky-200 bg-sky-50 p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700">Tracked hours</p>
+                <p className="mt-2 text-3xl font-semibold text-sky-950">{usageAllowance?.hoursUsed ?? 0}</p>
+                <p className="mt-2 text-sm text-sky-900/80">Current usage record</p>
+              </div>
+              <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700">Seat availability</p>
+                <p className="mt-2 text-3xl font-semibold text-amber-950">
+                  {subscription ? Math.max(subscription.seatsPurchased - subscription.seatsUsed, 0) : 0}
+                </p>
+                <p className="mt-2 text-sm text-amber-900/80">Open seats remaining</p>
+              </div>
             </section>
 
             <section className="grid gap-6 xl:grid-cols-2">
