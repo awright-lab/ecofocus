@@ -42,7 +42,8 @@ export async function GET(req: NextRequest) {
   }
 
   const searchParams = req.nextUrl.searchParams;
-  const exportMode = searchParams.get("mode") === "sessions" ? "sessions" : "raw";
+  const requestedMode = searchParams.get("mode");
+  const exportMode = requestedMode === "sessions" || requestedMode === "actions" ? requestedMode : "raw";
   const selectedCompanyId = searchParams.get("company") || "";
   const selectedUserId = searchParams.get("user") || "";
   const selectedStart = searchParams.get("start") || "";
@@ -92,6 +93,7 @@ export async function GET(req: NextRequest) {
   };
 
   const usageLogs = logs.filter((log) => log.eventType === "viewer_session");
+  const adminActionLogs = logs.filter((log) => log.eventType === "admin_action");
 
   const rows =
     exportMode === "sessions"
@@ -158,7 +160,20 @@ export async function GET(req: NextRequest) {
               session.eventRows,
             ]),
         ]
-      : [
+      : exportMode === "actions"
+        ? [
+            ["Workspace", "Dashboard", "User", "Email", "Action", "Notes", "Timestamp"],
+            ...adminActionLogs.map((log) => [
+              companiesById.get(log.workspaceCompanyId || log.companyId) || log.workspaceCompanyId || log.companyId,
+              log.dashboardName,
+              getUsageActor(log.userId),
+              getUsageActorEmail(log.userId),
+              typeof log.metadata?.action === "string" ? log.metadata.action.replaceAll("_", " ") : "admin action",
+              log.notes || "",
+              log.eventAt,
+            ]),
+          ]
+        : [
           ["Workspace", "Dashboard", "User", "Email", "Notes", "Event", "Minutes", "Timestamp"],
           ...logs.map((log) => [
             companiesById.get(log.workspaceCompanyId || log.companyId) || log.workspaceCompanyId || log.companyId,

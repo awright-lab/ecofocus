@@ -170,6 +170,7 @@ export default async function AdminAuditPage({
         if (selectedEndParam) usageExportQuery.set("end", selectedEndParam);
         const rawUsageExportHref = `/api/portal/usage/export?mode=raw&${usageExportQuery.toString()}`;
         const sessionUsageExportHref = `/api/portal/usage/export?mode=sessions&${usageExportQuery.toString()}`;
+        const adminActionExportHref = `/api/portal/usage/export?mode=actions&${usageExportQuery.toString()}`;
         const embedExportHref = `/api/portal/displayr/audit-export?company=${encodeURIComponent(selectedCompanyId)}${
           selectedStartParam ? `&start=${encodeURIComponent(selectedStartParam)}` : ""
         }${selectedEndParam ? `&end=${encodeURIComponent(selectedEndParam)}` : ""}`;
@@ -309,6 +310,8 @@ export default async function AdminAuditPage({
             </section>
 
             <AdminAuditActivity
+              adminActionExportHref={adminActionExportHref}
+              adminOperations={supportOperations}
               embedExportHref={embedExportHref}
               embedLogs={embedAuditLogs.map((log) => {
                 const phase = log.metadata?.phase === "redirect_served" ? "Redirect served" : "Token issued";
@@ -335,38 +338,6 @@ export default async function AdminAuditPage({
                 };
               })}
             />
-
-            <section className="rounded-[32px] border border-slate-200 bg-white p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-950">Support operations</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Recent support-side ticket activity for the filtered workspace, including new tickets, replies, and internal notes.
-                  </p>
-                </div>
-                <p className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
-                  Longest session {formatTrackedDuration(longestSessionMinutes)}
-                </p>
-              </div>
-              <div className="mt-5 grid gap-3 xl:grid-cols-2">
-                {supportOperations.length ? (
-                  supportOperations.map((event) => (
-                    <div key={event.id} className="rounded-[24px] bg-slate-50 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-semibold text-slate-900">{event.title}</p>
-                        <p className="text-sm font-medium text-slate-700">{event.subtitle}</p>
-                      </div>
-                      <p className="mt-2 text-sm text-slate-700">{event.metaPrimary}</p>
-                      <p className="mt-1 text-xs text-slate-500">{event.metaSecondary}</p>
-                    </div>
-                  ))
-                ) : (
-                  <div className="rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600 xl:col-span-2">
-                    No recent support operations match this workspace and date range yet.
-                  </div>
-                )}
-              </div>
-            </section>
           </div>
         );
       }}
