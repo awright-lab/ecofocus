@@ -218,45 +218,45 @@ export default async function AdminAuditPage({
                   </Link>
                 }
               />
-              <div className="mt-5 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-                <div className="rounded-[24px] bg-slate-950 p-4 text-white">
+              <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-7">
+                <div className="rounded-[22px] bg-slate-950 p-3.5 text-white">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Tracked usage</p>
-                  <p className="mt-2 text-3xl font-semibold">{totalTrackedDuration}</p>
-                  <p className="mt-2 text-sm text-slate-300">Tracked time in the filtered window</p>
+                  <p className="mt-2 text-2xl font-semibold">{totalTrackedDuration}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-slate-300">Tracked time in the filtered window</p>
                 </div>
-                <div className="rounded-[24px] bg-emerald-50 p-4">
+                <div className="rounded-[22px] bg-emerald-50 p-3.5">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Embed events</p>
-                  <p className="mt-2 text-3xl font-semibold text-emerald-900">{embedAuditLogs.length}</p>
-                  <p className="mt-2 text-sm text-emerald-800">Token or redirect events recorded</p>
+                  <p className="mt-2 text-2xl font-semibold text-emerald-900">{embedAuditLogs.length}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-emerald-800">Token or redirect events recorded</p>
                 </div>
-                <div className="rounded-[24px] bg-sky-50 p-4">
+                <div className="rounded-[22px] bg-sky-50 p-3.5">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700">Active users</p>
-                  <p className="mt-2 text-3xl font-semibold text-sky-900">{uniqueUsageActors}</p>
-                  <p className="mt-2 text-sm text-sky-800">Unique users in tracked sessions</p>
+                  <p className="mt-2 text-2xl font-semibold text-sky-900">{uniqueUsageActors}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-sky-800">Unique users in tracked sessions</p>
                 </div>
-                <div className="rounded-[24px] bg-violet-50 p-4">
+                <div className="rounded-[22px] bg-violet-50 p-3.5">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-700">Avg. session</p>
-                  <p className="mt-2 text-3xl font-semibold text-violet-950">{formatTrackedDuration(averageSessionMinutes)}</p>
-                  <p className="mt-2 text-sm text-violet-900/80">Average grouped session length</p>
+                  <p className="mt-2 text-2xl font-semibold text-violet-950">{formatTrackedDuration(averageSessionMinutes)}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-violet-900/80">Average grouped session length</p>
                 </div>
-                <div className="rounded-[24px] bg-amber-50 p-4">
+                <div className="rounded-[22px] bg-amber-50 p-3.5">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">Top dashboard</p>
-                  <p className="mt-2 text-lg font-semibold text-amber-950">{topDashboard?.[0] || "No usage yet"}</p>
-                  <p className="mt-2 text-sm text-amber-900/80">
+                  <p className="mt-2 text-base font-semibold leading-6 text-amber-950">{topDashboard?.[0] || "No usage yet"}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-amber-900/80">
                     {topDashboard ? formatTrackedDuration(topDashboard[1]) : "Waiting for tracked sessions"}
                   </p>
                 </div>
-                <div className="rounded-[24px] bg-rose-50 p-4">
+                <div className="rounded-[22px] bg-rose-50 p-3.5">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-rose-700">Top user</p>
-                  <p className="mt-2 text-lg font-semibold text-rose-950">{topUser?.name || "No usage yet"}</p>
-                  <p className="mt-2 text-sm text-rose-900/80">
+                  <p className="mt-2 text-base font-semibold leading-6 text-rose-950">{topUser?.name || "No usage yet"}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-rose-900/80">
                     {topUser ? formatTrackedDuration(topUser.minutes) : "Waiting for tracked sessions"}
                   </p>
                 </div>
-                <div className="rounded-[24px] bg-slate-100 p-4">
+                <div className="rounded-[22px] bg-slate-100 p-3.5">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">Admin actions</p>
-                  <p className="mt-2 text-3xl font-semibold text-slate-950">{adminActionLogs.length}</p>
-                  <p className="mt-2 text-sm text-slate-700">Catalog, access, ticket, and billing changes</p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-950">{adminActionLogs.length}</p>
+                  <p className="mt-1.5 text-xs leading-5 text-slate-700">Catalog, access, ticket, and billing changes</p>
                 </div>
               </div>
             </section>
