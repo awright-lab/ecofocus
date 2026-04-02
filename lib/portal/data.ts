@@ -1041,25 +1041,28 @@ export async function getPortalUsersByIds(userIds: string[]) {
   return portalUsers.filter((user) => userIds.includes(user.id));
 }
 
-export async function getPortalTicketsForUser(user: PortalUser): Promise<PortalTicket[]> {
-  const runtimeTickets = await queryPortalTickets(user);
+export async function getPortalTicketsForUser(
+  user: PortalUser,
+  { includeArchived = false }: { includeArchived?: boolean } = {},
+): Promise<PortalTicket[]> {
+  const runtimeTickets = await queryPortalTickets(user, { includeArchived });
   if (runtimeTickets) return runtimeTickets;
 
   if (user.role === "support_admin") {
     return [...portalTickets]
       .map((ticket) => ({ ...ticket, status: normalizePortalTicketStatus(ticket.status) }))
-      .filter((ticket) => ticket.status !== "archived")
+      .filter((ticket) => includeArchived || ticket.status !== "archived")
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   if (user.role === "client_admin" || user.role === "agency_admin") {
     return portalTickets
       .map((ticket) => ({ ...ticket, status: normalizePortalTicketStatus(ticket.status) }))
-      .filter((ticket) => ticket.companyId === user.companyId && ticket.status !== "archived")
+      .filter((ticket) => ticket.companyId === user.companyId && (includeArchived || ticket.status !== "archived"))
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
   return portalTickets
     .map((ticket) => ({ ...ticket, status: normalizePortalTicketStatus(ticket.status) }))
-    .filter((ticket) => ticket.requesterId === user.id && ticket.status !== "archived")
+    .filter((ticket) => ticket.requesterId === user.id && (includeArchived || ticket.status !== "archived"))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
 }
 

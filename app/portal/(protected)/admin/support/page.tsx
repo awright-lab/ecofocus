@@ -28,7 +28,9 @@ export default async function AdminSupportPage({
   return (
     <RoleGuard role="support_admin" redirectTarget="/portal/admin/support">
       {async (access) => {
-        const tickets = await getPortalTicketsForUser(access.user);
+        const tickets = await getPortalTicketsForUser(access.user, {
+          includeArchived: selectedStatusParam === "archived",
+        });
         const messagesByTicket = new Map(
           await Promise.all(
             tickets.map(async (ticket) => [ticket.id, await getPortalTicketMessages(ticket.id, true)] as const),
