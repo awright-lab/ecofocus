@@ -168,8 +168,8 @@ export function AdminSupportQueueTable({
       </div>
       {tickets.map((ticket) => (
         <div key={ticket.id} className="border-b border-slate-100 px-6 py-5 text-sm last:border-b-0">
-          <div className="grid gap-5 min-[1180px]:grid-cols-[0.3fr_1.2fr_0.9fr_0.75fr_0.75fr_0.8fr_0.75fr_1.2fr_0.7fr]">
-            <div className="pt-1">
+          <div className="grid items-start gap-5 min-[1180px]:grid-cols-[0.3fr_1.2fr_0.9fr_0.75fr_0.75fr_0.8fr_0.75fr_1.2fr_0.7fr]">
+            <div className="pt-1 min-[1180px]:pt-2">
               <input
                 type="checkbox"
                 checked={selectedIds.includes(ticket.id)}
@@ -201,10 +201,10 @@ export function AdminSupportQueueTable({
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 min-[1180px]:hidden">Workspace</p>
               <p className="font-medium text-slate-900 min-[1180px]:font-normal">{ticket.companyName}</p>
             </div>
-            <div className="hidden self-center min-[1180px]:block">
+            <div className="hidden min-[1180px]:block">
               <TicketStatusBadge status={ticket.status} />
             </div>
-            <div className="hidden self-center min-[1180px]:block">
+            <div className="hidden min-[1180px]:block">
               <PriorityBadge priority={ticket.priority} />
             </div>
             <div className="space-y-2 min-[1180px]:hidden">
@@ -215,7 +215,7 @@ export function AdminSupportQueueTable({
               <p className="text-xs text-slate-500">{ticket.awaitingLabel}</p>
               <p className="text-xs font-medium text-slate-600">{ticket.escalationLabel}</p>
             </div>
-            <div className="hidden self-center min-[1180px]:block">
+            <div className="hidden min-[1180px]:block">
               <div className="space-y-2">
                 <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                   {ticket.attentionLabel}
@@ -242,12 +242,6 @@ export function AdminSupportQueueTable({
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 min-[1180px]:hidden">Updated</p>
               <p className="text-slate-600">{ticket.updatedLabel}</p>
               <p className="text-xs text-slate-500">{formatTicketAge(ticket.ticketAgeMinutes)}</p>
-              <Link
-                href={`/portal/support/tickets/${ticket.id}`}
-                className="inline-flex rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
-              >
-                Open ticket
-              </Link>
             </div>
           </div>
         </div>

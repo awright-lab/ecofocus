@@ -98,24 +98,17 @@ export default async function AdminSupportPage({
         const openCount = sortedFilteredTickets.filter((ticket) => ticket.status === "open").length;
         const urgentCount = sortedFilteredTickets.filter((ticket) => ticket.priority === "urgent").length;
         const unassignedCount = sortedFilteredTickets.filter((ticket) => !ticket.ownerId).length;
-        const ownedByCurrentAdminCount = sortedFilteredTickets.filter((ticket) => ticket.ownerId === access.user.id).length;
         const overdueCount = sortedFilteredTickets.filter(
           (ticket) => lifecycleByTicketId.get(ticket.id)?.attentionLabel === "Response overdue",
-        ).length;
-        const needsOwnerCount = sortedFilteredTickets.filter(
-          (ticket) => lifecycleByTicketId.get(ticket.id)?.attentionLabel === "Needs owner",
         ).length;
         const staleQueueCount = sortedFilteredTickets.filter((ticket) => {
           const attentionLabel = lifecycleByTicketId.get(ticket.id)?.attentionLabel;
           return attentionLabel === "Stale client follow-up" || attentionLabel === "Aging in progress";
         }).length;
+        const archivedCount = tickets.filter((ticket) => ticket.status === "archived").length;
         const ownerOptions = users
           .filter((user) => user.role === "support_admin")
           .sort((a, b) => a.name.localeCompare(b.name));
-        const quickScopeLinkClass =
-          "rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700";
-        const selectedQuickScopeLinkClass =
-          "rounded-full border border-emerald-500 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800";
 
         return (
           <div className="space-y-6">
@@ -147,52 +140,27 @@ export default async function AdminSupportPage({
                   <p className="mt-2 text-3xl font-semibold text-sky-900">{staleQueueCount}</p>
                 </div>
               </div>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  href={`/portal/admin/support?owner=${encodeURIComponent(access.user.id)}`}
-                  className={selectedOwner === access.user.id ? selectedQuickScopeLinkClass : quickScopeLinkClass}
-                >
-                  My tickets {ownedByCurrentAdminCount ? `(${ownedByCurrentAdminCount})` : ""}
-                </Link>
-                <Link
-                  href="/portal/admin/support?owner=unassigned"
-                  className={selectedOwner === "unassigned" ? selectedQuickScopeLinkClass : quickScopeLinkClass}
-                >
-                  Unassigned only {unassignedCount ? `(${unassignedCount})` : ""}
-                </Link>
-                <Link
-                  href="/portal/admin/support?priority=urgent"
-                  className={selectedPriority === "urgent" ? selectedQuickScopeLinkClass : quickScopeLinkClass}
-                >
-                  Urgent only {urgentCount ? `(${urgentCount})` : ""}
-                </Link>
-                <Link
-                  href="/portal/admin/support?attention=Response%20overdue"
-                  className={selectedAttention === "Response overdue" ? selectedQuickScopeLinkClass : quickScopeLinkClass}
-                >
-                  Response overdue {overdueCount ? `(${overdueCount})` : ""}
-                </Link>
-                <Link
-                  href="/portal/admin/support?attention=Needs%20owner"
-                  className={selectedAttention === "Needs owner" ? selectedQuickScopeLinkClass : quickScopeLinkClass}
-                >
-                  Needs owner {needsOwnerCount ? `(${needsOwnerCount})` : ""}
-                </Link>
-                <Link
-                  href="/portal/admin/support?attention=Stale%20client%20follow-up"
-                  className={
-                    selectedAttention === "Stale client follow-up" ? selectedQuickScopeLinkClass : quickScopeLinkClass
-                  }
-                >
-                  Stale follow-up {staleQueueCount ? `(${staleQueueCount})` : ""}
-                </Link>
-                <Link href="/portal/admin/support" className={quickScopeLinkClass}>
-                  Reset queue view
-                </Link>
-              </div>
             </section>
 
             <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-800">Queue filters</p>
+                  <p className="mt-1 text-xs text-slate-500">Use filters for active work, or jump straight to archived tickets.</p>
+                </div>
+                <Link
+                  href={selectedStatus === "archived" ? "/portal/admin/support" : "/portal/admin/support?status=archived"}
+                  className={`rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
+                    selectedStatus === "archived"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-800"
+                      : "border-slate-300 text-slate-700 hover:border-emerald-400 hover:text-emerald-700"
+                  }`}
+                >
+                  {selectedStatus === "archived"
+                    ? "Back to active queue"
+                    : `View archived tickets${archivedCount ? ` (${archivedCount})` : ""}`}
+                </Link>
+              </div>
               <form method="get" className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_repeat(5,minmax(0,0.78fr))_auto] xl:items-end">
                 <label className="block">
                   <span className="mb-2 block text-sm font-medium text-slate-800">Search</span>
