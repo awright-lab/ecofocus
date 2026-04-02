@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { AdminSupportQueueTable } from "@/components/portal/AdminSupportQueueTable";
 import { RoleGuard } from "@/components/portal/RoleGuard";
-import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
-import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { getPortalCompanies, getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate } from "@/lib/utils";

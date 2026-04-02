@@ -7,8 +7,6 @@ import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import {
   getPortalArticles,
-  getPortalCompanies,
-  getPortalDashboardCatalog,
   getPortalDashboardsForUser,
   getPortalTicketsForUser,
   getPortalUsageLogsForAdmin,

@@ -7,7 +7,7 @@ import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalCompanies, getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalTicketMessages, getPortalUsersByIds } from "@/lib/portal/data";
+import { getPortalCompanies, getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalTicketMessages, getPortalUsageLogsForAdmin, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
@@ -41,6 +41,18 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   const supportOwners = supportTeam
     .filter((member) => member.role === "support_admin" && member.status !== "inactive")
     .map((member) => ({ id: member.id, name: member.name }));
+  const historyLogs = showInternal
+    ? (await getPortalUsageLogsForAdmin({
+        companyId: ticket.companyId,
+        limit: 200,
+      }))
+        .filter(
+          (log) =>
+            log.eventType === "admin_action" &&
+            (log.metadata?.ticketId === ticket.id || log.dashboardId === ticket.id),
+        )
+        .sort((a, b) => b.eventAt.localeCompare(a.eventAt))
+    : [];
 
   return (
     <div className="space-y-6">
@@ -149,6 +161,37 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                   Support staff can save internal notes from the reply box above. Internal notes stay hidden from client users in this thread.
                 </p>
               </div>
+
+              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+                <h3 className="text-lg font-semibold text-slate-950">Ticket history</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  A running audit trail of support-admin actions for this ticket, including assignment changes, internal notes, replies, and queue updates.
+                </p>
+                <div className="mt-4 space-y-3">
+                  {historyLogs.length ? (
+                    historyLogs.map((log) => (
+                      <div key={log.id} className="rounded-[24px] bg-slate-50 p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="font-semibold text-slate-900">
+                            {typeof log.metadata?.action === "string"
+                              ? log.metadata.action.replaceAll("_", " ")
+                              : "admin action"}
+                          </p>
+                          <p className="text-xs text-slate-500">{formatDateTime(log.eventAt)}</p>
+                        </div>
+                        <p className="mt-2 text-sm text-slate-700">
+                          {authorsById.get(log.userId)?.name || String(log.metadata?.actorName || log.userId)}
+                        </p>
+                        {log.notes ? <p className="mt-1 text-sm text-slate-600">{log.notes}</p> : null}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="rounded-[24px] bg-slate-50 p-4 text-sm text-slate-600">
+                      Ticket history will appear here as support admins work the issue.
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           ) : null}
         </div>
@@ -163,6 +206,9 @@ function renderMessageBody(body: string) {
   const blocks: Array<
     | { type: "paragraph"; text: string }
     | { type: "attachment"; name: string; url?: string; isImage: boolean }
+    | { type: "quote"; text: string }
+    | { type: "list"; items: string[] }
+    | { type: "code"; text: string }
   > = [];
   const isImageUrl = (value: string) => /\.(png|jpe?g|gif|webp|svg)(\?|$)/i.test(value);
 
@@ -183,12 +229,75 @@ function renderMessageBody(body: string) {
       continue;
     }
 
+    if (line === "```") {
+      const codeLines: string[] = [];
+      let cursor = index + 1;
+      while (cursor < lines.length && lines[cursor]?.trim() !== "```") {
+        codeLines.push(lines[cursor] || "");
+        cursor += 1;
+      }
+      blocks.push({ type: "code", text: codeLines.join("\n") });
+      index = cursor;
+      continue;
+    }
+
+    if (line.startsWith(">")) {
+      blocks.push({ type: "quote", text: line.replace(/^>\s?/, "") });
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      const items = [line.replace(/^[-*]\s+/, "")];
+      let cursor = index + 1;
+      while (cursor < lines.length && /^[-*]\s+/.test(lines[cursor]?.trim() || "")) {
+        items.push((lines[cursor] || "").trim().replace(/^[-*]\s+/, ""));
+        cursor += 1;
+      }
+      blocks.push({ type: "list", items });
+      index = cursor - 1;
+      continue;
+    }
+
     if (line) {
       blocks.push({ type: "paragraph", text: line });
     }
   }
 
   return blocks.map((block, index) => {
+    if (block.type === "quote") {
+      return (
+        <blockquote
+          key={`${index}-${block.text.slice(0, 12)}`}
+          className="rounded-r-[18px] border-l-4 border-emerald-300 bg-white px-4 py-3 text-slate-700"
+        >
+          {block.text}
+        </blockquote>
+      );
+    }
+
+    if (block.type === "list") {
+      return (
+        <ul key={`${index}-${block.items[0]?.slice(0, 12) || "list"}`} className="space-y-2 pl-5">
+          {block.items.map((item, itemIndex) => (
+            <li key={`${index}-${itemIndex}`} className="list-disc text-slate-700">
+              {item}
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+    if (block.type === "code") {
+      return (
+        <pre
+          key={`${index}-${block.text.slice(0, 12)}`}
+          className="overflow-x-auto rounded-[20px] bg-slate-950 px-4 py-3 text-sm text-slate-100"
+        >
+          <code>{block.text}</code>
+        </pre>
+      );
+    }
+
     if (block.type === "attachment") {
       const cardContent = (
         <>
