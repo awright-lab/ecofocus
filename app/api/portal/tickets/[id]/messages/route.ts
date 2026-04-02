@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
-import { getPortalTicketForUser } from "@/lib/portal/data";
+import { getPortalTicketForUser, getPortalUsersByIds } from "@/lib/portal/data";
+import { notifyClientOfPortalTicketUpdate } from "@/lib/portal/email";
 import { appendAttachmentToMessage, uploadSupportAttachment } from "@/lib/portal/support-attachments";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
@@ -110,6 +111,30 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           hasAttachment: Boolean(attachment),
         },
       });
+
+      if (!isInternal) {
+        const [requester] = await getPortalUsersByIds([ticket.requesterId]);
+        if (requester) {
+          try {
+            await notifyClientOfPortalTicketUpdate({
+              actionLabel: "Support reply",
+              actor: access.user,
+              dashboardName: ticket.dashboardName,
+              message: body || attachmentName || "EcoFocus Support added a reply to your ticket.",
+              origin: req.nextUrl.origin,
+              requester,
+              statusLabel: "in_progress",
+              ticketId: ticket.id,
+              ticketSubject: ticket.subject,
+            });
+          } catch (emailError) {
+            console.warn("[api/portal/tickets/messages] Client notification email failed.", {
+              ticketId: ticket.id,
+              error: emailError instanceof Error ? emailError.message : String(emailError),
+            });
+          }
+        }
+      }
     } else {
       await admin
         .from("portal_tickets")

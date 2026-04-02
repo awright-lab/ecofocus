@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
-import { getPortalTeamMembersByCompany, getPortalTicketsForUser } from "@/lib/portal/data";
+import { getPortalTeamMembersByCompany, getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
+import { notifyClientOfPortalTicketUpdate } from "@/lib/portal/email";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -96,6 +97,36 @@ export async function POST(req: NextRequest) {
           nextOwnerId: nextOwnerId === undefined ? ticket.ownerId : nextOwnerId,
         },
       });
+
+      const [requester] = await getPortalUsersByIds([ticket.requesterId]);
+      if (requester) {
+        const nextOwnerState = nextOwnerId === undefined ? ticket.ownerId : nextOwnerId;
+        const changedSummary = [
+          nextStatus ? `Status changed to ${nextStatus}.` : null,
+          nextOwnerId !== undefined ? `Owner ${nextOwnerState ? "assigned" : "cleared"}.` : null,
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+        try {
+          await notifyClientOfPortalTicketUpdate({
+            actionLabel: "Ticket updated",
+            actor: access.user,
+            dashboardName: ticket.dashboardName,
+            message: changedSummary || "EcoFocus Support updated your ticket.",
+            origin: req.nextUrl.origin,
+            requester,
+            statusLabel: nextStatus || ticket.status,
+            ticketId: ticket.id,
+            ticketSubject: ticket.subject,
+          });
+        } catch (emailError) {
+          console.warn("[api/portal/tickets/bulk] Client notification email failed.", {
+            ticketId: ticket.id,
+            error: emailError instanceof Error ? emailError.message : String(emailError),
+          });
+        }
+      }
     }
 
     return asJson({ ok: true, updatedCount: selectedTickets.length });

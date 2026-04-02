@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalDashboardsForUser } from "@/lib/portal/data";
+import { notifySupportOfPortalTicket } from "@/lib/portal/email";
 import { appendAttachmentToMessage, uploadSupportAttachment } from "@/lib/portal/support-attachments";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
@@ -133,6 +134,25 @@ export async function POST(req: NextRequest) {
           dashboardName,
         },
       });
+    } else {
+      try {
+        await notifySupportOfPortalTicket({
+          actor: access.user,
+          companyName: access.company.name,
+          dashboardName,
+          description,
+          issueType,
+          notes,
+          origin: req.nextUrl.origin,
+          priority,
+          ticketId,
+        });
+      } catch (emailError) {
+        console.warn("[api/portal/tickets] Support notification email failed.", {
+          ticketId,
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+        });
+      }
     }
 
     return asJson({ ok: true, ticketId }, 201);

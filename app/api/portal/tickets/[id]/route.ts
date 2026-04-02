@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
-import { getPortalTeamMembersByCompany, getPortalTicketForUser } from "@/lib/portal/data";
+import { getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalUsersByIds } from "@/lib/portal/data";
+import { notifyClientOfPortalTicketUpdate } from "@/lib/portal/email";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -92,6 +93,28 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         nextOwnerId: ownerId,
       },
     });
+
+    const [requester] = await getPortalUsersByIds([ticket.requesterId]);
+    if (requester && changedFields.length) {
+      try {
+        await notifyClientOfPortalTicketUpdate({
+          actionLabel: "Ticket updated",
+          actor: access.user,
+          dashboardName: ticket.dashboardName,
+          message: changedFields.join("; "),
+          origin: req.nextUrl.origin,
+          requester,
+          statusLabel: status,
+          ticketId: ticket.id,
+          ticketSubject: ticket.subject,
+        });
+      } catch (emailError) {
+        console.warn("[api/portal/tickets/[id]] Client notification email failed.", {
+          ticketId: ticket.id,
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+        });
+      }
+    }
 
     return asJson({ ok: true });
   } catch (error) {

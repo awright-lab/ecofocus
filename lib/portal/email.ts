@@ -1,47 +1,43 @@
-type SendPortalEmailResult = {
-  emailSent: boolean;
-  emailWarning: string | null;
-};
+import type { PortalUser } from "@/lib/portal/types";
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+const RESEND_API_URL = "https://api.resend.com/emails";
+const DEFAULT_SUPPORT_EMAIL = "support@ecofocusresearch.com";
+
+function getPortalSiteUrl(fallbackOrigin?: string) {
+  return process.env.NEXT_PUBLIC_SITE_URL || fallbackOrigin || "https://ecofocusresearch.com";
 }
 
-async function sendWithResend({
+async function sendPortalEmail({
   to,
   subject,
   html,
   text,
 }: {
-  to: string;
+  to: string | string[];
   subject: string;
   html: string;
   text: string;
-}): Promise<SendPortalEmailResult> {
+}) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.PORTAL_FROM_EMAIL || process.env.FROM_EMAIL;
+  const fromEmail = process.env.PORTAL_FROM_EMAIL;
 
-  if (!apiKey || !from) {
-    return {
-      emailSent: false,
-      emailWarning: "Email delivery provider is not configured. Add RESEND_API_KEY and PORTAL_FROM_EMAIL to send branded EcoFocus emails.",
-    };
+  if (!apiKey || !fromEmail) {
+    console.warn("[portal/email] Email delivery skipped because RESEND_API_KEY or PORTAL_FROM_EMAIL is not configured.", {
+      subject,
+      to,
+    });
+    return { sent: false as const };
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
+  const response = await fetch(RESEND_API_URL, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from,
-      to: [to],
+      from: fromEmail,
+      to: Array.isArray(to) ? to : [to],
       subject,
       html,
       text,
@@ -49,17 +45,11 @@ async function sendWithResend({
   });
 
   if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    return {
-      emailSent: false,
-      emailWarning: body || "Branded email delivery failed.",
-    };
+    const details = await response.text().catch(() => "");
+    throw new Error(`Email delivery failed (${response.status}): ${details}`);
   }
 
-  return {
-    emailSent: true,
-    emailWarning: null,
-  };
+  return { sent: true as const };
 }
 
 export async function sendPortalPasswordResetEmail({
@@ -68,45 +58,164 @@ export async function sendPortalPasswordResetEmail({
   resetUrl,
 }: {
   to: string;
-  recipientName?: string | null;
+  recipientName: string;
   resetUrl: string;
 }) {
-  const safeName = recipientName ? escapeHtml(recipientName) : "there";
-  const safeUrl = escapeHtml(resetUrl);
-  const subject = "Reset your EcoFocus Portal password";
-  const html = `
-    <div style="font-family:Arial,sans-serif;background:#f4f8f6;padding:32px;color:#0f172a;">
-      <div style="max-width:640px;margin:0 auto;background:#ffffff;border-radius:24px;overflow:hidden;border:1px solid #dbe6df;">
-        <div style="padding:32px;background:linear-gradient(135deg,#0f766e 0%,#064e3b 45%,#0f172a 100%);color:#ffffff;">
-          <div style="font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#a7f3d0;font-weight:700;">EcoFocus Portal</div>
-          <h1 style="margin:16px 0 0;font-size:30px;line-height:1.2;">Reset your password</h1>
-          <p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#d1fae5;">Use the secure link below to choose a new password for your EcoFocus Portal account.</p>
+  try {
+    const delivery = await sendPortalEmail({
+      to,
+      subject: "Reset your EcoFocus portal password",
+      text: [
+        `Hello ${recipientName},`,
+        ``,
+        `Use the link below to reset your EcoFocus portal password:`,
+        resetUrl,
+        ``,
+        `If you didn't request this, you can ignore this email.`,
+      ].join("\n"),
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+          <p>Hello ${recipientName},</p>
+          <p>Use the link below to reset your EcoFocus portal password.</p>
+          <p><a href="${resetUrl}">Reset password</a></p>
+          <p>If you didn't request this, you can ignore this email.</p>
         </div>
-        <div style="padding:32px;">
-          <p style="margin:0 0 16px;font-size:15px;line-height:1.7;">Hi ${safeName},</p>
-          <p style="margin:0 0 24px;font-size:15px;line-height:1.7;">We received a request to reset your EcoFocus Portal password. This link will expire automatically.</p>
-          <p style="margin:0 0 24px;">
-            <a href="${safeUrl}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#059669;color:#ffffff;text-decoration:none;font-weight:700;">Reset password</a>
-          </p>
-          <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#475569;">If the button does not work, copy and paste this link into your browser:</p>
-          <p style="margin:0;font-size:13px;line-height:1.7;word-break:break-word;color:#0f172a;">${safeUrl}</p>
-        </div>
-      </div>
-    </div>
-  `;
-  const text = [
-    "EcoFocus Portal password reset",
-    "",
-    `Hi ${recipientName || "there"},`,
-    "",
-    "We received a request to reset your EcoFocus Portal password.",
-    `Use this secure link to choose a new password: ${resetUrl}`,
-  ].join("\n");
+      `,
+    });
 
-  return sendWithResend({
-    to,
+    return {
+      emailSent: delivery.sent,
+      emailWarning: delivery.sent ? null : "Email delivery is not configured, so a direct reset link must be used instead.",
+    };
+  } catch (error) {
+    return {
+      emailSent: false,
+      emailWarning: error instanceof Error ? error.message : "Email delivery failed.",
+    };
+  }
+}
+
+export async function notifySupportOfPortalTicket({
+  actor,
+  companyName,
+  dashboardName,
+  description,
+  issueType,
+  notes,
+  origin,
+  priority,
+  ticketId,
+}: {
+  actor: PortalUser;
+  companyName: string;
+  dashboardName: string;
+  description: string;
+  issueType: string;
+  notes?: string;
+  origin?: string;
+  priority: "low" | "medium" | "high" | "urgent";
+  ticketId: string;
+}) {
+  const siteUrl = getPortalSiteUrl(origin);
+  const ticketUrl = `${siteUrl}/portal/support/tickets/${ticketId}`;
+  const subject = `[Portal Ticket] ${companyName}: ${issueType} - ${dashboardName}`;
+  const safeNotes = notes?.trim();
+
+  return sendPortalEmail({
+    to: DEFAULT_SUPPORT_EMAIL,
     subject,
-    html,
-    text,
+    text: [
+      `A client submitted a new portal support ticket.`,
+      ``,
+      `Ticket ID: ${ticketId}`,
+      `Company: ${companyName}`,
+      `Requester: ${actor.name} <${actor.email}>`,
+      `Dashboard: ${dashboardName}`,
+      `Issue type: ${issueType}`,
+      `Priority: ${priority}`,
+      ``,
+      `Description:`,
+      description,
+      safeNotes ? `\nEnvironment notes:\n${safeNotes}` : "",
+      ``,
+      `Open ticket: ${ticketUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+        <h2 style="margin-bottom: 8px;">New portal support ticket</h2>
+        <p style="margin-top: 0;">A client submitted a new ticket in the EcoFocus portal.</p>
+        <p><strong>Ticket ID:</strong> ${ticketId}<br />
+        <strong>Company:</strong> ${companyName}<br />
+        <strong>Requester:</strong> ${actor.name} &lt;${actor.email}&gt;<br />
+        <strong>Dashboard:</strong> ${dashboardName}<br />
+        <strong>Issue type:</strong> ${issueType}<br />
+        <strong>Priority:</strong> ${priority}</p>
+        <p><strong>Description</strong><br />${description.replace(/\n/g, "<br />")}</p>
+        ${safeNotes ? `<p><strong>Environment notes</strong><br />${safeNotes.replace(/\n/g, "<br />")}</p>` : ""}
+        <p><a href="${ticketUrl}">Open ticket in portal</a></p>
+      </div>
+    `,
+  });
+}
+
+export async function notifyClientOfPortalTicketUpdate({
+  actionLabel,
+  actor,
+  dashboardName,
+  message,
+  origin,
+  requester,
+  statusLabel,
+  ticketId,
+  ticketSubject,
+}: {
+  actionLabel: string;
+  actor: PortalUser;
+  dashboardName: string;
+  message?: string;
+  origin?: string;
+  requester: PortalUser;
+  statusLabel?: string;
+  ticketId: string;
+  ticketSubject: string;
+}) {
+  const siteUrl = getPortalSiteUrl(origin);
+  const ticketUrl = `${siteUrl}/portal/support/tickets/${ticketId}`;
+  const subject = `[EcoFocus Support] Update on ${ticketSubject}`;
+  const safeMessage = message?.trim();
+
+  return sendPortalEmail({
+    to: requester.email,
+    subject,
+    text: [
+      `Hello ${requester.name},`,
+      ``,
+      `EcoFocus Support updated your ticket: ${ticketSubject}`,
+      `Ticket ID: ${ticketId}`,
+      `Dashboard: ${dashboardName}`,
+      `Updated by: ${actor.name}`,
+      statusLabel ? `Current status: ${statusLabel}` : "",
+      `Update type: ${actionLabel}`,
+      safeMessage ? `\nMessage:\n${safeMessage}` : "",
+      ``,
+      `View ticket: ${ticketUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
+        <p>Hello ${requester.name},</p>
+        <p>EcoFocus Support updated your ticket <strong>${ticketSubject}</strong>.</p>
+        <p><strong>Ticket ID:</strong> ${ticketId}<br />
+        <strong>Dashboard:</strong> ${dashboardName}<br />
+        <strong>Updated by:</strong> ${actor.name}<br />
+        ${statusLabel ? `<strong>Current status:</strong> ${statusLabel}<br />` : ""}
+        <strong>Update type:</strong> ${actionLabel}</p>
+        ${safeMessage ? `<p><strong>Message</strong><br />${safeMessage.replace(/\n/g, "<br />")}</p>` : ""}
+        <p><a href="${ticketUrl}">View ticket in portal</a></p>
+      </div>
+    `,
   });
 }
