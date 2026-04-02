@@ -410,12 +410,28 @@ export default async function AdminAuditPage({
                       Inspect grouped dashboard sessions and the users responsible for them.
                     </p>
                   </div>
-                  <Link
-                    href="/api/portal/usage/export"
-                    className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
-                  >
-                    Export usage CSV
-                  </Link>
+                  <div className="flex flex-wrap gap-3">
+                    <Link
+                      href={`/api/portal/usage/export?mode=raw&company=${encodeURIComponent(selectedCompanyId)}${
+                        selectedUserParam ? `&user=${encodeURIComponent(selectedUserParam)}` : ""
+                      }${selectedStartParam ? `&start=${encodeURIComponent(selectedStartParam)}` : ""}${
+                        selectedEndParam ? `&end=${encodeURIComponent(selectedEndParam)}` : ""
+                      }`}
+                      className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+                    >
+                      Raw usage CSV
+                    </Link>
+                    <Link
+                      href={`/api/portal/usage/export?mode=sessions&company=${encodeURIComponent(selectedCompanyId)}${
+                        selectedUserParam ? `&user=${encodeURIComponent(selectedUserParam)}` : ""
+                      }${selectedStartParam ? `&start=${encodeURIComponent(selectedStartParam)}` : ""}${
+                        selectedEndParam ? `&end=${encodeURIComponent(selectedEndParam)}` : ""
+                      }`}
+                      className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+                    >
+                      Session summary CSV
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="mt-5 space-y-3">
