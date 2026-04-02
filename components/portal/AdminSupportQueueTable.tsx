@@ -6,6 +6,7 @@ import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { TicketAdminControls } from "@/components/portal/TicketAdminControls";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import type { PortalTicket } from "@/lib/portal/types";
+import { formatResponseTime, formatTicketAge } from "@/lib/portal/ticket-lifecycle";
 
 type OwnerOption = {
   id: string;
@@ -19,10 +20,13 @@ type TicketRow = {
   companyName: string;
   status: PortalTicket["status"];
   priority: PortalTicket["priority"];
-  issueType: string;
   ownerId: string | null;
   ownerName: string;
   updatedLabel: string;
+  awaitingLabel: string;
+  firstResponseMinutes: number | null;
+  attentionLabel: string;
+  ticketAgeMinutes: number;
 };
 
 export function AdminSupportQueueTable({
@@ -154,7 +158,7 @@ export function AdminSupportQueueTable({
         <span>Workspace</span>
         <span>Status</span>
         <span>Priority</span>
-        <span>Issue Type</span>
+        <span>Attention</span>
         <span>Owner</span>
         <span>Queue actions</span>
         <span>Updated</span>
@@ -175,11 +179,12 @@ export function AdminSupportQueueTable({
                 {ticket.subject}
               </Link>
               <p className="mt-1 text-slate-600">{ticket.id}</p>
+              <p className="mt-2 text-xs text-slate-500">{formatResponseTime(ticket.firstResponseMinutes)}</p>
               <div className="mt-3 flex flex-wrap gap-2 min-[1180px]:hidden">
                 <TicketStatusBadge status={ticket.status} />
                 <PriorityBadge priority={ticket.priority} />
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                  {ticket.issueType}
+                  {ticket.awaitingLabel}
                 </span>
               </div>
             </div>
@@ -193,7 +198,14 @@ export function AdminSupportQueueTable({
             <div className="hidden self-center min-[1180px]:block">
               <PriorityBadge priority={ticket.priority} />
             </div>
-            <div className="hidden self-center text-slate-700 min-[1180px]:block">{ticket.issueType}</div>
+            <div className="hidden self-center min-[1180px]:block">
+              <div className="space-y-2">
+                <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {ticket.attentionLabel}
+                </span>
+                <p className="text-xs text-slate-500">{ticket.awaitingLabel}</p>
+              </div>
+            </div>
             <div className="space-y-1 text-slate-700">
               <p className="font-medium text-slate-900 min-[1180px]:font-normal">{ticket.ownerName}</p>
               <p className="text-xs text-slate-500 min-[1180px]:hidden">Owner</p>
@@ -209,6 +221,7 @@ export function AdminSupportQueueTable({
             </div>
             <div className="space-y-3">
               <p className="text-slate-600">{ticket.updatedLabel}</p>
+              <p className="text-xs text-slate-500">{formatTicketAge(ticket.ticketAgeMinutes)}</p>
               <Link
                 href={`/portal/support/tickets/${ticket.id}`}
                 className="inline-flex rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"

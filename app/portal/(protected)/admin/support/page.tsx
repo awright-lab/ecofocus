@@ -2,8 +2,9 @@ import Link from "next/link";
 import { AdminSupportQueueTable } from "@/components/portal/AdminSupportQueueTable";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { SectionHeader } from "@/components/portal/SectionHeader";
-import { getPortalCompanies, getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
+import { getPortalCompanies, getPortalTicketMessages, getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
+import { getPortalTicketLifecycle } from "@/lib/portal/ticket-lifecycle";
 import { formatDate } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
@@ -27,7 +28,19 @@ export default async function AdminSupportPage({
     <RoleGuard role="support_admin" redirectTarget="/portal/admin/support">
       {async (access) => {
         const tickets = await getPortalTicketsForUser(access.user);
-        const relatedUserIds = Array.from(new Set(tickets.flatMap((ticket) => [ticket.requesterId, ticket.ownerId].filter(Boolean) as string[])));
+        const messagesByTicket = new Map(
+          await Promise.all(
+            tickets.map(async (ticket) => [ticket.id, await getPortalTicketMessages(ticket.id, true)] as const),
+          ),
+        );
+        const relatedUserIds = Array.from(
+          new Set(
+            tickets.flatMap((ticket) => [
+              ...([ticket.requesterId, ticket.ownerId].filter(Boolean) as string[]),
+              ...(messagesByTicket.get(ticket.id) || []).map((message) => message.authorId),
+            ]),
+          ),
+        );
         const users = await getPortalUsersByIds(relatedUserIds);
         const usersById = new Map(users.map((user) => [user.id, user]));
         const companies = await getPortalCompanies();
@@ -59,6 +72,23 @@ export default async function AdminSupportPage({
         const urgentCount = filteredTickets.filter((ticket) => ticket.priority === "urgent").length;
         const unassignedCount = filteredTickets.filter((ticket) => !ticket.ownerId).length;
         const ownedByCurrentAdminCount = filteredTickets.filter((ticket) => ticket.ownerId === access.user.id).length;
+        const lifecycleByTicketId = new Map(
+          filteredTickets.map((ticket) => [
+            ticket.id,
+            getPortalTicketLifecycle({
+              ticket,
+              messages: messagesByTicket.get(ticket.id) || [],
+              authorsById: usersById,
+            }),
+          ]),
+        );
+        const overdueCount = filteredTickets.filter(
+          (ticket) => lifecycleByTicketId.get(ticket.id)?.attentionLabel === "Response overdue",
+        ).length;
+        const staleQueueCount = filteredTickets.filter((ticket) => {
+          const attentionLabel = lifecycleByTicketId.get(ticket.id)?.attentionLabel;
+          return attentionLabel === "Stale client follow-up" || attentionLabel === "Aging in progress";
+        }).length;
         const ownerOptions = users
           .filter((user) => user.role === "support_admin")
           .sort((a, b) => a.name.localeCompare(b.name));
@@ -75,7 +105,7 @@ export default async function AdminSupportPage({
                 title="Support queue"
                 description="Protected internal view for ticket operations, assignment, prioritization, internal notes, and escalation handling."
               />
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
+              <div className="mt-5 grid gap-4 md:grid-cols-5">
                 <div className="rounded-[24px] bg-slate-950 p-4 text-white">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Open queue</p>
                   <p className="mt-2 text-3xl font-semibold">{openCount}</p>
@@ -87,6 +117,14 @@ export default async function AdminSupportPage({
                 <div className="rounded-[24px] bg-amber-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">Unassigned</p>
                   <p className="mt-2 text-3xl font-semibold text-amber-900">{unassignedCount}</p>
+                </div>
+                <div className="rounded-[24px] bg-orange-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-700">Response overdue</p>
+                  <p className="mt-2 text-3xl font-semibold text-orange-900">{overdueCount}</p>
+                </div>
+                <div className="rounded-[24px] bg-sky-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700">Stale follow-up</p>
+                  <p className="mt-2 text-3xl font-semibold text-sky-900">{staleQueueCount}</p>
                 </div>
               </div>
               <div className="mt-5 flex flex-wrap gap-3">
@@ -206,13 +244,18 @@ export default async function AdminSupportPage({
               <AdminSupportQueueTable
                 ownerOptions={ownerOptions}
                 tickets={filteredTickets.map((ticket) => ({
+                  ...(lifecycleByTicketId.get(ticket.id) || {
+                    awaitingLabel: "New",
+                    firstResponseMinutes: null,
+                    attentionLabel: "On track",
+                    ticketAgeMinutes: 0,
+                  }),
                   id: ticket.id,
                   subject: ticket.subject,
                   companyId: ticket.companyId,
                   companyName: companiesById.get(ticket.companyId) || ticket.companyId,
                   status: ticket.status,
                   priority: ticket.priority,
-                  issueType: ticket.issueType,
                   ownerId: ticket.ownerId,
                   ownerName: ticket.ownerId ? usersById.get(ticket.ownerId)?.name || "EcoFocus Team" : "Unassigned",
                   updatedLabel: formatDate(ticket.updatedAt),
