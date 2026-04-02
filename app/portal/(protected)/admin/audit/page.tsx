@@ -15,6 +15,8 @@ export const metadata = buildPortalMetadata(
   "Internal audit view for embed and usage activity across the EcoFocus portal.",
 );
 
+const AUDIT_PAGE_SIZE = 6;
+
 export default async function AdminAuditPage({
   searchParams,
 }: {
@@ -25,6 +27,8 @@ export default async function AdminAuditPage({
   const selectedUserParam = Array.isArray(params.user) ? params.user[0] : params.user;
   const selectedStartParam = Array.isArray(params.start) ? params.start[0] : params.start;
   const selectedEndParam = Array.isArray(params.end) ? params.end[0] : params.end;
+  const embedPageParam = Array.isArray(params.embedPage) ? params.embedPage[0] : params.embedPage;
+  const usagePageParam = Array.isArray(params.usagePage) ? params.usagePage[0] : params.usagePage;
 
   return (
     <RoleGuard role="support_admin" redirectTarget="/portal/admin/audit">
@@ -54,6 +58,42 @@ export default async function AdminAuditPage({
           (usageAuditLogs.reduce((sum, log) => sum + log.minutesTracked, 0) / 60).toFixed(1),
         );
         const uniqueUsageActors = new Set(usageAuditLogs.map((log) => log.userId)).size;
+        const embedPage = Math.max(Number.parseInt(embedPageParam || "1", 10) || 1, 1);
+        const usagePage = Math.max(Number.parseInt(usagePageParam || "1", 10) || 1, 1);
+        const embedTotalPages = Math.max(Math.ceil(embedAuditLogs.length / AUDIT_PAGE_SIZE), 1);
+        const usageTotalPages = Math.max(Math.ceil(usageAuditLogs.length / AUDIT_PAGE_SIZE), 1);
+        const currentEmbedPage = Math.min(embedPage, embedTotalPages);
+        const currentUsagePage = Math.min(usagePage, usageTotalPages);
+        const paginatedEmbedAuditLogs = embedAuditLogs.slice(
+          (currentEmbedPage - 1) * AUDIT_PAGE_SIZE,
+          currentEmbedPage * AUDIT_PAGE_SIZE,
+        );
+        const paginatedUsageAuditLogs = usageAuditLogs.slice(
+          (currentUsagePage - 1) * AUDIT_PAGE_SIZE,
+          currentUsagePage * AUDIT_PAGE_SIZE,
+        );
+
+        const buildAuditHref = (updates: Record<string, string | null>) => {
+          const search = new URLSearchParams();
+
+          if (selectedCompanyId) search.set("company", selectedCompanyId);
+          if (selectedUserParam) search.set("user", selectedUserParam);
+          if (selectedStartParam) search.set("start", selectedStartParam);
+          if (selectedEndParam) search.set("end", selectedEndParam);
+          if (embedPageParam) search.set("embedPage", embedPageParam);
+          if (usagePageParam) search.set("usagePage", usagePageParam);
+
+          for (const [key, value] of Object.entries(updates)) {
+            if (value) {
+              search.set(key, value);
+            } else {
+              search.delete(key);
+            }
+          }
+
+          const query = search.toString();
+          return `/portal/admin/audit${query ? `?${query}` : ""}`;
+        };
 
         const usageByDate = Array.from(
           usageAuditLogs.reduce((map, log) => {
@@ -229,7 +269,7 @@ export default async function AdminAuditPage({
 
                 <div className="mt-5 space-y-3">
                   {embedAuditLogs.length ? (
-                    embedAuditLogs.slice(0, 25).map((log) => {
+                    paginatedEmbedAuditLogs.map((log) => {
                       const phase = log.metadata?.phase === "redirect_served" ? "Redirect served" : "Token issued";
                       const actor = auditUsersById.get(log.userId);
                       return (
@@ -247,6 +287,42 @@ export default async function AdminAuditPage({
                     </div>
                   )}
                 </div>
+
+                {embedAuditLogs.length > AUDIT_PAGE_SIZE ? (
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+                    <p className="text-sm text-slate-600">
+                      Page {currentEmbedPage} of {embedTotalPages}
+                    </p>
+                    <div className="flex gap-2">
+                      <Link
+                        href={buildAuditHref({
+                          embedPage: currentEmbedPage > 1 ? String(currentEmbedPage - 1) : null,
+                        })}
+                        aria-disabled={currentEmbedPage === 1}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                          currentEmbedPage === 1
+                            ? "pointer-events-none border border-slate-200 text-slate-400"
+                            : "border border-slate-300 text-slate-700 hover:border-emerald-400 hover:text-emerald-700"
+                        }`}
+                      >
+                        Previous
+                      </Link>
+                      <Link
+                        href={buildAuditHref({
+                          embedPage: currentEmbedPage < embedTotalPages ? String(currentEmbedPage + 1) : String(embedTotalPages),
+                        })}
+                        aria-disabled={currentEmbedPage === embedTotalPages}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                          currentEmbedPage === embedTotalPages
+                            ? "pointer-events-none border border-slate-200 text-slate-400"
+                            : "border border-slate-300 text-slate-700 hover:border-emerald-400 hover:text-emerald-700"
+                        }`}
+                      >
+                        Next
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">
@@ -267,7 +343,7 @@ export default async function AdminAuditPage({
 
                 <div className="mt-5 space-y-3">
                   {usageAuditLogs.length ? (
-                    usageAuditLogs.slice(0, 25).map((log) => {
+                    paginatedUsageAuditLogs.map((log) => {
                       const actor = auditUsersById.get(log.userId);
                       return (
                         <div key={log.id} className="rounded-[24px] bg-slate-50 p-4">
@@ -286,6 +362,42 @@ export default async function AdminAuditPage({
                     </div>
                   )}
                 </div>
+
+                {usageAuditLogs.length > AUDIT_PAGE_SIZE ? (
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+                    <p className="text-sm text-slate-600">
+                      Page {currentUsagePage} of {usageTotalPages}
+                    </p>
+                    <div className="flex gap-2">
+                      <Link
+                        href={buildAuditHref({
+                          usagePage: currentUsagePage > 1 ? String(currentUsagePage - 1) : null,
+                        })}
+                        aria-disabled={currentUsagePage === 1}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                          currentUsagePage === 1
+                            ? "pointer-events-none border border-slate-200 text-slate-400"
+                            : "border border-slate-300 text-slate-700 hover:border-emerald-400 hover:text-emerald-700"
+                        }`}
+                      >
+                        Previous
+                      </Link>
+                      <Link
+                        href={buildAuditHref({
+                          usagePage: currentUsagePage < usageTotalPages ? String(currentUsagePage + 1) : String(usageTotalPages),
+                        })}
+                        aria-disabled={currentUsagePage === usageTotalPages}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                          currentUsagePage === usageTotalPages
+                            ? "pointer-events-none border border-slate-200 text-slate-400"
+                            : "border border-slate-300 text-slate-700 hover:border-emerald-400 hover:text-emerald-700"
+                        }`}
+                      >
+                        Next
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </section>
           </div>
