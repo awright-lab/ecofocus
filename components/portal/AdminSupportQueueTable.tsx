@@ -6,7 +6,7 @@ import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { TicketAdminControls } from "@/components/portal/TicketAdminControls";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import type { PortalTicket } from "@/lib/portal/types";
-import { formatResponseTime, formatTicketAge } from "@/lib/portal/ticket-lifecycle";
+import { formatResponseTarget, formatResponseTime, formatTicketAge } from "@/lib/portal/ticket-lifecycle";
 
 type OwnerOption = {
   id: string;
@@ -25,7 +25,10 @@ type TicketRow = {
   updatedLabel: string;
   awaitingLabel: string;
   firstResponseMinutes: number | null;
+  firstResponseTargetMinutes: number;
+  firstResponseBreached: boolean;
   attentionLabel: string;
+  escalationLabel: string;
   ticketAgeMinutes: number;
 };
 
@@ -180,11 +183,17 @@ export function AdminSupportQueueTable({
               </Link>
               <p className="mt-1 text-slate-600">{ticket.id}</p>
               <p className="mt-2 text-xs text-slate-500">{formatResponseTime(ticket.firstResponseMinutes)}</p>
+              <p className={`mt-1 text-xs font-medium ${ticket.firstResponseBreached ? "text-rose-700" : "text-slate-500"}`}>
+                {formatResponseTarget(ticket.firstResponseTargetMinutes)}
+              </p>
               <div className="mt-3 flex flex-wrap gap-2 min-[1180px]:hidden">
                 <TicketStatusBadge status={ticket.status} />
                 <PriorityBadge priority={ticket.priority} />
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                   {ticket.awaitingLabel}
+                </span>
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                  {ticket.escalationLabel}
                 </span>
               </div>
             </div>
@@ -204,6 +213,7 @@ export function AdminSupportQueueTable({
                   {ticket.attentionLabel}
                 </span>
                 <p className="text-xs text-slate-500">{ticket.awaitingLabel}</p>
+                <p className="text-xs font-medium text-slate-600">{ticket.escalationLabel}</p>
               </div>
             </div>
             <div className="space-y-1 text-slate-700">

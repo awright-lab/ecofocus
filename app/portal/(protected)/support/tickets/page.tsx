@@ -84,6 +84,9 @@ export default async function TicketsPage() {
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                 {lifecycle.awaitingLabel}
               </span>
+              {access.effectiveRole === "support_admin" ? (
+                <p className="mt-2 text-xs font-medium text-slate-600">{lifecycle.escalationLabel}</p>
+              ) : null}
             </div>
             <div className="self-center text-slate-600">
               <p>{formatDate(ticket.updatedAt)}</p>
@@ -91,6 +94,9 @@ export default async function TicketsPage() {
                 <p className="mt-1 text-xs text-slate-500">
                   Last reply by {lifecycle.latestVisibleReplyAuthorName}
                 </p>
+              ) : null}
+              {access.effectiveRole === "support_admin" ? (
+                <p className="mt-1 text-xs text-slate-500">{lifecycle.attentionLabel}</p>
               ) : null}
             </div>
             <div className="self-center">

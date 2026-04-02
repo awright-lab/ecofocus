@@ -9,7 +9,7 @@ import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalCompanies, getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalTicketMessages, getPortalUsageLogsForAdmin, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
-import { formatResponseTime, getPortalTicketLifecycle } from "@/lib/portal/ticket-lifecycle";
+import { formatResponseTarget, formatResponseTime, getPortalTicketLifecycle, formatTicketAge } from "@/lib/portal/ticket-lifecycle";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -182,6 +182,39 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
           </div>
+
+          {showInternal ? (
+            <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-slate-950">SLA and escalation</h3>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-[24px] bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">First response target</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-950">
+                    {formatResponseTarget(lifecycle.firstResponseTargetMinutes)}
+                  </p>
+                  <p className={`mt-2 text-sm ${lifecycle.firstResponseBreached ? "text-rose-700" : "text-slate-600"}`}>
+                    {lifecycle.firstResponseBreached
+                      ? `Breached on ${formatDateTime(lifecycle.firstResponseDueAt)}`
+                      : `Due by ${formatDateTime(lifecycle.firstResponseDueAt)}`}
+                  </p>
+                </div>
+                <div className="rounded-[24px] bg-slate-50 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Escalation state</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-950">{lifecycle.escalationLabel}</p>
+                  <p className="mt-2 text-sm text-slate-600">{lifecycle.escalationReason}</p>
+                </div>
+                <div className="rounded-[24px] bg-slate-50 p-4 sm:col-span-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Ticket age and follow-up</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-950">{formatTicketAge(lifecycle.ticketAgeMinutes)}</p>
+                  <p className="mt-2 text-sm text-slate-600">
+                    {lifecycle.minutesSinceVisibleReply != null
+                      ? `Latest visible reply was ${formatTicketAge(lifecycle.minutesSinceVisibleReply).replace(" old", "")} ago.`
+                      : "No visible replies have been added yet."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {showInternal ? (
             <>

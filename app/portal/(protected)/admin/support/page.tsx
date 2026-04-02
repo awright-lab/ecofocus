@@ -303,7 +303,10 @@ export default async function AdminSupportPage({
                   ...(lifecycleByTicketId.get(ticket.id) || {
                     awaitingLabel: "New",
                     firstResponseMinutes: null,
+                    firstResponseTargetMinutes: 0,
+                    firstResponseBreached: false,
                     attentionLabel: "On track",
+                    escalationLabel: "No escalation",
                     ticketAgeMinutes: 0,
                   }),
                   id: ticket.id,

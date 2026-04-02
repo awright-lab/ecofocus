@@ -5,6 +5,9 @@ type LifecycleActor = Pick<PortalUser, "id" | "name" | "role">;
 export type PortalTicketLifecycle = {
   firstSupportReplyAt: string | null;
   firstResponseMinutes: number | null;
+  firstResponseTargetMinutes: number;
+  firstResponseDueAt: string;
+  firstResponseBreached: boolean;
   latestVisibleReplyAt: string | null;
   latestVisibleReplyAuthorName: string | null;
   latestVisibleReplyBySupport: boolean;
@@ -12,6 +15,8 @@ export type PortalTicketLifecycle = {
   ticketAgeMinutes: number;
   minutesSinceVisibleReply: number | null;
   attentionLabel: "Response overdue" | "Needs owner" | "Stale client follow-up" | "Aging in progress" | "Closed" | "On track";
+  escalationLabel: "Escalate now" | "Watch closely" | "No escalation";
+  escalationReason: string;
 };
 
 const FIRST_RESPONSE_TARGET_MINUTES: Record<PortalTicket["priority"], number> = {
@@ -38,6 +43,10 @@ export function getPortalTicketLifecycle({
   const latestVisibleReply = visibleMessages.at(-1) || null;
   const latestVisibleReplyAuthor = latestVisibleReply ? authorsById.get(latestVisibleReply.authorId) : null;
   const latestVisibleReplyBySupport = latestVisibleReplyAuthor?.role === "support_admin";
+  const firstResponseTargetMinutes = FIRST_RESPONSE_TARGET_MINUTES[ticket.priority];
+  const firstResponseDueAt = new Date(
+    new Date(ticket.createdAt).getTime() + firstResponseTargetMinutes * 60_000,
+  ).toISOString();
 
   let awaitingLabel: PortalTicketLifecycle["awaitingLabel"] = "New";
   const ticketAgeMinutes = Math.max(
@@ -63,12 +72,19 @@ export function getPortalTicketLifecycle({
   }
 
   let attentionLabel: PortalTicketLifecycle["attentionLabel"] = "On track";
+  let escalationLabel: PortalTicketLifecycle["escalationLabel"] = "No escalation";
+  let escalationReason = "This ticket is operating within the current response and follow-up thresholds.";
   if (ticket.status === "archived") {
     attentionLabel = "Closed";
+    escalationReason = "Archived tickets are excluded from escalation handling.";
   } else if (!ticket.ownerId) {
     attentionLabel = "Needs owner";
+    escalationLabel = "Escalate now";
+    escalationReason = "Assign an owner so the issue has clear accountability before it stalls.";
   } else if (!firstSupportReply && ticketAgeMinutes > FIRST_RESPONSE_TARGET_MINUTES[ticket.priority]) {
     attentionLabel = "Response overdue";
+    escalationLabel = "Escalate now";
+    escalationReason = "The first-response SLA target has been missed for this priority level.";
   } else if (
     ticket.status === "waiting_on_client" &&
     latestVisibleReplyBySupport &&
@@ -76,12 +92,16 @@ export function getPortalTicketLifecycle({
     minutesSinceVisibleReply > STALE_CLIENT_FOLLOW_UP_MINUTES
   ) {
     attentionLabel = "Stale client follow-up";
+    escalationLabel = "Watch closely";
+    escalationReason = "The client has not responded after EcoFocus follow-up for more than 72 hours.";
   } else if (
     ticket.status === "in_progress" &&
     minutesSinceVisibleReply !== null &&
     minutesSinceVisibleReply > AGING_IN_PROGRESS_MINUTES
   ) {
     attentionLabel = "Aging in progress";
+    escalationLabel = "Watch closely";
+    escalationReason = "This in-progress ticket has not had a visible update for more than 48 hours.";
   }
 
   return {
@@ -94,6 +114,9 @@ export function getPortalTicketLifecycle({
           0,
         )
       : null,
+    firstResponseTargetMinutes,
+    firstResponseDueAt,
+    firstResponseBreached: !firstSupportReply && ticket.status !== "archived" && ticketAgeMinutes > firstResponseTargetMinutes,
     latestVisibleReplyAt: latestVisibleReply?.createdAt || null,
     latestVisibleReplyAuthorName: latestVisibleReplyAuthor?.name || null,
     latestVisibleReplyBySupport: Boolean(latestVisibleReplyBySupport),
@@ -101,6 +124,8 @@ export function getPortalTicketLifecycle({
     ticketAgeMinutes,
     minutesSinceVisibleReply,
     attentionLabel,
+    escalationLabel,
+    escalationReason,
   };
 }
 
@@ -124,4 +149,12 @@ export function formatTicketAge(minutes: number) {
   const days = Math.floor(hours / 24);
   const remainderHours = hours % 24;
   return remainderHours ? `${days}d ${remainderHours}h old` : `${days}d old`;
+}
+
+export function formatResponseTarget(minutes: number) {
+  if (minutes < 60) return `${minutes}m target`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  if (!remainder) return `${hours}h target`;
+  return `${hours}h ${remainder}m target`;
 }
