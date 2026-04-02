@@ -3,12 +3,7 @@ import { RoleGuard } from "@/components/portal/RoleGuard";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
-import {
-  getPortalCompanies,
-  getPortalTeamMembersByCompany,
-  getPortalTicketsForUser,
-  getPortalUsersByIds,
-} from "@/lib/portal/data";
+import { getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate } from "@/lib/utils";
 
@@ -17,19 +12,13 @@ export const metadata = buildPortalMetadata(
   "Internal support admin queue for the EcoFocus portal.",
 );
 
-const filterOptions = {
-  status: ["open", "in_progress", "waiting_on_client", "archived"],
-  priority: ["low", "medium", "high", "urgent"],
-  issueType: ["Login / Access", "Dashboard Navigation", "Chart Export", "Data Question", "Possible Bug", "Feature Request", "Training Request"],
-};
-
 export default async function AdminSupportPage({
   searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = (await searchParams) || {};
-  const selectedCompanyParam = Array.isArray(params.company) ? params.company[0] : params.company;
+  const _selectedCompanyParam = Array.isArray(params.company) ? params.company[0] : params.company;
 
   return (
     <RoleGuard role="support_admin" redirectTarget="/portal/admin/support">
@@ -38,8 +27,6 @@ export default async function AdminSupportPage({
         const relatedUserIds = Array.from(new Set(tickets.flatMap((ticket) => [ticket.requesterId, ticket.ownerId].filter(Boolean) as string[])));
         const users = await getPortalUsersByIds(relatedUserIds);
         const usersById = new Map(users.map((user) => [user.id, user]));
-        const companies = (await getPortalCompanies()).filter((company) => company.id !== access.company.id);
-        const selectedCompanyId = selectedCompanyParam || companies[0]?.id || "";
         const openCount = tickets.filter((ticket) => ticket.status === "open").length;
         const urgentCount = tickets.filter((ticket) => ticket.priority === "urgent").length;
         const unassignedCount = tickets.filter((ticket) => !ticket.ownerId).length;
@@ -52,20 +39,6 @@ export default async function AdminSupportPage({
                 title="Support queue"
                 description="Protected internal view for ticket operations, assignment, prioritization, internal notes, and escalation handling."
               />
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                {Object.entries(filterOptions).map(([key, values]) => (
-                  <div key={key} className="rounded-[24px] bg-slate-50 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{key}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {values.map((value) => (
-                        <span key={value} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                          {value}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
               <div className="mt-5 grid gap-4 md:grid-cols-3">
                 <div className="rounded-[24px] bg-slate-950 p-4 text-white">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Open queue</p>
