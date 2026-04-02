@@ -87,6 +87,7 @@ export async function GET(req: NextRequest) {
     if (eventType === "allowance_override") return "Allowance override";
     if (eventType === "support_review_requested") return "Support review";
     if (eventType === "allowance_exhausted") return "Allowance exhausted";
+    if (eventType === "admin_action") return "Admin action";
     return eventType.replaceAll("_", " ");
   };
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalDashboardCatalog } from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
@@ -102,6 +103,21 @@ export async function POST(req: NextRequest) {
       return asJson({ error: normalizeCatalogStorageError(error.message) }, 500);
     }
 
+    await logPortalAdminAuditEvent({
+      access: auth.access,
+      action: existing ? "dashboard_catalog_updated" : "dashboard_catalog_created",
+      title: name,
+      entityId: slug,
+      notes: existing
+        ? `Dashboard catalog details updated for ${slug}.`
+        : `Dashboard added to the shared catalog as ${slug}.`,
+      metadata: {
+        slug,
+        accessTag,
+        embedAccess,
+      },
+    });
+
     return asJson({ ok: true, slug });
   } catch (error) {
     return asJson(
@@ -124,6 +140,7 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const admin = getServiceSupabase();
+    const dashboard = (await getPortalDashboardCatalog()).find((item) => item.slug === slug) || null;
     const { error: deleteConfigsError } = await admin
       .from("portal_dashboard_configs")
       .delete()
@@ -137,6 +154,17 @@ export async function DELETE(req: NextRequest) {
     if (error) {
       return asJson({ error: normalizeCatalogStorageError(error.message) }, 500);
     }
+
+    await logPortalAdminAuditEvent({
+      access: auth.access,
+      action: "dashboard_catalog_deleted",
+      title: dashboard?.name || slug,
+      entityId: slug,
+      notes: "Dashboard removed from the shared catalog and workspace access mappings were deleted.",
+      metadata: {
+        slug,
+      },
+    });
 
     return asJson({ ok: true });
   } catch (error) {

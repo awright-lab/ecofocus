@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalCompanies } from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
@@ -64,6 +65,21 @@ export async function POST(req: NextRequest) {
     if (error) {
       return asJson({ error: error.message }, 500);
     }
+
+    await logPortalAdminAuditEvent({
+      access,
+      action: "usage_allowance_updated",
+      title: companies.find((company) => company.id === companyId)?.name || companyId,
+      companyId,
+      entityId: `allowance:${companyId}`,
+      notes: `Usage allowance updated to ${annualHoursLimit} hours with ${hoursUsed} hours tracked.`,
+      metadata: {
+        annualHoursLimit,
+        hoursUsed,
+        periodStart,
+        periodEnd,
+      },
+    });
 
     return asJson({ ok: true });
   } catch (error) {

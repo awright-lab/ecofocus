@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalTeamMembersByCompany, getPortalTicketForUser } from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
@@ -70,6 +71,27 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (error) {
       return asJson({ error: error.message }, 500);
     }
+
+    const changedFields = [
+      ticket.status !== status ? `status: ${ticket.status} -> ${status}` : null,
+      ticket.ownerId !== ownerId
+        ? `owner: ${(ticket.ownerId && "assigned") || "unassigned"} -> ${(ownerId && "assigned") || "unassigned"}`
+        : null,
+    ].filter(Boolean);
+
+    await logPortalAdminAuditEvent({
+      access,
+      action: "ticket_updated",
+      title: ticket.subject,
+      companyId: ticket.companyId,
+      entityId: ticket.id,
+      notes: changedFields.length ? changedFields.join("; ") : "Ticket details updated.",
+      metadata: {
+        ticketId: ticket.id,
+        nextStatus: status,
+        nextOwnerId: ownerId,
+      },
+    });
 
     return asJson({ ok: true });
   } catch (error) {

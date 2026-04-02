@@ -1,8 +1,8 @@
 import Link from "next/link";
+import { AdminSupportQueueTable } from "@/components/portal/AdminSupportQueueTable";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
-import { TicketAdminControls } from "@/components/portal/TicketAdminControls";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { getPortalCompanies, getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
@@ -204,91 +204,29 @@ export default async function AdminSupportPage({
               </form>
             </section>
 
-            <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white">
-              <div className="border-b border-slate-200 px-6 py-4">
-                <p className="text-sm text-slate-600">
-                  Showing <span className="font-semibold text-slate-900">{filteredTickets.length}</span> tickets
-                  {selectedCompanyId ? (
-                    <>
-                      {" "}for <span className="font-semibold text-slate-900">{companiesById.get(selectedCompanyId) || selectedCompanyId}</span>
-                    </>
-                  ) : null}
-                  {searchQuery ? (
-                    <>
-                      {" "}matching <span className="font-semibold text-slate-900">"{selectedSearchParam}"</span>
-                    </>
-                  ) : null}
-                </p>
-              </div>
-              <div className="hidden min-[1180px]:grid grid-cols-[1.2fr_0.9fr_0.75fr_0.75fr_0.8fr_0.75fr_1.2fr_0.7fr] gap-4 border-b border-slate-200 px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                <span>Ticket</span>
-                <span>Workspace</span>
-                <span>Status</span>
-                <span>Priority</span>
-                <span>Issue Type</span>
-                <span>Owner</span>
-                <span>Queue actions</span>
-                <span>Updated</span>
-              </div>
-              {filteredTickets.length ? filteredTickets.map((ticket) => (
-                <div key={ticket.id} className="border-b border-slate-100 px-6 py-5 text-sm last:border-b-0">
-                  <div className="grid gap-5 min-[1180px]:grid-cols-[1.2fr_0.9fr_0.75fr_0.75fr_0.8fr_0.75fr_1.2fr_0.7fr]">
-                    <div>
-                      <Link href={`/portal/support/tickets/${ticket.id}`} className="font-semibold text-slate-900 transition hover:text-emerald-700">
-                        {ticket.subject}
-                      </Link>
-                      <p className="mt-1 text-slate-600">{ticket.id}</p>
-                      <div className="mt-3 flex flex-wrap gap-2 min-[1180px]:hidden">
-                        <TicketStatusBadge status={ticket.status} />
-                        <PriorityBadge priority={ticket.priority} />
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                          {ticket.issueType}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="space-y-1 text-slate-700">
-                      <p className="font-medium text-slate-900 min-[1180px]:font-normal">{companiesById.get(ticket.companyId) || ticket.companyId}</p>
-                      <p className="text-xs text-slate-500 min-[1180px]:hidden">Workspace</p>
-                    </div>
-                    <div className="hidden self-center min-[1180px]:block">
-                      <TicketStatusBadge status={ticket.status} />
-                    </div>
-                    <div className="hidden self-center min-[1180px]:block">
-                      <PriorityBadge priority={ticket.priority} />
-                    </div>
-                    <div className="hidden self-center text-slate-700 min-[1180px]:block">{ticket.issueType}</div>
-                    <div className="space-y-1 text-slate-700">
-                      <p className="font-medium text-slate-900 min-[1180px]:font-normal">
-                        {ticket.ownerId ? usersById.get(ticket.ownerId)?.name || "EcoFocus Team" : "Unassigned"}
-                      </p>
-                      <p className="text-xs text-slate-500 min-[1180px]:hidden">Owner</p>
-                    </div>
-                    <div className="rounded-[24px] bg-slate-50 p-4">
-                      <TicketAdminControls
-                        ticketId={ticket.id}
-                        currentStatus={ticket.status}
-                        currentOwnerId={ticket.ownerId}
-                        ownerOptions={ownerOptions}
-                        compact
-                      />
-                    </div>
-                    <div className="space-y-3">
-                      <p className="text-slate-600">{formatDate(ticket.updatedAt)}</p>
-                      <Link
-                        href={`/portal/support/tickets/${ticket.id}`}
-                        className="inline-flex rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
-                      >
-                        Open ticket
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )) : (
+            {filteredTickets.length ? (
+              <AdminSupportQueueTable
+                ownerOptions={ownerOptions}
+                tickets={filteredTickets.map((ticket) => ({
+                  id: ticket.id,
+                  subject: ticket.subject,
+                  companyId: ticket.companyId,
+                  companyName: companiesById.get(ticket.companyId) || ticket.companyId,
+                  status: ticket.status,
+                  priority: ticket.priority,
+                  issueType: ticket.issueType,
+                  ownerId: ticket.ownerId,
+                  ownerName: ticket.ownerId ? usersById.get(ticket.ownerId)?.name || "EcoFocus Team" : "Unassigned",
+                  updatedLabel: formatDate(ticket.updatedAt),
+                }))}
+              />
+            ) : (
+              <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white">
                 <div className="px-6 py-8 text-sm text-slate-600">
                   No tickets match the current filters.
                 </div>
-              )}
-            </section>
+              </section>
+            )}
 
             <section className="grid gap-6 md:grid-cols-3">
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">

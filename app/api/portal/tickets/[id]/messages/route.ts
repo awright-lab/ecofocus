@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalTicketForUser } from "@/lib/portal/data";
 import { appendAttachmentToMessage, uploadSupportAttachment } from "@/lib/portal/support-attachments";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -93,6 +94,22 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           updated_at: now,
         })
         .eq("id", ticket.id);
+
+      await logPortalAdminAuditEvent({
+        access,
+        action: isInternal ? "ticket_internal_note" : "ticket_reply",
+        title: ticket.subject,
+        companyId: ticket.companyId,
+        entityId: ticket.id,
+        notes: isInternal
+          ? "Support admin saved an internal note."
+          : "Support admin posted a client-visible reply.",
+        metadata: {
+          ticketId: ticket.id,
+          dashboardName: ticket.dashboardName,
+          hasAttachment: Boolean(attachment),
+        },
+      });
     } else {
       await admin
         .from("portal_tickets")

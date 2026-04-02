@@ -5,8 +5,6 @@ import { RoleGuard } from "@/components/portal/RoleGuard";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import {
   getPortalCompanies,
-  getPortalTicketMessages,
-  getPortalTicketsForUser,
   getPortalTeamMembersByCompany,
   getPortalUsageLogsForAdmin,
   getPortalUsersByIds,
@@ -50,6 +48,11 @@ function formatTimeRange(startAt: string, endAt: string) {
   })}`;
 }
 
+function formatAdminActionLabel(action?: unknown) {
+  const normalized = typeof action === "string" ? action : "admin_action";
+  return normalized.replaceAll("_", " ");
+}
+
 export default async function AdminAuditPage({
   searchParams,
 }: {
@@ -85,6 +88,7 @@ export default async function AdminAuditPage({
             (log.metadata?.phase === "token_issued" || log.metadata?.phase === "redirect_served"),
         );
         const usageAuditLogs = allAuditLogs.filter((log) => log.eventType === "viewer_session");
+        const adminActionLogs = allAuditLogs.filter((log) => log.eventType === "admin_action");
         const groupedUsageSessions = Array.from(
           usageAuditLogs
             .slice()
@@ -184,55 +188,17 @@ export default async function AdminAuditPage({
           .sort((a, b) => a.date.localeCompare(b.date))
           .slice(-7);
         const maxUsageHours = Math.max(...usageByDate.map((point) => point.hours), 1);
-        const supportTickets = (await getPortalTicketsForUser(access.user)).filter(
-          (ticket) => !selectedCompanyId || ticket.companyId === selectedCompanyId,
-        );
-        const supportMessagesByTicket = await Promise.all(
-          supportTickets.slice(0, 40).map(async (ticket) => ({
-            ticket,
-            messages: await getPortalTicketMessages(ticket.id, true),
-          })),
-        );
-        const supportOperationUsers = await getPortalUsersByIds(
-          Array.from(
-            new Set(
-              supportMessagesByTicket.flatMap(({ ticket, messages }) => [
-                ticket.requesterId,
-                ticket.ownerId || "",
-                ...messages.map((message) => message.authorId),
-              ]),
-            ),
-          ).filter(Boolean),
-        );
-        const supportOperationUsersById = new Map(supportOperationUsers.map((user) => [user.id, user]));
-        const supportOperations = supportMessagesByTicket
-          .flatMap(({ ticket, messages }) => {
-            const createdEvent = {
-              id: `${ticket.id}-created`,
-              title: ticket.subject,
-              subtitle: "Ticket created",
-              metaPrimary:
-                supportOperationUsersById.get(ticket.requesterId)?.name || ticket.requesterId,
-              metaSecondary: formatDateTime(ticket.createdAt),
-              sortAt: ticket.createdAt,
+        const supportOperations = adminActionLogs
+          .map((log) => {
+            const actor = auditUsersById.get(log.userId);
+            return {
+              id: log.id,
+              title: log.dashboardName,
+              subtitle: formatAdminActionLabel(log.metadata?.action),
+              metaPrimary: actor?.name || log.userId,
+              metaSecondary: formatDateTime(log.eventAt),
             };
-            const supportReplyEvents = messages
-              .filter((message) => {
-                const author = supportOperationUsersById.get(message.authorId);
-                return author?.role === "support_admin";
-              })
-              .map((message) => ({
-                id: message.id,
-                title: ticket.subject,
-                subtitle: message.isInternal ? "Internal note saved" : "Support reply posted",
-                metaPrimary:
-                  supportOperationUsersById.get(message.authorId)?.name || message.authorId,
-                metaSecondary: formatDateTime(message.createdAt),
-                sortAt: message.createdAt,
-              }));
-            return [createdEvent, ...supportReplyEvents];
           })
-          .sort((a, b) => new Date(b.sortAt).getTime() - new Date(a.sortAt).getTime())
           .slice(0, 6);
 
         return (
@@ -285,6 +251,11 @@ export default async function AdminAuditPage({
                   <p className="mt-2 text-sm text-rose-900/80">
                     {topUser ? formatTrackedDuration(topUser.minutes) : "Waiting for tracked sessions"}
                   </p>
+                </div>
+                <div className="rounded-[24px] bg-slate-100 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-600">Admin actions</p>
+                  <p className="mt-2 text-3xl font-semibold text-slate-950">{adminActionLogs.length}</p>
+                  <p className="mt-2 text-sm text-slate-700">Catalog, access, ticket, and billing changes</p>
                 </div>
               </div>
             </section>

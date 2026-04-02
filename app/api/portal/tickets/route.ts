@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalDashboardsForUser } from "@/lib/portal/data";
 import { appendAttachmentToMessage, uploadSupportAttachment } from "@/lib/portal/support-attachments";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -116,6 +117,22 @@ export async function POST(req: NextRequest) {
     if (messageError) {
       await admin.from("portal_tickets").delete().eq("id", ticketId);
       return asJson({ error: messageError.message }, 500);
+    }
+
+    if (access.user.role === "support_admin") {
+      await logPortalAdminAuditEvent({
+        access,
+        action: "ticket_created",
+        title: subject,
+        companyId: access.company.id,
+        entityId: ticketId,
+        notes: `Support admin created a ticket for ${dashboardName}.`,
+        metadata: {
+          issueType,
+          priority,
+          dashboardName,
+        },
+      });
     }
 
     return asJson({ ok: true, ticketId }, 201);

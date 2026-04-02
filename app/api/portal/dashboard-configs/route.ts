@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalCompanies, getPortalDashboardCatalog, getPortalDashboardConfig, getPortalDashboardConfigsByCompany } from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
@@ -100,6 +101,23 @@ export async function POST(req: NextRequest) {
     if (error) {
       return asJson({ error: error.message }, 500);
     }
+
+    await logPortalAdminAuditEvent({
+      access,
+      action: "dashboard_access_updated",
+      title: dashboard.name,
+      companyId,
+      entityId: `${companyId}:${dashboardSlug}`,
+      notes: isActive
+        ? `Dashboard access enabled${persistedUrl ? " with a configured URL" : ""}.`
+        : "Dashboard access disabled for this workspace.",
+      metadata: {
+        dashboardSlug,
+        isActive,
+        hasUrl: Boolean(persistedUrl),
+        hasNotes: Boolean(notes),
+      },
+    });
 
     return asJson({ ok: true });
   } catch (error) {

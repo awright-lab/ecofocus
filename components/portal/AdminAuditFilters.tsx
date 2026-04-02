@@ -28,20 +28,76 @@ export function AdminAuditFilters({
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
+  function pushParams(nextParams: URLSearchParams) {
+    startTransition(() => {
+      router.push(`${pathname}?${nextParams.toString()}`);
+    });
+  }
+
   function handleWorkspaceChange(nextCompanyId: string) {
     const nextParams = new URLSearchParams(searchParams.toString());
     nextParams.set("company", nextCompanyId);
     nextParams.delete("user");
     nextParams.delete("embedPage");
     nextParams.delete("usagePage");
+    pushParams(nextParams);
+  }
 
-    startTransition(() => {
-      router.push(`${pathname}?${nextParams.toString()}`);
-    });
+  function applyPreset(preset: "today" | "last_7_days" | "this_month") {
+    const now = new Date();
+    const formatDate = (value: Date) => value.toISOString().slice(0, 10);
+    const nextParams = new URLSearchParams(searchParams.toString());
+
+    if (preset === "today") {
+      const today = formatDate(now);
+      nextParams.set("start", today);
+      nextParams.set("end", today);
+    }
+
+    if (preset === "last_7_days") {
+      const start = new Date(now);
+      start.setUTCDate(start.getUTCDate() - 6);
+      nextParams.set("start", formatDate(start));
+      nextParams.set("end", formatDate(now));
+    }
+
+    if (preset === "this_month") {
+      const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      nextParams.set("start", formatDate(start));
+      nextParams.set("end", formatDate(now));
+    }
+
+    nextParams.delete("embedPage");
+    nextParams.delete("usagePage");
+    pushParams(nextParams);
   }
 
   return (
-    <form method="get" className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={() => applyPreset("today")}
+          className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+        >
+          Today
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset("last_7_days")}
+          className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+        >
+          Last 7 days
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset("this_month")}
+          className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700"
+        >
+          This month
+        </button>
+      </div>
+      <form method="get" className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-slate-800">Workspace</span>
         <select
@@ -104,7 +160,8 @@ export function AdminAuditFilters({
           Clear
         </a>
       </div>
-      {isPending ? <p className="text-xs text-emerald-700 xl:col-span-5">Loading workspace users…</p> : null}
-    </form>
+      {isPending ? <p className="text-xs text-emerald-700 xl:col-span-5">Loading audit filters…</p> : null}
+      </form>
+    </div>
   );
 }

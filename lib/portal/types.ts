@@ -111,7 +111,8 @@ export type PortalUsageLogEvent =
   | "viewer_session"
   | "allowance_exhausted"
   | "allowance_override"
-  | "support_review_requested";
+  | "support_review_requested"
+  | "admin_action";
 
 export type PortalUsageLog = {
   id: string;
