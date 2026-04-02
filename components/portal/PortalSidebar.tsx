@@ -6,7 +6,6 @@ import {
   Activity,
   BarChart3,
   CircleHelp,
-  FolderKanban,
   Gauge,
   Home,
   LifeBuoy,
@@ -34,7 +33,6 @@ const supportAdminNavItems = [
   { href: "/portal/admin/dashboards", label: "Dashboard Access", icon: ShieldCheck },
   { href: "/portal/admin/usage", label: "Usage Controls", icon: Gauge },
   { href: "/portal/admin/audit", label: "Audit", icon: Activity },
-  { href: "/portal/support/tickets", label: "Ticket Inbox", icon: FolderKanban },
   { href: "/portal/help", label: "Knowledge Base", icon: CircleHelp },
 ];
 
