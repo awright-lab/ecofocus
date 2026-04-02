@@ -22,6 +22,7 @@ export default async function AdminSupportPage({
   const selectedStatusParam = Array.isArray(params.status) ? params.status[0] : params.status;
   const selectedPriorityParam = Array.isArray(params.priority) ? params.priority[0] : params.priority;
   const selectedOwnerParam = Array.isArray(params.owner) ? params.owner[0] : params.owner;
+  const selectedAttentionParam = Array.isArray(params.attention) ? params.attention[0] : params.attention;
   const selectedSearchParam = Array.isArray(params.search) ? params.search[0] : params.search;
 
   return (
@@ -50,7 +51,18 @@ export default async function AdminSupportPage({
         const selectedStatus = selectedStatusParam || "";
         const selectedPriority = selectedPriorityParam || "";
         const selectedOwner = selectedOwnerParam || "";
+        const selectedAttention = selectedAttentionParam || "";
         const searchQuery = (selectedSearchParam || "").trim().toLowerCase();
+        const lifecycleByTicketId = new Map(
+          tickets.map((ticket) => [
+            ticket.id,
+            getPortalTicketLifecycle({
+              ticket,
+              messages: messagesByTicket.get(ticket.id) || [],
+              authorsById: usersById,
+            }),
+          ]),
+        );
 
         const filteredTickets = tickets.filter((ticket) => {
           if (selectedCompanyId && ticket.companyId !== selectedCompanyId) return false;
@@ -58,6 +70,7 @@ export default async function AdminSupportPage({
           if (selectedPriority && ticket.priority !== selectedPriority) return false;
           if (selectedOwner === "unassigned" && ticket.ownerId) return false;
           if (selectedOwner && selectedOwner !== "unassigned" && ticket.ownerId !== selectedOwner) return false;
+          if (selectedAttention && lifecycleByTicketId.get(ticket.id)?.attentionLabel !== selectedAttention) return false;
           if (!searchQuery) return true;
 
           const ownerName = ticket.ownerId ? usersById.get(ticket.ownerId)?.name || "" : "";
@@ -67,25 +80,32 @@ export default async function AdminSupportPage({
             .toLowerCase()
             .includes(searchQuery);
         });
+        const attentionSortRank: Record<string, number> = {
+          "Response overdue": 0,
+          "Needs owner": 1,
+          "Stale client follow-up": 2,
+          "Aging in progress": 3,
+          "On track": 4,
+          Closed: 5,
+        };
+        const sortedFilteredTickets = [...filteredTickets].sort((left, right) => {
+          const leftRank = attentionSortRank[lifecycleByTicketId.get(left.id)?.attentionLabel || "On track"] ?? 99;
+          const rightRank = attentionSortRank[lifecycleByTicketId.get(right.id)?.attentionLabel || "On track"] ?? 99;
+          if (leftRank !== rightRank) return leftRank - rightRank;
+          return new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+        });
 
-        const openCount = filteredTickets.filter((ticket) => ticket.status === "open").length;
-        const urgentCount = filteredTickets.filter((ticket) => ticket.priority === "urgent").length;
-        const unassignedCount = filteredTickets.filter((ticket) => !ticket.ownerId).length;
-        const ownedByCurrentAdminCount = filteredTickets.filter((ticket) => ticket.ownerId === access.user.id).length;
-        const lifecycleByTicketId = new Map(
-          filteredTickets.map((ticket) => [
-            ticket.id,
-            getPortalTicketLifecycle({
-              ticket,
-              messages: messagesByTicket.get(ticket.id) || [],
-              authorsById: usersById,
-            }),
-          ]),
-        );
-        const overdueCount = filteredTickets.filter(
+        const openCount = sortedFilteredTickets.filter((ticket) => ticket.status === "open").length;
+        const urgentCount = sortedFilteredTickets.filter((ticket) => ticket.priority === "urgent").length;
+        const unassignedCount = sortedFilteredTickets.filter((ticket) => !ticket.ownerId).length;
+        const ownedByCurrentAdminCount = sortedFilteredTickets.filter((ticket) => ticket.ownerId === access.user.id).length;
+        const overdueCount = sortedFilteredTickets.filter(
           (ticket) => lifecycleByTicketId.get(ticket.id)?.attentionLabel === "Response overdue",
         ).length;
-        const staleQueueCount = filteredTickets.filter((ticket) => {
+        const needsOwnerCount = sortedFilteredTickets.filter(
+          (ticket) => lifecycleByTicketId.get(ticket.id)?.attentionLabel === "Needs owner",
+        ).length;
+        const staleQueueCount = sortedFilteredTickets.filter((ticket) => {
           const attentionLabel = lifecycleByTicketId.get(ticket.id)?.attentionLabel;
           return attentionLabel === "Stale client follow-up" || attentionLabel === "Aging in progress";
         }).length;
@@ -146,6 +166,26 @@ export default async function AdminSupportPage({
                 >
                   Urgent only {urgentCount ? `(${urgentCount})` : ""}
                 </Link>
+                <Link
+                  href="/portal/admin/support?attention=Response%20overdue"
+                  className={selectedAttention === "Response overdue" ? selectedQuickScopeLinkClass : quickScopeLinkClass}
+                >
+                  Response overdue {overdueCount ? `(${overdueCount})` : ""}
+                </Link>
+                <Link
+                  href="/portal/admin/support?attention=Needs%20owner"
+                  className={selectedAttention === "Needs owner" ? selectedQuickScopeLinkClass : quickScopeLinkClass}
+                >
+                  Needs owner {needsOwnerCount ? `(${needsOwnerCount})` : ""}
+                </Link>
+                <Link
+                  href="/portal/admin/support?attention=Stale%20client%20follow-up"
+                  className={
+                    selectedAttention === "Stale client follow-up" ? selectedQuickScopeLinkClass : quickScopeLinkClass
+                  }
+                >
+                  Stale follow-up {staleQueueCount ? `(${staleQueueCount})` : ""}
+                </Link>
                 <Link href="/portal/admin/support" className={quickScopeLinkClass}>
                   Reset queue view
                 </Link>
@@ -153,7 +193,7 @@ export default async function AdminSupportPage({
             </section>
 
             <section className="rounded-[32px] border border-slate-200 bg-white p-6">
-              <form method="get" className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,0.8fr))_auto] xl:items-end">
+              <form method="get" className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_repeat(5,minmax(0,0.78fr))_auto] xl:items-end">
                 <label className="block">
                   <span className="mb-2 block text-sm font-medium text-slate-800">Search</span>
                   <input
@@ -223,6 +263,22 @@ export default async function AdminSupportPage({
                     ))}
                   </select>
                 </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-800">Attention</span>
+                  <select
+                    name="attention"
+                    defaultValue={selectedAttention}
+                    className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  >
+                    <option value="">All attention states</option>
+                    <option value="Response overdue">Response overdue</option>
+                    <option value="Needs owner">Needs owner</option>
+                    <option value="Stale client follow-up">Stale client follow-up</option>
+                    <option value="Aging in progress">Aging in progress</option>
+                    <option value="On track">On track</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </label>
                 <div className="flex items-end gap-3">
                   <button
                     type="submit"
@@ -240,10 +296,10 @@ export default async function AdminSupportPage({
               </form>
             </section>
 
-            {filteredTickets.length ? (
+            {sortedFilteredTickets.length ? (
               <AdminSupportQueueTable
                 ownerOptions={ownerOptions}
-                tickets={filteredTickets.map((ticket) => ({
+                tickets={sortedFilteredTickets.map((ticket) => ({
                   ...(lifecycleByTicketId.get(ticket.id) || {
                     awaitingLabel: "New",
                     firstResponseMinutes: null,
