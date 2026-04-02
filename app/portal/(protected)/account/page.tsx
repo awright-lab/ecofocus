@@ -120,11 +120,11 @@ export default async function AccountPage() {
                 Company dashboard hour allowance
               </div>
               <p className="mt-3 text-sm text-slate-600">
-                {usage.hoursUsed} of {usage.annualHoursLimit} annual hours have been used across this company for embedded dashboard access.
+                {usage.hoursUsedDisplay} of {usage.annualHoursLimit} annual hours have been used across this company for embedded dashboard access.
               </p>
             </div>
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${usage.isLocked ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
-              {usage.isLocked ? "Allowance exhausted" : `${usage.hoursRemaining} hours remaining`}
+              {usage.isLocked ? "Allowance exhausted" : `${usage.hoursRemainingDisplay} remaining`}
             </span>
           </div>
           <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-200">

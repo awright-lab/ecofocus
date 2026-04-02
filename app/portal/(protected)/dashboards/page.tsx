@@ -50,7 +50,7 @@ export default async function PortalDashboardsPage() {
               <div>
                 <p className="text-sm font-semibold text-slate-900">Annual dashboard usage allowance</p>
                 <p className="mt-1 text-sm text-slate-600">
-                  {usage.hoursUsed} of {usage.annualHoursLimit} hours used. {usage.hoursRemaining} hours remaining this period.
+                  {usage.hoursUsedDisplay} of {usage.annualHoursLimit} hours used. {usage.hoursRemainingDisplay} remaining this period.
                 </p>
               </div>
               <span className={`rounded-full px-3 py-1 text-xs font-semibold ${usage.isLocked ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>

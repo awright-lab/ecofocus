@@ -106,6 +106,18 @@ export function isPortalWorkspaceManager(role: PortalRole) {
   return role === "client_admin" || role === "agency_admin" || role === "support_admin";
 }
 
+function formatPortalUsageDuration(totalMinutes: number) {
+  const normalizedMinutes = Math.max(Math.round(totalMinutes), 0);
+  const hours = Math.floor(normalizedMinutes / 60);
+  const minutes = normalizedMinutes % 60;
+
+  if (minutes === 0) {
+    return `${hours} hour${hours === 1 ? "" : "s"}`;
+  }
+
+  return `${hours}h ${minutes}m`;
+}
+
 async function queryPortalUserByEmail(email?: string | null): Promise<PortalUser | null> {
   if (!email) return null;
 
@@ -926,18 +938,22 @@ export async function getPortalUsageStatus(user: PortalUser) {
     endAt: `${allowance.periodEnd}T23:59:59Z`,
     limit: 500,
   });
-  const loggedHours = Number((loggedUsage.reduce((total, log) => total + log.minutesTracked, 0) / 60).toFixed(1));
+  const loggedMinutes = loggedUsage.reduce((total, log) => total + log.minutesTracked, 0);
+  const baselineMinutesUsed = allowance.hoursUsed * 60;
+  const trackedMinutesUsed = baselineMinutesUsed + loggedMinutes;
 
   const devOverride = await getPortalDevUsageOverrideFromCookies();
-  const trackedHoursUsed = Math.max(allowance.hoursUsed, loggedHours);
+  const trackedHoursUsed = Number((trackedMinutesUsed / 60).toFixed(1));
   const overriddenHoursUsed =
     devOverride === "available"
       ? Math.min(trackedHoursUsed, Math.max(0, allowance.annualHoursLimit - 1))
       : devOverride === "exhausted"
         ? allowance.annualHoursLimit
         : trackedHoursUsed;
-
-  const hoursRemaining = Math.max(0, allowance.annualHoursLimit - overriddenHoursUsed);
+  const overriddenMinutesUsed = Math.round(overriddenHoursUsed * 60);
+  const annualMinutesLimit = allowance.annualHoursLimit * 60;
+  const remainingMinutes = Math.max(0, annualMinutesLimit - overriddenMinutesUsed);
+  const hoursRemaining = Number((remainingMinutes / 60).toFixed(1));
   const utilizationPct = allowance.annualHoursLimit
     ? Math.min(100, Math.round((overriddenHoursUsed / allowance.annualHoursLimit) * 100))
     : 0;
@@ -945,8 +961,10 @@ export async function getPortalUsageStatus(user: PortalUser) {
   return {
     allowance,
     hoursUsed: overriddenHoursUsed,
+    hoursUsedDisplay: formatPortalUsageDuration(overriddenMinutesUsed),
     annualHoursLimit: allowance.annualHoursLimit,
     hoursRemaining,
+    hoursRemainingDisplay: formatPortalUsageDuration(remainingMinutes),
     utilizationPct,
     isLocked: overriddenHoursUsed >= allowance.annualHoursLimit,
     devOverride,
