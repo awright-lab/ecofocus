@@ -4,8 +4,9 @@ import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalTicketsForUser } from "@/lib/portal/data";
+import { getPortalTicketMessages, getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
+import { formatResponseTime, getPortalTicketLifecycle } from "@/lib/portal/ticket-lifecycle";
 import { formatDate } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
@@ -16,6 +17,25 @@ export const metadata = buildPortalMetadata(
 export default async function TicketsPage() {
   const access = await requirePortalAccess("/portal/support/tickets");
   const tickets = await getPortalTicketsForUser(access.effectiveUser);
+  const messagesByTicket = new Map(
+    await Promise.all(
+      tickets.map(async (ticket) => [
+        ticket.id,
+        await getPortalTicketMessages(ticket.id, access.effectiveRole === "support_admin"),
+      ] as const),
+    ),
+  );
+  const authorIds = Array.from(
+    new Set(
+      tickets.flatMap((ticket) => [
+        ticket.requesterId,
+        ticket.ownerId || "",
+        ...(messagesByTicket.get(ticket.id) || []).map((message) => message.authorId),
+      ]),
+    ),
+  ).filter(Boolean);
+  const authors = await getPortalUsersByIds(authorIds);
+  const authorsById = new Map(authors.map((author) => [author.id, author]));
 
   return (
     <div className="space-y-6">
@@ -32,18 +52,27 @@ export default async function TicketsPage() {
       </section>
 
       <section className="overflow-hidden rounded-[32px] border border-slate-200 bg-white">
-        <div className="grid grid-cols-[1.5fr_1fr_0.8fr_0.9fr_0.8fr] gap-4 border-b border-slate-200 px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        <div className="grid grid-cols-[1.35fr_0.85fr_0.7fr_0.95fr_1.1fr_0.8fr] gap-4 border-b border-slate-200 px-6 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
           <span>Ticket</span>
           <span>Status</span>
           <span>Priority</span>
+          <span>Waiting on</span>
           <span>Updated</span>
           <span>Open</span>
         </div>
-        {tickets.map((ticket) => (
-          <div key={ticket.id} className="grid grid-cols-[1.5fr_1fr_0.8fr_0.9fr_0.8fr] gap-4 border-b border-slate-100 px-6 py-5 text-sm last:border-b-0">
+        {tickets.map((ticket) => {
+          const lifecycle = getPortalTicketLifecycle({
+            ticket,
+            messages: messagesByTicket.get(ticket.id) || [],
+            authorsById,
+          });
+
+          return (
+          <div key={ticket.id} className="grid grid-cols-[1.35fr_0.85fr_0.7fr_0.95fr_1.1fr_0.8fr] gap-4 border-b border-slate-100 px-6 py-5 text-sm last:border-b-0">
             <div>
               <p className="font-semibold text-slate-900">{ticket.subject}</p>
               <p className="mt-1 text-slate-600">{ticket.dashboardName}</p>
+              <p className="mt-2 text-xs text-slate-500">{formatResponseTime(lifecycle.firstResponseMinutes)}</p>
             </div>
             <div className="self-center">
               <TicketStatusBadge status={ticket.status} />
@@ -51,7 +80,19 @@ export default async function TicketsPage() {
             <div className="self-center">
               <PriorityBadge priority={ticket.priority} />
             </div>
-            <div className="self-center text-slate-600">{formatDate(ticket.updatedAt)}</div>
+            <div className="self-center">
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                {lifecycle.awaitingLabel}
+              </span>
+            </div>
+            <div className="self-center text-slate-600">
+              <p>{formatDate(ticket.updatedAt)}</p>
+              {lifecycle.latestVisibleReplyAuthorName ? (
+                <p className="mt-1 text-xs text-slate-500">
+                  Last reply by {lifecycle.latestVisibleReplyAuthorName}
+                </p>
+              ) : null}
+            </div>
             <div className="self-center">
               <Link href={`/portal/support/tickets/${ticket.id}`} className="inline-flex items-center gap-2 font-semibold text-emerald-700">
                 <MessageSquareText className="h-4 w-4" />
@@ -59,7 +100,7 @@ export default async function TicketsPage() {
               </Link>
             </div>
           </div>
-        ))}
+        )})}
       </section>
     </div>
   );

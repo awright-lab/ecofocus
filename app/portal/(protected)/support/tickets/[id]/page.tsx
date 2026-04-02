@@ -9,6 +9,7 @@ import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import { getPortalCompanies, getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalTicketMessages, getPortalUsageLogsForAdmin, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
+import { formatResponseTime, getPortalTicketLifecycle } from "@/lib/portal/ticket-lifecycle";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -41,6 +42,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   const supportOwners = supportTeam
     .filter((member) => member.role === "support_admin" && member.status !== "inactive")
     .map((member) => ({ id: member.id, name: member.name }));
+  const lifecycle = getPortalTicketLifecycle({
+    ticket,
+    messages,
+    authorsById,
+  });
   const historyLogs = showInternal
     ? (await getPortalUsageLogsForAdmin({
         companyId: ticket.companyId,
@@ -136,6 +142,45 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                 <dd className="font-medium text-slate-900">{formatDate(ticket.updatedAt)}</dd>
               </div>
             </dl>
+          </div>
+
+          <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+            <h3 className="text-lg font-semibold text-slate-950">Response visibility</h3>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-[24px] bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Waiting on</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950">{lifecycle.awaitingLabel}</p>
+                <p className="mt-2 text-sm text-slate-600">
+                  {lifecycle.awaitingLabel === "Client"
+                    ? "EcoFocus has replied and is waiting for client follow-up."
+                    : lifecycle.awaitingLabel === "EcoFocus"
+                      ? "The latest visible update came from the client side."
+                      : lifecycle.awaitingLabel === "Closed"
+                        ? "This ticket is archived."
+                        : "Waiting for the first support action."}
+                </p>
+              </div>
+              <div className="rounded-[24px] bg-slate-50 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">First response</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950">{formatResponseTime(lifecycle.firstResponseMinutes)}</p>
+                <p className="mt-2 text-sm text-slate-600">
+                  {lifecycle.firstSupportReplyAt
+                    ? `Responded on ${formatDateTime(lifecycle.firstSupportReplyAt)}`
+                    : "No support reply has been posted yet."}
+                </p>
+              </div>
+              <div className="rounded-[24px] bg-slate-50 p-4 sm:col-span-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Latest visible reply</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950">
+                  {lifecycle.latestVisibleReplyAuthorName || "No replies yet"}
+                </p>
+                <p className="mt-2 text-sm text-slate-600">
+                  {lifecycle.latestVisibleReplyAt
+                    ? `${formatDateTime(lifecycle.latestVisibleReplyAt)}`
+                    : "This conversation only has the opening request right now."}
+                </p>
+              </div>
+            </div>
           </div>
 
           {showInternal ? (
