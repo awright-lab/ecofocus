@@ -91,8 +91,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-        <div className="min-w-0 rounded-[32px] border border-slate-200 bg-white p-6">
+      <section className="space-y-6">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
+          <div className="min-w-0 rounded-[32px] border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-950">Message thread</h3>
           <div className="mt-6 space-y-4">
             {messages.map((message) => (
@@ -113,9 +114,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
               </div>
             ))}
           </div>
-        </div>
+          </div>
 
-        <div className="min-w-0 space-y-6">
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Reply</h3>
             <div className="mt-4 rounded-[24px] bg-slate-50 p-5">
@@ -129,8 +129,18 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                 readOnly={access.isPreviewMode || ticket.status === "archived"}
               />
             </div>
+            {showInternal ? (
+              <div className="mt-4 rounded-[24px] border border-slate-200 bg-slate-950 p-4 text-white">
+                <h4 className="text-sm font-semibold">Internal notes</h4>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  Support-only notes can be saved from the reply box above and stay hidden from client users.
+                </p>
+              </div>
+            ) : null}
           </div>
+        </div>
 
+        <div className={`grid gap-6 ${showInternal ? "lg:grid-cols-2 xl:grid-cols-4" : "lg:grid-cols-2"}`}>
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Ticket metadata</h3>
             <dl className="mt-4 space-y-3 text-sm text-slate-600">
@@ -163,7 +173,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
 
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Response visibility</h3>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 space-y-4">
               <div className="rounded-[24px] bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Waiting on</p>
                 <p className="mt-2 text-lg font-semibold text-slate-950">{lifecycle.awaitingLabel}</p>
@@ -178,7 +188,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                           : "Support marked this ticket as complete."
                         : lifecycle.awaitingLabel === "Closed"
                           ? "This ticket is archived."
-                          : "Waiting for the first support action."}
+                        : "Waiting for the first support action."}
                 </p>
               </div>
               <div className="rounded-[24px] bg-slate-50 p-4">
@@ -190,7 +200,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                     : "No support reply has been posted yet."}
                 </p>
               </div>
-              <div className="rounded-[24px] bg-slate-50 p-4 sm:col-span-2">
+              <div className="rounded-[24px] bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Latest visible reply</p>
                 <p className="mt-2 text-lg font-semibold text-slate-950">
                   {lifecycle.latestVisibleReplyAuthorName || "No replies yet"}
@@ -207,7 +217,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           {showInternal ? (
             <div className="rounded-[32px] border border-slate-200 bg-white p-6">
               <h3 className="text-lg font-semibold text-slate-950">SLA and escalation</h3>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="mt-4 space-y-4">
                 <div className="rounded-[24px] bg-slate-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">First response target</p>
                   <p className="mt-2 text-lg font-semibold text-slate-950">
@@ -224,7 +234,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                   <p className="mt-2 text-lg font-semibold text-slate-950">{lifecycle.escalationLabel}</p>
                   <p className="mt-2 text-sm text-slate-600">{lifecycle.escalationReason}</p>
                 </div>
-                <div className="rounded-[24px] bg-slate-50 p-4 sm:col-span-2">
+                <div className="rounded-[24px] bg-slate-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Ticket age and follow-up</p>
                   <p className="mt-2 text-lg font-semibold text-slate-950">{formatTicketAge(lifecycle.ticketAgeMinutes)}</p>
                   <p className="mt-2 text-sm text-slate-600">
@@ -238,62 +248,56 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           ) : null}
 
           {showInternal ? (
-            <>
-              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-                <h3 className="text-lg font-semibold text-slate-950">Assignment and status</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Update ownership and workflow status directly from the ticket thread so support operations stay aligned with the latest client conversation.
-                </p>
-                <div className="mt-4 rounded-[24px] bg-slate-50 p-5">
-                  <TicketAdminControls
-                    ticketId={ticket.id}
-                    currentStatus={ticket.status}
-                    currentOwnerId={ticket.ownerId}
-                    ownerOptions={supportOwners}
-                  />
-                </div>
+            <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+              <h3 className="text-lg font-semibold text-slate-950">Assignment and status</h3>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Update ownership and workflow status directly from the ticket thread so support operations stay aligned with the latest client conversation.
+              </p>
+              <div className="mt-4 rounded-[24px] bg-slate-50 p-5">
+                <TicketAdminControls
+                  ticketId={ticket.id}
+                  currentStatus={ticket.status}
+                  currentOwnerId={ticket.ownerId}
+                  ownerOptions={supportOwners}
+                  compact
+                />
               </div>
-
-              <div className="rounded-[32px] border border-slate-200 bg-slate-950 p-6 text-white">
-                <h3 className="text-lg font-semibold">Internal notes</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
-                  Support staff can save internal notes from the reply box above. Internal notes stay hidden from client users in this thread.
-                </p>
-              </div>
-
-              <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-                <h3 className="text-lg font-semibold text-slate-950">Ticket history</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">
-                  A running audit trail of support-admin actions for this ticket, including assignment changes, internal notes, replies, and queue updates.
-                </p>
-                <div className="mt-4 space-y-3">
-                  {historyLogs.length ? (
-                    historyLogs.map((log) => (
-                      <div key={log.id} className="rounded-[24px] bg-slate-50 p-4">
-                        <div className="flex items-center justify-between gap-3">
-                          <p className="font-semibold text-slate-900">
-                            {typeof log.metadata?.action === "string"
-                              ? log.metadata.action.replaceAll("_", " ")
-                              : "admin action"}
-                          </p>
-                          <p className="text-xs text-slate-500">{formatDateTime(log.eventAt)}</p>
-                        </div>
-                        <p className="mt-2 text-sm text-slate-700">
-                          {authorsById.get(log.userId)?.name || String(log.metadata?.actorName || log.userId)}
-                        </p>
-                        {log.notes ? <p className="mt-1 text-sm text-slate-600">{log.notes}</p> : null}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-[24px] bg-slate-50 p-4 text-sm text-slate-600">
-                      Ticket history will appear here as support admins work the issue.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </>
+            </div>
           ) : null}
         </div>
+
+        {showInternal ? (
+          <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+            <h3 className="text-lg font-semibold text-slate-950">Ticket history</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              A running audit trail of support-admin actions for this ticket, including assignment changes, internal notes, replies, and queue updates.
+            </p>
+            <div className="mt-4 space-y-3">
+              {historyLogs.length ? (
+                historyLogs.map((log) => (
+                  <div key={log.id} className="rounded-[24px] bg-slate-50 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-semibold text-slate-900">
+                        {typeof log.metadata?.action === "string"
+                          ? log.metadata.action.replaceAll("_", " ")
+                          : "admin action"}
+                      </p>
+                      <p className="text-xs text-slate-500">{formatDateTime(log.eventAt)}</p>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-700">
+                      {authorsById.get(log.userId)?.name || String(log.metadata?.actorName || log.userId)}
+                    </p>
+                    {log.notes ? <p className="mt-1 text-sm text-slate-600">{log.notes}</p> : null}
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[24px] bg-slate-50 p-4 text-sm text-slate-600">
+                  Ticket history will appear here as support admins work the issue.
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
       </section>
     </div>
   );
