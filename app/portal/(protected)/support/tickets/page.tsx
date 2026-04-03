@@ -10,7 +10,7 @@ import { formatResponseTime, getPortalTicketLifecycle } from "@/lib/portal/ticke
 import { formatDate } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
-  "My Tickets",
+  "Support Requests",
   "Private support ticket list for the EcoFocus portal.",
 );
 
@@ -41,12 +41,12 @@ export default async function TicketsPage() {
     <div className="space-y-6">
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
-          eyebrow="My Tickets"
-          title="Track support requests"
+          eyebrow="Support"
+          title="Your support requests"
           description={
             access.isPreviewMode
               ? "This read-only preview shows the ticket list available to the simulated workspace role."
-              : "View request status, priority, and last activity. Company admins can see tickets across their workspace, while individual users only see their own requests."
+              : "View request status, priority, and recent activity. Workspace admins can see requests across their workspace, while individual users only see their own."
           }
         />
       </section>

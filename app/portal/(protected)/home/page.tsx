@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CircleHelp } from "lucide-react";
+import { CircleHelp, Clock3, LayoutDashboard, LifeBuoy } from "lucide-react";
 import { DashboardCard } from "@/components/portal/DashboardCard";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
@@ -12,6 +12,7 @@ import {
   getPortalDashboardsForUser,
   getPortalTicketsForUser,
   getPortalUsageLogsForAdmin,
+  getPortalUsageStatus,
 } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -39,6 +40,9 @@ export default async function PortalHomePage() {
     .slice(0, 3);
   const tickets = (await getPortalTicketsForUser(access.effectiveUser)).slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
+  const usage = await getPortalUsageStatus(access.effectiveUser);
+  const availableDashboardCount = dashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).length;
+  const openTicketCount = tickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived").length;
 
   if (access.effectiveRole === "support_admin") {
     const recentOperationalEvents = (
@@ -162,35 +166,65 @@ export default async function PortalHomePage() {
     <div className="space-y-6">
       <section className="rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.4)]">
         <SectionHeader
-          eyebrow="Portal Home"
+          eyebrow="Workspace Overview"
           title={`Welcome back, ${access.user.name.split(" ")[0]}`}
           description={
             access.isPreviewMode
               ? "This read-only preview shows the client workspace from the selected member role."
-              : "Use the portal to open licensed dashboards, manage support requests, and keep account access aligned with your organization."
+              : `Everything for ${access.company.name} is gathered here so your team can open dashboards, follow support requests, and find help quickly.`
           }
         />
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
-          <div className="rounded-[28px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">What you can do here</p>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">
-              Open licensed dashboards, review support activity, submit new requests, and manage account access from one private workspace.
-            </p>
+        <div className="mt-6 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-[28px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] p-5">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                <span>Dashboards</span>
+              </div>
+              <p className="mt-3 text-3xl font-semibold text-slate-950">{availableDashboardCount}</p>
+              <p className="mt-2 text-sm text-slate-700">Available to open right now.</p>
+            </div>
+            <div className="rounded-[28px] border border-sky-100 bg-[linear-gradient(135deg,#eff6ff_0%,#f8fafc_100%)] p-5">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700">
+                <LifeBuoy className="h-3.5 w-3.5" />
+                <span>Open requests</span>
+              </div>
+              <p className="mt-3 text-3xl font-semibold text-slate-950">{openTicketCount}</p>
+              <p className="mt-2 text-sm text-slate-700">Tickets still in progress or waiting.</p>
+            </div>
+            <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+                <Clock3 className="h-3.5 w-3.5" />
+                <span>Hours remaining</span>
+              </div>
+              <p className="mt-3 text-3xl font-semibold text-slate-950">
+                {usage.annualHoursLimit ? usage.hoursRemainingDisplay : "Included"}
+              </p>
+              <p className="mt-2 text-sm text-slate-700">
+                {usage.annualHoursLimit ? "Company dashboard hours left in the current period." : "Your current plan does not use a tracked dashboard hour allowance."}
+              </p>
+            </div>
           </div>
           <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick support</p>
-            <div className="mt-3 flex flex-wrap gap-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick actions</p>
+            <p className="mt-3 text-sm leading-6 text-slate-600">
+              Jump straight into the tasks your team is most likely to need during a working session.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                Open dashboards
+              </Link>
               {access.isPreviewMode ? (
                 <span className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500">
                   Request submission disabled
                 </span>
               ) : (
                 <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-                  Submit Request
+                  Start support request
                 </Link>
               )}
               <Link href="/portal/support/tickets" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-                View Tickets
+                View requests
               </Link>
             </div>
           </div>
@@ -201,9 +235,9 @@ export default async function PortalHomePage() {
         <div className="space-y-6">
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <SectionHeader
-              eyebrow="Available Dashboards"
-              title="Preview licensed workspaces"
-              description="Dashboard access reflects the dashboards currently assigned to your company and account."
+              eyebrow="Dashboards"
+              title="Your dashboards"
+              description="Open the dashboards assigned to your workspace and keep an eye on anything that is still being configured."
               actions={
                 <Link href="/portal/dashboards" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
                   View all dashboards
@@ -219,9 +253,9 @@ export default async function PortalHomePage() {
 
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <SectionHeader
-              eyebrow="Helpful Resources"
-              title="Recommended help content"
-              description="Product-oriented guidance for login, exports, filtering, Eco IQ interpretation, and table downloads."
+              eyebrow="Help"
+              title="Popular help articles"
+              description="Quick answers for login, exports, filtering, Eco IQ interpretation, and table downloads."
             />
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {articles.map((article) => (
@@ -237,9 +271,9 @@ export default async function PortalHomePage() {
 
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">
           <SectionHeader
-            eyebrow="Recent Support Activity"
-            title="Current ticket updates"
-            description="Keep active issues, training requests, and follow-up items visible without leaving the portal."
+            eyebrow="Support"
+            title="Recent request updates"
+            description="Keep active issues, training requests, and follow-up items visible without leaving your workspace."
           />
           <div className="mt-6 space-y-4">
             {tickets.map((ticket) => (
@@ -257,7 +291,7 @@ export default async function PortalHomePage() {
               </Link>
             ))}
             <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-600">
-              Need escalation guidance? Start in the <Link href="/portal/support" className="font-semibold text-emerald-700">Support Center</Link>.
+              Need more help? Start in <Link href="/portal/support" className="font-semibold text-emerald-700">Support</Link>.
               <CircleHelp className="ml-2 inline h-4 w-4" />
             </div>
           </div>

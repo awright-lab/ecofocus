@@ -5,7 +5,7 @@ import { getPortalDashboardsForUser } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export const metadata = buildPortalMetadata(
-  "Submit Support Ticket",
+  "Start Support Request",
   "Private support request form for the EcoFocus portal.",
 );
 
@@ -20,8 +20,8 @@ export default async function NewSupportTicketPage({
       <div className="space-y-6">
         <section className="rounded-[32px] border border-slate-200 bg-white p-6">
           <SectionHeader
-            eyebrow="Support Request"
-            title="Ticket submission is disabled in preview"
+            eyebrow="Support"
+            title="Request submission is disabled in preview"
             description="Support preview mode is read-only so EcoFocus admins can review the client experience without creating or changing account activity."
           />
         </section>
@@ -39,9 +39,9 @@ export default async function NewSupportTicketPage({
     <div className="space-y-6">
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
-          eyebrow="Support Request"
-          title="Submit a support ticket"
-          description="Share the dashboard, issue type, and business context so the EcoFocus team can review and respond with the right next steps."
+          eyebrow="Support"
+          title="Start a support request"
+          description="Share the dashboard, issue type, and business context so the EcoFocus team can understand the issue quickly and respond with the right next steps."
         />
       </section>
 

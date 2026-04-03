@@ -23,9 +23,9 @@ export default async function PortalWorkspacesPage() {
     <div className="space-y-6">
       <section className="rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.4)]">
         <SectionHeader
-          eyebrow="Workspace Directory"
-          title="Company workspaces"
-          description="Each company has its own workspace. Search the directory, move through pages quickly, and switch into the company you need."
+          eyebrow="Workspace Access"
+          title="Switch workspaces"
+          description="Search the workspaces available to your login and switch into the one you need."
         />
       </section>
 

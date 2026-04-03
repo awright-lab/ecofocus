@@ -5,7 +5,7 @@ import { getPortalArticleCategories, getPortalArticles } from "@/lib/portal/data
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export const metadata = buildPortalMetadata(
-  "Knowledge Base",
+  "Help",
   "Private knowledge base and help center for the EcoFocus portal.",
 );
 
@@ -18,7 +18,7 @@ export default async function HelpCenterPage() {
     <div className="space-y-6">
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
-          eyebrow="Knowledge Base"
+          eyebrow="Help"
           title="Help center"
           description="Find guidance for login, exports, Eco IQ interpretation, segment filtering, and data-table workflows."
         />

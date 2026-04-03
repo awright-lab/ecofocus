@@ -8,7 +8,7 @@ import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDateTime } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
-  "Team Management",
+  "Team",
   "Private team and seat management view for the EcoFocus portal.",
 );
 
@@ -29,11 +29,11 @@ export default async function TeamPage() {
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
           eyebrow="Team"
-          title="Team and seat management"
+          title="Team access"
           description={
             access.isPreviewMode
               ? "This read-only preview shows the team management workspace as the simulated admin role would see it."
-              : "Review seat availability, see active teammates, and prepare access updates for your organization."
+              : "Review seat availability, see active teammates, and manage access for your workspace."
           }
         />
       </section>
@@ -67,7 +67,7 @@ export default async function TeamPage() {
             <p className="mt-3 text-sm leading-6 text-slate-600">
               {access.isPreviewMode
                 ? "Invites are disabled in support preview mode so you can inspect the screen without changing access."
-                : "Add a teammate by reserving a seat and marking the user as invited for this account."}
+                : "Add a teammate by reserving a seat and sending them access for this workspace."}
             </p>
             <TeamInviteForm
               canManage={canManageTeam}
@@ -107,7 +107,7 @@ export default async function TeamPage() {
         <section className="rounded-[32px] border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-950">Invite activity</h3>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Review recent invite activity and copy or refresh password setup links when a teammate needs another copy.
+            Review recent invite activity and resend setup links when a teammate needs another copy.
           </p>
           <div className="mt-5">
             {inviteHistory.length ? (

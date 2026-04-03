@@ -7,7 +7,7 @@ import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate, formatDateTime } from "@/lib/utils";
 
 export const metadata = buildPortalMetadata(
-  "Account and Subscription",
+  "Account",
   "Private account and subscription summary for the EcoFocus portal.",
 );
 
@@ -40,11 +40,11 @@ export default async function AccountPage() {
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
           eyebrow="Account"
-          title="Account and subscription"
+          title="Workspace and access"
           description={
             access.isPreviewMode
               ? "This read-only preview shows how account, seat, and usage details appear to the simulated workspace role."
-              : "Review your account details, company plan, seat usage, dashboard access, and recent activity in one place."
+              : "Review your workspace details, plan, team access, dashboard access, and recent activity in one place."
           }
         />
       </section>
@@ -74,7 +74,7 @@ export default async function AccountPage() {
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
             <CreditCard className="h-5 w-5 text-emerald-700" />
-            Company and subscription
+            Workspace and subscription
           </div>
           <dl className="mt-4 space-y-3 text-sm text-slate-600">
             <div className="flex items-center justify-between gap-4">
@@ -117,10 +117,10 @@ export default async function AccountPage() {
             <div>
               <div className="flex items-center gap-3 text-sm font-semibold text-slate-900">
                 <Clock3 className="h-5 w-5 text-emerald-700" />
-                Company dashboard hour allowance
+                Dashboard hour allowance
               </div>
               <p className="mt-3 text-sm text-slate-600">
-                {usage.hoursUsedDisplay} of {usage.annualHoursLimit} annual hours have been used across this company for embedded dashboard access.
+                {usage.hoursUsedDisplay} of {usage.annualHoursLimit} annual hours have been used across this workspace for embedded dashboard access.
               </p>
             </div>
             <span className={`rounded-full px-3 py-1 text-xs font-semibold ${usage.isLocked ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"}`}>
@@ -137,7 +137,7 @@ export default async function AccountPage() {
               </Link>
             ) : null}
             <Link href="/portal/support" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-              Review support options
+              Contact support
             </Link>
           </div>
         </section>
@@ -145,7 +145,7 @@ export default async function AccountPage() {
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-slate-950">Accessible dashboard entitlements</h3>
+          <h3 className="text-lg font-semibold text-slate-950">Assigned dashboards</h3>
           <div className="mt-4 space-y-3">
             {dashboards.map((dashboard) => (
               <div key={dashboard.id} className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
@@ -161,9 +161,9 @@ export default async function AccountPage() {
         </div>
 
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-slate-950">Billing management</h3>
+          <h3 className="text-lg font-semibold text-slate-950">Billing and plan support</h3>
           <p className="mt-4 text-sm leading-6 text-slate-600">
-            Use this area to keep your plan details visible and route billing-related requests to the EcoFocus team.
+            Keep your plan details visible and route billing-related questions to the EcoFocus team.
           </p>
           <div className="mt-6 rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
             Renewal date, plan status, and seat usage shown above reflect the current account record on file for your company.
@@ -189,9 +189,9 @@ export default async function AccountPage() {
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 className="text-lg font-semibold text-slate-950">Usage activity log</h3>
+            <h3 className="text-lg font-semibold text-slate-950">Usage activity</h3>
             <p className="mt-2 text-sm text-slate-600">
-              Recent company-level usage events that support reviews and allowance disputes can be checked against.
+              Recent workspace-level usage events that support reviews and allowance questions can be checked against.
             </p>
           </div>
           {!access.isPreviewMode ? (

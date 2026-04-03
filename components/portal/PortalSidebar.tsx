@@ -18,10 +18,10 @@ import type { PortalRole } from "@/lib/portal/types";
 
 const clientNavItems = [
   { href: "/portal/home", label: "Home", icon: Home },
-  { href: "/portal/workspaces", label: "Workspaces", icon: PanelsTopLeft },
-  { href: "/portal/dashboards", label: "My Dashboards", icon: BarChart3 },
-  { href: "/portal/support", label: "Support Center", icon: LifeBuoy },
-  { href: "/portal/help", label: "Knowledge Base", icon: CircleHelp },
+  { href: "/portal/workspaces", label: "Switch Workspace", icon: PanelsTopLeft },
+  { href: "/portal/dashboards", label: "Dashboards", icon: BarChart3 },
+  { href: "/portal/support", label: "Support", icon: LifeBuoy },
+  { href: "/portal/help", label: "Help", icon: CircleHelp },
   { href: "/portal/team", label: "Team", icon: Users },
 ];
 

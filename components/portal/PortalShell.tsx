@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Building2 } from "lucide-react";
 import { PreviewModeControls } from "@/components/portal/PreviewModeControls";
 import { PortalSessionMenu } from "@/components/portal/PortalSessionMenu";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
@@ -27,13 +28,15 @@ async function PortalShellInner({
   const showDevBypassSession = devToolsEnabled && !access.session;
   const usageOverride = devToolsEnabled ? await getPortalDevUsageOverrideFromCookies() : null;
   const isSupportAdmin = access.effectiveRole === "support_admin";
+  const isClientWorkspace = !isSupportAdmin;
+  const companyFirstName = access.company.name;
   const shellEyebrow = isSupportAdmin ? "EcoFocus Admin" : "Private EcoFocus Portal";
-  const shellTitle = isSupportAdmin ? "Support workspace" : "Support + Data Portal";
+  const shellTitle = isSupportAdmin ? "Support workspace" : `${companyFirstName} Workspace`;
   const shellDescription = isSupportAdmin
     ? "Manage support, dashboard access, and internal review work from one place."
     : access.isPreviewMode
-      ? `Read-only preview of the ${access.company.name} workspace from a member perspective.`
-      : "Licensed dashboard access, support workflows, and account management in one authenticated workspace.";
+      ? `Read-only preview of the ${access.company.name} experience from a member perspective.`
+      : "Access your dashboards, manage support requests, and keep your team aligned from one private workspace.";
   const subscriberTypeLabel = access.company.subscriberType ? access.company.subscriberType.replace("_", " ") : "subscriber";
   const isCrossWorkspaceSession = access.company.id !== access.homeCompany.id;
   const showWorkspaceDirectory =
@@ -58,9 +61,19 @@ async function PortalShellInner({
                     priority
                   />
                 </div>
+              ) : isClientWorkspace ? (
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-emerald-100">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{access.company.name}</p>
+                    <p className="text-xs text-emerald-100/75">EcoFocus client workspace</p>
+                  </div>
+                </div>
               ) : null}
               <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-emerald-200">
-                {shellEyebrow}
+                {isSupportAdmin ? shellEyebrow : "Client Workspace"}
               </p>
               <h1 className="mt-2 text-2xl font-semibold sm:text-[2rem]">{shellTitle}</h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-emerald-50/85">
@@ -92,7 +105,12 @@ async function PortalShellInner({
 
           {!isSupportAdmin ? (
             <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs text-emerald-50/80">
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">Private client workspace</span>
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
+                {access.subscription.planName}
+              </span>
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 capitalize">
+                {subscriberTypeLabel}
+              </span>
               {showDevBypassSession ? (
                 <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
                   Test sign-in session

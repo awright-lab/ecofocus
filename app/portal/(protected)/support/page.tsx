@@ -6,7 +6,7 @@ import { getPortalArticles } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export const metadata = buildPortalMetadata(
-  "Support Center",
+  "Support",
   "Private support hub for the EcoFocus portal.",
 );
 
@@ -20,17 +20,17 @@ export default async function PortalSupportPage() {
     <div className="space-y-6">
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
-          eyebrow="Support Center"
-          title="Help, tickets, and escalation guidance"
+          eyebrow="Support"
+          title="Get help from EcoFocus"
           description={
             access.isPreviewMode
               ? "This read-only preview shows how the support center appears to the current workspace role."
-              : "Start with help articles for common questions, then submit or track support requests when access, export, or interpretation issues need direct assistance."
+              : "Start with help articles for common questions, then send a request whenever dashboard access, exports, interpretation, or data questions need direct support."
           }
         />
         <div className="mt-6 rounded-[28px] bg-[linear-gradient(135deg,#0f172a_0%,#0f766e_100%)] p-6 text-white">
           <div className="rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/85">
-            Browse the knowledge base to search help content by topic, dashboard name, export type, or common issue.
+            Search help by topic, dashboard name, export type, or common issue before opening a new request.
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             {access.isPreviewMode ? (
@@ -39,14 +39,14 @@ export default async function PortalSupportPage() {
               </span>
             ) : (
               <Link href="/portal/support/new" className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950">
-                Submit a Support Request
+                Start a support request
               </Link>
             )}
             <Link href="/portal/support/tickets" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white">
-              View My Tickets
+              View requests
             </Link>
             <Link href="/portal/help" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white">
-              Browse Help Center
+              Browse help
             </Link>
           </div>
         </div>
@@ -54,7 +54,7 @@ export default async function PortalSupportPage() {
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-slate-950">Common issue categories</h3>
+          <h3 className="text-lg font-semibold text-slate-950">Common request types</h3>
           <div className="mt-4 flex flex-wrap gap-3">
             {categories.map((category) => (
               <span key={category} className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700">
@@ -65,11 +65,10 @@ export default async function PortalSupportPage() {
           <div className="mt-8 rounded-[24px] bg-slate-50 p-5">
             <h4 className="flex items-center gap-2 text-base font-semibold text-slate-900">
               <LifeBuoy className="h-4 w-4 text-emerald-700" />
-              Contact and escalation guidance
+              Before you submit
             </h4>
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              Use standard tickets for access, export, and interpretation support. For urgent client deliverable blockers, include timing,
-              business impact, and the specific dashboard or project context in the first message.
+              Include the dashboard name, what you were trying to do, what happened instead, and any deadline or business context. That helps EcoFocus route your request faster.
             </p>
           </div>
         </div>
@@ -89,7 +88,7 @@ export default async function PortalSupportPage() {
             ))}
           </div>
           <div className="mt-6 rounded-[24px] border border-dashed border-slate-300 p-4 text-sm text-slate-600">
-            Support requests are reviewed by the EcoFocus team and routed based on the issue type, urgency, and dashboard context you provide.
+            Requests are reviewed by the EcoFocus team and routed based on the issue type, urgency, and dashboard context you provide.
             <Ticket className="ml-2 inline h-4 w-4" />
           </div>
         </div>
