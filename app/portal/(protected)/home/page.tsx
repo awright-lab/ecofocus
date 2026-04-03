@@ -7,6 +7,8 @@ import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
 import {
   getPortalArticles,
+  getPortalActiveDashboardConfigs,
+  getPortalDashboardConfigsByCompany,
   getPortalDashboardsForUser,
   getPortalTicketsForUser,
   getPortalUsageLogsForAdmin,
@@ -21,7 +23,20 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
-  const dashboards = (await getPortalDashboardsForUser(access.effectiveUser, access.company.id)).slice(0, 3);
+  const baseDashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
+  const activeWorkspaceConfigs =
+    access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
+      ? await getPortalActiveDashboardConfigs()
+      : (await getPortalDashboardConfigsByCompany(access.company.id)).filter((config) => config.isActive);
+  const activeWorkspaceConfigsBySlug = new Map(
+    activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),
+  );
+  const dashboards = baseDashboards
+    .map((dashboard) => ({
+      ...dashboard,
+      embedUrl: activeWorkspaceConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
+    }))
+    .slice(0, 3);
   const tickets = (await getPortalTicketsForUser(access.effectiveUser)).slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
 
