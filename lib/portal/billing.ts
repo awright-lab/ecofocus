@@ -250,6 +250,7 @@ export async function createPortalInvoiceForCompany(input: {
   const invoice = await stripe.invoices.create({
     customer: stripeCustomerId,
     collection_method: "send_invoice",
+    pending_invoice_items_behavior: "include",
     days_until_due: Math.max(1, Math.min(90, Math.round(input.daysUntilDue || 30))),
     auto_advance: false,
     description,
