@@ -60,7 +60,7 @@ values
   (
     'dashboard-eco-iq',
     'eco-iq-overview',
-    'Eco IQ Overview',
+    'EcoReputation™ Overview',
     'Topline sustainability perception trends, brand positioning, and audience shifts.',
     'Included',
     'public_link'

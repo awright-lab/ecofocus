@@ -20,7 +20,7 @@ export default async function HelpCenterPage() {
         <SectionHeader
           eyebrow="Help"
           title="Help center"
-          description="Find guidance for login, exports, Eco IQ interpretation, segment filtering, and data-table workflows."
+          description="Find guidance for login, exports, EcoReputation™ interpretation, segment filtering, and data-table workflows."
         />
       </section>
 

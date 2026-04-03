@@ -35,7 +35,7 @@ export function HelpCenterClient({
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search login, exports, Eco IQ, filters, or data tables"
+                placeholder="Search login, exports, EcoReputation™, filters, or data tables"
                 className="w-full bg-transparent text-sm text-slate-900 outline-none"
               />
             </label>

@@ -116,7 +116,7 @@ insert into public.portal_tickets (
 )
 values
   ('TCK-1042', 'company-greenloop', 'Exported chart labels are truncating in PNG output', 'Category Performance', 'Chart Export', 'high', 'in_progress', 'user-maya', 'user-sam', '2026-03-04T14:22:00Z', '2026-03-09T18:40:00Z'),
-  ('TCK-1038', 'company-greenloop', 'Need segment filter guidance for leadership review', 'Eco IQ Overview', 'Training Request', 'medium', 'waiting_on_client', 'user-maya', 'user-sam', '2026-02-27T10:18:00Z', '2026-03-08T16:05:00Z'),
+  ('TCK-1038', 'company-greenloop', 'Need segment filter guidance for leadership review', 'EcoReputation™ Overview', 'Training Request', 'medium', 'waiting_on_client', 'user-maya', 'user-sam', '2026-02-27T10:18:00Z', '2026-03-08T16:05:00Z'),
   ('TCK-1031', 'company-greenloop', 'Can’t access project dashboard after seat reassignment', 'Custom Client Study', 'Login / Access', 'urgent', 'open', 'user-elliot', null, '2026-03-09T08:50:00Z', '2026-03-09T08:50:00Z')
 on conflict (id) do update
 set

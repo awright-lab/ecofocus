@@ -263,7 +263,7 @@ export default async function PortalHomePage() {
             <SectionHeader
               eyebrow="Help"
               title="Popular help articles"
-              description="Quick answers for login, exports, filtering, Eco IQ interpretation, and table downloads."
+              description="Quick answers for login, exports, filtering, EcoReputation™ interpretation, and table downloads."
             />
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {articles.map((article) => (

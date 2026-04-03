@@ -103,7 +103,7 @@ export const portalDashboards: PortalDashboard[] = [
   {
     id: "dashboard-eco-iq",
     slug: "eco-iq-overview",
-    name: "Eco IQ Overview",
+    name: "EcoReputation™ Overview",
     description: "Topline sustainability perception trends, brand positioning, and audience shifts.",
     accessTag: "Included",
     embedUrl: null,
@@ -179,7 +179,7 @@ export const portalUsageLogs: PortalUsageLog[] = [
     billingCompanyId: "company-greenloop",
     userHomeCompanyId: "company-greenloop",
     dashboardId: "dashboard-eco-iq",
-    dashboardName: "Eco IQ Overview",
+    dashboardName: "EcoReputation™ Overview",
     eventType: "viewer_session",
     eventAt: "2026-03-08T15:10:00Z",
     minutesTracked: 32,
@@ -251,7 +251,7 @@ export const portalTickets: PortalTicket[] = [
     id: "TCK-1038",
     companyId: "company-greenloop",
     subject: "Need segment filter guidance for leadership review",
-    dashboardName: "Eco IQ Overview",
+    dashboardName: "EcoReputation™ Overview",
     issueType: "Training Request",
     priority: "medium",
     status: "waiting_on_client",
@@ -348,11 +348,11 @@ export const portalHelpArticles: PortalHelpArticle[] = [
   {
     id: "article-eco-iq",
     slug: "understanding-eco-iq",
-    title: "Understanding Eco IQ",
+    title: "Understanding EcoReputation™",
     category: "Metrics",
-    summary: "How to interpret Eco IQ scoring, benchmark ranges, and movement over time.",
+    summary: "How to interpret EcoReputation™ scoring, benchmark ranges, and movement over time.",
     content:
-      "Eco IQ is a directional metric designed to help teams understand how audiences respond to sustainability positioning, trust signals, and related perception indicators over time. It is most useful when viewed alongside the benchmark context and the audience definition behind the score.\n\nWhen comparing Eco IQ across brands, segments, or reporting periods, always confirm that you are working from a comparable base. A movement in score can reflect real audience change, but it can also reflect a different segment mix, a narrower sample, or a different reporting lens.\n\nUse Eco IQ as the starting point for interpretation, not the end point. Once you identify movement, drill into the supporting cuts and related charts to understand which audience groups, themes, or perception drivers are contributing to the change.",
+      "EcoReputation™ is a directional metric designed to help teams understand how audiences respond to sustainability positioning, trust signals, and related perception indicators over time. It is most useful when viewed alongside the benchmark context and the audience definition behind the score.\n\nWhen comparing EcoReputation™ across brands, segments, or reporting periods, always confirm that you are working from a comparable base. A movement in score can reflect real audience change, but it can also reflect a different segment mix, a narrower sample, or a different reporting lens.\n\nUse EcoReputation™ as the starting point for interpretation, not the end point. Once you identify movement, drill into the supporting cuts and related charts to understand which audience groups, themes, or perception drivers are contributing to the change.",
   },
   {
     id: "article-segments",
