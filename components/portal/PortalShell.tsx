@@ -62,9 +62,19 @@ async function PortalShellInner({
                 </div>
               ) : isClientWorkspace ? (
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-emerald-100">
-                    <Building2 className="h-5 w-5" />
-                  </div>
+                  {access.company.logoUrl ? (
+                    <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-2">
+                      <img
+                        src={access.company.logoUrl}
+                        alt={`${access.company.name} logo`}
+                        className="max-h-full max-w-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-emerald-100">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+                  )}
                   <div>
                     <p className="text-sm font-semibold text-white">{access.company.name}</p>
                     <p className="text-xs text-emerald-100/75">EcoFocus client workspace</p>

@@ -12,6 +12,7 @@ export type PortalAccountProvisioningInput = {
   companyId: string;
   companyName: string;
   subscriberType?: "brand" | "agency" | "internal";
+  logoUrl?: string | null;
   subscriptionId: string;
   planName: string;
   seatsPurchased: number;
@@ -55,6 +56,16 @@ function normalizeProvisioningValue(value?: string | null) {
 }
 
 function normalizeDisplayrUrl(rawUrl?: string | null) {
+  if (!rawUrl) return null;
+
+  try {
+    return new URL(rawUrl).toString();
+  } catch {
+    return null;
+  }
+}
+
+function normalizeOptionalUrl(rawUrl?: string | null) {
   if (!rawUrl) return null;
 
   try {
@@ -183,6 +194,7 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
       name: input.companyName,
       subscription_id: input.subscriptionId,
       subscriber_type: subscriberType,
+      logo_url: normalizeOptionalUrl(input.logoUrl),
       allow_external_collaborators: subscriberType === "internal",
       external_access_policy: subscriberType === "internal" ? "support_admin_only" : null,
     },

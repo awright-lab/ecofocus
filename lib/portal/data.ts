@@ -238,6 +238,7 @@ async function queryPortalCompanyById(companyId: string): Promise<PortalCompany 
       name: data.name,
       subscriptionId: data.subscription_id,
       subscriberType: normalizePortalSubscriberType(data.subscriber_type),
+      logoUrl: data.logo_url || null,
       allowExternalCollaborators: Boolean(data.allow_external_collaborators),
       externalAccessPolicy: data.external_access_policy || null,
     };
@@ -268,6 +269,7 @@ async function queryPortalCompanies(): Promise<PortalCompany[] | null> {
       name: company.name,
       subscriptionId: company.subscription_id,
       subscriberType: normalizePortalSubscriberType(company.subscriber_type),
+      logoUrl: company.logo_url || null,
       allowExternalCollaborators: Boolean(company.allow_external_collaborators),
       externalAccessPolicy: company.external_access_policy || null,
     }));

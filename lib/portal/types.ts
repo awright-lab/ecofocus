@@ -37,6 +37,7 @@ export type PortalCompany = {
   name: string;
   subscriptionId: string;
   subscriberType?: PortalSubscriberType;
+  logoUrl?: string | null;
   allowExternalCollaborators?: boolean;
   externalAccessPolicy?: string | null;
 };

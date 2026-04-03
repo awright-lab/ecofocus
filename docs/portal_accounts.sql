@@ -20,6 +20,7 @@ create table if not exists public.portal_companies (
   name text not null,
   subscription_id text not null references public.portal_subscriptions(id) on delete restrict,
   subscriber_type text not null default 'brand' check (subscriber_type in ('brand', 'agency', 'internal')),
+  logo_url text,
   allow_external_collaborators boolean not null default false,
   external_access_policy text,
   created_at timestamptz not null default now(),
@@ -40,6 +41,7 @@ create table if not exists public.portal_users (
 
 alter table public.portal_companies
   add column if not exists subscriber_type text not null default 'brand',
+  add column if not exists logo_url text,
   add column if not exists allow_external_collaborators boolean not null default false,
   add column if not exists external_access_policy text;
 
@@ -125,17 +127,19 @@ insert into public.portal_companies (
   name,
   subscription_id,
   subscriber_type,
+  logo_url,
   allow_external_collaborators,
   external_access_policy
 )
 values
-  ('company-greenloop', 'GreenLoop Foods', 'sub-greenloop', 'brand', false, null),
-  ('company-ecofocus', 'EcoFocus Research', 'sub-ecofocus', 'internal', true, 'support_admin_only')
+  ('company-greenloop', 'GreenLoop Foods', 'sub-greenloop', 'brand', null, false, null),
+  ('company-ecofocus', 'EcoFocus Research', 'sub-ecofocus', 'internal', null, true, 'support_admin_only')
 on conflict (id) do update
 set
   name = excluded.name,
   subscription_id = excluded.subscription_id,
   subscriber_type = excluded.subscriber_type,
+  logo_url = excluded.logo_url,
   allow_external_collaborators = excluded.allow_external_collaborators,
   external_access_policy = excluded.external_access_policy,
   updated_at = now();
