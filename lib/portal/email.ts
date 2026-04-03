@@ -3,6 +3,43 @@ import type { PortalUser } from "@/lib/portal/types";
 const RESEND_API_URL = "https://api.resend.com/emails";
 const DEFAULT_SUPPORT_EMAIL = "support@ecofocusresearch.com";
 
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function renderPortalEmailFrame({
+  eyebrow,
+  title,
+  intro,
+  body,
+}: {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  body: string;
+}) {
+  return `
+    <div style="margin:0; background:#edf4f3; padding:32px 16px; font-family:Arial, sans-serif; color:#0f172a;">
+      <div style="max-width:680px; margin:0 auto; background:#ffffff; border:1px solid #dbe4e7; border-radius:28px; overflow:hidden;">
+        <div style="padding:24px 28px; background:linear-gradient(135deg, #0b5d4e 0%, #0f172a 100%); color:#ffffff;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.28em; text-transform:uppercase; color:#9fe5cf;">${escapeHtml(eyebrow)}</div>
+          <div style="margin-top:12px; font-size:30px; font-weight:700; line-height:1.15;">EcoFocus Portal</div>
+          <div style="margin-top:10px; font-size:20px; font-weight:700; line-height:1.3;">${escapeHtml(title)}</div>
+          <div style="margin-top:8px; font-size:14px; line-height:1.6; color:#d7efe8;">${escapeHtml(intro)}</div>
+        </div>
+        <div style="padding:28px;">
+          ${body}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function getPortalSiteUrl(fallbackOrigin?: string) {
   return process.env.NEXT_PUBLIC_SITE_URL || fallbackOrigin || "https://ecofocusresearch.com";
 }
@@ -120,6 +157,66 @@ export async function notifySupportOfPortalTicket({
   const ticketUrl = `${siteUrl}/portal/support/tickets/${ticketId}`;
   const subject = `[Portal Ticket] ${companyName}: ${issueType} - ${dashboardName}`;
   const safeNotes = notes?.trim();
+  const priorityTone =
+    priority === "urgent"
+      ? { bg: "#fff1f2", border: "#fecdd3", text: "#be123c" }
+      : priority === "high"
+        ? { bg: "#fff7ed", border: "#fdba74", text: "#c2410c" }
+        : priority === "medium"
+          ? { bg: "#eff6ff", border: "#93c5fd", text: "#1d4ed8" }
+          : { bg: "#f8fafc", border: "#cbd5e1", text: "#475569" };
+  const body = `
+    <div style="display:grid; gap:20px;">
+      <div style="display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Ticket</div>
+          <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(ticketId)}</div>
+          <div style="margin-top:6px; font-size:13px; color:#475569;">${escapeHtml(issueType)}</div>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Company</div>
+          <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(companyName)}</div>
+          <div style="margin-top:6px; font-size:13px; color:#475569;">${escapeHtml(dashboardName)}</div>
+        </div>
+        <div style="background:${priorityTone.bg}; border:1px solid ${priorityTone.border}; border-radius:20px; padding:16px;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Priority</div>
+          <div style="margin-top:8px; font-size:18px; font-weight:700; color:${priorityTone.text}; text-transform:capitalize;">${escapeHtml(priority)}</div>
+          <div style="margin-top:6px; font-size:13px; color:#475569;">Review and triage in the support queue.</div>
+        </div>
+      </div>
+
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:24px; padding:20px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Requester</div>
+        <div style="margin-top:10px; font-size:16px; font-weight:700; color:#0f172a;">${escapeHtml(actor.name)}</div>
+        <div style="margin-top:4px; font-size:14px; color:#2563eb;">
+          <a href="mailto:${escapeHtml(actor.email)}" style="color:#2563eb; text-decoration:none;">${escapeHtml(actor.email)}</a>
+        </div>
+      </div>
+
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:24px; padding:20px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Description</div>
+        <div style="margin-top:12px; font-size:14px; line-height:1.7; color:#334155;">${escapeHtml(description).replace(/\n/g, "<br />")}</div>
+      </div>
+
+      ${
+        safeNotes
+          ? `<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:24px; padding:20px;">
+              <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Environment notes</div>
+              <div style="margin-top:12px; font-size:14px; line-height:1.7; color:#334155;">${escapeHtml(safeNotes).replace(/\n/g, "<br />")}</div>
+            </div>`
+          : ""
+      }
+
+      <div style="padding-top:4px;">
+        <a
+          href="${ticketUrl}"
+          style="display:inline-block; background:#0f172a; color:#ffffff; text-decoration:none; font-weight:700; font-size:14px; padding:14px 20px; border-radius:14px;"
+        >
+          Open ticket in portal
+        </a>
+      </div>
+    </div>
+  `;
 
   return sendPortalEmail({
     to: DEFAULT_SUPPORT_EMAIL,
@@ -142,21 +239,12 @@ export async function notifySupportOfPortalTicket({
     ]
       .filter(Boolean)
       .join("\n"),
-    html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
-        <h2 style="margin-bottom: 8px;">New portal support ticket</h2>
-        <p style="margin-top: 0;">A client submitted a new ticket in the EcoFocus portal.</p>
-        <p><strong>Ticket ID:</strong> ${ticketId}<br />
-        <strong>Company:</strong> ${companyName}<br />
-        <strong>Requester:</strong> ${actor.name} &lt;${actor.email}&gt;<br />
-        <strong>Dashboard:</strong> ${dashboardName}<br />
-        <strong>Issue type:</strong> ${issueType}<br />
-        <strong>Priority:</strong> ${priority}</p>
-        <p><strong>Description</strong><br />${description.replace(/\n/g, "<br />")}</p>
-        ${safeNotes ? `<p><strong>Environment notes</strong><br />${safeNotes.replace(/\n/g, "<br />")}</p>` : ""}
-        <p><a href="${ticketUrl}">Open ticket in portal</a></p>
-      </div>
-    `,
+    html: renderPortalEmailFrame({
+      eyebrow: "Support alert",
+      title: "New portal support ticket",
+      intro: "A client just opened a new request in the EcoFocus portal. Review the details below and jump into the ticket to respond.",
+      body,
+    }),
   });
 }
 
