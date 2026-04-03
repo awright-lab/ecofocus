@@ -1,6 +1,7 @@
 // app/api/stripe/webhook/route.ts
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { syncPortalInvoiceStatusFromStripeInvoice } from "@/lib/portal/billing";
 import { getPortalProvisioningMetadata, upsertPortalAccountRecords, upsertPortalDashboardConfig } from "@/lib/portal/provisioning";
 import { getStripeServer } from "@/lib/stripe";
 
@@ -27,6 +28,10 @@ async function handlePaymentSucceeded(p: Stripe.PaymentIntent) {
   const customer = typeof p.customer === "string" ? p.customer : p.customer?.id;
   void id; void customer;
   // TODO: post-payment workflows
+}
+
+async function handleInvoiceEvent(invoice: Stripe.Invoice, eventType: string) {
+  await syncPortalInvoiceStatusFromStripeInvoice(invoice, eventType);
 }
 
 export async function POST(req: Request) {
@@ -56,6 +61,12 @@ export async function POST(req: Request) {
       case "payment_intent.succeeded":
         await handlePaymentSucceeded(event.data.object as Stripe.PaymentIntent);
         break;
+      case "invoice.finalized":
+      case "invoice.sent":
+      case "invoice.paid":
+      case "invoice.payment_failed":
+        await handleInvoiceEvent(event.data.object as Stripe.Invoice, event.type);
+        break;
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted":
@@ -72,5 +83,4 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ received: true });
 }
-
 

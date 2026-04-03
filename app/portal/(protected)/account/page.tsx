@@ -44,6 +44,25 @@ export default async function AccountPage() {
     }).format(amount / 100);
   }
 
+  function getBillingStatusLabel(status?: string | null) {
+    switch (status) {
+      case "invoice_draft":
+        return "Draft invoice";
+      case "invoice_sent":
+        return "Invoice sent";
+      case "payment_pending":
+        return "Payment pending";
+      case "paid":
+        return "Paid";
+      case "past_due":
+        return "Past due";
+      case "payment_failed":
+        return "Payment failed";
+      default:
+        return "Not invoiced";
+    }
+  }
+
   return (
     <div className="space-y-6">
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
@@ -97,6 +116,10 @@ export default async function AccountPage() {
             <div className="flex items-center justify-between gap-4">
               <dt>Status</dt>
               <dd className="font-medium capitalize text-slate-900">{access.subscription.status}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt>Billing</dt>
+              <dd className="font-medium text-slate-900">{getBillingStatusLabel(access.subscription.billingStatus)}</dd>
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt>Renewal</dt>
@@ -175,7 +198,7 @@ export default async function AccountPage() {
             Keep your plan details visible and route billing-related questions to the EcoFocus team.
           </p>
           <div className="mt-6 rounded-[24px] bg-slate-50 p-5 text-sm text-slate-600">
-            Renewal date, plan status, and seat usage shown above reflect the current account record on file for your company.
+            Renewal date, plan status, seat usage, and invoice state shown above reflect the current account record on file for your company.
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             {!access.isPreviewMode ? (
@@ -235,6 +258,15 @@ export default async function AccountPage() {
                       {invoice.dueAt ? ` · Due ${formatDate(invoice.dueAt)}` : ""}
                     </p>
                   </div>
+                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {invoice.status === "paid"
+                      ? "Paid"
+                      : invoice.status === "open"
+                        ? "Awaiting payment"
+                        : invoice.status === "draft"
+                          ? "Draft"
+                          : invoice.status}
+                  </span>
                   <div className="flex flex-wrap gap-3">
                     {invoice.hostedInvoiceUrl ? (
                       <a

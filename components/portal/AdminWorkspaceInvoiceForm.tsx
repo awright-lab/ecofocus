@@ -69,7 +69,10 @@ export function AdminWorkspaceInvoiceForm({
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="rounded-[24px] bg-slate-50 p-4 text-sm text-slate-600">
         {billingEmail ? (
-          <>Invoices will be sent to <span className="font-semibold text-slate-900">{billingEmail}</span>.</>
+          <>
+            Invoices will be sent to <span className="font-semibold text-slate-900">{billingEmail}</span>. For ACH and
+            other delayed payment methods, the workspace billing status stays pending until Stripe confirms payment.
+          </>
         ) : (
           <>Add a billing email to this workspace before sending invoices.</>
         )}

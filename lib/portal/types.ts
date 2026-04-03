@@ -74,6 +74,21 @@ export type PortalSubscription = {
   renewalDate: string;
   status: "active" | "trialing" | "past_due";
   stripeSubscriptionId?: string | null;
+  billingStatus?:
+    | "not_invoiced"
+    | "invoice_draft"
+    | "invoice_sent"
+    | "payment_pending"
+    | "paid"
+    | "past_due"
+    | "payment_failed";
+  latestInvoiceId?: string | null;
+  latestInvoiceStatus?: string | null;
+  latestInvoiceAmountDue?: number | null;
+  latestInvoiceAmountPaid?: number | null;
+  latestInvoiceCurrency?: string | null;
+  latestInvoiceDueAt?: string | null;
+  latestInvoicePaidAt?: string | null;
 };
 
 export type PortalDashboard = {

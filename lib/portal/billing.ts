@@ -1,10 +1,134 @@
+import type Stripe from "stripe";
 import { getPortalCompanies } from "@/lib/portal/data";
-import type { PortalInvoiceSummary } from "@/lib/portal/types";
+import type { PortalInvoiceSummary, PortalSubscription } from "@/lib/portal/types";
 import { getStripeServer } from "@/lib/stripe";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 function hasStripeSecretKey() {
   return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
+type PortalBillingStatus = NonNullable<PortalSubscription["billingStatus"]>;
+
+function getInvoiceCustomerId(invoice: Stripe.Invoice) {
+  return typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id || null;
+}
+
+function mapInvoiceToPortalBillingStatus(
+  invoice: Pick<Stripe.Invoice, "status" | "collection_method" | "due_date">,
+  eventType?: string,
+): PortalBillingStatus {
+  if (eventType === "invoice.paid") {
+    return "paid";
+  }
+
+  if (eventType === "invoice.payment_failed") {
+    return "payment_failed";
+  }
+
+  if (invoice.status === "draft") {
+    return "invoice_draft";
+  }
+
+  if (invoice.status === "paid") {
+    return "paid";
+  }
+
+  if (invoice.status === "uncollectible" || invoice.status === "void") {
+    return "payment_failed";
+  }
+
+  if (invoice.status === "open") {
+    if (eventType === "invoice.finalized" || eventType === "invoice.sent") {
+      return "invoice_sent";
+    }
+
+    if (invoice.collection_method === "send_invoice") {
+      return invoice.due_date ? "invoice_sent" : "payment_pending";
+    }
+
+    return "payment_pending";
+  }
+
+  return "not_invoiced";
+}
+
+async function resolvePortalSubscriptionIdFromInvoice(invoice: Stripe.Invoice) {
+  const metadataSubscriptionId = String(invoice.metadata?.portalSubscriptionId || "").trim();
+  if (metadataSubscriptionId) {
+    return metadataSubscriptionId;
+  }
+
+  const customerId = getInvoiceCustomerId(invoice);
+  if (!customerId) {
+    return null;
+  }
+
+  const admin = getServiceSupabase();
+  const { data, error } = await admin
+    .from("portal_companies")
+    .select("subscription_id")
+    .eq("stripe_customer_id", customerId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data?.subscription_id ? String(data.subscription_id) : null;
+}
+
+export async function syncPortalInvoiceStatusFromStripeInvoice(invoice: Stripe.Invoice, eventType?: string) {
+  const subscriptionId = await resolvePortalSubscriptionIdFromInvoice(invoice);
+  if (!subscriptionId) {
+    return null;
+  }
+
+  const billingStatus = mapInvoiceToPortalBillingStatus(invoice, eventType);
+  const paidAt =
+    billingStatus === "paid" && invoice.status_transitions.paid_at
+      ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
+      : null;
+  const dueAt = invoice.due_date ? new Date(invoice.due_date * 1000).toISOString() : null;
+  const customerId = getInvoiceCustomerId(invoice);
+
+  const admin = getServiceSupabase();
+  const { error } = await admin
+    .from("portal_subscriptions")
+    .update({
+      billing_status: billingStatus,
+      latest_invoice_id: invoice.id,
+      latest_invoice_status: invoice.status,
+      latest_invoice_amount_due: invoice.amount_due,
+      latest_invoice_amount_paid: invoice.amount_paid,
+      latest_invoice_currency: invoice.currency,
+      latest_invoice_due_at: dueAt,
+      latest_invoice_paid_at: paidAt,
+    })
+    .eq("id", subscriptionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const portalCompanyId = String(invoice.metadata?.portalCompanyId || "").trim();
+  if (customerId && portalCompanyId) {
+    const { error: companyError } = await admin
+      .from("portal_companies")
+      .update({
+        stripe_customer_id: customerId,
+      })
+      .eq("id", portalCompanyId);
+
+    if (companyError) {
+      throw new Error(companyError.message);
+    }
+  }
+
+  return {
+    subscriptionId,
+    billingStatus,
+  };
 }
 
 export async function ensurePortalStripeCustomer(companyId: string) {
@@ -145,6 +269,7 @@ export async function createPortalInvoiceForCompany(input: {
     throw new Error("Stripe did not return a finalized invoice id.");
   }
   const sentInvoice = await stripe.invoices.sendInvoice(finalizedInvoice.id);
+  await syncPortalInvoiceStatusFromStripeInvoice(sentInvoice, "invoice.sent");
 
   return {
     id: sentInvoice.id,

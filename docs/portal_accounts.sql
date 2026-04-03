@@ -12,6 +12,15 @@ create table if not exists public.portal_subscriptions (
   renewal_date date not null,
   status text not null check (status in ('active', 'trialing', 'past_due')),
   stripe_subscription_id text,
+  billing_status text not null default 'not_invoiced'
+    check (billing_status in ('not_invoiced', 'invoice_draft', 'invoice_sent', 'payment_pending', 'paid', 'past_due', 'payment_failed')),
+  latest_invoice_id text,
+  latest_invoice_status text,
+  latest_invoice_amount_due integer,
+  latest_invoice_amount_paid integer,
+  latest_invoice_currency text,
+  latest_invoice_due_at timestamptz,
+  latest_invoice_paid_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -53,7 +62,22 @@ alter table public.portal_companies
   add column if not exists external_access_policy text;
 
 alter table public.portal_subscriptions
-  add column if not exists stripe_subscription_id text;
+  add column if not exists stripe_subscription_id text,
+  add column if not exists billing_status text not null default 'not_invoiced',
+  add column if not exists latest_invoice_id text,
+  add column if not exists latest_invoice_status text,
+  add column if not exists latest_invoice_amount_due integer,
+  add column if not exists latest_invoice_amount_paid integer,
+  add column if not exists latest_invoice_currency text,
+  add column if not exists latest_invoice_due_at timestamptz,
+  add column if not exists latest_invoice_paid_at timestamptz;
+
+alter table if exists public.portal_subscriptions
+  drop constraint if exists portal_subscriptions_billing_status_check;
+
+alter table if exists public.portal_subscriptions
+  add constraint portal_subscriptions_billing_status_check
+  check (billing_status in ('not_invoiced', 'invoice_draft', 'invoice_sent', 'payment_pending', 'paid', 'past_due', 'payment_failed'));
 
 alter table public.portal_users
   add column if not exists home_company_id text references public.portal_companies(id) on delete cascade;
@@ -119,11 +143,19 @@ insert into public.portal_subscriptions (
   seats_used,
   renewal_date,
   status,
-  stripe_subscription_id
+  stripe_subscription_id,
+  billing_status,
+  latest_invoice_id,
+  latest_invoice_status,
+  latest_invoice_amount_due,
+  latest_invoice_amount_paid,
+  latest_invoice_currency,
+  latest_invoice_due_at,
+  latest_invoice_paid_at
 )
 values
-  ('sub-greenloop', 'Enterprise Insight Suite', 12, 8, '2026-08-15', 'active', null),
-  ('sub-ecofocus', 'Internal Support Workspace', 20, 9, '2026-12-31', 'active', null)
+  ('sub-greenloop', 'Enterprise Insight Suite', 12, 8, '2026-08-15', 'active', null, 'not_invoiced', null, null, null, null, null, null, null),
+  ('sub-ecofocus', 'Internal Support Workspace', 20, 9, '2026-12-31', 'active', null, 'not_invoiced', null, null, null, null, null, null, null)
 on conflict (id) do update
 set
   plan_name = excluded.plan_name,
@@ -132,6 +164,14 @@ set
   renewal_date = excluded.renewal_date,
   status = excluded.status,
   stripe_subscription_id = excluded.stripe_subscription_id,
+  billing_status = excluded.billing_status,
+  latest_invoice_id = excluded.latest_invoice_id,
+  latest_invoice_status = excluded.latest_invoice_status,
+  latest_invoice_amount_due = excluded.latest_invoice_amount_due,
+  latest_invoice_amount_paid = excluded.latest_invoice_amount_paid,
+  latest_invoice_currency = excluded.latest_invoice_currency,
+  latest_invoice_due_at = excluded.latest_invoice_due_at,
+  latest_invoice_paid_at = excluded.latest_invoice_paid_at,
   updated_at = now();
 
 insert into public.portal_companies (

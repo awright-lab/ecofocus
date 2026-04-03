@@ -83,6 +83,23 @@ export function normalizePortalSubscriberType(input?: string | null): PortalSubs
   return "brand";
 }
 
+function normalizePortalBillingStatus(
+  input?: string | null,
+): NonNullable<PortalSubscription["billingStatus"]> {
+  if (
+    input === "invoice_draft" ||
+    input === "invoice_sent" ||
+    input === "payment_pending" ||
+    input === "paid" ||
+    input === "past_due" ||
+    input === "payment_failed"
+  ) {
+    return input;
+  }
+
+  return "not_invoiced";
+}
+
 export function normalizeWorkspaceMembershipRole(input?: string | null): PortalWorkspaceMembershipRole {
   if (
     input === "workspace_member" ||
@@ -324,7 +341,9 @@ async function queryPortalSubscriptionById(subscriptionId: string): Promise<Port
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_subscriptions")
-      .select("id, plan_name, seats_purchased, seats_used, renewal_date, status, stripe_subscription_id")
+      .select(
+        "id, plan_name, seats_purchased, seats_used, renewal_date, status, stripe_subscription_id, billing_status, latest_invoice_id, latest_invoice_status, latest_invoice_amount_due, latest_invoice_amount_paid, latest_invoice_currency, latest_invoice_due_at, latest_invoice_paid_at",
+      )
       .eq("id", subscriptionId)
       .maybeSingle();
 
@@ -343,6 +362,14 @@ async function queryPortalSubscriptionById(subscriptionId: string): Promise<Port
       renewalDate: data.renewal_date,
       status: data.status,
       stripeSubscriptionId: data.stripe_subscription_id || null,
+      billingStatus: normalizePortalBillingStatus(data.billing_status),
+      latestInvoiceId: data.latest_invoice_id || null,
+      latestInvoiceStatus: data.latest_invoice_status || null,
+      latestInvoiceAmountDue: data.latest_invoice_amount_due ?? null,
+      latestInvoiceAmountPaid: data.latest_invoice_amount_paid ?? null,
+      latestInvoiceCurrency: data.latest_invoice_currency || null,
+      latestInvoiceDueAt: data.latest_invoice_due_at || null,
+      latestInvoicePaidAt: data.latest_invoice_paid_at || null,
     };
   } catch (error) {
     console.warn("[portal/data] portal_subscriptions storage unavailable.", {
