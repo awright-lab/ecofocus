@@ -30,7 +30,7 @@ async function PortalShellInner({
   const isSupportAdmin = access.effectiveRole === "support_admin";
   const isClientWorkspace = !isSupportAdmin;
   const shellEyebrow = isSupportAdmin ? "EcoFocus Admin" : "Private EcoFocus Portal";
-  const shellTitle = isSupportAdmin ? "Support workspace" : "Dashboard Hub";
+  const shellTitle = isSupportAdmin ? "Support workspace" : "EcoFocus Internal Portal";
   const shellDescription = isSupportAdmin
     ? "Manage support, dashboard access, and internal review work from one place."
     : access.isPreviewMode
