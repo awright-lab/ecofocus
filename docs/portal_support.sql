@@ -11,12 +11,19 @@ create table if not exists public.portal_tickets (
   dashboard_name text not null,
   issue_type text not null,
   priority text not null check (priority in ('low', 'medium', 'high', 'urgent')),
-  status text not null default 'open' check (status in ('open', 'in_progress', 'waiting_on_client', 'archived')),
+  status text not null default 'open' check (status in ('open', 'in_progress', 'waiting_on_client', 'completed', 'archived')),
   requester_id text not null references public.portal_users(id) on delete restrict,
   owner_id text references public.portal_users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table if exists public.portal_tickets
+  drop constraint if exists portal_tickets_status_check;
+
+alter table if exists public.portal_tickets
+  add constraint portal_tickets_status_check
+  check (status in ('open', 'in_progress', 'waiting_on_client', 'completed', 'archived'));
 
 create table if not exists public.portal_ticket_messages (
   id uuid primary key default gen_random_uuid(),

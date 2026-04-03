@@ -88,7 +88,8 @@ export default async function AdminSupportPage({
           "Stale client follow-up": 2,
           "Aging in progress": 3,
           "On track": 4,
-          Closed: 5,
+          Completed: 5,
+          Closed: 6,
         };
         const sortedFilteredTickets = [...filteredTickets].sort((left, right) => {
           const leftRank = attentionSortRank[lifecycleByTicketId.get(left.id)?.attentionLabel || "On track"] ?? 99;
@@ -200,6 +201,7 @@ export default async function AdminSupportPage({
                     <option value="open">Open</option>
                     <option value="in_progress">In progress</option>
                     <option value="waiting_on_client">Waiting on client</option>
+                    <option value="completed">Completed</option>
                     <option value="archived">Archived</option>
                   </select>
                 </label>
@@ -246,6 +248,7 @@ export default async function AdminSupportPage({
                     <option value="Stale client follow-up">Stale client follow-up</option>
                     <option value="Aging in progress">Aging in progress</option>
                     <option value="On track">On track</option>
+                    <option value="Completed">Completed</option>
                     <option value="Closed">Closed</option>
                   </select>
                 </label>
@@ -302,7 +305,7 @@ export default async function AdminSupportPage({
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">
                 <h3 className="text-lg font-semibold text-slate-950">Fast triage</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Use the inline queue actions to grab ownership, move tickets into progress, or archive completed work without leaving the table.
+                  Use the inline queue actions to grab ownership, move tickets into progress, mark finished work as completed, and archive it only after completion.
                 </p>
               </div>
               <div className="rounded-[32px] border border-slate-200 bg-white p-6">

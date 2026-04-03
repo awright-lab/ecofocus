@@ -11,10 +11,10 @@ export type PortalTicketLifecycle = {
   latestVisibleReplyAt: string | null;
   latestVisibleReplyAuthorName: string | null;
   latestVisibleReplyBySupport: boolean;
-  awaitingLabel: "EcoFocus" | "Client" | "New" | "Closed";
+  awaitingLabel: "EcoFocus" | "Client" | "New" | "Completed" | "Closed";
   ticketAgeMinutes: number;
   minutesSinceVisibleReply: number | null;
-  attentionLabel: "Response overdue" | "Needs owner" | "Stale client follow-up" | "Aging in progress" | "Closed" | "On track";
+  attentionLabel: "Response overdue" | "Needs owner" | "Stale client follow-up" | "Aging in progress" | "Completed" | "Closed" | "On track";
   escalationLabel: "Escalate now" | "Watch closely" | "No escalation";
   escalationReason: string;
 };
@@ -59,6 +59,8 @@ export function getPortalTicketLifecycle({
 
   if (ticket.status === "archived") {
     awaitingLabel = "Closed";
+  } else if (ticket.status === "completed") {
+    awaitingLabel = "Completed";
   } else if (ticket.status === "waiting_on_client") {
     awaitingLabel = "Client";
   } else if (ticket.status === "in_progress") {
@@ -68,7 +70,12 @@ export function getPortalTicketLifecycle({
   }
 
   if (!visibleMessages.length) {
-    awaitingLabel = ticket.status === "archived" ? "Closed" : "New";
+    awaitingLabel =
+      ticket.status === "archived"
+        ? "Closed"
+        : ticket.status === "completed"
+          ? "Completed"
+          : "New";
   }
 
   let attentionLabel: PortalTicketLifecycle["attentionLabel"] = "On track";
@@ -77,6 +84,9 @@ export function getPortalTicketLifecycle({
   if (ticket.status === "archived") {
     attentionLabel = "Closed";
     escalationReason = "Archived tickets are excluded from escalation handling.";
+  } else if (ticket.status === "completed") {
+    attentionLabel = "Completed";
+    escalationReason = "Completed tickets are ready for archive once support confirms the work is finished.";
   } else if (!ticket.ownerId) {
     attentionLabel = "Needs owner";
     escalationLabel = "Escalate now";
@@ -116,7 +126,11 @@ export function getPortalTicketLifecycle({
       : null,
     firstResponseTargetMinutes,
     firstResponseDueAt,
-    firstResponseBreached: !firstSupportReply && ticket.status !== "archived" && ticketAgeMinutes > firstResponseTargetMinutes,
+    firstResponseBreached:
+      !firstSupportReply &&
+      ticket.status !== "archived" &&
+      ticket.status !== "completed" &&
+      ticketAgeMinutes > firstResponseTargetMinutes,
     latestVisibleReplyAt: latestVisibleReply?.createdAt || null,
     latestVisibleReplyAuthorName: latestVisibleReplyAuthor?.name || null,
     latestVisibleReplyBySupport: Boolean(latestVisibleReplyBySupport),

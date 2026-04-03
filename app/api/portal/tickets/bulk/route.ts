@@ -9,7 +9,7 @@ const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
 
-const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "archived"]);
+const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "completed", "archived"]);
 
 type BulkBody = {
   ticketIds?: string[];
@@ -68,6 +68,13 @@ export async function POST(req: NextRequest) {
   const selectedTickets = availableTickets.filter((ticket) => ticketIds.includes(ticket.id));
   if (!selectedTickets.length) {
     return asJson({ error: "No matching tickets were found." }, 404);
+  }
+
+  if (nextStatus === "archived") {
+    const notCompleted = selectedTickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived");
+    if (notCompleted.length) {
+      return asJson({ error: "Only completed tickets can be archived." }, 400);
+    }
   }
 
   try {

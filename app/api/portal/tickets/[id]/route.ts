@@ -9,7 +9,7 @@ const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
 
-const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "resolved", "archived"]);
+const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "completed", "resolved", "archived"]);
 
 type UpdateBody = {
   status?: string;
@@ -48,7 +48,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!validStatuses.has(rawStatus)) {
     return asJson({ error: "A valid ticket status is required." }, 400);
   }
-  const status = rawStatus === "resolved" ? "archived" : rawStatus;
+  const status = rawStatus === "resolved" ? "completed" : rawStatus;
+
+  if (status === "archived" && ticket.status !== "completed" && ticket.status !== "archived") {
+    return asJson({ error: "Mark the ticket as completed before archiving it." }, 400);
+  }
 
   if (ownerId) {
     const supportTeam = await getPortalTeamMembersByCompany(access.company.id);

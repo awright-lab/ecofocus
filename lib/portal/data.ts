@@ -63,13 +63,14 @@ function normalizePortalTicketStatus(input?: string | null): PortalTicket["statu
     input === "open" ||
     input === "in_progress" ||
     input === "waiting_on_client" ||
+    input === "completed" ||
     input === "archived"
   ) {
     return input;
   }
 
   if (input === "resolved") {
-    return "archived";
+    return "completed";
   }
 
   return "open";

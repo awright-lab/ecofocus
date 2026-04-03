@@ -155,6 +155,8 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                     ? "EcoFocus has replied and is waiting for client follow-up."
                     : lifecycle.awaitingLabel === "EcoFocus"
                       ? "The latest visible update came from the client side."
+                      : lifecycle.awaitingLabel === "Completed"
+                        ? "Support marked this ticket as complete. Archive it once the record no longer needs to stay in the active queue."
                       : lifecycle.awaitingLabel === "Closed"
                         ? "This ticket is archived."
                         : "Waiting for the first support action."}

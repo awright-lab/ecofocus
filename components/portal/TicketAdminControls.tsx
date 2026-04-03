@@ -12,6 +12,7 @@ const statusOptions = [
   { value: "open", label: "Open" },
   { value: "in_progress", label: "In progress" },
   { value: "waiting_on_client", label: "Waiting on client" },
+  { value: "completed", label: "Completed" },
   { value: "archived", label: "Archived" },
 ] as const;
 
@@ -34,6 +35,7 @@ export function TicketAdminControls({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const canArchive = currentStatus === "completed" || currentStatus === "archived";
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -78,12 +80,19 @@ export function TicketAdminControls({
             compact ? "px-3 py-2.5" : "px-4 py-3"
           }`}
         >
-          {statusOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
+          {statusOptions
+            .filter((option) => option.value !== "archived" || canArchive)
+            .map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
         </select>
+        {!canArchive ? (
+          <span className="mt-2 block text-xs text-slate-500">
+            Mark the ticket as completed before archiving it.
+          </span>
+        ) : null}
       </label>
 
       <label className="block">

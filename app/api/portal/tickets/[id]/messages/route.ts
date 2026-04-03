@@ -90,7 +90,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       await admin
         .from("portal_tickets")
         .update({
-          status: isInternal ? ticket.status : "in_progress",
+          status:
+            isInternal || ticket.status === "completed" || ticket.status === "archived"
+              ? ticket.status
+              : "in_progress",
           owner_id: ticket.ownerId || access.user.id,
           updated_at: now,
         })
@@ -123,7 +126,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
               message: body || attachmentName || "EcoFocus Support added a reply to your ticket.",
               origin: req.nextUrl.origin,
               requester,
-              statusLabel: "in_progress",
+              statusLabel:
+                ticket.status === "completed" || ticket.status === "archived" ? ticket.status : "in_progress",
               ticketId: ticket.id,
               ticketSubject: ticket.subject,
             });
