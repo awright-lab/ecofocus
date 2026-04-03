@@ -174,35 +174,35 @@ export default async function PortalHomePage() {
               : `Everything for ${access.company.name} is gathered here so your team can open dashboards, follow requests, and find help quickly.`
           }
         />
-        <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-stretch">
-          <div className="grid gap-3 sm:grid-cols-3 xl:min-w-0 xl:flex-1">
-            <div className="rounded-[22px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] px-4 py-4">
+        <div className="mt-5 space-y-3">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-[20px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] px-4 py-3.5">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">
                 <LayoutDashboard className="h-3.5 w-3.5" />
                 <span>Dashboards</span>
               </div>
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <p className="text-2xl font-semibold text-slate-950">{availableDashboardCount}</p>
+              <div className="mt-2.5 flex items-end justify-between gap-3">
+                <p className="text-[1.75rem] font-semibold leading-none text-slate-950">{availableDashboardCount}</p>
                 <p className="text-right text-xs text-slate-600">Ready to open</p>
               </div>
             </div>
-            <div className="rounded-[22px] border border-sky-100 bg-[linear-gradient(135deg,#eff6ff_0%,#f8fafc_100%)] px-4 py-4">
+            <div className="rounded-[20px] border border-sky-100 bg-[linear-gradient(135deg,#eff6ff_0%,#f8fafc_100%)] px-4 py-3.5">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700">
                 <LifeBuoy className="h-3.5 w-3.5" />
                 <span>Open requests</span>
               </div>
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <p className="text-2xl font-semibold text-slate-950">{openTicketCount}</p>
+              <div className="mt-2.5 flex items-end justify-between gap-3">
+                <p className="text-[1.75rem] font-semibold leading-none text-slate-950">{openTicketCount}</p>
                 <p className="text-right text-xs text-slate-600">In progress or waiting</p>
               </div>
             </div>
-            <div className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4">
+            <div className="rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-3.5">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 <Clock3 className="h-3.5 w-3.5" />
                 <span>Hours remaining</span>
               </div>
-              <div className="mt-3 flex items-end justify-between gap-3">
-                <p className="text-2xl font-semibold text-slate-950">
+              <div className="mt-2.5 flex items-end justify-between gap-3">
+                <p className="text-[1.75rem] font-semibold leading-none text-slate-950">
                   {usage.annualHoursLimit ? usage.hoursRemainingDisplay : "Included"}
                 </p>
                 <p className="text-right text-xs text-slate-600">
@@ -211,28 +211,28 @@ export default async function PortalHomePage() {
               </div>
             </div>
           </div>
-          <div className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 xl:w-[24rem]">
-            <div className="flex flex-col gap-3 xl:h-full xl:justify-between">
-              <div>
+          <div className="rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-3.5">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick actions</p>
-                <p className="mt-2 text-sm text-slate-600">Open a dashboard or jump into support.</p>
+                <p className="mt-1.5 text-sm text-slate-600">Open a dashboard or jump into support.</p>
               </div>
               <div className="flex flex-wrap gap-3">
-              <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-                Open dashboards
-              </Link>
-              {access.isPreviewMode ? (
-                <span className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500">
-                  Request submission disabled
-                </span>
-              ) : (
-                <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
-                  Start support request
+                <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                  Open dashboards
                 </Link>
-              )}
-              <Link href="/portal/support/tickets" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
-                View requests
-              </Link>
+                {access.isPreviewMode ? (
+                  <span className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500">
+                    Request submission disabled
+                  </span>
+                ) : (
+                  <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                    Start support request
+                  </Link>
+                )}
+                <Link href="/portal/support/tickets" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                  View requests
+                </Link>
               </div>
             </div>
           </div>
