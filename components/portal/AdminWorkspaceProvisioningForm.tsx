@@ -34,8 +34,10 @@ export function AdminWorkspaceProvisioningForm({
   });
   const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [logoUploadMessage, setLogoUploadMessage] = useState<string | null>(null);
 
   const groupedDashboards = useMemo(() => {
     return dashboards.reduce<Record<string, DashboardOption[]>>((acc, dashboard) => {
@@ -52,6 +54,42 @@ export function AdminWorkspaceProvisioningForm({
         ? current.filter((id) => id !== dashboardId)
         : [...current, dashboardId],
     );
+  }
+
+  async function uploadLogo(file: File) {
+    if (!form.companyName.trim()) {
+      setError("Enter the company name before uploading a logo.");
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    setError(null);
+    setLogoUploadMessage(null);
+
+    try {
+      const payload = new FormData();
+      payload.append("companyName", form.companyName);
+      payload.append("file", file);
+
+      const response = await fetch("/api/portal/admin/company-logo", {
+        method: "POST",
+        body: payload,
+      });
+
+      const data = (await response.json()) as { error?: string; logoUrl?: string };
+      if (!response.ok || !data.logoUrl) {
+        setError(data.error || "We couldn't upload this logo right now.");
+        setIsUploadingLogo(false);
+        return;
+      }
+
+      setForm((current) => ({ ...current, logoUrl: data.logoUrl || "" }));
+      setLogoUploadMessage("Logo uploaded and linked to this workspace draft.");
+      setIsUploadingLogo(false);
+    } catch {
+      setError("We couldn't upload this logo right now.");
+      setIsUploadingLogo(false);
+    }
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -124,12 +162,50 @@ export function AdminWorkspaceProvisioningForm({
         </label>
 
         <label className="block">
-          <span className="mb-2 block text-sm font-medium text-slate-800">Logo URL</span>
+          <span className="mb-2 block text-sm font-medium text-slate-800">Company logo</span>
+          <div className="space-y-3">
+            <label className="flex cursor-pointer items-center justify-between rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50/60">
+              <span>{isUploadingLogo ? "Uploading logo..." : "Upload logo image"}</span>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                className="hidden"
+                disabled={isUploadingLogo}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) {
+                    void uploadLogo(file);
+                  }
+                  event.currentTarget.value = "";
+                }}
+              />
+            </label>
+            {form.logoUrl ? (
+              <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3">
+                <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                  <img
+                    src={form.logoUrl}
+                    alt="Company logo preview"
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+                <div className="min-w-0 text-xs text-slate-600">
+                  <p className="font-medium text-slate-900">Logo linked</p>
+                  <p className="truncate">{form.logoUrl}</p>
+                </div>
+              </div>
+            ) : null}
+            {logoUploadMessage ? <p className="text-xs font-medium text-emerald-700">{logoUploadMessage}</p> : null}
+          </div>
+        </label>
+
+        <label className="block">
+          <span className="mb-2 block text-sm font-medium text-slate-800">Logo URL override</span>
           <input
             value={form.logoUrl}
             onChange={(event) => setForm((current) => ({ ...current, logoUrl: event.target.value }))}
             className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-            placeholder="https://.../logo.png"
+            placeholder="Optional manual logo URL"
           />
         </label>
 
