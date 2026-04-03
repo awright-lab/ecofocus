@@ -140,7 +140,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
           </div>
         </div>
 
-        <div className={`grid gap-6 ${showInternal ? "lg:grid-cols-2 xl:grid-cols-4" : "lg:grid-cols-2"}`}>
+        <div className="space-y-6">
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Ticket metadata</h3>
             <dl className="mt-4 space-y-3 text-sm text-slate-600">
