@@ -46,7 +46,10 @@ export function AdminSupportQueueTable({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const allVisibleIds = useMemo(() => tickets.map((ticket) => ticket.id), [tickets]);
+  const allVisibleIds = useMemo(
+    () => tickets.filter((ticket) => ticket.status !== "archived").map((ticket) => ticket.id),
+    [tickets],
+  );
   const allSelected = Boolean(allVisibleIds.length) && selectedIds.length === allVisibleIds.length;
 
   function toggleTicket(ticketId: string) {
@@ -121,7 +124,6 @@ export function AdminSupportQueueTable({
                 <option value="in_progress">In progress</option>
                 <option value="waiting_on_client">Waiting on client</option>
                 <option value="completed">Completed</option>
-                <option value="archived">Archived</option>
               </select>
             </label>
             <label className="block">
@@ -173,9 +175,10 @@ export function AdminSupportQueueTable({
             <div className="pt-1 min-[1180px]:pt-2">
               <input
                 type="checkbox"
+                disabled={ticket.status === "archived"}
                 checked={selectedIds.includes(ticket.id)}
                 onChange={() => toggleTicket(ticket.id)}
-                className="h-4 w-4 rounded border-slate-300 text-emerald-600"
+                className="h-4 w-4 rounded border-slate-300 text-emerald-600 disabled:cursor-not-allowed disabled:opacity-40"
               />
             </div>
             <div>

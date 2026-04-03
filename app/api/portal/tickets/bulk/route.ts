@@ -9,7 +9,7 @@ const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
 
-const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "completed", "archived"]);
+const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "completed"]);
 
 type BulkBody = {
   ticketIds?: string[];
@@ -70,11 +70,8 @@ export async function POST(req: NextRequest) {
     return asJson({ error: "No matching tickets were found." }, 404);
   }
 
-  if (nextStatus === "archived") {
-    const notCompleted = selectedTickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived");
-    if (notCompleted.length) {
-      return asJson({ error: "Only completed tickets can be archived." }, 400);
-    }
+  if (selectedTickets.some((ticket) => ticket.status === "archived")) {
+    return asJson({ error: "Archived tickets are read-only." }, 400);
   }
 
   try {
@@ -83,7 +80,16 @@ export async function POST(req: NextRequest) {
 
     for (const ticket of selectedTickets) {
       const payload: Record<string, unknown> = { updated_at: now };
-      if (nextStatus) payload.status = nextStatus;
+      if (nextStatus) {
+        payload.status = nextStatus;
+        if (nextStatus === "completed" && ticket.status !== "completed") {
+          payload.completed_at = now;
+          payload.client_reviewed_completed_at = null;
+        } else if (ticket.status === "completed" && nextStatus !== "completed") {
+          payload.completed_at = null;
+          payload.client_reviewed_completed_at = null;
+        }
+      }
       if (nextOwnerId !== undefined) payload.owner_id = nextOwnerId;
 
       const { error } = await admin.from("portal_tickets").update(payload).eq("id", ticket.id);

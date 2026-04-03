@@ -68,6 +68,7 @@ export default async function AdminSupportPage({
 
         const filteredTickets = tickets.filter((ticket) => {
           if (selectedCompanyId && ticket.companyId !== selectedCompanyId) return false;
+          if (!selectedStatus && ticket.status === "completed") return false;
           if (selectedStatus && ticket.status !== selectedStatus) return false;
           if (selectedPriority && ticket.priority !== selectedPriority) return false;
           if (selectedOwner === "unassigned" && ticket.ownerId) return false;
@@ -149,7 +150,9 @@ export default async function AdminSupportPage({
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium text-slate-800">Queue filters</p>
-                  <p className="mt-1 text-xs text-slate-500">Use filters for active work, or jump straight to archived tickets.</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    The default queue hides completed tickets so support stays focused on active work. Filter by status when you want to review completed items.
+                  </p>
                 </div>
                 <Link
                   href={selectedStatus === "archived" ? "/portal/admin/support" : "/portal/admin/support?status=archived"}

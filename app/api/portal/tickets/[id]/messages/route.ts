@@ -34,6 +34,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (!ticket) {
     return asJson({ error: "Ticket not found." }, 404);
   }
+  if (ticket.status === "archived") {
+    return asJson({ error: "Archived tickets are read-only." }, 400);
+  }
 
   let payload: MessageBody;
   let attachmentFile: File | null = null;
@@ -90,10 +93,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       await admin
         .from("portal_tickets")
         .update({
-          status:
-            isInternal || ticket.status === "completed" || ticket.status === "archived"
-              ? ticket.status
-              : "in_progress",
+          status: isInternal || ticket.status === "completed" ? ticket.status : "in_progress",
           owner_id: ticket.ownerId || access.user.id,
           updated_at: now,
         })
@@ -126,8 +126,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
               message: body || attachmentName || "EcoFocus Support added a reply to your ticket.",
               origin: req.nextUrl.origin,
               requester,
-              statusLabel:
-                ticket.status === "completed" || ticket.status === "archived" ? ticket.status : "in_progress",
+              statusLabel: ticket.status === "completed" ? ticket.status : "in_progress",
               ticketId: ticket.id,
               ticketSubject: ticket.subject,
             });
@@ -140,13 +139,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         }
       }
     } else {
-      await admin
-        .from("portal_tickets")
-        .update({
-          status: "open",
-          updated_at: now,
-        })
-        .eq("id", ticket.id);
+      const updatePayload: Record<string, unknown> = {
+        status: "open",
+        updated_at: now,
+      };
+      if (ticket.status === "completed") {
+        updatePayload.completed_at = null;
+        updatePayload.client_reviewed_completed_at = null;
+      }
+      await admin.from("portal_tickets").update(updatePayload).eq("id", ticket.id);
     }
 
     return asJson({ ok: true }, 201);

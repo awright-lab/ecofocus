@@ -13,7 +13,6 @@ const statusOptions = [
   { value: "in_progress", label: "In progress" },
   { value: "waiting_on_client", label: "Waiting on client" },
   { value: "completed", label: "Completed" },
-  { value: "archived", label: "Archived" },
 ] as const;
 
 export function TicketAdminControls({
@@ -29,13 +28,23 @@ export function TicketAdminControls({
   ownerOptions: OwnerOption[];
   compact?: boolean;
 }) {
+  if (currentStatus === "archived") {
+    return (
+      <div className={compact ? "space-y-2" : "space-y-3"}>
+        <p className="text-sm font-medium text-slate-800">Archived ticket</p>
+        <p className="text-xs leading-5 text-slate-500">
+          This ticket was archived automatically after the completion review window. Archived tickets are read-only.
+        </p>
+      </div>
+    );
+  }
+
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
   const [ownerId, setOwnerId] = useState(currentOwnerId || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const canArchive = currentStatus === "completed" || currentStatus === "archived";
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,19 +89,15 @@ export function TicketAdminControls({
             compact ? "px-3 py-2.5" : "px-4 py-3"
           }`}
         >
-          {statusOptions
-            .filter((option) => option.value !== "archived" || canArchive)
-            .map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
+          {statusOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
         </select>
-        {!canArchive ? (
-          <span className="mt-2 block text-xs text-slate-500">
-            Mark the ticket as completed before archiving it.
-          </span>
-        ) : null}
+        <span className="mt-2 block text-xs text-slate-500">
+          Completed tickets archive automatically after the client review window.
+        </span>
       </label>
 
       <label className="block">

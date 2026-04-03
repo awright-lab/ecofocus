@@ -9,7 +9,7 @@ const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
 
-const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "completed", "resolved", "archived"]);
+const validStatuses = new Set(["open", "in_progress", "waiting_on_client", "completed", "resolved"]);
 
 type UpdateBody = {
   status?: string;
@@ -34,6 +34,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!ticket) {
     return asJson({ error: "Ticket not found." }, 404);
   }
+  if (ticket.status === "archived") {
+    return asJson({ error: "Archived tickets are read-only." }, 400);
+  }
 
   let body: UpdateBody;
   try {
@@ -50,10 +53,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
   const status = rawStatus === "resolved" ? "completed" : rawStatus;
 
-  if (status === "archived" && ticket.status !== "completed" && ticket.status !== "archived") {
-    return asJson({ error: "Mark the ticket as completed before archiving it." }, 400);
-  }
-
   if (ownerId) {
     const supportTeam = await getPortalTeamMembersByCompany(access.company.id);
     const owner = supportTeam.find((member) => member.id === ownerId && member.role === "support_admin" && member.status !== "inactive");
@@ -64,12 +63,27 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const admin = getServiceSupabase();
+    const now = new Date().toISOString();
+    const nextCompletedAt =
+      ticket.status !== status && status === "completed"
+        ? now
+        : ticket.status === "completed" && status !== "completed"
+          ? null
+          : ticket.completedAt || null;
+    const nextClientReviewedCompletedAt =
+      ticket.status !== status && status === "completed"
+        ? null
+        : ticket.status === "completed" && status !== "completed"
+          ? null
+          : ticket.clientReviewedCompletedAt || null;
     const { error } = await admin
       .from("portal_tickets")
       .update({
         status,
         owner_id: ownerId,
-        updated_at: new Date().toISOString(),
+        completed_at: nextCompletedAt,
+        client_reviewed_completed_at: nextClientReviewedCompletedAt,
+        updated_at: now,
       })
       .eq("id", ticket.id);
 
@@ -99,7 +113,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     });
 
     const [requester] = await getPortalUsersByIds([ticket.requesterId]);
-    if (requester && changedFields.length) {
+    if (requester && changedFields.length && status !== "archived") {
       try {
         await notifyClientOfPortalTicketUpdate({
           actionLabel: "Ticket updated",

@@ -12,6 +12,8 @@ create table if not exists public.portal_tickets (
   issue_type text not null,
   priority text not null check (priority in ('low', 'medium', 'high', 'urgent')),
   status text not null default 'open' check (status in ('open', 'in_progress', 'waiting_on_client', 'completed', 'archived')),
+  completed_at timestamptz,
+  client_reviewed_completed_at timestamptz,
   requester_id text not null references public.portal_users(id) on delete restrict,
   owner_id text references public.portal_users(id) on delete set null,
   created_at timestamptz not null default now(),
@@ -19,11 +21,21 @@ create table if not exists public.portal_tickets (
 );
 
 alter table if exists public.portal_tickets
+  add column if not exists completed_at timestamptz;
+
+alter table if exists public.portal_tickets
+  add column if not exists client_reviewed_completed_at timestamptz;
+
+alter table if exists public.portal_tickets
   drop constraint if exists portal_tickets_status_check;
 
 alter table if exists public.portal_tickets
   add constraint portal_tickets_status_check
   check (status in ('open', 'in_progress', 'waiting_on_client', 'completed', 'archived'));
+
+update public.portal_tickets
+set completed_at = coalesce(completed_at, updated_at)
+where status in ('completed', 'archived');
 
 create table if not exists public.portal_ticket_messages (
   id uuid primary key default gen_random_uuid(),

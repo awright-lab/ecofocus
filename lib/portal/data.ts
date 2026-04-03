@@ -119,6 +119,68 @@ function formatPortalUsageDuration(totalMinutes: number) {
   return `${hours}h ${minutes}m`;
 }
 
+const PORTAL_TICKET_AUTO_ARCHIVE_AFTER_REVIEW_MS = 24 * 60 * 60 * 1000;
+const PORTAL_TICKET_AUTO_ARCHIVE_AFTER_COMPLETION_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function getPortalTicketAutoArchiveAt(ticket: PortalTicket) {
+  if (ticket.status !== "completed" || !ticket.completedAt) return null;
+
+  const reviewedAtMs = ticket.clientReviewedCompletedAt ? new Date(ticket.clientReviewedCompletedAt).getTime() : null;
+  const completedAtMs = new Date(ticket.completedAt).getTime();
+  if (reviewedAtMs) {
+    return new Date(reviewedAtMs + PORTAL_TICKET_AUTO_ARCHIVE_AFTER_REVIEW_MS).toISOString();
+  }
+
+  return new Date(completedAtMs + PORTAL_TICKET_AUTO_ARCHIVE_AFTER_COMPLETION_MS).toISOString();
+}
+
+function isPortalTicketReadyForAutoArchive(ticket: PortalTicket) {
+  const autoArchiveAt = getPortalTicketAutoArchiveAt(ticket);
+  return Boolean(autoArchiveAt && Date.now() >= new Date(autoArchiveAt).getTime());
+}
+
+async function syncPortalAutoArchivedTickets(tickets: PortalTicket[]) {
+  const eligibleTickets = tickets.filter((ticket) => isPortalTicketReadyForAutoArchive(ticket));
+  if (!eligibleTickets.length) return tickets;
+
+  const now = new Date().toISOString();
+
+  try {
+    const admin = getServiceSupabase();
+    const { error } = await admin
+      .from("portal_tickets")
+      .update({
+        status: "archived",
+        updated_at: now,
+      })
+      .in(
+        "id",
+        eligibleTickets.map((ticket) => ticket.id),
+      );
+
+    if (error) {
+      console.warn("[portal/data] automatic ticket archival failed.", { error: error.message });
+      return tickets;
+    }
+
+    const archivedIds = new Set(eligibleTickets.map((ticket) => ticket.id));
+    return tickets.map((ticket) =>
+      archivedIds.has(ticket.id)
+        ? {
+            ...ticket,
+            status: "archived" as const,
+            updatedAt: now,
+          }
+        : ticket,
+    );
+  } catch (error) {
+    console.warn("[portal/data] automatic ticket archival storage unavailable.", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return tickets;
+  }
+}
+
 async function queryPortalUserByEmail(email?: string | null): Promise<PortalUser | null> {
   if (!email) return null;
 
@@ -648,7 +710,9 @@ async function queryPortalTickets(
     const admin = getServiceSupabase();
     const query = admin
       .from("portal_tickets")
-      .select("id, company_id, subject, dashboard_name, issue_type, priority, status, created_at, updated_at, requester_id, owner_id")
+      .select(
+        "id, company_id, subject, dashboard_name, issue_type, priority, status, completed_at, client_reviewed_completed_at, created_at, updated_at, requester_id, owner_id",
+      )
       .order("updated_at", { ascending: false });
 
     if (user.role === "support_admin") {
@@ -659,21 +723,24 @@ async function queryPortalTickets(
         return null;
       }
 
-      return (data || [])
+      const mappedTickets = (data || [])
         .map((ticket) => ({
-        id: ticket.id,
-        companyId: ticket.company_id,
-        subject: ticket.subject,
-        dashboardName: ticket.dashboard_name,
-        issueType: ticket.issue_type,
-        priority: ticket.priority,
-        status: normalizePortalTicketStatus(ticket.status),
-        createdAt: ticket.created_at,
-        updatedAt: ticket.updated_at,
-        requesterId: ticket.requester_id,
-        ownerId: ticket.owner_id,
-      }))
-        .filter((ticket) => includeArchived || ticket.status !== "archived");
+          id: ticket.id,
+          companyId: ticket.company_id,
+          subject: ticket.subject,
+          dashboardName: ticket.dashboard_name,
+          issueType: ticket.issue_type,
+          priority: ticket.priority,
+          status: normalizePortalTicketStatus(ticket.status),
+          completedAt: ticket.completed_at,
+          clientReviewedCompletedAt: ticket.client_reviewed_completed_at,
+          createdAt: ticket.created_at,
+          updatedAt: ticket.updated_at,
+          requesterId: ticket.requester_id,
+          ownerId: ticket.owner_id,
+        }));
+      const syncedTickets = await syncPortalAutoArchivedTickets(mappedTickets);
+      return syncedTickets.filter((ticket) => includeArchived || ticket.status !== "archived");
     }
 
     if (user.role === "client_admin" || user.role === "agency_admin") {
@@ -688,21 +755,24 @@ async function queryPortalTickets(
         return null;
       }
 
-      return (data || [])
+      const mappedTickets = (data || [])
         .map((ticket) => ({
-        id: ticket.id,
-        companyId: ticket.company_id,
-        subject: ticket.subject,
-        dashboardName: ticket.dashboard_name,
-        issueType: ticket.issue_type,
-        priority: ticket.priority,
-        status: normalizePortalTicketStatus(ticket.status),
-        createdAt: ticket.created_at,
-        updatedAt: ticket.updated_at,
-        requesterId: ticket.requester_id,
-        ownerId: ticket.owner_id,
-      }))
-        .filter((ticket) => includeArchived || ticket.status !== "archived");
+          id: ticket.id,
+          companyId: ticket.company_id,
+          subject: ticket.subject,
+          dashboardName: ticket.dashboard_name,
+          issueType: ticket.issue_type,
+          priority: ticket.priority,
+          status: normalizePortalTicketStatus(ticket.status),
+          completedAt: ticket.completed_at,
+          clientReviewedCompletedAt: ticket.client_reviewed_completed_at,
+          createdAt: ticket.created_at,
+          updatedAt: ticket.updated_at,
+          requesterId: ticket.requester_id,
+          ownerId: ticket.owner_id,
+        }));
+      const syncedTickets = await syncPortalAutoArchivedTickets(mappedTickets);
+      return syncedTickets.filter((ticket) => includeArchived || ticket.status !== "archived");
     }
 
     const { data, error } = await query.eq("requester_id", user.id).limit(100);
@@ -712,21 +782,24 @@ async function queryPortalTickets(
       return null;
     }
 
-    return (data || [])
+    const mappedTickets = (data || [])
       .map((ticket) => ({
-      id: ticket.id,
-      companyId: ticket.company_id,
-      subject: ticket.subject,
-      dashboardName: ticket.dashboard_name,
-      issueType: ticket.issue_type,
-      priority: ticket.priority,
-      status: normalizePortalTicketStatus(ticket.status),
-      createdAt: ticket.created_at,
-      updatedAt: ticket.updated_at,
-      requesterId: ticket.requester_id,
-      ownerId: ticket.owner_id,
-    }))
-      .filter((ticket) => includeArchived || ticket.status !== "archived");
+        id: ticket.id,
+        companyId: ticket.company_id,
+        subject: ticket.subject,
+        dashboardName: ticket.dashboard_name,
+        issueType: ticket.issue_type,
+        priority: ticket.priority,
+        status: normalizePortalTicketStatus(ticket.status),
+        completedAt: ticket.completed_at,
+        clientReviewedCompletedAt: ticket.client_reviewed_completed_at,
+        createdAt: ticket.created_at,
+        updatedAt: ticket.updated_at,
+        requesterId: ticket.requester_id,
+        ownerId: ticket.owner_id,
+      }));
+    const syncedTickets = await syncPortalAutoArchivedTickets(mappedTickets);
+    return syncedTickets.filter((ticket) => includeArchived || ticket.status !== "archived");
   } catch (error) {
     console.warn("[portal/data] portal_tickets storage unavailable.", {
       userId: user.id,
@@ -1112,6 +1185,36 @@ export async function getPortalTicketMessages(ticketId: string, includeInternal:
   return portalTicketMessages
     .filter((message) => message.ticketId === ticketId && (includeInternal || !message.isInternal))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+export async function markPortalCompletedTicketReviewed(ticketId: string, user: PortalUser, ticket?: PortalTicket) {
+  if (user.role === "support_admin") return;
+  const currentTicket = ticket || (await getPortalTicketForUser(user, ticketId));
+  if (!currentTicket || currentTicket.status !== "completed" || !currentTicket.completedAt) return;
+
+  const alreadyReviewedCurrentCompletion =
+    currentTicket.clientReviewedCompletedAt &&
+    new Date(currentTicket.clientReviewedCompletedAt).getTime() >= new Date(currentTicket.completedAt).getTime();
+  if (alreadyReviewedCurrentCompletion) return;
+
+  try {
+    const admin = getServiceSupabase();
+    const { error } = await admin
+      .from("portal_tickets")
+      .update({
+        client_reviewed_completed_at: new Date().toISOString(),
+      })
+      .eq("id", currentTicket.id);
+
+    if (error) {
+      console.warn("[portal/data] ticket review tracking failed.", { ticketId: currentTicket.id, error: error.message });
+    }
+  } catch (error) {
+    console.warn("[portal/data] ticket review tracking unavailable.", {
+      ticketId: currentTicket.id,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 export function getPortalArticleCategories() {

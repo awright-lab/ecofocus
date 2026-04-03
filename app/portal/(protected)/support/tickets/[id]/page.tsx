@@ -7,7 +7,16 @@ import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalCompanies, getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalTicketMessages, getPortalUsageLogsForAdmin, getPortalUsersByIds } from "@/lib/portal/data";
+import {
+  getPortalCompanies,
+  getPortalTeamMembersByCompany,
+  getPortalTicketAutoArchiveAt,
+  getPortalTicketForUser,
+  getPortalTicketMessages,
+  getPortalUsageLogsForAdmin,
+  getPortalUsersByIds,
+  markPortalCompletedTicketReviewed,
+} from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatResponseTarget, formatResponseTime, getPortalTicketLifecycle, formatTicketAge } from "@/lib/portal/ticket-lifecycle";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -29,6 +38,9 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
   }
 
   const showInternal = access.effectiveRole === "support_admin";
+  if (!showInternal && ticket.status === "completed") {
+    await markPortalCompletedTicketReviewed(ticket.id, access.effectiveUser, ticket);
+  }
   const messages = await getPortalTicketMessages(ticket.id, showInternal);
   const authorIds = Array.from(new Set(messages.map((message) => message.authorId).concat([ticket.requesterId, ticket.ownerId || ""]).filter(Boolean)));
   const authors = await getPortalUsersByIds(authorIds);
@@ -47,6 +59,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
     messages,
     authorsById,
   });
+  const autoArchiveAt = getPortalTicketAutoArchiveAt(ticket);
   const historyLogs = showInternal
     ? (await getPortalUsageLogsForAdmin({
         companyId: ticket.companyId,
@@ -110,7 +123,11 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                 <MessageSquarePlus className="h-4 w-4 text-emerald-700" />
                 Add a reply
               </div>
-              <TicketReplyForm ticketId={ticket.id} allowInternalNotes={showInternal} readOnly={access.isPreviewMode} />
+              <TicketReplyForm
+                ticketId={ticket.id}
+                allowInternalNotes={showInternal}
+                readOnly={access.isPreviewMode || ticket.status === "archived"}
+              />
             </div>
           </div>
 
@@ -156,10 +173,12 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
                     : lifecycle.awaitingLabel === "EcoFocus"
                       ? "The latest visible update came from the client side."
                       : lifecycle.awaitingLabel === "Completed"
-                        ? "Support marked this ticket as complete. Archive it once the record no longer needs to stay in the active queue."
-                      : lifecycle.awaitingLabel === "Closed"
-                        ? "This ticket is archived."
-                        : "Waiting for the first support action."}
+                        ? autoArchiveAt
+                          ? `Support marked this ticket as complete. It will archive automatically after ${formatDateTime(autoArchiveAt)} unless a new reply reopens it.`
+                          : "Support marked this ticket as complete."
+                        : lifecycle.awaitingLabel === "Closed"
+                          ? "This ticket is archived."
+                          : "Waiting for the first support action."}
                 </p>
               </div>
               <div className="rounded-[24px] bg-slate-50 p-4">
