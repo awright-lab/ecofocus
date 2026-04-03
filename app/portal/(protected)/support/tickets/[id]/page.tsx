@@ -92,6 +92,36 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
       </section>
 
       <section className="space-y-6">
+        <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-slate-950">Ticket metadata</h3>
+          <dl className="mt-4 space-y-3 text-sm text-slate-600">
+            <div className="flex items-center justify-between gap-4">
+              <dt>Requester</dt>
+              <dd className="font-medium text-slate-900">{authorsById.get(ticket.requesterId)?.name || ticket.requesterId}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt>Requester company</dt>
+              <dd className="font-medium text-slate-900">{requesterCompanyName}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt>Owner</dt>
+              <dd className="font-medium text-slate-900">{ticket.ownerId ? authorsById.get(ticket.ownerId)?.name || ticket.ownerId : "Unassigned"}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt>Dashboard</dt>
+              <dd className="font-medium text-slate-900">{ticket.dashboardName}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt>Priority</dt>
+              <dd className="font-medium text-slate-900">{ticket.priority}</dd>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <dt>Last updated</dt>
+              <dd className="font-medium text-slate-900">{formatDate(ticket.updatedAt)}</dd>
+            </div>
+          </dl>
+        </div>
+
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
           <div className="min-w-0 rounded-[32px] border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-950">Message thread</h3>
@@ -141,36 +171,6 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-            <h3 className="text-lg font-semibold text-slate-950">Ticket metadata</h3>
-            <dl className="mt-4 space-y-3 text-sm text-slate-600">
-              <div className="flex items-center justify-between gap-4">
-                <dt>Requester</dt>
-                <dd className="font-medium text-slate-900">{authorsById.get(ticket.requesterId)?.name || ticket.requesterId}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Requester company</dt>
-                <dd className="font-medium text-slate-900">{requesterCompanyName}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Owner</dt>
-                <dd className="font-medium text-slate-900">{ticket.ownerId ? authorsById.get(ticket.ownerId)?.name || ticket.ownerId : "Unassigned"}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Dashboard</dt>
-                <dd className="font-medium text-slate-900">{ticket.dashboardName}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Priority</dt>
-                <dd className="font-medium text-slate-900">{ticket.priority}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt>Last updated</dt>
-                <dd className="font-medium text-slate-900">{formatDate(ticket.updatedAt)}</dd>
-              </div>
-            </dl>
-          </div>
-
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Response visibility</h3>
             <div className="mt-4 space-y-4">
