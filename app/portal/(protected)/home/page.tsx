@@ -164,53 +164,60 @@ export default async function PortalHomePage() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[32px] border border-white/70 bg-white/90 p-6 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.4)]">
+      <section className="rounded-[32px] border border-white/70 bg-white/90 p-5 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.4)]">
         <SectionHeader
           eyebrow="Workspace Overview"
           title={`Welcome back, ${access.user.name.split(" ")[0]}`}
           description={
             access.isPreviewMode
               ? "This read-only preview shows the client workspace from the selected member role."
-              : `Everything for ${access.company.name} is gathered here so your team can open dashboards, follow support requests, and find help quickly.`
+              : `Everything for ${access.company.name} is gathered here so your team can open dashboards, follow requests, and find help quickly.`
           }
         />
-        <div className="mt-6 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-[28px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] p-5">
+        <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-stretch">
+          <div className="grid gap-3 sm:grid-cols-3 xl:min-w-0 xl:flex-1">
+            <div className="rounded-[22px] border border-emerald-100 bg-[linear-gradient(135deg,#f0fdf4_0%,#ecfeff_100%)] px-4 py-4">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">
                 <LayoutDashboard className="h-3.5 w-3.5" />
                 <span>Dashboards</span>
               </div>
-              <p className="mt-3 text-3xl font-semibold text-slate-950">{availableDashboardCount}</p>
-              <p className="mt-2 text-sm text-slate-700">Available to open right now.</p>
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <p className="text-2xl font-semibold text-slate-950">{availableDashboardCount}</p>
+                <p className="text-right text-xs text-slate-600">Ready to open</p>
+              </div>
             </div>
-            <div className="rounded-[28px] border border-sky-100 bg-[linear-gradient(135deg,#eff6ff_0%,#f8fafc_100%)] p-5">
+            <div className="rounded-[22px] border border-sky-100 bg-[linear-gradient(135deg,#eff6ff_0%,#f8fafc_100%)] px-4 py-4">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700">
                 <LifeBuoy className="h-3.5 w-3.5" />
                 <span>Open requests</span>
               </div>
-              <p className="mt-3 text-3xl font-semibold text-slate-950">{openTicketCount}</p>
-              <p className="mt-2 text-sm text-slate-700">Tickets still in progress or waiting.</p>
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <p className="text-2xl font-semibold text-slate-950">{openTicketCount}</p>
+                <p className="text-right text-xs text-slate-600">In progress or waiting</p>
+              </div>
             </div>
-            <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
+            <div className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 <Clock3 className="h-3.5 w-3.5" />
                 <span>Hours remaining</span>
               </div>
-              <p className="mt-3 text-3xl font-semibold text-slate-950">
-                {usage.annualHoursLimit ? usage.hoursRemainingDisplay : "Included"}
-              </p>
-              <p className="mt-2 text-sm text-slate-700">
-                {usage.annualHoursLimit ? "Company dashboard hours left in the current period." : "Your current plan does not use a tracked dashboard hour allowance."}
-              </p>
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <p className="text-2xl font-semibold text-slate-950">
+                  {usage.annualHoursLimit ? usage.hoursRemainingDisplay : "Included"}
+                </p>
+                <p className="text-right text-xs text-slate-600">
+                  {usage.annualHoursLimit ? "This period" : "Plan access"}
+                </p>
+              </div>
             </div>
           </div>
-          <div className="rounded-[28px] border border-slate-200 bg-slate-50 p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick actions</p>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Jump straight into the tasks your team is most likely to need during a working session.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
+          <div className="rounded-[22px] border border-slate-200 bg-slate-50 px-4 py-4 xl:w-[24rem]">
+            <div className="flex flex-col gap-3 xl:h-full xl:justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">Quick actions</p>
+                <p className="mt-2 text-sm text-slate-600">Open a dashboard or jump into support.</p>
+              </div>
+              <div className="flex flex-wrap gap-3">
               <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
                 Open dashboards
               </Link>
@@ -226,6 +233,7 @@ export default async function PortalHomePage() {
               <Link href="/portal/support/tickets" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
                 View requests
               </Link>
+              </div>
             </div>
           </div>
         </div>
