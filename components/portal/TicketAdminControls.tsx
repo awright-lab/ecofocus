@@ -28,6 +28,13 @@ export function TicketAdminControls({
   ownerOptions: OwnerOption[];
   compact?: boolean;
 }) {
+  const router = useRouter();
+  const [status, setStatus] = useState(currentStatus);
+  const [ownerId, setOwnerId] = useState(currentOwnerId || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
   if (currentStatus === "archived") {
     return (
       <div className={compact ? "space-y-2" : "space-y-3"}>
@@ -38,13 +45,6 @@ export function TicketAdminControls({
       </div>
     );
   }
-
-  const router = useRouter();
-  const [status, setStatus] = useState(currentStatus);
-  const [ownerId, setOwnerId] = useState(currentOwnerId || "");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
