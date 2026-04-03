@@ -205,7 +205,6 @@ export default async function AdminSupportPage({
                     <option value="in_progress">In progress</option>
                     <option value="waiting_on_client">Waiting on client</option>
                     <option value="completed">Completed</option>
-                    <option value="archived">Archived</option>
                   </select>
                 </label>
                 <label className="block">

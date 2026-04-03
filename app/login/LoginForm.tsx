@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getBrowserSupabase } from "@/lib/supabase/client";
+import { getBrowserSupabase, setPortalRememberPreference } from "@/lib/supabase/client";
 
 export default function LoginForm({
   redirect,
@@ -17,6 +17,7 @@ export default function LoginForm({
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [mode, setMode] = useState<"password" | "magic_link">("password");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +33,7 @@ export default function LoginForm({
       const siteUrl = typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_SITE_URL || "";
       const redirectTarget = redirect || "/portal";
       let authError: Error | null = null;
+      setPortalRememberPreference(remember);
 
       if (mode === "password") {
         const { error } = await supabase.auth.signInWithPassword({
@@ -42,6 +44,9 @@ export default function LoginForm({
       } else {
         const callbackUrl = new URL(callbackPath, siteUrl);
         callbackUrl.searchParams.set("next", redirectTarget);
+        if (remember) {
+          callbackUrl.searchParams.set("remember", "1");
+        }
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
@@ -146,6 +151,19 @@ export default function LoginForm({
             />
           </div>
         ) : null}
+
+        <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(event) => setRemember(event.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          />
+          <span className="text-sm text-slate-700">
+            <span className="block font-medium text-slate-900">Remember this browser</span>
+            Keep me signed in on this device for up to 30 days unless I log out.
+          </span>
+        </label>
 
         <button
           type="submit"

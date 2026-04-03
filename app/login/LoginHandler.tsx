@@ -9,9 +9,10 @@ type Props = {
   tokenHash?: string;
   type?: string;
   redirect: string;
+  remember?: boolean;
 };
 
-export default function LoginHandler({ code, tokenHash, type, redirect }: Props) {
+export default function LoginHandler({ code, tokenHash, type, redirect, remember = false }: Props) {
   const router = useRouter();
 
   useEffect(() => {
@@ -21,6 +22,7 @@ export default function LoginHandler({ code, tokenHash, type, redirect }: Props)
       if (tokenHash) confirmUrl.searchParams.set("token_hash", tokenHash);
       if (tokenHash) confirmUrl.searchParams.set("type", type || "magiclink");
       confirmUrl.searchParams.set("next", redirect || "/portal");
+      if (remember) confirmUrl.searchParams.set("remember", "1");
       router.replace(confirmUrl.toString());
       return;
     }
@@ -63,7 +65,7 @@ export default function LoginHandler({ code, tokenHash, type, redirect }: Props)
     return () => {
       cancelled = true;
     };
-  }, [code, tokenHash, type, redirect, router]);
+  }, [code, tokenHash, type, redirect, remember, router]);
 
   if (!code && !tokenHash) return null;
   return (

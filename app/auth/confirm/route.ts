@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { activatePortalUserByEmail } from "@/lib/portal/provisioning";
+import { PORTAL_REMEMBER_COOKIE, PORTAL_REMEMBER_MAX_AGE, getPortalCookieDomain } from "@/lib/portal/session";
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY =
@@ -16,6 +17,8 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const nextPath = getSafeNextPath(requestUrl.searchParams.get("next"));
   const redirectUrl = new URL(nextPath, requestUrl.origin);
+  const remember = requestUrl.searchParams.get("remember") === "1";
+  const cookieDomain = getPortalCookieDomain(requestUrl.origin);
 
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     redirectUrl.pathname = "/portal/login";
@@ -30,12 +33,28 @@ export async function GET(request: NextRequest) {
         return request.cookies.get(name)?.value;
       },
       set(name, value, options) {
-        response.cookies.set({ name, value, ...options });
+        response.cookies.set({
+          name,
+          value,
+          ...options,
+          domain: options.domain ?? cookieDomain,
+          maxAge: remember ? options.maxAge ?? PORTAL_REMEMBER_MAX_AGE : options.maxAge,
+        });
       },
       remove(name, options) {
-        response.cookies.delete({ name, ...options });
+        response.cookies.delete({ name, ...options, domain: options.domain ?? cookieDomain });
       },
     },
+  });
+
+  response.cookies.set({
+    name: PORTAL_REMEMBER_COOKIE,
+    value: remember ? "1" : "",
+    path: "/",
+    sameSite: "lax",
+    secure: requestUrl.protocol === "https:",
+    maxAge: remember ? PORTAL_REMEMBER_MAX_AGE : 0,
+    domain: cookieDomain,
   });
 
   const code = requestUrl.searchParams.get("code");

@@ -26,6 +26,8 @@ export default async function PortalLoginPage({
   const tokenHash = Array.isArray(tokenHashParam) ? tokenHashParam[0] : tokenHashParam;
   const typeParam = params.type;
   const type = Array.isArray(typeParam) ? typeParam[0] : typeParam;
+  const rememberParam = params.remember;
+  const remember = Array.isArray(rememberParam) ? rememberParam[0] === "1" : rememberParam === "1";
   const showDevBypass = isPortalDevBypassEnabled();
 
   return (
@@ -56,7 +58,7 @@ export default async function PortalLoginPage({
         </section>
 
         <section className="rounded-[32px] border border-white/70 bg-white/95 p-4 shadow-[0_18px_60px_-35px_rgba(15,23,42,0.45)] backdrop-blur sm:p-6">
-          <LoginHandler code={code} tokenHash={tokenHash} type={type} redirect={redirect} />
+          <LoginHandler code={code} tokenHash={tokenHash} type={type} redirect={redirect} remember={remember} />
           <LoginForm redirect={redirect} initialEmail={email} />
           {invite === "1" ? (
             <div className="px-4 pb-4 text-sm text-emerald-700 sm:px-0">
