@@ -68,6 +68,9 @@ export const portalCompanies: PortalCompany[] = [
     subscriptionId: "sub-greenloop",
     subscriberType: "brand",
     logoUrl: null,
+    billingContactName: "Maya Hernandez",
+    billingEmail: "maya@greenloopfoods.com",
+    stripeCustomerId: null,
     allowExternalCollaborators: false,
     externalAccessPolicy: null,
   },
@@ -77,6 +80,9 @@ export const portalCompanies: PortalCompany[] = [
     subscriptionId: "sub-ecofocus",
     subscriberType: "internal",
     logoUrl: null,
+    billingContactName: "Sam Patel",
+    billingEmail: "sam@ecofocusresearch.com",
+    stripeCustomerId: null,
     allowExternalCollaborators: true,
     externalAccessPolicy: "support_admin_only",
   },
@@ -90,6 +96,7 @@ export const portalSubscriptions: PortalSubscription[] = [
     seatsUsed: 8,
     renewalDate: "2026-08-15",
     status: "active",
+    stripeSubscriptionId: null,
   },
   {
     id: "sub-ecofocus",
@@ -98,6 +105,7 @@ export const portalSubscriptions: PortalSubscription[] = [
     seatsUsed: 9,
     renewalDate: "2026-12-31",
     status: "active",
+    stripeSubscriptionId: null,
   },
 ];
 

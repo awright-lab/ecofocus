@@ -11,6 +11,7 @@ create table if not exists public.portal_subscriptions (
   seats_used integer not null default 0 check (seats_used >= 0),
   renewal_date date not null,
   status text not null check (status in ('active', 'trialing', 'past_due')),
+  stripe_subscription_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -21,6 +22,9 @@ create table if not exists public.portal_companies (
   subscription_id text not null references public.portal_subscriptions(id) on delete restrict,
   subscriber_type text not null default 'brand' check (subscriber_type in ('brand', 'agency', 'internal')),
   logo_url text,
+  billing_contact_name text,
+  billing_email text,
+  stripe_customer_id text,
   allow_external_collaborators boolean not null default false,
   external_access_policy text,
   created_at timestamptz not null default now(),
@@ -42,8 +46,14 @@ create table if not exists public.portal_users (
 alter table public.portal_companies
   add column if not exists subscriber_type text not null default 'brand',
   add column if not exists logo_url text,
+  add column if not exists billing_contact_name text,
+  add column if not exists billing_email text,
+  add column if not exists stripe_customer_id text,
   add column if not exists allow_external_collaborators boolean not null default false,
   add column if not exists external_access_policy text;
+
+alter table public.portal_subscriptions
+  add column if not exists stripe_subscription_id text;
 
 alter table public.portal_users
   add column if not exists home_company_id text references public.portal_companies(id) on delete cascade;
@@ -108,11 +118,12 @@ insert into public.portal_subscriptions (
   seats_purchased,
   seats_used,
   renewal_date,
-  status
+  status,
+  stripe_subscription_id
 )
 values
-  ('sub-greenloop', 'Enterprise Insight Suite', 12, 8, '2026-08-15', 'active'),
-  ('sub-ecofocus', 'Internal Support Workspace', 20, 9, '2026-12-31', 'active')
+  ('sub-greenloop', 'Enterprise Insight Suite', 12, 8, '2026-08-15', 'active', null),
+  ('sub-ecofocus', 'Internal Support Workspace', 20, 9, '2026-12-31', 'active', null)
 on conflict (id) do update
 set
   plan_name = excluded.plan_name,
@@ -120,6 +131,7 @@ set
   seats_used = excluded.seats_used,
   renewal_date = excluded.renewal_date,
   status = excluded.status,
+  stripe_subscription_id = excluded.stripe_subscription_id,
   updated_at = now();
 
 insert into public.portal_companies (
@@ -128,18 +140,24 @@ insert into public.portal_companies (
   subscription_id,
   subscriber_type,
   logo_url,
+  billing_contact_name,
+  billing_email,
+  stripe_customer_id,
   allow_external_collaborators,
   external_access_policy
 )
 values
-  ('company-greenloop', 'GreenLoop Foods', 'sub-greenloop', 'brand', null, false, null),
-  ('company-ecofocus', 'EcoFocus Research', 'sub-ecofocus', 'internal', null, true, 'support_admin_only')
+  ('company-greenloop', 'GreenLoop Foods', 'sub-greenloop', 'brand', null, 'Maya Hernandez', 'maya@greenloopfoods.com', null, false, null),
+  ('company-ecofocus', 'EcoFocus Research', 'sub-ecofocus', 'internal', null, 'Sam Patel', 'sam@ecofocusresearch.com', null, true, 'support_admin_only')
 on conflict (id) do update
 set
   name = excluded.name,
   subscription_id = excluded.subscription_id,
   subscriber_type = excluded.subscriber_type,
   logo_url = excluded.logo_url,
+  billing_contact_name = excluded.billing_contact_name,
+  billing_email = excluded.billing_email,
+  stripe_customer_id = excluded.stripe_customer_id,
   allow_external_collaborators = excluded.allow_external_collaborators,
   external_access_policy = excluded.external_access_policy,
   updated_at = now();

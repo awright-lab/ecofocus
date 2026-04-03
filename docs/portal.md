@@ -34,6 +34,7 @@
 - `portal_usage_logs` stores portal-side dashboard usage events for allowance reviews and audit history.
 - `portal_usage_allowances` stores company-level hour limits, usage totals, and current access periods.
 - `portal_dashboard_configs` stores private company-scoped dashboard embed URLs for runtime provisioning without redeploys.
+- `portal_dashboard_entitlements` stores workspace-level dashboard assignment separately from embed configuration.
 - `portal_tickets` and `portal_ticket_messages` store support requests, replies, and internal support notes.
 
 ## Provisioning metadata
@@ -54,6 +55,7 @@
 - `docs/portal_accounts.sql`
 - `docs/portal_chat_logs.sql`
 - `docs/portal_dashboard_configs.sql`
+- `docs/portal_dashboard_entitlements.sql`
 - `docs/portal_question_search.sql`
 - `docs/portal_support.sql`
 - `docs/portal_usage_allowances.sql`

@@ -239,6 +239,9 @@ async function queryPortalCompanyById(companyId: string): Promise<PortalCompany 
       subscriptionId: data.subscription_id,
       subscriberType: normalizePortalSubscriberType(data.subscriber_type),
       logoUrl: data.logo_url || null,
+      billingContactName: data.billing_contact_name || null,
+      billingEmail: data.billing_email || null,
+      stripeCustomerId: data.stripe_customer_id || null,
       allowExternalCollaborators: Boolean(data.allow_external_collaborators),
       externalAccessPolicy: data.external_access_policy || null,
     };
@@ -270,6 +273,9 @@ async function queryPortalCompanies(): Promise<PortalCompany[] | null> {
       subscriptionId: company.subscription_id,
       subscriberType: normalizePortalSubscriberType(company.subscriber_type),
       logoUrl: company.logo_url || null,
+      billingContactName: company.billing_contact_name || null,
+      billingEmail: company.billing_email || null,
+      stripeCustomerId: company.stripe_customer_id || null,
       allowExternalCollaborators: Boolean(company.allow_external_collaborators),
       externalAccessPolicy: company.external_access_policy || null,
     }));
@@ -318,7 +324,7 @@ async function queryPortalSubscriptionById(subscriptionId: string): Promise<Port
     const admin = getServiceSupabase();
     const { data, error } = await admin
       .from("portal_subscriptions")
-      .select("id, plan_name, seats_purchased, seats_used, renewal_date, status")
+      .select("id, plan_name, seats_purchased, seats_used, renewal_date, status, stripe_subscription_id")
       .eq("id", subscriptionId)
       .maybeSingle();
 
@@ -336,10 +342,42 @@ async function queryPortalSubscriptionById(subscriptionId: string): Promise<Port
       seatsUsed: data.seats_used,
       renewalDate: data.renewal_date,
       status: data.status,
+      stripeSubscriptionId: data.stripe_subscription_id || null,
     };
   } catch (error) {
     console.warn("[portal/data] portal_subscriptions storage unavailable.", {
       subscriptionId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
+async function queryPortalDashboardEntitlements(companyId: string) {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_dashboard_entitlements")
+      .select("id, company_id, dashboard_id, assigned_at, assigned_by_user_id, notes")
+      .eq("company_id", companyId)
+      .order("assigned_at", { ascending: true });
+
+    if (error) {
+      console.warn("[portal/data] portal_dashboard_entitlements lookup failed.", { companyId, error: error.message });
+      return null;
+    }
+
+    return (data || []).map((entitlement) => ({
+      id: String(entitlement.id),
+      companyId: String(entitlement.company_id),
+      dashboardId: String(entitlement.dashboard_id),
+      assignedAt: String(entitlement.assigned_at),
+      assignedByUserId: entitlement.assigned_by_user_id ? String(entitlement.assigned_by_user_id) : null,
+      notes: entitlement.notes || null,
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_dashboard_entitlements storage unavailable.", {
+      companyId,
       error: error instanceof Error ? error.message : String(error),
     });
     return null;
@@ -475,9 +513,11 @@ async function queryCompanyDashboards(companyId: string): Promise<PortalDashboar
       return [];
     }
 
-    const slugs = new Set((data || []).map((item) => item.dashboard_slug));
+    const activeSlugs = new Set((data || []).map((item) => item.dashboard_slug));
+    const runtimeEntitlements = await queryPortalDashboardEntitlements(companyId);
     const dashboardCatalog = await getPortalDashboardCatalog();
-    return dashboardCatalog.filter((dashboard) => slugs.has(dashboard.slug));
+    const entitledIds = new Set((runtimeEntitlements || []).map((entitlement) => entitlement.dashboardId));
+    return dashboardCatalog.filter((dashboard) => activeSlugs.has(dashboard.slug) || entitledIds.has(dashboard.id));
   } catch (error) {
     console.warn("[portal/data] portal_dashboard_configs storage unavailable.", {
       companyId,
@@ -974,6 +1014,13 @@ export async function getPortalActiveDashboardConfigs() {
         },
       ];
     });
+}
+
+export async function getPortalDashboardEntitlementsByCompany(companyId: string) {
+  const runtimeEntitlements = await queryPortalDashboardEntitlements(companyId);
+  if (runtimeEntitlements) return runtimeEntitlements;
+
+  return portalDashboardEntitlements.filter((entitlement) => entitlement.companyId === companyId);
 }
 
 export async function getPortalDashboardConfig(companyId: string, dashboardSlug: string) {

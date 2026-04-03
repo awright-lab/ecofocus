@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Clock3, CreditCard, LayoutDashboard, Users } from "lucide-react";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
+import { listPortalInvoicesByCompany } from "@/lib/portal/billing";
 import { getPortalDashboardsForUser, getPortalTeamMembers, getPortalUsageLogsForUser, getPortalUsageStatus } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate, formatDateTime } from "@/lib/utils";
@@ -17,6 +18,7 @@ export default async function AccountPage() {
   const teamMembers = await getPortalTeamMembers(access.effectiveUser, access.company.id);
   const usage = await getPortalUsageStatus(access.effectiveUser);
   const usageLogs = (await getPortalUsageLogsForUser(access.effectiveUser)).slice(0, 5);
+  const invoices = await listPortalInvoicesByCompany(access.billingCompany.id, 8);
   const teamMembersById = new Map(teamMembers.map((member) => [member.id, member]));
 
   function getUsageActor(userId: string) {
@@ -33,6 +35,13 @@ export default async function AccountPage() {
     if (eventType === "support_review_requested") return "Support review";
     if (eventType === "allowance_exhausted") return "Allowance exhausted";
     return eventType.replaceAll("_", " ");
+  }
+
+  function formatUsdFromCents(amount: number) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount / 100);
   }
 
   return (
@@ -174,6 +183,14 @@ export default async function AccountPage() {
                 Contact billing support
               </Link>
             ) : null}
+            {!access.isPreviewMode && access.billingCompany.stripeCustomerId ? (
+              <a
+                href="/api/portal/billing/portal"
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+              >
+                Open billing portal
+              </a>
+            ) : null}
             {access.effectiveRole === "client_admin" || access.effectiveRole === "agency_admin" ? (
               <Link href="/portal/team" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
                 Review team access
@@ -183,6 +200,71 @@ export default async function AccountPage() {
           <div className="mt-6 text-sm text-slate-600">
             <span className="font-semibold text-slate-900">{teamMembers.length}</span> team members are currently modeled for this account.
           </div>
+        </div>
+      </section>
+
+      <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-950">Invoices</h3>
+            <p className="mt-2 text-sm text-slate-600">
+              View recent invoices for your workspace and open the hosted Stripe invoice when you need payment details.
+            </p>
+          </div>
+          {access.billingCompany.stripeCustomerId && !access.isPreviewMode ? (
+            <a
+              href="/api/portal/billing/portal"
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+            >
+              Manage billing
+            </a>
+          ) : null}
+        </div>
+        <div className="mt-5 space-y-3">
+          {invoices.length ? (
+            invoices.map((invoice) => (
+              <div key={invoice.id} className="rounded-[24px] bg-slate-50 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-slate-900">{invoice.description || invoice.number || invoice.id}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {formatUsdFromCents(invoice.amountDue)} · {invoice.status}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Created {formatDate(invoice.createdAt)}
+                      {invoice.dueAt ? ` · Due ${formatDate(invoice.dueAt)}` : ""}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    {invoice.hostedInvoiceUrl ? (
+                      <a
+                        href={invoice.hostedInvoiceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+                      >
+                        Open invoice
+                      </a>
+                    ) : null}
+                    {invoice.invoicePdf ? (
+                      <a
+                        href={invoice.invoicePdf}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700"
+                      >
+                        PDF
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-[24px] bg-slate-50 p-4 text-sm text-slate-600">
+              No invoices are available for this workspace yet.
+            </div>
+          )}
         </div>
       </section>
 

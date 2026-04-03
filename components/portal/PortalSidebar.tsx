@@ -44,7 +44,10 @@ const supportAdminNavSections = [
   },
   {
     title: "Billing and Admin",
-    items: [{ href: "/portal/admin/usage", label: "Usage Controls", icon: Gauge }],
+    items: [
+      { href: "/portal/admin/workspaces", label: "Workspace Provisioning", icon: PanelsTopLeft },
+      { href: "/portal/admin/usage", label: "Usage Controls", icon: Gauge },
+    ],
   },
   {
     title: "Help",

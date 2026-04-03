@@ -13,12 +13,16 @@ export type PortalAccountProvisioningInput = {
   companyName: string;
   subscriberType?: "brand" | "agency" | "internal";
   logoUrl?: string | null;
+  billingContactName?: string | null;
+  billingEmail?: string | null;
+  stripeCustomerId?: string | null;
   subscriptionId: string;
   planName: string;
   seatsPurchased: number;
   seatsUsed: number;
   renewalDate: string;
   subscriptionStatus: "active" | "trialing" | "past_due";
+  stripeSubscriptionId?: string | null;
   adminUserId: string;
   adminName: string;
   adminEmail: string;
@@ -38,6 +42,20 @@ export type PortalTeamStatusUpdateInput = {
   companyId: string;
   subscriptionId: string;
   action: "deactivate" | "reactivate";
+};
+
+export type PortalUsageAllowanceProvisioningInput = {
+  companyId: string;
+  annualHoursLimit: number;
+  hoursUsed?: number;
+  periodStart: string;
+  periodEnd: string;
+};
+
+export type PortalDashboardEntitlementProvisioningInput = {
+  companyId: string;
+  dashboardIds: string[];
+  assignedByUserId?: string | null;
 };
 
 export type PortalUserActivationResult =
@@ -84,6 +102,14 @@ function normalizeDate(value?: string | null, fallback = "2026-12-31") {
   const raw = normalizeProvisioningValue(value);
   if (!raw) return fallback;
   return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : fallback;
+}
+
+function normalizeIsoDateTime(value?: string | null) {
+  const raw = normalizeProvisioningValue(value);
+  if (!raw) return new Date().toISOString();
+
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
 }
 
 function slugifyCompanyId(companyName: string) {
@@ -182,6 +208,7 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
       seats_used: input.seatsUsed,
       renewal_date: input.renewalDate,
       status: input.subscriptionStatus,
+      stripe_subscription_id: normalizeProvisioningValue(input.stripeSubscriptionId) || null,
     },
     { onConflict: "id" },
   );
@@ -195,6 +222,9 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
       subscription_id: input.subscriptionId,
       subscriber_type: subscriberType,
       logo_url: normalizeOptionalUrl(input.logoUrl),
+      billing_contact_name: normalizeProvisioningValue(input.billingContactName) || null,
+      billing_email: normalizeEmail(input.billingEmail) || null,
+      stripe_customer_id: normalizeProvisioningValue(input.stripeCustomerId) || null,
       allow_external_collaborators: subscriberType === "internal",
       external_access_policy: subscriberType === "internal" ? "support_admin_only" : null,
     },
@@ -230,6 +260,59 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
   );
 
   if (membershipError) throw new Error(membershipError.message);
+}
+
+export async function upsertPortalUsageAllowance(input: PortalUsageAllowanceProvisioningInput) {
+  const admin = getServiceSupabase();
+  const { error } = await admin.from("portal_usage_allowances").upsert(
+    {
+      company_id: input.companyId,
+      annual_hours_limit: normalizePositiveInt(input.annualHoursLimit, 0),
+      hours_used: normalizePositiveInt(input.hoursUsed ?? 0, 0),
+      period_start: normalizeDate(input.periodStart, "2026-01-01"),
+      period_end: normalizeDate(input.periodEnd, "2026-12-31"),
+    },
+    { onConflict: "company_id" },
+  );
+
+  if (error) throw new Error(error.message);
+}
+
+export async function replacePortalDashboardEntitlements(input: PortalDashboardEntitlementProvisioningInput) {
+  const admin = getServiceSupabase();
+  const companyId = normalizeProvisioningValue(input.companyId);
+  const dashboardIds = Array.from(
+    new Set(input.dashboardIds.map((dashboardId) => normalizeProvisioningValue(dashboardId)).filter(Boolean)),
+  );
+
+  if (!companyId) {
+    throw new Error("companyId is required.");
+  }
+
+  const { error: deleteError } = await admin
+    .from("portal_dashboard_entitlements")
+    .delete()
+    .eq("company_id", companyId)
+    .not("dashboard_id", "in", `(${dashboardIds.map((id) => `"${id}"`).join(",") || '""'})`);
+
+  if (deleteError) throw new Error(deleteError.message);
+
+  if (!dashboardIds.length) {
+    return;
+  }
+
+  const assignedAt = normalizeIsoDateTime();
+  const { error: upsertError } = await admin.from("portal_dashboard_entitlements").upsert(
+    dashboardIds.map((dashboardId) => ({
+      company_id: companyId,
+      dashboard_id: dashboardId,
+      assigned_at: assignedAt,
+      assigned_by_user_id: normalizeProvisioningValue(input.assignedByUserId) || null,
+    })),
+    { onConflict: "company_id,dashboard_id" },
+  );
+
+  if (upsertError) throw new Error(upsertError.message);
 }
 
 export async function createPortalTeamInvite(input: PortalTeamInviteInput) {

@@ -38,6 +38,9 @@ export type PortalCompany = {
   subscriptionId: string;
   subscriberType?: PortalSubscriberType;
   logoUrl?: string | null;
+  billingContactName?: string | null;
+  billingEmail?: string | null;
+  stripeCustomerId?: string | null;
   allowExternalCollaborators?: boolean;
   externalAccessPolicy?: string | null;
 };
@@ -70,6 +73,7 @@ export type PortalSubscription = {
   seatsUsed: number;
   renewalDate: string;
   status: "active" | "trialing" | "past_due";
+  stripeSubscriptionId?: string | null;
 };
 
 export type PortalDashboard = {
@@ -94,9 +98,27 @@ export type PortalDashboardConfig = {
 };
 
 export type PortalDashboardEntitlement = {
+  id?: string;
   userId?: string;
   companyId?: string;
   dashboardId: string;
+  assignedAt?: string;
+  assignedByUserId?: string | null;
+  notes?: string | null;
+};
+
+export type PortalInvoiceSummary = {
+  id: string;
+  number: string | null;
+  status: string;
+  currency: string;
+  amountDue: number;
+  amountPaid: number;
+  hostedInvoiceUrl: string | null;
+  invoicePdf: string | null;
+  description: string | null;
+  createdAt: string;
+  dueAt: string | null;
 };
 
 export type PortalUsageAllowance = {
