@@ -29,9 +29,8 @@ async function PortalShellInner({
   const usageOverride = devToolsEnabled ? await getPortalDevUsageOverrideFromCookies() : null;
   const isSupportAdmin = access.effectiveRole === "support_admin";
   const isClientWorkspace = !isSupportAdmin;
-  const companyFirstName = access.company.name;
   const shellEyebrow = isSupportAdmin ? "EcoFocus Admin" : "Private EcoFocus Portal";
-  const shellTitle = isSupportAdmin ? "Support workspace" : `${companyFirstName} Workspace`;
+  const shellTitle = isSupportAdmin ? "Support workspace" : "Dashboard Hub";
   const shellDescription = isSupportAdmin
     ? "Manage support, dashboard access, and internal review work from one place."
     : access.isPreviewMode
@@ -102,22 +101,6 @@ async function PortalShellInner({
               hasSession={Boolean(access.session)}
             />
           </div>
-
-          {!isSupportAdmin ? (
-            <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs text-emerald-50/80">
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5">
-                {access.subscription.planName}
-              </span>
-              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 capitalize">
-                {subscriberTypeLabel}
-              </span>
-              {showDevBypassSession ? (
-                <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-amber-100">
-                  Test sign-in session
-                </span>
-              ) : null}
-            </div>
-          ) : null}
         </header>
 
         <div className="mt-6 flex flex-col gap-5 xl:flex-row">
