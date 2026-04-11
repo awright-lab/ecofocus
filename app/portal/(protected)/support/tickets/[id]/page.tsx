@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { MessageSquarePlus, ShieldCheck } from "lucide-react";
 import { TicketAdminControls } from "@/components/portal/TicketAdminControls";
@@ -405,7 +406,14 @@ function renderMessageBody(body: string) {
       const cardContent = (
         <>
           {block.isImage && block.url ? (
-            <img src={block.url} alt={block.name} className="max-h-72 w-full object-cover" />
+            <Image
+              src={block.url}
+              alt={block.name}
+              width={900}
+              height={420}
+              sizes="(min-width: 768px) 720px, 100vw"
+              className="max-h-72 w-full object-cover"
+            />
           ) : (
             <div className="flex items-center justify-between gap-4 px-4 py-4">
               <div>

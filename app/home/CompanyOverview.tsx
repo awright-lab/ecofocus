@@ -1,5 +1,7 @@
 'use client';
 
+import Image from "next/image";
+
 export default function CompanyOverview() {
     return (
         <section className="py-24 bg-gradient-to-b from-white to-gray-50">
@@ -44,10 +46,13 @@ export default function CompanyOverview() {
 
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-blue-400/20 rounded-2xl transform -rotate-1"></div>
-                            <img
+                            <Image
                                 src="https://readdy.ai/api/search-image?query=Modern%20professional%20sustainability%20research%20team%20working%20in%20a%20contemporary%20office%20environment%20with%20large%20windows&width=600&height=500"
                                 alt="EcoFocus Research Team"
-                                className="relative w-full h-auto rounded-2xl shadow-xl object-cover object-top"
+                                width={600}
+                                height={500}
+                                sizes="(min-width: 768px) 50vw, 100vw"
+                                className="relative h-auto w-full rounded-2xl object-cover object-top shadow-xl"
                             />
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Study2025() {
@@ -58,10 +59,13 @@ export default function Study2025() {
 
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-emerald-400/20 rounded-2xl transform rotate-2"></div>
-                            <img
+                            <Image
                                 src="https://static.readdy.ai/image/92f654f6e9fffe99d924ae6db44f629b/16de2908446965f50373ea78e0adadbb.png"
                                 alt="2025 Study Development Team"
-                                className="relative w-full h-auto rounded-2xl shadow-xl object-cover"
+                                width={600}
+                                height={500}
+                                sizes="(min-width: 768px) 50vw, 100vw"
+                                className="relative h-auto w-full rounded-2xl object-cover shadow-xl"
                             />
                         </div>
                     </div>
@@ -111,10 +115,13 @@ export default function Study2025() {
 
                             <div className="relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/20 to-cyan-400/20 rounded-2xl transform -rotate-2"></div>
-                                <img
+                                <Image
                                     src="https://static.readdy.ai/image/92f654f6e9fffe99d924ae6db44f629b/e696f5376fe916972cd505d9f0a5cd36.png"
                                     alt="2024 Syndicated Research Data Visualization"
-                                    className="relative w-full h-auto rounded-2xl shadow-xl object-cover object-top"
+                                    width={600}
+                                    height={500}
+                                    sizes="(min-width: 768px) 50vw, 100vw"
+                                    className="relative h-auto w-full rounded-2xl object-cover object-top shadow-xl"
                                 />
                             </div>
                         </div>

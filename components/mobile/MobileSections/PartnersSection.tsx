@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 const partners = [
     '/images/logos/Avery Logo_Light Backgrounds.png',
     '/images/logos/CGLR-Icon.png',
@@ -15,7 +17,7 @@ export default function PartnersSection() {
             <h2 className="text-xl font-bold mb-4">Trusted by Industry Leaders</h2>
             <div className="flex space-x-6 overflow-x-auto no-scrollbar">
                 {partners.map((logo, i) => (
-                    <img key={i} src={logo} alt={`Partner ${i + 1}`} className="h-10 object-contain" />
+                    <Image key={i} src={logo} alt={`Partner ${i + 1}`} width={160} height={40} className="h-10 w-auto object-contain" />
                 ))}
             </div>
         </section>

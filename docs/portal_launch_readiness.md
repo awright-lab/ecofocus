@@ -30,8 +30,9 @@ Use this checklist before moving from friendly/internal portal testing to paid s
 - Send Stripe test webhook events for checkout completion and invoice status changes.
 - Confirm checkout provisioning creates or updates the portal company, subscription, user, and dashboard config.
 - Confirm invoice events update `portal_subscriptions.billing_status` and latest invoice fields.
+- Confirm Stripe subscription created/updated/deleted events update the portal subscription status and billing status.
 - Confirm failed webhook processing returns a non-2xx response so Stripe can retry.
-- Confirm your operational process for partially failed provisioning before selling self-serve seats.
+- Confirm billing recovery controls can correct Stripe customer/subscription IDs, billing contact details, subscription status, billing status, and renewal date after a partial failure.
 
 ## Displayr Public URL Controls
 

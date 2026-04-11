@@ -9,6 +9,7 @@ function hasStripeSecretKey() {
 }
 
 type PortalBillingStatus = NonNullable<PortalSubscription["billingStatus"]>;
+type PortalSubscriptionStatus = PortalSubscription["status"];
 
 function getInvoiceCustomerId(invoice: Stripe.Invoice) {
   return typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id || null;
@@ -48,6 +49,42 @@ function mapInvoiceToPortalBillingStatus(
     }
 
     return "payment_pending";
+  }
+
+  return "not_invoiced";
+}
+
+export function mapStripeSubscriptionToPortalStatus(
+  status?: Stripe.Subscription.Status | null,
+): PortalSubscriptionStatus {
+  if (status === "trialing") {
+    return "trialing";
+  }
+
+  if (status === "active") {
+    return "active";
+  }
+
+  return "past_due";
+}
+
+export function mapStripeSubscriptionToPortalBillingStatus(
+  status?: Stripe.Subscription.Status | null,
+): PortalBillingStatus {
+  if (status === "active" || status === "trialing") {
+    return "paid";
+  }
+
+  if (status === "past_due" || status === "unpaid") {
+    return "past_due";
+  }
+
+  if (status === "incomplete" || status === "incomplete_expired") {
+    return "payment_pending";
+  }
+
+  if (status === "canceled" || status === "paused") {
+    return "payment_failed";
   }
 
   return "not_invoiced";
@@ -127,6 +164,81 @@ export async function syncPortalInvoiceStatusFromStripeInvoice(invoice: Stripe.I
 
   return {
     subscriptionId,
+    billingStatus,
+  };
+}
+
+export async function syncPortalSubscriptionStatusFromStripeSubscription(subscription: Stripe.Subscription) {
+  const metadataSubscriptionId = String(subscription.metadata?.portalSubscriptionId || "").trim();
+  const customerId = typeof subscription.customer === "string" ? subscription.customer : subscription.customer?.id || null;
+  const admin = getServiceSupabase();
+  let subscriptionId = metadataSubscriptionId;
+
+  if (!subscriptionId) {
+    const { data, error } = await admin
+      .from("portal_subscriptions")
+      .select("id")
+      .eq("stripe_subscription_id", subscription.id)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    subscriptionId = data?.id ? String(data.id) : "";
+  }
+
+  if (!subscriptionId && customerId) {
+    const { data, error } = await admin
+      .from("portal_companies")
+      .select("subscription_id")
+      .eq("stripe_customer_id", customerId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    subscriptionId = data?.subscription_id ? String(data.subscription_id) : "";
+  }
+
+  if (!subscriptionId) {
+    return null;
+  }
+
+  const portalStatus = mapStripeSubscriptionToPortalStatus(subscription.status);
+  const billingStatus = mapStripeSubscriptionToPortalBillingStatus(subscription.status);
+
+  const { error } = await admin
+    .from("portal_subscriptions")
+    .update({
+      stripe_subscription_id: subscription.id,
+      status: portalStatus,
+      billing_status: billingStatus,
+    })
+    .eq("id", subscriptionId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  const portalCompanyId = String(subscription.metadata?.portalCompanyId || "").trim();
+  if (customerId && portalCompanyId) {
+    const { error: companyError } = await admin
+      .from("portal_companies")
+      .update({
+        stripe_customer_id: customerId,
+      })
+      .eq("id", portalCompanyId);
+
+    if (companyError) {
+      throw new Error(companyError.message);
+    }
+  }
+
+  return {
+    subscriptionId,
+    subscriptionStatus: portalStatus,
     billingStatus,
   };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Paperclip, Upload, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -180,9 +181,11 @@ export function TicketReplyForm({
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 items-start gap-3">
                 {attachmentPreviewUrl ? (
-                  <img
+                  <Image
                     src={attachmentPreviewUrl}
                     alt={attachmentFile.name}
+                    width={64}
+                    height={64}
                     className="h-16 w-16 rounded-2xl object-cover"
                   />
                 ) : (

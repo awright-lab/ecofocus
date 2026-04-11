@@ -62,9 +62,11 @@ async function PortalShellInner({
                 <div className="mb-4 flex items-center gap-3">
                   {access.company.logoUrl ? (
                     <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-2">
-                      <img
+                      <Image
                         src={access.company.logoUrl}
                         alt={`${access.company.name} logo`}
+                        width={48}
+                        height={48}
                         className="max-h-full max-w-full object-contain"
                       />
                     </div>

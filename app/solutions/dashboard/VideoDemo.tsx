@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 
 export default function VideoDemo() {
@@ -43,9 +44,11 @@ export default function VideoDemo() {
                       <div className="text-gray-300 text-sm">Click to play the interactive demo</div>
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-emerald-600/20"></div>
-                    <img
+                    <Image
                       src="https://readdy.ai/api/search-image?query=Modern%20professional%20sustainability%20dashboard%20interface%20screenshot%20showing%20interactive%20charts%2C%20graphs%2C%20environmental%20data%20visualization%2C%20ESG%20metrics%2C%20carbon%20footprint%20tracking%2C%20renewable%20energy%20statistics%2C%20and%20environmental%20KPIs%20in%20a%20sleek%20web%20application%20with%20blue%20and%20green%20color%20scheme%2C%20clean%20modern%20design%20with%20hexagonal%20patterns%20and%20contemporary%20UI%20elements&width=800&height=450&seq=dashboard-video-preview&orientation=landscape"
                       alt="Dashboard Preview"
+                      fill
+                      sizes="(min-width: 768px) 800px, 100vw"
                       className="absolute inset-0 w-full h-full object-cover opacity-60"
                     />
                   </div>

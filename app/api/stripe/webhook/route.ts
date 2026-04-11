@@ -1,7 +1,7 @@
 // app/api/stripe/webhook/route.ts
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { syncPortalInvoiceStatusFromStripeInvoice } from "@/lib/portal/billing";
+import { syncPortalInvoiceStatusFromStripeInvoice, syncPortalSubscriptionStatusFromStripeSubscription } from "@/lib/portal/billing";
 import { getPortalProvisioningMetadata, upsertPortalAccountRecords, upsertPortalDashboardConfig } from "@/lib/portal/provisioning";
 import { getStripeServer } from "@/lib/stripe";
 
@@ -20,6 +20,10 @@ async function handleCheckoutCompleted(s: Stripe.Checkout.Session) {
 
 async function handleInvoiceEvent(invoice: Stripe.Invoice, eventType: string) {
   await syncPortalInvoiceStatusFromStripeInvoice(invoice, eventType);
+}
+
+async function handleSubscriptionEvent(subscription: Stripe.Subscription) {
+  await syncPortalSubscriptionStatusFromStripeSubscription(subscription);
 }
 
 export async function POST(req: Request) {
@@ -57,6 +61,7 @@ export async function POST(req: Request) {
       case "customer.subscription.created":
       case "customer.subscription.updated":
       case "customer.subscription.deleted":
+        await handleSubscriptionEvent(event.data.object as Stripe.Subscription);
         break;
       default:
         if (process.env.NODE_ENV !== "production") {

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminSubscriptionRecoveryForm } from "@/components/portal/AdminSubscriptionRecoveryForm";
 import { AdminWorkspaceInvoiceForm } from "@/components/portal/AdminWorkspaceInvoiceForm";
 import { AdminWorkspacePicker } from "@/components/portal/AdminWorkspacePicker";
 import { AdminWorkspaceProvisioningForm } from "@/components/portal/AdminWorkspaceProvisioningForm";
@@ -162,6 +163,28 @@ export default async function AdminWorkspacesPage({
                         companyName={selectedCompany.name}
                         billingEmail={selectedCompany.billingEmail}
                       />
+
+                      {selectedSubscription ? (
+                        <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-5">
+                          <h3 className="text-sm font-semibold text-amber-950">Billing recovery controls</h3>
+                          <p className="mt-2 text-sm leading-6 text-amber-900">
+                            Use these fields when Stripe or webhook recovery requires a manual correction before retrying a customer workflow.
+                          </p>
+                          <div className="mt-5">
+                            <AdminSubscriptionRecoveryForm
+                              companyId={selectedCompany.id}
+                              planName={selectedSubscription.planName}
+                              subscriptionStatus={selectedSubscription.status}
+                              billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
+                              renewalDate={selectedSubscription.renewalDate}
+                              stripeCustomerId={selectedCompany.stripeCustomerId}
+                              stripeSubscriptionId={selectedSubscription.stripeSubscriptionId}
+                              billingContactName={selectedCompany.billingContactName}
+                              billingEmail={selectedCompany.billingEmail}
+                            />
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   ) : (
                     <div className="mt-6 rounded-[24px] bg-slate-50 p-4 text-sm text-slate-600">

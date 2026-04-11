@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -183,9 +184,11 @@ export function AdminWorkspaceProvisioningForm({
             {form.logoUrl ? (
               <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-3">
                 <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-                  <img
+                  <Image
                     src={form.logoUrl}
                     alt="Company logo preview"
+                    width={56}
+                    height={56}
                     className="max-h-full max-w-full object-contain"
                   />
                 </div>

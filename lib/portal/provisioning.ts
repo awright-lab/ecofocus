@@ -583,7 +583,7 @@ export async function setPortalUserPassword(emailInput: string, password: string
 }
 
 export function getPortalProvisioningMetadata(
-  session: Pick<Stripe.Checkout.Session, "metadata" | "customer_details" | "customer_email">,
+  session: Pick<Stripe.Checkout.Session, "metadata" | "customer" | "customer_details" | "customer_email" | "subscription">,
 ) {
   const metadata = session.metadata ?? {};
   const companyId = normalizeProvisioningValue(metadata.portalCompanyId || metadata.companyId);
@@ -596,6 +596,13 @@ export function getPortalProvisioningMetadata(
   const adminName = normalizeProvisioningValue(metadata.portalAdminName || session.customer_details?.name) || "Client Admin";
   const normalizedCompanyId = companyId || (companyName ? slugifyCompanyId(companyName) : "");
   const subscriptionId = normalizeProvisioningValue(metadata.portalSubscriptionId) || (normalizedCompanyId ? buildSubscriptionId(normalizedCompanyId) : "");
+  const stripeCustomerId = normalizeProvisioningValue(
+    metadata.portalStripeCustomerId || (typeof session.customer === "string" ? session.customer : session.customer?.id),
+  );
+  const stripeSubscriptionId = normalizeProvisioningValue(
+    metadata.portalStripeSubscriptionId ||
+      (typeof session.subscription === "string" ? session.subscription : session.subscription?.id),
+  );
   const planName = normalizeProvisioningValue(metadata.portalPlanName) || "Client Portal Access";
   const seatsPurchased = normalizePositiveInt(metadata.portalSeatsPurchased, 1);
   const seatsUsed = normalizePositiveInt(metadata.portalSeatsUsed, 1);
@@ -628,6 +635,10 @@ export function getPortalProvisioningMetadata(
       adminUserId,
       adminName,
       adminEmail,
+      billingContactName: normalizeProvisioningValue(metadata.portalBillingContactName) || adminName,
+      billingEmail: normalizeEmail(metadata.portalBillingEmail) || adminEmail,
+      stripeCustomerId: stripeCustomerId || null,
+      stripeSubscriptionId: stripeSubscriptionId || null,
       adminRole: "client_admin" as const,
     },
     companyId: normalizedCompanyId,
