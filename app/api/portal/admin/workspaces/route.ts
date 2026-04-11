@@ -3,6 +3,7 @@ import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { ensurePortalStripeCustomer } from "@/lib/portal/billing";
 import { getPortalDashboardCatalog } from "@/lib/portal/data";
+import { getPortalOrigin } from "@/lib/portal/host";
 import {
   replacePortalDashboardEntitlements,
   upsertPortalAccountRecords,
@@ -173,11 +174,16 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const clientAdminSetupUrl = new URL("/set-password", getPortalOrigin(req.url));
+    clientAdminSetupUrl.searchParams.set("email", adminEmail);
+    clientAdminSetupUrl.searchParams.set("invite", "1");
+
     return asJson({
       ok: true,
       companyId,
       subscriptionId,
       stripeCustomerId,
+      clientAdminSetupUrl: clientAdminSetupUrl.toString(),
     });
   } catch (error) {
     return asJson(

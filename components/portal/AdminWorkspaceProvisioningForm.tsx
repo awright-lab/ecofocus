@@ -38,6 +38,8 @@ export function AdminWorkspaceProvisioningForm({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [clientAdminSetupUrl, setClientAdminSetupUrl] = useState<string | null>(null);
+  const [setupLinkCopied, setSetupLinkCopied] = useState(false);
   const [logoUploadMessage, setLogoUploadMessage] = useState<string | null>(null);
 
   const groupedDashboards = useMemo(() => {
@@ -98,6 +100,8 @@ export function AdminWorkspaceProvisioningForm({
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
+    setClientAdminSetupUrl(null);
+    setSetupLinkCopied(false);
 
     try {
       const response = await fetch("/api/portal/admin/workspaces", {
@@ -115,6 +119,7 @@ export function AdminWorkspaceProvisioningForm({
         error?: string;
         companyId?: string;
         stripeCustomerId?: string | null;
+        clientAdminSetupUrl?: string | null;
       };
 
       if (!response.ok) {
@@ -128,11 +133,23 @@ export function AdminWorkspaceProvisioningForm({
           ? `Workspace created and Stripe customer connected for ${data.companyId}.`
           : `Workspace created for ${data.companyId}.`,
       );
+      setClientAdminSetupUrl(data.clientAdminSetupUrl || null);
       setIsSubmitting(false);
       router.refresh();
     } catch {
       setError("We couldn't create this workspace right now.");
       setIsSubmitting(false);
+    }
+  }
+
+  async function copyClientAdminSetupUrl() {
+    if (!clientAdminSetupUrl) return;
+
+    try {
+      await navigator.clipboard.writeText(clientAdminSetupUrl);
+      setSetupLinkCopied(true);
+    } catch {
+      setSetupLinkCopied(false);
     }
   }
 
@@ -370,6 +387,25 @@ export function AdminWorkspaceProvisioningForm({
         {success ? <p className="text-xs font-medium text-emerald-700">{success}</p> : null}
         {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
       </div>
+
+      {clientAdminSetupUrl ? (
+        <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-sm font-semibold text-emerald-950">Client admin setup link ready</p>
+          <p className="mt-2 text-sm leading-6 text-emerald-900">
+            Share this after payment is confirmed so the company admin can create their own password and access the workspace.
+          </p>
+          <div className="mt-3 rounded-2xl bg-white px-3 py-2 text-xs text-slate-700 break-all">
+            {clientAdminSetupUrl}
+          </div>
+          <button
+            type="button"
+            onClick={copyClientAdminSetupUrl}
+            className="mt-3 rounded-xl border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+          >
+            {setupLinkCopied ? "Copied" : "Copy setup link"}
+          </button>
+        </div>
+      ) : null}
     </form>
   );
 }
