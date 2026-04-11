@@ -49,7 +49,7 @@ export default function InquiryStrip({
       setStatus('success');
       setMessage('Thanks! We’ll be in touch shortly.');
       form.reset();
-    } catch (err) {
+    } catch {
       setStatus('error');
       setMessage('Something went wrong. Please email hello@ecofocus.com.');
     } finally {

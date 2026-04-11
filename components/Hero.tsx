@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -24,7 +23,6 @@ interface HeroProps {
 }
 
 export default function Hero({
-  variant = "home",
   size = "normal",
   badge,
   headline,

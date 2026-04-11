@@ -1,11 +1,10 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Building2 } from "lucide-react";
 import { PreviewModeControls } from "@/components/portal/PreviewModeControls";
 import { PortalSessionMenu } from "@/components/portal/PortalSessionMenu";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import type { PortalAccessContext } from "@/lib/portal/auth";
-import { getPortalDevUsageOverrideFromCookies, isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
+import { isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
 
 export function PortalShell({
   access,
@@ -26,7 +25,6 @@ async function PortalShellInner({
 }) {
   const devToolsEnabled = isPortalDevBypassEnabled();
   const showDevBypassSession = devToolsEnabled && !access.session;
-  const usageOverride = devToolsEnabled ? await getPortalDevUsageOverrideFromCookies() : null;
   const isSupportAdmin = access.effectiveRole === "support_admin";
   const isClientWorkspace = !isSupportAdmin;
   const shellEyebrow = isSupportAdmin ? "EcoFocus Admin" : "Private EcoFocus Portal";

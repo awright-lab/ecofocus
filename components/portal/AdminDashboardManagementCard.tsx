@@ -187,8 +187,6 @@ export function AdminDashboardManagementCard({
     setIsSavingCatalog(true);
     setIsSavingAccess(true);
     setFeedback({});
-    const isCreatingDashboard = !selectedSlug;
-
     try {
       const response = await fetch("/api/portal/dashboard-catalog", {
         method: "POST",

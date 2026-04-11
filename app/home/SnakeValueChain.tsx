@@ -1,7 +1,7 @@
 // app/components/SnakeValueChain.tsx
 'use client';
 
-import React, { useMemo, useRef, useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Search, Database, Lightbulb, TrendingUp, ChevronDown } from 'lucide-react';
 
@@ -117,66 +117,6 @@ export default function SnakeValueChain() {
 /* ========================= MOBILE ========================= */
 
 function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: boolean }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const stepRefs = useRef<(HTMLElement | null)[]>([]);
-  const arrowRefs = useRef<(HTMLElement | null)[]>([]);
-  const [trackY, setTrackY] = useState<number[]>([]);
-
-  useLayoutEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const measure = () => {
-      const baseTop = el.getBoundingClientRect().top + window.scrollY;
-      const ys: number[] = [];
-      stepRefs.current.forEach((r, i) => {
-        if (!r) return;
-        const rect = r.getBoundingClientRect();
-        ys.push(rect.top + window.scrollY - baseTop + rect.height / 2);
-        if (i < items.length - 1) {
-          const ar = arrowRefs.current[i];
-          if (ar) {
-            const aRect = ar.getBoundingClientRect();
-            ys.push(aRect.top + window.scrollY - baseTop + aRect.height / 2);
-          }
-        }
-      });
-      setTrackY(ys);
-    };
-
-    measure();
-
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    stepRefs.current.forEach((r) => r && ro.observe(r));
-    arrowRefs.current.forEach((r) => r && ro.observe(r));
-
-    const onScroll = () => measure();
-    window.addEventListener('resize', measure);
-    window.addEventListener('orientationchange', measure);
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      ro.disconnect();
-      window.removeEventListener('resize', measure);
-      window.removeEventListener('orientationchange', measure);
-      window.removeEventListener('scroll', onScroll);
-    };
-  }, [items.length]);
-
-  // Normalize marble speed across variable gaps
-  const times = React.useMemo(() => {
-    if (trackY.length < 2) return [];
-    const dists = trackY.map((y, i) => (i === 0 ? 0 : Math.abs(y - trackY[i - 1])));
-    const total = dists.reduce((a, b) => a + b, 0) || 1;
-    let acc = 0;
-    return trackY.map((_, i) => {
-      if (i === 0) return 0;
-      acc += dists[i] / total;
-      return +acc.toFixed(4);
-    });
-  }, [trackY]);
-
   return (
     <section
       className="relative isolate bg-[linear-gradient(180deg,#E0F4FF_0%,white_80%)]"
@@ -199,24 +139,13 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
           </p>
         </div>
 
-        <div ref={containerRef} className="relative mx-auto max-w-2xl">
-          {/* Looping marble down the CENTER */}
-          {/* !reduceMotion && trackY.length >= 2 && (
-            <motion.div
-              className="pointer-events-none absolute left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-gradient-to-br from-white to-emerald-200 shadow-md ring-2 ring-emerald-500"
-              animate={{ y: trackY }}
-              transition={{ duration: 6, times, repeat: Infinity, ease: 'easeInOut' }}
-              aria-hidden="true"
-            />
-          ) */}
-
+        <div className="relative mx-auto max-w-2xl">
           {/* Clean list: no left spine, no dots */}
           <ol className="relative pl-0">
             {items.map((it, i) => (
               <React.Fragment key={it.id}>
                 <li className="mb-4 last:mb-0">
                   <article
-                    ref={(el: HTMLElement | null) => { stepRefs.current[i] = el; }}
                     className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm"
                   >
                     {/* Colored header band (no numbers) */}
@@ -235,9 +164,7 @@ function MobileFlow({ items, reduceMotion }: { items: Item[]; reduceMotion: bool
 
                 {/* Animated center arrow between cards */}
                 {i < items.length - 1 && (
-                  <div ref={(el: HTMLElement | null) => { arrowRefs.current[i] = el; }}>
-                    <CenterArrow index={i} reduceMotion={reduceMotion} />
-                  </div>
+                  <CenterArrow index={i} reduceMotion={reduceMotion} />
                 )}
               </React.Fragment>
             ))}
@@ -388,8 +315,6 @@ function SnakeDesktop({ items, reduceMotion }: { items: Item[]; reduceMotion: bo
     </section>
   );
 }
-
-
 
 
 

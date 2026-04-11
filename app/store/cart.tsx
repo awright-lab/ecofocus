@@ -1,7 +1,7 @@
 // store/cart.tsx
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type Item = { priceId: string; title: string; qty: number };
 type Ctx = {
@@ -56,7 +56,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (data.url) location.href = data.url;
   }
 
-  const value = useMemo<Ctx>(() => ({ items, add, remove, clear, checkout }), [items]);
+  const value: Ctx = { items, add, remove, clear, checkout };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 

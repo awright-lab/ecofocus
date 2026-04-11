@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Item = { id: string; text: string; level: number }
 
@@ -48,4 +48,3 @@ export default function TableOfContents({ containerId }: { containerId: string }
     </nav>
   )
 }
-

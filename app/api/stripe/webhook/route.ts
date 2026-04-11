@@ -8,12 +8,7 @@ import { getStripeServer } from "@/lib/stripe";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** Minimal handlers that reference fields so ESLint doesn't complain. */
 async function handleCheckoutCompleted(s: Stripe.Checkout.Session) {
-  const id = s.id;
-  const reportId = s.metadata?.reportId;
-  void id; void reportId;
-
   const provisioning = getPortalProvisioningMetadata(s);
   if (!provisioning) {
     return;
@@ -21,13 +16,6 @@ async function handleCheckoutCompleted(s: Stripe.Checkout.Session) {
 
   await upsertPortalAccountRecords(provisioning.account);
   await upsertPortalDashboardConfig(provisioning);
-}
-
-async function handlePaymentSucceeded(p: Stripe.PaymentIntent) {
-  const id = p.id;
-  const customer = typeof p.customer === "string" ? p.customer : p.customer?.id;
-  void id; void customer;
-  // TODO: post-payment workflows
 }
 
 async function handleInvoiceEvent(invoice: Stripe.Invoice, eventType: string) {
@@ -59,7 +47,6 @@ export async function POST(req: Request) {
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
       case "payment_intent.succeeded":
-        await handlePaymentSucceeded(event.data.object as Stripe.PaymentIntent);
         break;
       case "invoice.finalized":
       case "invoice.sent":
@@ -78,9 +65,11 @@ export async function POST(req: Request) {
     }
   } catch (e) {
     console.error("Webhook handler error:", e);
-    // Still return 200 so Stripe doesn't retry forever unless you want retries.
+    return NextResponse.json(
+      { error: "Webhook handler failed", eventId: event.id, eventType: event.type },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ received: true });
 }
-

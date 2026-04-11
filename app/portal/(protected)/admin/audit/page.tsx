@@ -143,9 +143,6 @@ export default async function AdminAuditPage({
         const averageSessionMinutes = groupedUsageSessions.length
           ? Math.round(totalTrackedMinutes / groupedUsageSessions.length)
           : 0;
-        const longestSessionMinutes = groupedUsageSessions.length
-          ? Math.max(...groupedUsageSessions.map((session) => session.minutesTracked))
-          : 0;
         const topDashboard = Array.from(
           usageAuditLogs.reduce((map, log) => {
             map.set(log.dashboardName, (map.get(log.dashboardName) || 0) + log.minutesTracked);
