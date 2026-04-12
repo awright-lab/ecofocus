@@ -6,6 +6,8 @@ const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
 
+const LOGO_BUCKET = process.env.PORTAL_COMPANY_LOGO_BUCKET || "portal-company-logos";
+
 type DeleteBody = {
   confirmation?: string;
 };
@@ -30,6 +32,34 @@ async function deleteByCompanyColumn(table: string, column: string, companyId: s
   const admin = getServiceSupabase();
   const { error } = await admin.from(table).delete().eq(column, companyId);
   if (error) throw new Error(error.message);
+}
+
+function getPortalLogoStoragePath(logoUrl?: string | null) {
+  if (!logoUrl) return null;
+
+  try {
+    const parsedUrl = new URL(logoUrl);
+    const bucketMarker = `/storage/v1/object/public/${LOGO_BUCKET}/`;
+    const markerIndex = parsedUrl.pathname.indexOf(bucketMarker);
+    if (markerIndex === -1) return null;
+
+    return decodeURIComponent(parsedUrl.pathname.slice(markerIndex + bucketMarker.length));
+  } catch {
+    return null;
+  }
+}
+
+async function removeCompanyLogo(logoUrl?: string | null) {
+  const logoPath = getPortalLogoStoragePath(logoUrl);
+  if (!logoPath) {
+    return { removed: false, path: null };
+  }
+
+  const admin = getServiceSupabase();
+  const { error } = await admin.storage.from(LOGO_BUCKET).remove([logoPath]);
+  if (error) throw new Error(error.message);
+
+  return { removed: true, path: logoPath };
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ companyId: string }> }) {
@@ -62,7 +92,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ c
     const admin = getServiceSupabase();
     const { data: company, error: companyError } = await admin
       .from("portal_companies")
-      .select("id, name, subscription_id, subscriber_type")
+      .select("id, name, subscription_id, subscriber_type, logo_url")
       .eq("id", targetCompanyId)
       .maybeSingle();
 
@@ -86,6 +116,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ c
       .eq("company_id", targetCompanyId);
     if (ticketsError) return asJson({ error: ticketsError.message }, 500);
     const ticketIds = (tickets || []).map((ticket) => String(ticket.id)).filter(Boolean);
+    const logoRemoval = await removeCompanyLogo(company.logo_url);
 
     await deleteFromTable("portal_ticket_messages", "ticket_id", ticketIds);
     await deleteFromTable("portal_ticket_messages", "author_id", userIds);
@@ -127,6 +158,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ c
       deletedCompanyName: company.name,
       deletedUserCount: userIds.length,
       deletedTicketCount: ticketIds.length,
+      deletedLogoPath: logoRemoval.path,
+      deletedLogoFromStorage: logoRemoval.removed,
     });
   } catch (error) {
     return asJson(
