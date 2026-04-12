@@ -1,0 +1,114 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getPortalAccessContext } from "@/lib/portal/auth";
+import { getPortalOrigin } from "@/lib/portal/host";
+import { sendPortalAccessSetupEmail } from "@/lib/portal/email";
+import { getServiceSupabase } from "@/lib/supabase/server";
+
+const NOINDEX_HEADERS = {
+  "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
+};
+
+function asJson(body: Record<string, unknown>, status = 200) {
+  return NextResponse.json(body, { status, headers: NOINDEX_HEADERS });
+}
+
+function buildSetupUrl(req: NextRequest, email: string) {
+  const setupUrl = new URL("/set-password", getPortalOrigin(req.url));
+  setupUrl.searchParams.set("email", email);
+  setupUrl.searchParams.set("invite", "1");
+  return setupUrl.toString();
+}
+
+export async function POST(req: NextRequest, { params }: { params: Promise<{ companyId: string }> }) {
+  const access = await getPortalAccessContext();
+  if (!access || access.user.role !== "support_admin") {
+    return asJson({ error: "Unauthorized" }, 401);
+  }
+  if (access.isPreviewMode) {
+    return asJson({ error: "Support preview mode is read-only. Exit preview mode to send access email." }, 403);
+  }
+
+  const { companyId } = await params;
+  const targetCompanyId = String(companyId || "").trim();
+  if (!targetCompanyId) {
+    return asJson({ error: "Company id is required." }, 400);
+  }
+
+  try {
+    const admin = getServiceSupabase();
+    const { data: company, error: companyError } = await admin
+      .from("portal_companies")
+      .select("id, name, subscriber_type, subscription_id")
+      .eq("id", targetCompanyId)
+      .maybeSingle();
+
+    if (companyError) return asJson({ error: companyError.message }, 500);
+    if (!company) return asJson({ error: "Workspace not found." }, 404);
+    if (company.subscriber_type === "internal") {
+      return asJson({ error: "Internal EcoFocus workspaces do not use client access setup emails." }, 400);
+    }
+
+    const { data: subscription, error: subscriptionError } = await admin
+      .from("portal_subscriptions")
+      .select("id, plan_name, billing_status")
+      .eq("id", String(company.subscription_id))
+      .maybeSingle();
+
+    if (subscriptionError) return asJson({ error: subscriptionError.message }, 500);
+    if (!subscription) return asJson({ error: "Subscription not found." }, 404);
+
+    const planName = String(subscription.plan_name || "");
+    const isDemoSuite = planName === "Demo Suite";
+    const billingStatus = String(subscription.billing_status || "not_invoiced");
+    if (!isDemoSuite && billingStatus !== "paid") {
+      return asJson(
+        {
+          error: "Paid client access setup can only be sent after billing status is paid. Use Demo Suite for demo access.",
+        },
+        400,
+      );
+    }
+
+    const adminRoles = company.subscriber_type === "agency" ? ["agency_admin"] : ["client_admin"];
+    const { data: users, error: usersError } = await admin
+      .from("portal_users")
+      .select("id, name, email, role, status")
+      .eq("company_id", targetCompanyId)
+      .in("role", adminRoles)
+      .neq("status", "inactive")
+      .order("created_at", { ascending: true })
+      .limit(1);
+
+    if (usersError) return asJson({ error: usersError.message }, 500);
+    const clientAdmin = users?.[0] || null;
+    if (!clientAdmin) {
+      return asJson({ error: "No active company admin user is available for this workspace." }, 404);
+    }
+
+    const setupUrl = buildSetupUrl(req, String(clientAdmin.email));
+    const delivery = await sendPortalAccessSetupEmail({
+      accessMode: isDemoSuite ? "demo" : "paid",
+      companyName: String(company.name),
+      planName,
+      recipientName: String(clientAdmin.name),
+      setupUrl,
+      to: String(clientAdmin.email),
+    });
+
+    return asJson({
+      ok: true,
+      email: clientAdmin.email,
+      emailSent: delivery.emailSent,
+      emailWarning: delivery.emailWarning,
+      setupUrl: delivery.emailSent ? null : setupUrl,
+      accessMode: isDemoSuite ? "demo" : "paid",
+    });
+  } catch (error) {
+    return asJson(
+      {
+        error: error instanceof Error ? error.message : "Unable to send access setup email.",
+      },
+      500,
+    );
+  }
+}

@@ -10,6 +10,21 @@ type DashboardOption = {
   accessTag: string;
 };
 
+const planPresets = {
+  "Enterprise Insight Suite": {
+    seatsPurchased: "12",
+    annualHoursLimit: "120",
+    createStripeCustomer: true,
+  },
+  "Demo Suite": {
+    seatsPurchased: "1",
+    annualHoursLimit: "5",
+    createStripeCustomer: false,
+  },
+} as const;
+
+type PlanPresetName = keyof typeof planPresets;
+
 export function AdminWorkspaceProvisioningForm({
   dashboards,
 }: {
@@ -38,9 +53,8 @@ export function AdminWorkspaceProvisioningForm({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [clientAdminSetupUrl, setClientAdminSetupUrl] = useState<string | null>(null);
-  const [setupLinkCopied, setSetupLinkCopied] = useState(false);
   const [logoUploadMessage, setLogoUploadMessage] = useState<string | null>(null);
+  const isDemoSuite = form.planName === "Demo Suite";
 
   const groupedDashboards = useMemo(() => {
     return dashboards.reduce<Record<string, DashboardOption[]>>((acc, dashboard) => {
@@ -57,6 +71,17 @@ export function AdminWorkspaceProvisioningForm({
         ? current.filter((id) => id !== dashboardId)
         : [...current, dashboardId],
     );
+  }
+
+  function applyPlanPreset(planName: PlanPresetName) {
+    const preset = planPresets[planName];
+    setForm((current) => ({
+      ...current,
+      planName,
+      seatsPurchased: preset.seatsPurchased,
+      annualHoursLimit: preset.annualHoursLimit,
+      createStripeCustomer: preset.createStripeCustomer,
+    }));
   }
 
   async function uploadLogo(file: File) {
@@ -100,8 +125,6 @@ export function AdminWorkspaceProvisioningForm({
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
-    setClientAdminSetupUrl(null);
-    setSetupLinkCopied(false);
 
     try {
       const response = await fetch("/api/portal/admin/workspaces", {
@@ -119,7 +142,6 @@ export function AdminWorkspaceProvisioningForm({
         error?: string;
         companyId?: string;
         stripeCustomerId?: string | null;
-        clientAdminSetupUrl?: string | null;
       };
 
       if (!response.ok) {
@@ -131,25 +153,13 @@ export function AdminWorkspaceProvisioningForm({
       setSuccess(
         data.stripeCustomerId
           ? `Workspace created and Stripe customer connected for ${data.companyId}.`
-          : `Workspace created for ${data.companyId}.`,
+          : `Workspace created for ${data.companyId}. Use the Access tab to send setup email when demo or paid access is approved.`,
       );
-      setClientAdminSetupUrl(data.clientAdminSetupUrl || null);
       setIsSubmitting(false);
       router.refresh();
     } catch {
       setError("We couldn't create this workspace right now.");
       setIsSubmitting(false);
-    }
-  }
-
-  async function copyClientAdminSetupUrl() {
-    if (!clientAdminSetupUrl) return;
-
-    try {
-      await navigator.clipboard.writeText(clientAdminSetupUrl);
-      setSetupLinkCopied(true);
-    } catch {
-      setSetupLinkCopied(false);
     }
   }
 
@@ -270,12 +280,20 @@ export function AdminWorkspaceProvisioningForm({
         </label>
 
         <label className="block">
-          <span className="mb-2 block text-sm font-medium text-slate-800">Plan name</span>
-          <input
+          <span className="mb-2 block text-sm font-medium text-slate-800">Plan</span>
+          <select
             value={form.planName}
-            onChange={(event) => setForm((current) => ({ ...current, planName: event.target.value }))}
-            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-          />
+            onChange={(event) => applyPlanPreset(event.target.value as PlanPresetName)}
+            className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+          >
+            <option value="Enterprise Insight Suite">Enterprise Insight Suite</option>
+            <option value="Demo Suite">Demo Suite</option>
+          </select>
+          {isDemoSuite ? (
+            <p className="mt-2 text-xs leading-5 text-amber-700">
+              Demo Suite locks access to 1 seat and 5 annual dashboard hours. Stripe customer creation is off by default.
+            </p>
+          ) : null}
         </label>
 
         <label className="block">
@@ -283,7 +301,8 @@ export function AdminWorkspaceProvisioningForm({
           <input
             value={form.seatsPurchased}
             onChange={(event) => setForm((current) => ({ ...current, seatsPurchased: event.target.value }))}
-            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            disabled={isDemoSuite}
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
           />
         </label>
 
@@ -292,7 +311,8 @@ export function AdminWorkspaceProvisioningForm({
           <input
             value={form.annualHoursLimit}
             onChange={(event) => setForm((current) => ({ ...current, annualHoursLimit: event.target.value }))}
-            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            disabled={isDemoSuite}
+            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
           />
         </label>
 
@@ -370,10 +390,15 @@ export function AdminWorkspaceProvisioningForm({
         <input
           type="checkbox"
           checked={form.createStripeCustomer}
+          disabled={isDemoSuite}
           onChange={(event) => setForm((current) => ({ ...current, createStripeCustomer: event.target.checked }))}
           className="mt-1 h-4 w-4 rounded border-slate-300"
         />
-        <span>Create a Stripe customer record now so invoicing can start immediately.</span>
+        <span>
+          {isDemoSuite
+            ? "Demo workspaces skip Stripe customer creation until they are converted to a paid client."
+            : "Create a Stripe customer record now so invoicing can start immediately."}
+        </span>
       </label>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -387,25 +412,6 @@ export function AdminWorkspaceProvisioningForm({
         {success ? <p className="text-xs font-medium text-emerald-700">{success}</p> : null}
         {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
       </div>
-
-      {clientAdminSetupUrl ? (
-        <div className="rounded-[24px] border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-sm font-semibold text-emerald-950">Client admin setup link ready</p>
-          <p className="mt-2 text-sm leading-6 text-emerald-900">
-            Share this after payment is confirmed so the company admin can create their own password and access the workspace.
-          </p>
-          <div className="mt-3 rounded-2xl bg-white px-3 py-2 text-xs text-slate-700 break-all">
-            {clientAdminSetupUrl}
-          </div>
-          <button
-            type="button"
-            onClick={copyClientAdminSetupUrl}
-            className="mt-3 rounded-xl border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
-          >
-            {setupLinkCopied ? "Copied" : "Copy setup link"}
-          </button>
-        </div>
-      ) : null}
     </form>
   );
 }

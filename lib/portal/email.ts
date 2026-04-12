@@ -132,6 +132,87 @@ export async function sendPortalPasswordResetEmail({
   }
 }
 
+export async function sendPortalAccessSetupEmail({
+  accessMode,
+  companyName,
+  planName,
+  setupUrl,
+  to,
+  recipientName,
+}: {
+  accessMode: "demo" | "paid";
+  companyName: string;
+  planName: string;
+  setupUrl: string;
+  to: string;
+  recipientName: string;
+}) {
+  const modeLabel = accessMode === "demo" ? "demo portal access" : "portal access";
+  const title = accessMode === "demo" ? "Your EcoFocus demo portal is ready" : "Your EcoFocus portal access is ready";
+  const intro =
+    accessMode === "demo"
+      ? "EcoFocus has prepared a demo workspace so your team can explore the portal experience."
+      : "EcoFocus has prepared your private workspace so your team can access licensed dashboards and support tools.";
+  const escapedSetupUrl = escapeHtml(setupUrl);
+  const body = `
+    <div style="display:grid; gap:18px;">
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Workspace</div>
+        <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(companyName)}</div>
+        <div style="margin-top:6px; font-size:13px; color:#475569;">${escapeHtml(planName)} - ${escapeHtml(modeLabel)}</div>
+      </div>
+      <div style="font-size:14px; line-height:1.7; color:#334155;">
+        Hello ${escapeHtml(recipientName)},<br /><br />
+        Use the button below to create your EcoFocus portal password. After that, you can sign in with your work email and password.
+      </div>
+      <div>
+        <a
+          href="${escapedSetupUrl}"
+          style="display:inline-block; background:#0f172a; color:#ffffff; text-decoration:none; font-weight:700; font-size:14px; padding:14px 20px; border-radius:14px;"
+        >
+          Create portal password
+        </a>
+      </div>
+      <div style="font-size:12px; line-height:1.6; color:#64748b;">
+        If the button does not work, copy and paste this link into your browser:<br />
+        <a href="${escapedSetupUrl}" style="color:#0f766e;">${escapedSetupUrl}</a>
+      </div>
+    </div>
+  `;
+
+  try {
+    const delivery = await sendPortalEmail({
+      to,
+      subject: title,
+      text: [
+        `Hello ${recipientName},`,
+        ``,
+        `EcoFocus has prepared ${modeLabel} for ${companyName}.`,
+        `Plan: ${planName}`,
+        ``,
+        `Create your portal password:`,
+        setupUrl,
+      ].join("\n"),
+      html: renderPortalEmailFrame({
+        eyebrow: accessMode === "demo" ? "Demo access" : "Portal access",
+        title,
+        intro,
+        body,
+      }),
+    });
+
+    return {
+      emailSent: delivery.sent,
+      emailWarning: delivery.sent ? null : "Email delivery is not configured, so copy the setup link manually.",
+    };
+  } catch (error) {
+    return {
+      emailSent: false,
+      emailWarning: error instanceof Error ? error.message : "Email delivery failed.",
+    };
+  }
+}
+
 export async function notifySupportOfPortalTicket({
   actor,
   companyName,

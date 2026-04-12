@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminWorkspaceAccessCard } from "@/components/portal/AdminWorkspaceAccessCard";
 import { AdminSubscriptionRecoveryForm } from "@/components/portal/AdminSubscriptionRecoveryForm";
 import { AdminWorkspaceDeleteCard } from "@/components/portal/AdminWorkspaceDeleteCard";
 import { AdminWorkspaceInvoiceForm } from "@/components/portal/AdminWorkspaceInvoiceForm";
@@ -12,12 +13,13 @@ import {
   getPortalDashboardCatalog,
   getPortalDashboardEntitlementsByCompany,
   getPortalSubscriptionByCompany,
+  getPortalTeamMembersByCompany,
   getPortalUsageAllowanceByCompany,
 } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDate } from "@/lib/utils";
 
-type AdminWorkspaceView = "overview" | "create" | "billing" | "invoices" | "recovery";
+type AdminWorkspaceView = "overview" | "create" | "access" | "billing" | "invoices" | "recovery";
 
 export const metadata = buildPortalMetadata(
   "Workspace Provisioning",
@@ -32,7 +34,7 @@ function formatUsdFromCents(amount: number) {
 }
 
 function normalizeView(value?: string): AdminWorkspaceView {
-  if (value === "create" || value === "billing" || value === "invoices" || value === "recovery") {
+  if (value === "create" || value === "access" || value === "billing" || value === "invoices" || value === "recovery") {
     return value;
   }
   return "overview";
@@ -79,9 +81,22 @@ export default async function AdminWorkspacesPage({
         const selectedInvoices = selectedCompanyId
           ? await listPortalInvoicesByCompany(selectedCompanyId, 8)
           : [];
+        const selectedTeamMembers = selectedCompanyId
+          ? await getPortalTeamMembersByCompany(selectedCompanyId)
+          : [];
+        const selectedClientAdmin = selectedCompany
+          ? selectedTeamMembers.find((member) =>
+              selectedCompany.subscriberType === "agency"
+                ? member.role === "agency_admin" && member.status !== "inactive"
+                : member.role === "client_admin" && member.status !== "inactive",
+            ) || null
+          : null;
+        const selectedPlanName = selectedSubscription?.planName || "";
+        const isSelectedDemoSuite = selectedPlanName === "Demo Suite";
         const workspaceTabs: { view: AdminWorkspaceView; label: string }[] = [
           { view: "overview", label: "Overview" },
           { view: "create", label: "New workspace" },
+          { view: "access", label: "Access" },
           { view: "billing", label: "Billing" },
           { view: "invoices", label: "Invoices" },
           { view: "recovery", label: "Recovery" },
@@ -161,6 +176,20 @@ export default async function AdminWorkspacesPage({
                         : "Pick a client workspace to inspect status, billing, and dashboard assignment."
                     }
                   />
+                  {selectedCompany && selectedSubscription ? (
+                    <div className="mt-5 flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          isSelectedDemoSuite ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
+                        {isSelectedDemoSuite ? "Demo Suite" : "Enterprise Insight Suite"}
+                      </span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-700">
+                        {(selectedSubscription.billingStatus || "not_invoiced").replace(/_/g, " ")}
+                      </span>
+                    </div>
+                  ) : null}
                   {selectedCompany ? (
                     <div className="mt-6 grid gap-4 md:grid-cols-2">
                       <div className="rounded-[24px] bg-slate-50 p-5">
@@ -191,6 +220,27 @@ export default async function AdminWorkspacesPage({
                             : "Create a subscription record before sending access."}
                         </p>
                       </div>
+                      <div className="rounded-[24px] bg-teal-50 p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">Access handoff</p>
+                        <p className="mt-3 text-lg font-semibold text-teal-950">
+                          {isSelectedDemoSuite
+                            ? "Demo access can be sent"
+                            : selectedSubscription?.billingStatus === "paid"
+                              ? "Paid access can be sent"
+                              : "Access held until payment"}
+                        </p>
+                        <p className="mt-2 text-sm leading-6 text-teal-900">
+                          {selectedClientAdmin
+                            ? `${selectedClientAdmin.name} <${selectedClientAdmin.email}>`
+                            : "No company admin found yet."}
+                        </p>
+                        <Link
+                          href={buildWorkspaceHref("access", selectedCompany.id)}
+                          className="mt-4 inline-flex rounded-xl border border-teal-200 px-4 py-2 text-sm font-semibold text-teal-800"
+                        >
+                          Open access
+                        </Link>
+                      </div>
                       <div className="rounded-[24px] bg-sky-50 p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Dashboard access</p>
                         <p className="mt-3 text-2xl font-semibold text-sky-950">{selectedEntitlements.length} assigned</p>
@@ -207,9 +257,11 @@ export default async function AdminWorkspacesPage({
                       <div className="rounded-[24px] bg-amber-50 p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Next action</p>
                         <p className="mt-3 text-lg font-semibold text-amber-950">
-                          {selectedSubscription?.billingStatus === "paid"
-                            ? "Confirm access and share setup link"
-                            : selectedInvoices.length
+                          {isSelectedDemoSuite
+                            ? "Send demo setup email"
+                            : selectedSubscription?.billingStatus === "paid"
+                              ? "Send paid access email"
+                              : selectedInvoices.length
                               ? "Watch invoice status"
                               : "Send the first invoice"}
                         </p>
@@ -224,6 +276,38 @@ export default async function AdminWorkspacesPage({
                     </div>
                   )}
                 </div>
+              </section>
+            ) : null}
+
+            {selectedView === "access" ? (
+              <section className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
+                <AdminWorkspacePicker
+                  companies={clientCompanies.map((company) => ({
+                    id: company.id,
+                    name: company.name,
+                    subtitle: company.subscriberType === "agency" ? "Agency workspace" : "Client workspace",
+                  }))}
+                  selectedCompanyId={selectedCompanyId}
+                />
+
+                {selectedCompany && selectedSubscription ? (
+                  <AdminWorkspaceAccessCard
+                    adminEmail={selectedClientAdmin?.email || null}
+                    adminName={selectedClientAdmin?.name || null}
+                    billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
+                    companyId={selectedCompany.id}
+                    companyName={selectedCompany.name}
+                    planName={selectedSubscription.planName}
+                  />
+                ) : (
+                  <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+                    <SectionHeader
+                      eyebrow="Access"
+                      title="Access handoff"
+                      description="Select a workspace with a subscription record before sending setup email."
+                    />
+                  </div>
+                )}
               </section>
             ) : null}
 

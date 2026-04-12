@@ -3,7 +3,6 @@ import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { ensurePortalStripeCustomer } from "@/lib/portal/billing";
 import { getPortalDashboardCatalog } from "@/lib/portal/data";
-import { getPortalOrigin } from "@/lib/portal/host";
 import {
   replacePortalDashboardEntitlements,
   upsertPortalAccountRecords,
@@ -84,9 +83,10 @@ export async function POST(req: NextRequest) {
   const adminEmail = normalizeEmail(body.adminEmail);
   const adminName = normalizeText(body.adminName);
   const planName = normalizeText(body.planName) || "Enterprise Insight Suite";
+  const isDemoSuite = planName === "Demo Suite";
   const billingContactName = normalizeText(body.billingContactName || body.adminName);
-  const seatsPurchased = Number(body.seatsPurchased);
-  const annualHoursLimit = Number(body.annualHoursLimit);
+  const seatsPurchased = isDemoSuite ? 1 : Number(body.seatsPurchased);
+  const annualHoursLimit = isDemoSuite ? 5 : Number(body.annualHoursLimit);
   const renewalDate = normalizeText(body.renewalDate);
   const dashboardIds = Array.isArray(body.dashboardIds)
     ? body.dashboardIds.map((dashboardId) => normalizeText(dashboardId)).filter(Boolean)
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
       assignedByUserId: access.user.id,
     });
 
-    if (body.createStripeCustomer !== false && billingEmail) {
+    if (!isDemoSuite && body.createStripeCustomer !== false && billingEmail) {
       stripeCustomerId = (await ensurePortalStripeCustomer(companyId)).stripeCustomerId;
     }
 
@@ -174,16 +174,11 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const clientAdminSetupUrl = new URL("/set-password", getPortalOrigin(req.url));
-    clientAdminSetupUrl.searchParams.set("email", adminEmail);
-    clientAdminSetupUrl.searchParams.set("invite", "1");
-
     return asJson({
       ok: true,
       companyId,
       subscriptionId,
       stripeCustomerId,
-      clientAdminSetupUrl: clientAdminSetupUrl.toString(),
     });
   } catch (error) {
     return asJson(
