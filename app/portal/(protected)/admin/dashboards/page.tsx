@@ -49,8 +49,8 @@ export default async function AdminDashboardsPage({
             accessTag: dashboard.accessTag,
             embedAccess: dashboard.embedAccess,
             availableToAll: dashboard.availableToAll ?? false,
-            isHidden: dashboard.isHidden ?? false,
             isActive: config?.isActive ?? false,
+            isHidden: config?.isHidden ?? false,
             displayrEmbedUrl:
               config?.displayrEmbedUrl ??
               (dashboard.availableToAll ? activeConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl ?? "" : ""),

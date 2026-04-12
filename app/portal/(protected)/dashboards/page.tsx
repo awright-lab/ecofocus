@@ -21,8 +21,10 @@ export default async function PortalDashboardsPage() {
   const baseDashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
   const activeWorkspaceConfigs =
     access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
-      ? await getPortalActiveDashboardConfigs()
-      : (await getPortalDashboardConfigsByCompany(access.company.id)).filter((config) => config.isActive);
+      ? (await getPortalActiveDashboardConfigs()).filter((config) => !config.isHidden)
+      : (await getPortalDashboardConfigsByCompany(access.company.id)).filter(
+          (config) => config.isActive && !config.isHidden,
+        );
   const activeWorkspaceConfigsBySlug = new Map(
     activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),
   );

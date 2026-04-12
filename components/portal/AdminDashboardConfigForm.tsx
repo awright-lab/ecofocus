@@ -10,6 +10,7 @@ type DashboardConfigItem = {
   description: string;
   accessTag: string;
   isActive: boolean;
+  isHidden?: boolean;
   displayrEmbedUrl: string;
   notes: string;
 };
@@ -35,6 +36,7 @@ export function AdminDashboardConfigForm({
           dashboard.slug,
           {
             isActive: dashboard.isActive,
+            isHidden: dashboard.isHidden ?? false,
             displayrEmbedUrl: dashboard.displayrEmbedUrl,
             notes: dashboard.notes,
           },
@@ -82,6 +84,7 @@ export function AdminDashboardConfigForm({
           dashboardSlug: slug,
           isActive: payload.isActive,
           displayrEmbedUrl: payload.displayrEmbedUrl,
+          isHidden: payload.isHidden,
           notes: payload.notes,
         }),
       });
@@ -179,24 +182,42 @@ export function AdminDashboardConfigForm({
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{dashboard.description}</p>
                 </div>
 
-                <label className="inline-flex items-center gap-3 rounded-full bg-slate-50 px-4 py-2 text-sm font-medium text-slate-800">
-                  <input
-                    type="checkbox"
-                    checked={state.isActive}
-                    onChange={(event) =>
-                      setFormState((current) => ({
-                        ...current,
-                        [dashboard.slug]: {
-                          ...current[dashboard.slug],
-                          isActive: event.target.checked,
-                        },
-                      }))
-                    }
-                    className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                  />
-                  Enable access
-                </label>
-              </div>
+                  <label className="inline-flex items-center gap-3 rounded-full bg-slate-50 px-4 py-2 text-sm font-medium text-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={state.isActive}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          [dashboard.slug]: {
+                            ...current[dashboard.slug],
+                            isActive: event.target.checked,
+                          },
+                        }))
+                      }
+                      className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    Enable access
+                  </label>
+
+                  <label className="inline-flex items-center gap-3 rounded-full bg-rose-50 px-4 py-2 text-sm font-medium text-rose-900">
+                    <input
+                      type="checkbox"
+                      checked={state.isHidden}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          [dashboard.slug]: {
+                            ...current[dashboard.slug],
+                            isHidden: event.target.checked,
+                          },
+                        }))
+                      }
+                      className="h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-500"
+                    />
+                    Hide for this workspace
+                  </label>
+                </div>
 
               <div className="mt-4 grid gap-4">
                 <label className="block">

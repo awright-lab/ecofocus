@@ -13,10 +13,10 @@ type DashboardEditorItem = {
   accessTag: string;
   embedAccess: "public_link" | "displayr_login_required";
   availableToAll: boolean;
-  isHidden: boolean;
   isActive: boolean;
   displayrEmbedUrl: string;
   notes: string;
+  isHidden: boolean;
 };
 
 type FormState = {
@@ -26,10 +26,10 @@ type FormState = {
   accessTag: string;
   embedAccess: "public_link" | "displayr_login_required";
   availableToAll: boolean;
-  isHidden: boolean;
   isActive: boolean;
   displayrEmbedUrl: string;
   notes: string;
+  isHidden: boolean;
 };
 
 type CompanyOption = {
@@ -133,6 +133,7 @@ export function AdminDashboardManagementCard({
           config?: {
             displayrEmbedUrl: string;
             isActive: boolean;
+            isHidden?: boolean;
             notes: string;
             isFallback?: boolean;
           } | null;
@@ -149,6 +150,7 @@ export function AdminDashboardManagementCard({
           setFormState((current) => ({
             ...current,
             isActive: data.config?.isActive ?? false,
+            isHidden: data.config?.isHidden ?? false,
             displayrEmbedUrl: data.config?.displayrEmbedUrl ?? "",
             notes: data.config?.notes ?? "",
           }));
@@ -205,7 +207,6 @@ export function AdminDashboardManagementCard({
           accessTag: formState.accessTag,
           embedAccess: formState.embedAccess,
           availableToAll: formState.availableToAll,
-          isHidden: formState.isHidden,
         }),
       });
       const data = (await response.json()) as { error?: string; slug?: string };
@@ -228,6 +229,7 @@ export function AdminDashboardManagementCard({
             companyId: assignedCompanyId,
             dashboardSlug: persistedSlug,
             isActive: formState.isActive,
+            isHidden: formState.isHidden,
             displayrEmbedUrl: formState.displayrEmbedUrl,
             notes: formState.notes,
           }),
@@ -355,7 +357,7 @@ export function AdminDashboardManagementCard({
               ) : null}
               {dashboard.isHidden ? (
                 <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
-                  Hidden
+                  Hidden for workspace
                 </span>
               ) : null}
             </div>
@@ -532,26 +534,6 @@ export function AdminDashboardManagementCard({
                       </span>
                     </span>
                   </label>
-
-                  <label className="flex gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-900">
-                    <input
-                      type="checkbox"
-                      checked={formState.isHidden}
-                      onChange={(event) =>
-                        setFormState((current) => ({
-                          ...current,
-                          isHidden: event.target.checked,
-                        }))
-                      }
-                      className="mt-1 h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-500"
-                    />
-                    <span>
-                      <span className="block font-semibold">Hide from client workspaces</span>
-                      <span className="mt-1 block leading-6 text-rose-800">
-                        This dashboard will not appear for client users or admins, even if assigned. Support admins can still manage it here.
-                      </span>
-                    </span>
-                  </label>
                 </div>
               </div>
 
@@ -599,6 +581,21 @@ export function AdminDashboardManagementCard({
                       className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                     />
                     Enable access for {assignedCompany?.name || companyName}
+                  </label>
+
+                  <label className="inline-flex items-center gap-3 rounded-full bg-rose-50 px-4 py-2 text-sm font-medium text-rose-900">
+                    <input
+                      type="checkbox"
+                      checked={formState.isHidden}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          isHidden: event.target.checked,
+                        }))
+                      }
+                      className="h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-500"
+                    />
+                    Hide for {assignedCompany?.name || companyName}
                   </label>
 
                   <label className="block">

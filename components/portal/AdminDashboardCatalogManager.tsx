@@ -12,7 +12,6 @@ type DashboardCatalogFormState = {
   accessTag: string;
   embedAccess: "public_link" | "displayr_login_required";
   availableToAll: boolean;
-  isHidden: boolean;
 };
 
 function buildState(dashboard?: PortalDashboard): DashboardCatalogFormState {
@@ -23,7 +22,6 @@ function buildState(dashboard?: PortalDashboard): DashboardCatalogFormState {
     accessTag: dashboard?.accessTag || "",
     embedAccess: dashboard?.embedAccess || "public_link",
     availableToAll: dashboard?.availableToAll ?? false,
-    isHidden: dashboard?.isHidden ?? false,
   };
 }
 
@@ -183,11 +181,6 @@ export function AdminDashboardCatalogManager({
                         All workspaces
                       </span>
                     ) : null}
-                    {dashboard.isHidden ? (
-                      <span className="rounded-full bg-rose-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-rose-700">
-                        Hidden
-                      </span>
-                    ) : null}
                   </div>
                   <p className="mt-2 text-sm text-slate-600">{dashboard.slug}</p>
                 </button>
@@ -307,25 +300,6 @@ export function AdminDashboardCatalogManager({
               </span>
             </label>
 
-            <label className="flex gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-900">
-              <input
-                type="checkbox"
-                checked={formState.isHidden}
-                onChange={(event) =>
-                  setFormState((current) => ({
-                    ...current,
-                    isHidden: event.target.checked,
-                  }))
-                }
-                className="mt-1 h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-500"
-              />
-              <span>
-                <span className="block font-semibold">Hide from client workspaces</span>
-                <span className="mt-1 block leading-6 text-rose-800">
-                  This dashboard will not appear for client users or admins, even if assigned. Support admins will still see it here.
-                </span>
-              </span>
-            </label>
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">

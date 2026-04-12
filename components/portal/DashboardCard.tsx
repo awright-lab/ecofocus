@@ -52,10 +52,10 @@ export function DashboardCard({
       ) : (
         <div className="mt-5">
           <span className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-500">
-            Access coming soon
+            Coming soon
           </span>
           <p className="mt-2 text-xs text-slate-500">
-            This dashboard is assigned to your workspace, but EcoFocus is still finishing access setup.
+            You are on the list for this dashboard. We will unlock it for your team soon.
           </p>
         </div>
       )}

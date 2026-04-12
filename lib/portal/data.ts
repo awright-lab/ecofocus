@@ -529,24 +529,43 @@ async function queryPortalTeamInvites(companyId: string): Promise<PortalTeamInvi
 async function queryCompanyDashboards(companyId: string): Promise<PortalDashboard[]> {
   try {
     const admin = getServiceSupabase();
-    const { data, error } = await admin
+    let data: { dashboard_slug: unknown; is_active?: unknown; is_hidden?: unknown }[] | null = null;
+    let error: { message: string } | null = null;
+    const result = await admin
       .from("portal_dashboard_configs")
-      .select("dashboard_slug")
-      .eq("company_id", companyId)
-      .eq("is_active", true);
+      .select("dashboard_slug, is_active, is_hidden")
+      .eq("company_id", companyId);
+    data = result.data;
+    error = result.error;
+
+    if (error && error.message.includes("is_hidden")) {
+      const fallback = await admin
+        .from("portal_dashboard_configs")
+        .select("dashboard_slug, is_active")
+        .eq("company_id", companyId);
+      data = fallback.data as typeof data;
+      error = fallback.error;
+    }
 
     if (error) {
       console.warn("[portal/data] portal_dashboard_configs lookup failed.", { companyId, error: error.message });
       return [];
     }
 
-    const activeSlugs = new Set((data || []).map((item) => item.dashboard_slug));
+    const activeSlugs = new Set(
+      (data || [])
+        .filter((item) => item.is_active && !item.is_hidden)
+        .map((item) => item.dashboard_slug),
+    );
+    const hiddenSlugs = new Set(
+      (data || []).filter((item) => item.is_hidden).map((item) => item.dashboard_slug),
+    );
     const runtimeEntitlements = await queryPortalDashboardEntitlements(companyId);
     const dashboardCatalog = await getPortalDashboardCatalog();
     const entitledIds = new Set((runtimeEntitlements || []).map((entitlement) => entitlement.dashboardId));
     return dashboardCatalog.filter(
       (dashboard) =>
-        !dashboard.isHidden &&
+        !hiddenSlugs.has(dashboard.slug) &&
         (activeSlugs.has(dashboard.slug) || entitledIds.has(dashboard.id) || dashboard.availableToAll),
     );
   } catch (error) {
@@ -567,7 +586,6 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
     access_tag?: unknown;
     embed_access?: unknown;
     available_to_all?: unknown;
-    is_hidden?: unknown;
   };
 
   try {
@@ -576,12 +594,12 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
     let error: { message: string } | null = null;
     const result = await admin
       .from("portal_dashboards")
-      .select("id, slug, name, description, access_tag, embed_access, available_to_all, is_hidden")
+      .select("id, slug, name, description, access_tag, embed_access, available_to_all")
       .order("name", { ascending: true });
     data = result.data;
     error = result.error;
 
-    if (error && (error.message.includes("available_to_all") || error.message.includes("is_hidden"))) {
+    if (error && error.message.includes("available_to_all")) {
       const fallback = await admin
         .from("portal_dashboards")
         .select("id, slug, name, description, access_tag, embed_access")
@@ -605,7 +623,6 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
       embedAccess:
         dashboard.embed_access === "displayr_login_required" ? "displayr_login_required" : "public_link",
       availableToAll: Boolean(dashboard.available_to_all),
-      isHidden: Boolean(dashboard.is_hidden),
     }));
   } catch (error) {
     console.warn("[portal/data] portal_dashboards storage unavailable.", {
@@ -618,11 +635,35 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
 async function queryPortalDashboardConfigs(companyId: string): Promise<PortalDashboardConfig[] | null> {
   try {
     const admin = getServiceSupabase();
-    const { data, error } = await admin
+    let data: {
+      id: unknown;
+      company_id: unknown;
+      dashboard_slug: unknown;
+      displayr_embed_url: unknown;
+      is_active: unknown;
+      is_hidden?: unknown;
+      notes?: unknown;
+      created_at: unknown;
+      updated_at: unknown;
+    }[] | null = null;
+    let error: { message: string } | null = null;
+    const result = await admin
       .from("portal_dashboard_configs")
-      .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, notes, created_at, updated_at")
+      .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, is_hidden, notes, created_at, updated_at")
       .eq("company_id", companyId)
       .order("dashboard_slug", { ascending: true });
+    data = result.data;
+    error = result.error;
+
+    if (error && error.message.includes("is_hidden")) {
+      const fallback = await admin
+        .from("portal_dashboard_configs")
+        .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, notes, created_at, updated_at")
+        .eq("company_id", companyId)
+        .order("dashboard_slug", { ascending: true });
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       console.warn("[portal/data] portal_dashboard_configs detail lookup failed.", { companyId, error: error.message });
@@ -635,6 +676,7 @@ async function queryPortalDashboardConfigs(companyId: string): Promise<PortalDas
       dashboardSlug: String(config.dashboard_slug),
       displayrEmbedUrl: String(config.displayr_embed_url),
       isActive: Boolean(config.is_active),
+      isHidden: Boolean(config.is_hidden),
       notes: config.notes || null,
       createdAt: String(config.created_at),
       updatedAt: String(config.updated_at),
@@ -651,11 +693,35 @@ async function queryPortalDashboardConfigs(companyId: string): Promise<PortalDas
 async function queryActivePortalDashboardConfigs(): Promise<PortalDashboardConfig[] | null> {
   try {
     const admin = getServiceSupabase();
-    const { data, error } = await admin
+    let data: {
+      id: unknown;
+      company_id: unknown;
+      dashboard_slug: unknown;
+      displayr_embed_url: unknown;
+      is_active: unknown;
+      is_hidden?: unknown;
+      notes?: unknown;
+      created_at: unknown;
+      updated_at: unknown;
+    }[] | null = null;
+    let error: { message: string } | null = null;
+    const result = await admin
       .from("portal_dashboard_configs")
-      .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, notes, created_at, updated_at")
+      .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, is_hidden, notes, created_at, updated_at")
       .eq("is_active", true)
       .order("updated_at", { ascending: false });
+    data = result.data;
+    error = result.error;
+
+    if (error && error.message.includes("is_hidden")) {
+      const fallback = await admin
+        .from("portal_dashboard_configs")
+        .select("id, company_id, dashboard_slug, displayr_embed_url, is_active, notes, created_at, updated_at")
+        .eq("is_active", true)
+        .order("updated_at", { ascending: false });
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       console.warn("[portal/data] portal_dashboard_configs active lookup failed.", { error: error.message });
@@ -668,6 +734,7 @@ async function queryActivePortalDashboardConfigs(): Promise<PortalDashboardConfi
       dashboardSlug: String(config.dashboard_slug),
       displayrEmbedUrl: String(config.displayr_embed_url),
       isActive: Boolean(config.is_active),
+      isHidden: Boolean(config.is_hidden),
       notes: config.notes || null,
       createdAt: String(config.created_at),
       updatedAt: String(config.updated_at),
@@ -1006,9 +1073,7 @@ export async function getPortalDashboardsForUser(user: PortalUser, companyId = u
       .map((entitlement) => entitlement.dashboardId),
   );
 
-  return portalDashboards.filter(
-    (dashboard) => !dashboard.isHidden && (entitledIds.has(dashboard.id) || dashboard.availableToAll),
-  );
+  return portalDashboards.filter((dashboard) => entitledIds.has(dashboard.id) || dashboard.availableToAll);
 }
 
 export async function getPortalDashboardForUser(user: PortalUser, slug: string, companyId = user.companyId) {
@@ -1089,7 +1154,7 @@ export async function getPortalDashboardConfig(companyId: string, dashboardSlug:
 
 export async function getPortalAnyActiveDashboardConfigBySlug(dashboardSlug: string) {
   const configs = await getPortalActiveDashboardConfigs();
-  return configs.find((config) => config.dashboardSlug === dashboardSlug) || null;
+  return configs.find((config) => config.dashboardSlug === dashboardSlug && !config.isHidden) || null;
 }
 
 export async function getPortalUsageAllowanceByCompany(companyId: string) {

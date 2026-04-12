@@ -11,6 +11,7 @@ create table if not exists public.portal_dashboard_configs (
   dashboard_slug text not null,
   displayr_embed_url text not null,
   is_active boolean not null default true,
+  is_hidden boolean not null default false,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -24,6 +25,9 @@ create index if not exists portal_dashboard_configs_active_idx
   on public.portal_dashboard_configs (company_id, is_active);
 
 alter table public.portal_dashboard_configs enable row level security;
+
+alter table public.portal_dashboard_configs
+  add column if not exists is_hidden boolean not null default false;
 
 -- No direct authenticated client access yet. Reads and writes should happen
 -- through server-side portal provisioning and dashboard-rendering code.
@@ -42,6 +46,9 @@ comment on column public.portal_dashboard_configs.displayr_embed_url is
 
 comment on column public.portal_dashboard_configs.is_active is
   'Inactive configs are retained for audit/history but should not be rendered to portal users.';
+
+comment on column public.portal_dashboard_configs.is_hidden is
+  'When true, the dashboard is hidden for this workspace even if assigned.';
 
 create or replace function public.set_portal_dashboard_configs_updated_at()
 returns trigger
@@ -66,6 +73,7 @@ insert into public.portal_dashboard_configs (
   dashboard_slug,
   displayr_embed_url,
   is_active,
+  is_hidden,
   notes
 )
 values (
@@ -73,6 +81,7 @@ values (
   'interactive-dashboard-2024',
   'https://app.displayr.com/Dashboard?id=30c7a295-fba4-4245-8e79-9474a78687bb#page=9ab3c9b1-4fdf-4037-8124-5c09fc5e8099',
   true,
+  false,
   'Seeded GreenLoop Foods 2024 interactive dashboard URL.'
 )
 on conflict (company_id, dashboard_slug)
@@ -80,5 +89,6 @@ do update
 set
   displayr_embed_url = excluded.displayr_embed_url,
   is_active = excluded.is_active,
+  is_hidden = excluded.is_hidden,
   notes = excluded.notes,
   updated_at = now();

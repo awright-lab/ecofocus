@@ -19,6 +19,7 @@ type DashboardConfigBody = {
   dashboardSlug?: string;
   displayrEmbedUrl?: string;
   isActive?: boolean;
+  isHidden?: boolean;
   notes?: string;
 };
 
@@ -56,6 +57,7 @@ export async function POST(req: NextRequest) {
   const companyId = String(body.companyId || "").trim();
   const dashboardSlug = String(body.dashboardSlug || "").trim();
   const isActive = Boolean(body.isActive);
+  const isHidden = Boolean(body.isHidden);
   const normalizedUrl = normalizeUrl(body.displayrEmbedUrl);
   const notes = String(body.notes || "").trim() || null;
 
@@ -85,7 +87,7 @@ export async function POST(req: NextRequest) {
       : null;
   const persistedUrl = normalizedUrl || existingConfig?.displayrEmbedUrl || fallbackConfig?.displayrEmbedUrl || "";
 
-  if (isActive && !persistedUrl) {
+  if (isActive && !persistedUrl && !isHidden) {
     return asJson({ error: "An active dashboard needs a private dashboard URL." }, 400);
   }
 
@@ -101,6 +103,7 @@ export async function POST(req: NextRequest) {
         dashboard_slug: dashboardSlug,
         displayr_embed_url: persistedUrl,
         is_active: isActive,
+        is_hidden: isHidden,
         notes,
         updated_at: new Date().toISOString(),
       },
@@ -125,6 +128,7 @@ export async function POST(req: NextRequest) {
       metadata: {
         dashboardSlug,
         isActive,
+        isHidden,
         hasUrl: Boolean(persistedUrl),
         hasNotes: Boolean(notes),
       },
@@ -170,6 +174,7 @@ export async function GET(req: NextRequest) {
           dashboardSlug: config.dashboardSlug,
           displayrEmbedUrl: config.displayrEmbedUrl,
           isActive: config.isActive,
+          isHidden: config.isHidden ?? false,
           notes: config.notes || "",
           isFallback: false,
         }
@@ -179,6 +184,7 @@ export async function GET(req: NextRequest) {
             dashboardSlug,
             displayrEmbedUrl: fallbackConfig.displayrEmbedUrl,
             isActive: false,
+            isHidden: false,
             notes: "",
             isFallback: true,
           }

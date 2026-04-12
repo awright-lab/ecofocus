@@ -136,11 +136,13 @@ export function DashboardLibrary({
               <div className="rounded-[28px] border border-slate-200 bg-white p-5">
                 <div className="mb-4 flex items-end justify-between gap-3">
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-950">Assigned to your workspace</h3>
-                    <p className="mt-1 text-sm text-slate-600">These dashboards are part of your workspace but still need EcoFocus to finish access setup.</p>
+                    <h3 className="text-lg font-semibold text-slate-950">Coming soon</h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      A preview of the dashboards headed your way. We will unlock these next so you can start planning and get excited.
+                    </p>
                   </div>
                   <Link href="/portal/support/new?issueType=Login%20%2F%20Access" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:text-emerald-700">
-                    Ask about access
+                    Ask about timing
                   </Link>
                 </div>
                 <div className="grid gap-5 xl:grid-cols-2">
