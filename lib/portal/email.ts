@@ -239,6 +239,103 @@ export async function sendPortalAccessSetupEmail({
   }
 }
 
+export async function sendPortalTeamInviteEmail({
+  companyName,
+  deliveryKind = "initial",
+  inviteUrl,
+  invitedByName,
+  recipientName,
+  roleLabel,
+  to,
+}: {
+  companyName: string;
+  deliveryKind?: "initial" | "resend";
+  inviteUrl: string;
+  invitedByName: string;
+  recipientName: string;
+  roleLabel: string;
+  to: string;
+}) {
+  const isResend = deliveryKind === "resend";
+  const title = isResend ? "Replacement EcoFocus team invite" : "You're invited to the EcoFocus portal";
+  const intro = isResend
+    ? "A new team invite link was generated for you. This link replaces any earlier setup links."
+    : `${invitedByName} invited you to join ${companyName} in the EcoFocus portal.`;
+  const escapedInviteUrl = escapeHtml(inviteUrl);
+  const body = `
+    <div style="display:grid; gap:18px;">
+      ${
+        isResend
+          ? `<div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:20px; padding:16px; color:#9a3412; font-size:14px; line-height:1.6;">
+              <strong>This is a replacement invite link.</strong><br />
+              Use this newest link to create your password. Any earlier EcoFocus portal invite links should be ignored.
+            </div>`
+          : ""
+      }
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Workspace</div>
+        <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(companyName)}</div>
+        <div style="margin-top:6px; font-size:13px; color:#475569;">Role: ${escapeHtml(roleLabel)}</div>
+      </div>
+      <div style="font-size:14px; line-height:1.7; color:#334155;">
+        Hello ${escapeHtml(recipientName)},<br /><br />
+        ${
+          isResend
+            ? "Use the button below to create your EcoFocus portal password with this replacement invite link. Older invite links will no longer work."
+            : `${escapeHtml(invitedByName)} invited you to join the EcoFocus portal. Use the button below to create your password and activate your seat.`
+        }
+      </div>
+      <div>
+        <a
+          href="${escapedInviteUrl}"
+          style="display:inline-block; background:#0f172a; color:#ffffff; text-decoration:none; font-weight:700; font-size:14px; padding:14px 20px; border-radius:14px;"
+        >
+          Accept invite
+        </a>
+      </div>
+      <div style="font-size:12px; line-height:1.6; color:#64748b;">
+        If the button does not work, copy and paste this link into your browser:<br />
+        <a href="${escapedInviteUrl}" style="color:#0f766e;">${escapedInviteUrl}</a>
+      </div>
+    </div>
+  `;
+
+  try {
+    const delivery = await sendPortalEmail({
+      to,
+      subject: title,
+      text: [
+        `Hello ${recipientName},`,
+        ``,
+        isResend
+          ? `EcoFocus generated a replacement team invite link for ${companyName}.`
+          : `${invitedByName} invited you to join ${companyName} in the EcoFocus portal.`,
+        `Role: ${roleLabel}`,
+        ``,
+        ...(isResend ? [`This newest link replaces any earlier EcoFocus portal invite links.`, ``] : []),
+        `Accept your invite:`,
+        inviteUrl,
+      ].join("\n"),
+      html: renderPortalEmailFrame({
+        eyebrow: isResend ? "Replacement invite" : "Team invite",
+        title,
+        intro,
+        body,
+      }),
+    });
+
+    return {
+      emailSent: delivery.sent,
+      emailWarning: delivery.sent ? null : "Email delivery is not configured, so copy the invite link manually.",
+    };
+  } catch (error) {
+    return {
+      emailSent: false,
+      emailWarning: error instanceof Error ? error.message : "Email delivery failed.",
+    };
+  }
+}
+
 export async function notifySupportOfPortalTicket({
   actor,
   companyName,

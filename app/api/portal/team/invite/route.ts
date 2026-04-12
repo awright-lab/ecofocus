@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { isPortalWorkspaceManager } from "@/lib/portal/data";
+import { sendPortalTeamInviteEmail } from "@/lib/portal/email";
 import { getPortalOrigin } from "@/lib/portal/host";
 import { createPortalPasswordSetupToken, createPortalTeamInvite } from "@/lib/portal/provisioning";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -69,9 +70,17 @@ export async function POST(req: NextRequest) {
       userId: result.userId,
     });
     inviteUrl.searchParams.set("token", setupToken.token);
-    const emailSent = false;
-    const emailWarning = "Copy and share the password setup link directly with the teammate.";
-    const deliveryStatus = "manual_only";
+    const emailDelivery = await sendPortalTeamInviteEmail({
+      companyName: access.company.name,
+      inviteUrl: inviteUrl.toString(),
+      invitedByName: access.user.name,
+      recipientName: name,
+      roleLabel: role.replace("_", " "),
+      to: result.email,
+    });
+    const emailSent = emailDelivery.emailSent;
+    const emailWarning = emailDelivery.emailWarning;
+    const deliveryStatus = emailSent ? "sent" : "manual_only";
     const now = new Date().toISOString();
 
     try {
