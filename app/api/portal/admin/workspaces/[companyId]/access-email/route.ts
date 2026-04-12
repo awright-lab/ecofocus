@@ -12,6 +12,7 @@ const NOINDEX_HEADERS = {
 
 type AccessEmailBody = {
   deliveryKind?: "initial" | "resend";
+  bypassUnpaid?: boolean;
 };
 
 function asJson(body: Record<string, unknown>, status = 200) {
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
     body = {};
   }
   const deliveryKind = body.deliveryKind === "resend" ? "resend" : "initial";
+  const bypassUnpaid = Boolean(body.bypassUnpaid);
 
   try {
     const admin = getServiceSupabase();
@@ -74,7 +76,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
     const planName = String(subscription.plan_name || "");
     const isDemoSuite = planName === "Demo Suite";
     const billingStatus = String(subscription.billing_status || "not_invoiced");
-    if (!isDemoSuite && billingStatus !== "paid") {
+    if (!isDemoSuite && billingStatus !== "paid" && !bypassUnpaid) {
       return asJson(
         {
           error: "Paid client access setup can only be sent after billing status is paid. Use Demo Suite for demo access.",
@@ -128,6 +130,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
       metadata: {
         accessMode: isDemoSuite ? "demo" : "paid",
         billingStatus,
+        bypassedBillingGate: !isDemoSuite && billingStatus !== "paid" ? bypassUnpaid : false,
         deliveryKind,
         emailSent: delivery.emailSent,
         planName,

@@ -45,12 +45,14 @@ export function AdminWorkspaceAccessCard({
     sentTo: accessEmailSentTo || null,
   });
   const [copied, setCopied] = useState(false);
+  const [showBypassModal, setShowBypassModal] = useState(false);
   const isDemoSuite = planName === "Demo Suite";
-  const canSend = Boolean(adminEmail) && (isDemoSuite || billingStatus === "paid");
+  const canSend = Boolean(adminEmail);
+  const needsBypass = Boolean(adminEmail) && !isDemoSuite && billingStatus !== "paid";
   const formattedSentAt = formatAccessSentAt(sentState.sentAt);
   const wasEmailed = sentState.deliveryStatus !== "manual_only";
 
-  async function sendAccessEmail() {
+  async function sendAccessEmail(options?: { bypassUnpaid?: boolean }) {
     setIsSending(true);
     setCopied(false);
     setFeedback({});
@@ -61,6 +63,7 @@ export function AdminWorkspaceAccessCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deliveryKind: sentState.sentAt ? "resend" : "initial",
+          bypassUnpaid: options?.bypassUnpaid || false,
         }),
       });
       const data = (await response.json()) as {
@@ -96,6 +99,14 @@ export function AdminWorkspaceAccessCard({
       setFeedback({ error: "We couldn't send the access setup email." });
       setIsSending(false);
     }
+  }
+
+  function handleSendClick() {
+    if (needsBypass) {
+      setShowBypassModal(true);
+      return;
+    }
+    void sendAccessEmail();
   }
 
   async function copySetupUrl() {
@@ -154,7 +165,7 @@ export function AdminWorkspaceAccessCard({
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <button
           type="button"
-          onClick={sendAccessEmail}
+          onClick={handleSendClick}
           disabled={!canSend || isSending}
           className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
@@ -167,11 +178,10 @@ export function AdminWorkspaceAccessCard({
             {formattedSentAt ? ` on ${formattedSentAt}` : ""}
           </span>
         ) : null}
-        {!canSend ? (
+        {!canSend ? <p className="text-sm text-amber-700">No company admin is available for this workspace.</p> : null}
+        {canSend && needsBypass ? (
           <p className="text-sm text-amber-700">
-            {adminEmail
-              ? `${companyName} is not Demo Suite and billing is not paid yet.`
-              : "No company admin is available for this workspace."}
+            {companyName} is not Demo Suite and billing is not paid yet. Sending will bypass the billing warning.
           </p>
         ) : null}
         {feedback.success ? <p className="text-sm font-medium text-emerald-700">{feedback.success}</p> : null}
@@ -192,6 +202,38 @@ export function AdminWorkspaceAccessCard({
           >
             {copied ? "Copied" : "Copy setup link"}
           </button>
+        </div>
+      ) : null}
+
+      {showBypassModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-6">
+          <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Bypass warning</p>
+            <h4 className="mt-2 text-lg font-semibold text-slate-950">Send access setup before billing is paid?</h4>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              This workspace is not Demo Suite and billing has not been marked paid yet. Confirm to send the access setup
+              email anyway.
+            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setShowBypassModal(false)}
+                className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowBypassModal(false);
+                  void sendAccessEmail({ bypassUnpaid: true });
+                }}
+                className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+              >
+                Send anyway
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>
