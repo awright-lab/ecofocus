@@ -52,6 +52,7 @@ export function TeamMemberActions({
         return;
       }
 
+      setIsSubmitting(false);
       router.refresh();
     } catch {
       setError("We couldn't update this teammate.");

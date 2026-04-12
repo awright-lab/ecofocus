@@ -14,6 +14,7 @@ const SITE_NAME = "EcoFocus Research";
 const SITE_DESC =
   "EcoFocus provides sustainability research, custom studies, and actionable insights to help businesses make informed decisions.";
 const GA_TRACKING_ID = "G-72B359EBQC";
+const PORTAL_HOSTNAME = process.env.PORTAL_HOSTNAME || "portal.ecofocusresearch.com";
 
 // 3) Viewport + theme color
 export const viewport: Viewport = {
@@ -140,6 +141,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Newsletter_Signup']);
             window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Contact_Form']);
             window._hsq.push(['addIgnoredSelectors', 'form#EcoFocus_Support_Ticket_Form']);
+            window._hsq.push(['addIgnoredSelectors', '[data-portal-root] form']);
+            window._hsq.push(['addIgnoredSelectors', 'form[data-portal-form="true"]']);
+            window._hsq.push(['addIgnoredSelectors', 'form[action^="/api/portal"]']);
+            window._hsq.push(['addIgnoredSelectors', 'form[action^="/portal"]']);
+            if (window.location.hostname === '${PORTAL_HOSTNAME}' || window.location.pathname.startsWith('/portal')) {
+              window._hsq.push(['addIgnoredSelectors', 'form']);
+            }
           `}
         </Script>
 
@@ -233,4 +241,3 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-

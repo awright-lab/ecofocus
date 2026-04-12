@@ -29,6 +29,10 @@ export function isPortalHost(host?: string | null) {
   return normalized === getPortalHostname();
 }
 
+export function getRequestHost(headers: Headers) {
+  return headers.get("x-forwarded-host") || headers.get("host") || "";
+}
+
 export function toInternalPortalPath(pathname: string) {
   if (pathname === "/") return "/portal";
   if (pathname === "/portal" || pathname.startsWith("/portal/")) return pathname;

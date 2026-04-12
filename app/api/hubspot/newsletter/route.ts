@@ -15,9 +15,22 @@ const ALLOWED_ORIGINS: string[] = (process.env.NEWSLETTER_ALLOWED_ORIGINS || '')
 
 function originAllowed(origin?: string | null) {
   if (!origin) return true;
+  if (isPortalOrigin(origin)) return false;
   if (!ALLOWED_ORIGINS.length) return true; // no allowlist configured → allow all
   const normalized = origin.replace(/\/+$/, '');
   return ALLOWED_ORIGINS.includes(normalized);
+}
+
+function isPortalOrigin(origin?: string | null) {
+  if (!origin) return false;
+
+  try {
+    const hostname = new URL(origin).hostname.toLowerCase();
+    const portalHostname = (process.env.PORTAL_HOSTNAME || 'portal.ecofocusresearch.com').toLowerCase();
+    return hostname === portalHostname;
+  } catch {
+    return false;
+  }
 }
 
 // HubSpot property names (create these in HubSpot; override via env if different)
@@ -99,6 +112,10 @@ export async function POST(req: Request) {
     }
 
     const body = (await req.json()) as NewsletterBody;
+
+    if (isPortalOrigin(body?.pageUri)) {
+      return NextResponse.json({ ok: true, skipped: true });
+    }
 
     // Destructure as const to satisfy prefer-const & avoid 'any'
     const {
@@ -211,6 +228,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
-
 
 

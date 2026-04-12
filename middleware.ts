@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { isPortalHost, toExternalPortalPath, toInternalPortalPath } from '@/lib/portal/host';
+import { getRequestHost, isPortalHost, toExternalPortalPath, toInternalPortalPath } from '@/lib/portal/host';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || '';
@@ -9,7 +9,7 @@ const PORTAL_DEV_BYPASS = process.env.PORTAL_DEV_BYPASS === 'true';
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
-  const portalHost = isPortalHost(req.headers.get('host'));
+  const portalHost = isPortalHost(getRequestHost(req.headers));
   const internalPathname = portalHost ? toInternalPortalPath(pathname) : pathname;
   const isPortal = internalPathname.startsWith('/portal');
   const isPortalApi = pathname.startsWith('/api/portal');

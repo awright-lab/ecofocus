@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 };
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return <div data-portal-root="true">{children}</div>;
 }
