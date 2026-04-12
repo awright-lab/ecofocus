@@ -14,6 +14,7 @@ import {
   getPortalDashboardEntitlementsByCompany,
   getPortalSubscriptionByCompany,
   getPortalTeamMembersByCompany,
+  getPortalUsageLogsForAdmin,
   getPortalUsageAllowanceByCompany,
 } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
@@ -91,6 +92,23 @@ export default async function AdminWorkspacesPage({
                 : member.role === "client_admin" && member.status !== "inactive",
             ) || null
           : null;
+        const selectedAccessEmailLog = selectedCompanyId
+          ? (
+              await getPortalUsageLogsForAdmin({
+                companyId: selectedCompanyId,
+                dashboardId: `workspace-access-email:${selectedCompanyId}`,
+                limit: 10,
+              })
+            ).find((log) => log.metadata?.action === "portal_access_email_sent") || null
+          : null;
+        const selectedAccessEmailSentAt =
+          typeof selectedAccessEmailLog?.metadata?.sentAt === "string"
+            ? selectedAccessEmailLog.metadata.sentAt
+            : selectedAccessEmailLog?.eventAt || null;
+        const selectedAccessEmailSentTo =
+          typeof selectedAccessEmailLog?.metadata?.recipientEmail === "string"
+            ? selectedAccessEmailLog.metadata.recipientEmail
+            : null;
         const selectedPlanName = selectedSubscription?.planName || "";
         const isSelectedDemoSuite = selectedPlanName === "Demo Suite";
         const workspaceTabs: { view: AdminWorkspaceView; label: string }[] = [
@@ -292,6 +310,8 @@ export default async function AdminWorkspacesPage({
 
                 {selectedCompany && selectedSubscription ? (
                   <AdminWorkspaceAccessCard
+                    accessEmailSentAt={selectedAccessEmailSentAt}
+                    accessEmailSentTo={selectedAccessEmailSentTo}
                     adminEmail={selectedClientAdmin?.email || null}
                     adminName={selectedClientAdmin?.name || null}
                     billingStatus={selectedSubscription.billingStatus || "not_invoiced"}

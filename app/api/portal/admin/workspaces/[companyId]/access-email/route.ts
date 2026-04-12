@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { getPortalOrigin } from "@/lib/portal/host";
 import { sendPortalAccessSetupEmail } from "@/lib/portal/email";
@@ -94,12 +95,33 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
       setupUrl,
       to: String(clientAdmin.email),
     });
+    const sentAt = delivery.emailSent ? new Date().toISOString() : null;
+
+    if (sentAt) {
+      await logPortalAdminAuditEvent({
+        access,
+        action: "portal_access_email_sent",
+        title: String(company.name),
+        companyId: targetCompanyId,
+        entityId: `workspace-access-email:${targetCompanyId}`,
+        notes: `Portal access setup email sent to ${String(clientAdmin.email)}.`,
+        metadata: {
+          accessMode: isDemoSuite ? "demo" : "paid",
+          billingStatus,
+          planName,
+          recipientEmail: String(clientAdmin.email),
+          recipientName: String(clientAdmin.name),
+          sentAt,
+        },
+      });
+    }
 
     return asJson({
       ok: true,
       email: clientAdmin.email,
       emailSent: delivery.emailSent,
       emailWarning: delivery.emailWarning,
+      sentAt,
       setupUrl: delivery.emailSent ? null : setupUrl,
       accessMode: isDemoSuite ? "demo" : "paid",
     });

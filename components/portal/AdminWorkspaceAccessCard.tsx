@@ -2,9 +2,21 @@
 
 import { useState } from "react";
 
+function formatAccessSentAt(value?: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
 export function AdminWorkspaceAccessCard({
   adminEmail,
   adminName,
+  accessEmailSentAt,
+  accessEmailSentTo,
   billingStatus,
   companyId,
   companyName,
@@ -12,6 +24,8 @@ export function AdminWorkspaceAccessCard({
 }: {
   adminEmail?: string | null;
   adminName?: string | null;
+  accessEmailSentAt?: string | null;
+  accessEmailSentTo?: string | null;
   billingStatus?: string | null;
   companyId: string;
   companyName: string;
@@ -23,9 +37,14 @@ export function AdminWorkspaceAccessCard({
     success?: string;
     setupUrl?: string | null;
   }>({});
+  const [sentState, setSentState] = useState({
+    sentAt: accessEmailSentAt || null,
+    sentTo: accessEmailSentTo || null,
+  });
   const [copied, setCopied] = useState(false);
   const isDemoSuite = planName === "Demo Suite";
   const canSend = Boolean(adminEmail) && (isDemoSuite || billingStatus === "paid");
+  const formattedSentAt = formatAccessSentAt(sentState.sentAt);
 
   async function sendAccessEmail() {
     setIsSending(true);
@@ -41,6 +60,7 @@ export function AdminWorkspaceAccessCard({
         emailSent?: boolean;
         emailWarning?: string | null;
         error?: string;
+        sentAt?: string | null;
         setupUrl?: string | null;
       };
 
@@ -56,6 +76,12 @@ export function AdminWorkspaceAccessCard({
           : data.emailWarning || "Email delivery was not confirmed. Copy the setup link manually.",
         setupUrl: data.setupUrl || null,
       });
+      if (data.emailSent) {
+        setSentState({
+          sentAt: data.sentAt || new Date().toISOString(),
+          sentTo: data.email || adminEmail || null,
+        });
+      }
       setIsSending(false);
     } catch {
       setFeedback({ error: "We couldn't send the access setup email." });
@@ -115,8 +141,13 @@ export function AdminWorkspaceAccessCard({
           disabled={!canSend || isSending}
           className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSending ? "Sending..." : "Send setup email"}
+          {isSending ? "Sending..." : sentState.sentAt ? "Resend setup email" : "Send setup email"}
         </button>
+        {sentState.sentAt ? (
+          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+            Sent{sentState.sentTo ? ` to ${sentState.sentTo}` : ""}{formattedSentAt ? ` on ${formattedSentAt}` : ""}
+          </span>
+        ) : null}
         {!canSend ? (
           <p className="text-sm text-amber-700">
             {adminEmail
