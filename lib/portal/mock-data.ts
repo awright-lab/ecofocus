@@ -134,6 +134,7 @@ export const portalDashboards: PortalDashboard[] = [
     accessTag: "Included",
     embedUrl: null,
     embedAccess: "public_link",
+    availableToAll: true,
   },
   {
     id: "dashboard-category",
@@ -143,6 +144,7 @@ export const portalDashboards: PortalDashboard[] = [
     accessTag: "Licensed",
     embedUrl: null,
     embedAccess: "displayr_login_required",
+    availableToAll: false,
   },
   {
     id: "dashboard-2024-interactive",
@@ -152,6 +154,7 @@ export const portalDashboards: PortalDashboard[] = [
     accessTag: "2024 Study",
     embedUrl: null,
     embedAccess: "public_link",
+    availableToAll: false,
   },
   {
     id: "dashboard-export",
@@ -161,6 +164,7 @@ export const portalDashboards: PortalDashboard[] = [
     accessTag: "Advanced",
     embedUrl: null,
     embedAccess: "displayr_login_required",
+    availableToAll: false,
   },
   {
     id: "dashboard-custom",
@@ -170,6 +174,7 @@ export const portalDashboards: PortalDashboard[] = [
     accessTag: "Project",
     embedUrl: null,
     embedAccess: "displayr_login_required",
+    availableToAll: false,
   },
 ];
 

@@ -555,12 +555,35 @@ async function queryCompanyDashboards(companyId: string): Promise<PortalDashboar
 }
 
 async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> {
+  type PortalDashboardCatalogRow = {
+    id: unknown;
+    slug: unknown;
+    name: unknown;
+    description?: unknown;
+    access_tag?: unknown;
+    embed_access?: unknown;
+    available_to_all?: unknown;
+  };
+
   try {
     const admin = getServiceSupabase();
-    const { data, error } = await admin
+    let data: PortalDashboardCatalogRow[] | null = null;
+    let error: { message: string } | null = null;
+    const result = await admin
       .from("portal_dashboards")
-      .select("id, slug, name, description, access_tag, embed_access")
+      .select("id, slug, name, description, access_tag, embed_access, available_to_all")
       .order("name", { ascending: true });
+    data = result.data;
+    error = result.error;
+
+    if (error && error.message.includes("available_to_all")) {
+      const fallback = await admin
+        .from("portal_dashboards")
+        .select("id, slug, name, description, access_tag, embed_access")
+        .order("name", { ascending: true });
+      data = fallback.data;
+      error = fallback.error;
+    }
 
     if (error) {
       console.warn("[portal/data] portal_dashboards catalog lookup failed.", { error: error.message });
@@ -576,6 +599,7 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
       embedUrl: null,
       embedAccess:
         dashboard.embed_access === "displayr_login_required" ? "displayr_login_required" : "public_link",
+      availableToAll: Boolean(dashboard.available_to_all),
     }));
   } catch (error) {
     console.warn("[portal/data] portal_dashboards storage unavailable.", {

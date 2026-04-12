@@ -11,9 +11,13 @@ create table if not exists public.portal_dashboards (
   description text not null,
   access_tag text not null,
   embed_access text not null default 'public_link' check (embed_access in ('public_link', 'displayr_login_required')),
+  available_to_all boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.portal_dashboards
+  add column if not exists available_to_all boolean not null default false;
 
 create index if not exists portal_dashboards_name_idx
   on public.portal_dashboards (name);
@@ -31,6 +35,9 @@ comment on column public.portal_dashboards.slug is
 
 comment on column public.portal_dashboards.access_tag is
   'Admin-managed dashboard category label shown throughout the portal UI.';
+
+comment on column public.portal_dashboards.available_to_all is
+  'When true, support admins can see this dashboard as assignable for every workspace. Company access still requires explicit workspace activation.';
 
 create or replace function public.set_portal_dashboards_updated_at()
 returns trigger
@@ -54,7 +61,8 @@ insert into public.portal_dashboards (
   name,
   description,
   access_tag,
-  embed_access
+  embed_access,
+  available_to_all
 )
 values
   (
@@ -63,7 +71,8 @@ values
     'EcoReputation™ Overview',
     'Topline sustainability perception trends, brand positioning, and audience shifts.',
     'Included',
-    'public_link'
+    'public_link',
+    true
   ),
   (
     'dashboard-category',
@@ -71,7 +80,8 @@ values
     'Category Performance',
     'Track category-level movement, segment filters, and quarterly benchmark changes.',
     'Licensed',
-    'displayr_login_required'
+    'displayr_login_required',
+    false
   ),
   (
     'dashboard-2024-interactive',
@@ -79,7 +89,8 @@ values
     '2024 Interactive Dashboard',
     'Interactive Displayr dashboard for the 2024 study with page-level navigation, segment analysis, and export-ready views.',
     '2024 Study',
-    'public_link'
+    'public_link',
+    false
   ),
   (
     'dashboard-export',
@@ -87,7 +98,8 @@ values
     'Export Readiness',
     'Download-oriented dashboard shell for chart and table extraction workflows.',
     'Advanced',
-    'displayr_login_required'
+    'displayr_login_required',
+    false
   ),
   (
     'dashboard-custom',
@@ -95,7 +107,8 @@ values
     'Custom Client Study',
     'Reserved for project-specific Displayr embeds and custom stakeholder views.',
     'Project',
-    'displayr_login_required'
+    'displayr_login_required',
+    false
   )
 on conflict (slug) do update
 set
@@ -103,4 +116,5 @@ set
   description = excluded.description,
   access_tag = excluded.access_tag,
   embed_access = excluded.embed_access,
+  available_to_all = excluded.available_to_all,
   updated_at = now();

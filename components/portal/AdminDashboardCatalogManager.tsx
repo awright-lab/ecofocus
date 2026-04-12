@@ -11,6 +11,7 @@ type DashboardCatalogFormState = {
   description: string;
   accessTag: string;
   embedAccess: "public_link" | "displayr_login_required";
+  availableToAll: boolean;
 };
 
 function buildState(dashboard?: PortalDashboard): DashboardCatalogFormState {
@@ -20,6 +21,7 @@ function buildState(dashboard?: PortalDashboard): DashboardCatalogFormState {
     description: dashboard?.description || "",
     accessTag: dashboard?.accessTag || "",
     embedAccess: dashboard?.embedAccess || "public_link",
+    availableToAll: dashboard?.availableToAll ?? false,
   };
 }
 
@@ -174,6 +176,11 @@ export function AdminDashboardCatalogManager({
                     <span className="rounded-full bg-slate-950 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white">
                       {dashboard.accessTag}
                     </span>
+                    {dashboard.availableToAll ? (
+                      <span className="rounded-full bg-sky-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-800">
+                        All workspaces
+                      </span>
+                    ) : null}
                   </div>
                   <p className="mt-2 text-sm text-slate-600">{dashboard.slug}</p>
                 </button>
@@ -271,6 +278,26 @@ export function AdminDashboardCatalogManager({
                 <option value="public_link">Public link embed</option>
                 <option value="displayr_login_required">Displayr login required</option>
               </select>
+            </label>
+
+            <label className="flex gap-3 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+              <input
+                type="checkbox"
+                checked={formState.availableToAll}
+                onChange={(event) =>
+                  setFormState((current) => ({
+                    ...current,
+                    availableToAll: event.target.checked,
+                  }))
+                }
+                className="mt-1 h-4 w-4 rounded border-sky-300 text-sky-600 focus:ring-sky-500"
+              />
+              <span>
+                <span className="block font-semibold">Available to all workspaces</span>
+                <span className="mt-1 block leading-6 text-sky-800">
+                  Show this dashboard as an assignable option for every company. Support still has to enable it per workspace.
+                </span>
+              </span>
             </label>
           </div>
 
