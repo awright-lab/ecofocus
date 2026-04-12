@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminSubscriptionRecoveryForm } from "@/components/portal/AdminSubscriptionRecoveryForm";
+import { AdminWorkspaceDeleteCard } from "@/components/portal/AdminWorkspaceDeleteCard";
 import { AdminWorkspaceInvoiceForm } from "@/components/portal/AdminWorkspaceInvoiceForm";
 import { AdminWorkspacePicker } from "@/components/portal/AdminWorkspacePicker";
 import { AdminWorkspaceProvisioningForm } from "@/components/portal/AdminWorkspaceProvisioningForm";
@@ -388,17 +389,23 @@ export default async function AdminWorkspacesPage({
                   />
 
                   {selectedCompany && selectedSubscription ? (
-                    <div className="mt-6 rounded-[24px] border border-amber-200 bg-white p-5">
-                      <AdminSubscriptionRecoveryForm
+                    <div className="mt-6 space-y-5">
+                      <div className="rounded-[24px] border border-amber-200 bg-white p-5">
+                        <AdminSubscriptionRecoveryForm
+                          companyId={selectedCompany.id}
+                          planName={selectedSubscription.planName}
+                          subscriptionStatus={selectedSubscription.status}
+                          billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
+                          renewalDate={selectedSubscription.renewalDate}
+                          stripeCustomerId={selectedCompany.stripeCustomerId}
+                          stripeSubscriptionId={selectedSubscription.stripeSubscriptionId}
+                          billingContactName={selectedCompany.billingContactName}
+                          billingEmail={selectedCompany.billingEmail}
+                        />
+                      </div>
+                      <AdminWorkspaceDeleteCard
                         companyId={selectedCompany.id}
-                        planName={selectedSubscription.planName}
-                        subscriptionStatus={selectedSubscription.status}
-                        billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
-                        renewalDate={selectedSubscription.renewalDate}
-                        stripeCustomerId={selectedCompany.stripeCustomerId}
-                        stripeSubscriptionId={selectedSubscription.stripeSubscriptionId}
-                        billingContactName={selectedCompany.billingContactName}
-                        billingEmail={selectedCompany.billingEmail}
+                        companyName={selectedCompany.name}
                       />
                     </div>
                   ) : (

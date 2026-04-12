@@ -10,6 +10,16 @@ function hasStripeSecretKey() {
 
 type PortalBillingStatus = NonNullable<PortalSubscription["billingStatus"]>;
 type PortalSubscriptionStatus = PortalSubscription["status"];
+type PortalCompanySummary = Awaited<ReturnType<typeof getPortalCompanies>>[number];
+
+function isStripeMissingCustomerError(error: unknown) {
+  const stripeError = error as { code?: string; param?: string; statusCode?: number; type?: string };
+  return (
+    stripeError?.code === "resource_missing" &&
+    stripeError?.param === "customer" &&
+    stripeError?.statusCode === 400
+  );
+}
 
 function getInvoiceCustomerId(invoice: Stripe.Invoice) {
   return typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id || null;
@@ -249,17 +259,37 @@ export async function ensurePortalStripeCustomer(companyId: string) {
     throw new Error("Company not found.");
   }
 
-  if (company.stripeCustomerId) {
-    return {
-      company,
-      stripeCustomerId: company.stripeCustomerId,
-    };
-  }
-
   if (!hasStripeSecretKey()) {
     throw new Error("STRIPE_SECRET_KEY is not configured.");
   }
 
+  const stripe = getStripeServer();
+
+  if (company.stripeCustomerId) {
+    try {
+      const existingCustomer = await stripe.customers.retrieve(company.stripeCustomerId);
+      if (!existingCustomer.deleted) {
+        return {
+          company,
+          stripeCustomerId: company.stripeCustomerId,
+        };
+      }
+    } catch (error) {
+      if (!isStripeMissingCustomerError(error)) {
+        throw error;
+      }
+
+      console.warn("[portal/billing] Saved Stripe customer is not available for the active Stripe mode. Creating a replacement customer.", {
+        companyId: company.id,
+        stripeCustomerId: company.stripeCustomerId,
+      });
+    }
+  }
+
+  return createAndStorePortalStripeCustomer(company);
+}
+
+async function createAndStorePortalStripeCustomer(company: PortalCompanySummary) {
   const stripe = getStripeServer();
   const customer = await stripe.customers.create({
     name: company.name,
@@ -298,10 +328,23 @@ export async function listPortalInvoicesByCompany(companyId: string, limit = 12)
   }
 
   const stripe = getStripeServer();
-  const invoices = await stripe.invoices.list({
-    customer: company.stripeCustomerId,
-    limit,
-  });
+  let invoices: Stripe.ApiList<Stripe.Invoice>;
+  try {
+    invoices = await stripe.invoices.list({
+      customer: company.stripeCustomerId,
+      limit,
+    });
+  } catch (error) {
+    if (!isStripeMissingCustomerError(error)) {
+      throw error;
+    }
+
+    console.warn("[portal/billing] Unable to list invoices because the saved Stripe customer is not available for the active Stripe mode.", {
+      companyId: company.id,
+      stripeCustomerId: company.stripeCustomerId,
+    });
+    return [];
+  }
 
   return invoices.data.map((invoice) => ({
     id: String(invoice.id),
