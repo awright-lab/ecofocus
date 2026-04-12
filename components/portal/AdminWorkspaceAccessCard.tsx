@@ -15,6 +15,7 @@ function formatAccessSentAt(value?: string | null) {
 export function AdminWorkspaceAccessCard({
   adminEmail,
   adminName,
+  accessEmailDeliveryStatus,
   accessEmailSentAt,
   accessEmailSentTo,
   billingStatus,
@@ -24,6 +25,7 @@ export function AdminWorkspaceAccessCard({
 }: {
   adminEmail?: string | null;
   adminName?: string | null;
+  accessEmailDeliveryStatus?: "sent" | "manual_only" | null;
   accessEmailSentAt?: string | null;
   accessEmailSentTo?: string | null;
   billingStatus?: string | null;
@@ -38,6 +40,7 @@ export function AdminWorkspaceAccessCard({
     setupUrl?: string | null;
   }>({});
   const [sentState, setSentState] = useState({
+    deliveryStatus: accessEmailDeliveryStatus || null,
     sentAt: accessEmailSentAt || null,
     sentTo: accessEmailSentTo || null,
   });
@@ -45,6 +48,7 @@ export function AdminWorkspaceAccessCard({
   const isDemoSuite = planName === "Demo Suite";
   const canSend = Boolean(adminEmail) && (isDemoSuite || billingStatus === "paid");
   const formattedSentAt = formatAccessSentAt(sentState.sentAt);
+  const wasEmailed = sentState.deliveryStatus !== "manual_only";
 
   async function sendAccessEmail() {
     setIsSending(true);
@@ -76,9 +80,10 @@ export function AdminWorkspaceAccessCard({
           : data.emailWarning || "Email delivery was not confirmed. Copy the setup link manually.",
         setupUrl: data.setupUrl || null,
       });
-      if (data.emailSent) {
+      if (data.sentAt) {
         setSentState({
-          sentAt: data.sentAt || new Date().toISOString(),
+          deliveryStatus: data.emailSent ? "sent" : "manual_only",
+          sentAt: data.sentAt,
           sentTo: data.email || adminEmail || null,
         });
       }
@@ -128,7 +133,15 @@ export function AdminWorkspaceAccessCard({
         <div className="rounded-[24px] bg-slate-50 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Access rule</p>
           <p className="mt-2 font-semibold text-slate-950">
-            {isDemoSuite ? "Demo access can be sent now" : billingStatus === "paid" ? "Paid access approved" : "Waiting for payment"}
+            {sentState.sentAt
+              ? wasEmailed
+                ? "Access setup email sent"
+                : "Setup link generated"
+              : isDemoSuite
+                ? "Demo access can be sent now"
+                : billingStatus === "paid"
+                  ? "Paid access approved"
+                  : "Waiting for payment"}
           </p>
           <p className="mt-1 text-sm capitalize text-slate-600">Billing status: {(billingStatus || "not set").replaceAll("_", " ")}</p>
         </div>
@@ -145,7 +158,9 @@ export function AdminWorkspaceAccessCard({
         </button>
         {sentState.sentAt ? (
           <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-            Sent{sentState.sentTo ? ` to ${sentState.sentTo}` : ""}{formattedSentAt ? ` on ${formattedSentAt}` : ""}
+            {wasEmailed ? "Email sent" : "Setup link generated"}
+            {sentState.sentTo ? ` for ${sentState.sentTo}` : ""}
+            {formattedSentAt ? ` on ${formattedSentAt}` : ""}
           </span>
         ) : null}
         {!canSend ? (

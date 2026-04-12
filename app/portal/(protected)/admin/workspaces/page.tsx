@@ -112,6 +112,12 @@ export default async function AdminWorkspacesPage({
           typeof selectedAccessEmailLog?.metadata?.recipientEmail === "string"
             ? selectedAccessEmailLog.metadata.recipientEmail
             : null;
+        const selectedAccessEmailDeliveryStatus =
+          selectedAccessEmailLog && selectedAccessEmailLog.metadata?.emailSent === false
+            ? "manual_only"
+            : selectedAccessEmailLog
+              ? "sent"
+              : null;
         const selectedPlanName = selectedSubscription?.planName || "";
         const isSelectedDemoSuite = selectedPlanName === "Demo Suite";
         const workspaceTabs: { view: AdminWorkspaceView; label: string }[] = [
@@ -245,9 +251,13 @@ export default async function AdminWorkspacesPage({
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">Access handoff</p>
                         <p className="mt-3 text-lg font-semibold text-teal-950">
                           {isSelectedDemoSuite
-                            ? "Demo access can be sent"
+                            ? selectedAccessEmailSentAt
+                              ? "Demo setup already sent"
+                              : "Demo access can be sent"
                             : selectedSubscription?.billingStatus === "paid"
-                              ? "Paid access can be sent"
+                              ? selectedAccessEmailSentAt
+                                ? "Paid setup already sent"
+                                : "Paid access can be sent"
                               : "Access held until payment"}
                         </p>
                         <p className="mt-2 text-sm leading-6 text-teal-900">
@@ -280,13 +290,17 @@ export default async function AdminWorkspacesPage({
                       <div className="rounded-[24px] bg-amber-50 p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Next action</p>
                         <p className="mt-3 text-lg font-semibold text-amber-950">
-                          {isSelectedDemoSuite
-                            ? "Send demo setup email"
-                            : selectedSubscription?.billingStatus === "paid"
-                              ? "Send paid access email"
-                              : selectedInvoices.length
-                              ? "Watch invoice status"
-                              : "Send the first invoice"}
+                          {selectedAccessEmailSentAt
+                            ? selectedAccessEmailDeliveryStatus === "manual_only"
+                              ? "Setup link generated"
+                              : "Access email sent"
+                            : isSelectedDemoSuite
+                              ? "Send demo setup email"
+                              : selectedSubscription?.billingStatus === "paid"
+                                ? "Send paid access email"
+                                : selectedInvoices.length
+                                  ? "Watch invoice status"
+                                  : "Send the first invoice"}
                         </p>
                         <p className="mt-2 text-sm leading-6 text-amber-900">
                           Use the focused billing and invoice views when you need to take action.
@@ -315,6 +329,7 @@ export default async function AdminWorkspacesPage({
 
                 {selectedCompany && selectedSubscription ? (
                   <AdminWorkspaceAccessCard
+                    accessEmailDeliveryStatus={selectedAccessEmailDeliveryStatus}
                     accessEmailSentAt={selectedAccessEmailSentAt}
                     accessEmailSentTo={selectedAccessEmailSentTo}
                     adminEmail={selectedClientAdmin?.email || null}

@@ -102,27 +102,28 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
       setupUrl,
       to: String(clientAdmin.email),
     });
-    const sentAt = delivery.emailSent ? new Date().toISOString() : null;
+    const sentAt = new Date().toISOString();
 
-    if (sentAt) {
-      await logPortalAdminAuditEvent({
-        access,
-        action: "portal_access_email_sent",
-        title: String(company.name),
-        companyId: targetCompanyId,
-        entityId: `workspace-access-email:${targetCompanyId}`,
-        notes: `Portal access setup email sent to ${String(clientAdmin.email)}.`,
-        metadata: {
-          accessMode: isDemoSuite ? "demo" : "paid",
-          billingStatus,
-          planName,
-          recipientEmail: String(clientAdmin.email),
-          recipientName: String(clientAdmin.name),
-          sentAt,
-          tokenExpiresAt: setupToken.expiresAt,
-        },
-      });
-    }
+    await logPortalAdminAuditEvent({
+      access,
+      action: "portal_access_email_sent",
+      title: String(company.name),
+      companyId: targetCompanyId,
+      entityId: `workspace-access-email:${targetCompanyId}`,
+      notes: delivery.emailSent
+        ? `Portal access setup email sent to ${String(clientAdmin.email)}.`
+        : `Portal access setup link generated for ${String(clientAdmin.email)}.`,
+      metadata: {
+        accessMode: isDemoSuite ? "demo" : "paid",
+        billingStatus,
+        emailSent: delivery.emailSent,
+        planName,
+        recipientEmail: String(clientAdmin.email),
+        recipientName: String(clientAdmin.name),
+        sentAt,
+        tokenExpiresAt: setupToken.expiresAt,
+      },
+    });
 
     return asJson({
       ok: true,
