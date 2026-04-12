@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 
 export function PortalPasswordSetupForm({
   initialEmail = "",
+  setupToken = "",
 }: {
   initialEmail?: string;
+  setupToken?: string;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
@@ -28,6 +30,7 @@ export function PortalPasswordSetupForm({
           email,
           password,
           confirmPassword,
+          token: setupToken,
         }),
       });
 
@@ -62,6 +65,12 @@ export function PortalPasswordSetupForm({
           placeholder="you@company.com"
         />
       </div>
+
+      {!setupToken ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          This setup link is missing its secure token. Ask EcoFocus to resend the access email.
+        </div>
+      ) : null}
 
       <div>
         <label className="block text-sm font-medium text-slate-800" htmlFor="password">
@@ -99,7 +108,7 @@ export function PortalPasswordSetupForm({
 
       <button
         type="submit"
-        disabled={!email || !password || !confirmPassword || isSubmitting}
+        disabled={!email || !password || !confirmPassword || !setupToken || isSubmitting}
         className="inline-flex items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
       >
         {isSubmitting ? "Saving password…" : "Set password"}

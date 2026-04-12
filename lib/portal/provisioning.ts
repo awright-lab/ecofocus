@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { createHash, randomBytes } from "crypto";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 export type PortalDashboardProvisioningInput = {
@@ -63,6 +64,13 @@ export type PortalUserActivationResult =
   | { status: "inactive" }
   | { status: "active"; userId: string }
   | { status: "activated"; userId: string };
+
+export type PortalPasswordSetupTokenInput = {
+  email: string;
+  userId: string;
+  createdByUserId?: string | null;
+  expiresInHours?: number;
+};
 
 type AuthUserRecord = {
   id: string;
@@ -129,6 +137,10 @@ function slugifyUserId(email: string) {
 
 function normalizeEmail(value?: string | null) {
   return normalizeProvisioningValue(value).toLowerCase();
+}
+
+function hashPortalSetupToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
 }
 
 function normalizeSubscriberType(value?: string | null) {
@@ -516,12 +528,116 @@ export async function activatePortalUserByEmail(emailInput?: string | null): Pro
   return { status: "activated", userId: existingUser.id };
 }
 
-export async function setPortalUserPassword(emailInput: string, password: string) {
+export async function createPortalPasswordSetupToken(input: PortalPasswordSetupTokenInput) {
+  const admin = getServiceSupabase();
+  const email = normalizeEmail(input.email);
+  const userId = normalizeProvisioningValue(input.userId);
+  const createdByUserId = normalizeProvisioningValue(input.createdByUserId) || null;
+  const expiresInHours = Number.isFinite(input.expiresInHours) ? Number(input.expiresInHours) : 168;
+  const expiresAt = new Date(Date.now() + Math.max(expiresInHours, 1) * 60 * 60 * 1000).toISOString();
+  const token = randomBytes(32).toString("base64url");
+  const tokenHash = hashPortalSetupToken(token);
+  const now = new Date().toISOString();
+
+  if (!email || !userId) {
+    throw new Error("Email and user id are required to create a password setup token.");
+  }
+
+  const { error: expirePreviousError } = await admin
+    .from("portal_password_setup_tokens")
+    .update({
+      consumed_at: now,
+    })
+    .eq("email", email)
+    .eq("user_id", userId)
+    .is("consumed_at", null);
+
+  if (expirePreviousError) throw new Error(expirePreviousError.message);
+
+  const { error: insertError } = await admin.from("portal_password_setup_tokens").insert({
+    user_id: userId,
+    email,
+    token_hash: tokenHash,
+    created_by_user_id: createdByUserId,
+    expires_at: expiresAt,
+  });
+
+  if (insertError) throw new Error(insertError.message);
+
+  return {
+    token,
+    expiresAt,
+  };
+}
+
+async function validatePortalPasswordSetupToken({
+  email,
+  token,
+  userId,
+}: {
+  email: string;
+  token: string;
+  userId: string;
+}) {
+  const admin = getServiceSupabase();
+  const normalizedEmail = normalizeEmail(email);
+  const normalizedToken = normalizeProvisioningValue(token);
+  const normalizedUserId = normalizeProvisioningValue(userId);
+
+  if (!normalizedEmail || !normalizedToken || !normalizedUserId) {
+    throw new Error("This password setup link is missing its secure token.");
+  }
+
+  const { data: setupToken, error: tokenError } = await admin
+    .from("portal_password_setup_tokens")
+    .select("id, user_id, email, expires_at, consumed_at")
+    .eq("token_hash", hashPortalSetupToken(normalizedToken))
+    .maybeSingle();
+
+  if (tokenError) throw new Error(tokenError.message);
+  if (!setupToken) throw new Error("This password setup link is invalid or has expired.");
+  if (String(setupToken.email).toLowerCase() !== normalizedEmail || String(setupToken.user_id) !== normalizedUserId) {
+    throw new Error("This password setup link does not match the requested portal account.");
+  }
+  if (setupToken.consumed_at) {
+    throw new Error("This password setup link has already been used. Ask EcoFocus for a new setup email.");
+  }
+
+  const expiresAt = new Date(String(setupToken.expires_at));
+  if (Number.isNaN(expiresAt.getTime()) || expiresAt.getTime() <= Date.now()) {
+    throw new Error("This password setup link has expired. Ask EcoFocus for a new setup email.");
+  }
+
+  return String(setupToken.id);
+}
+
+async function consumePortalPasswordSetupToken(tokenId: string) {
+  const admin = getServiceSupabase();
+  const { data, error: consumeError } = await admin
+    .from("portal_password_setup_tokens")
+    .update({
+      consumed_at: new Date().toISOString(),
+    })
+    .eq("id", tokenId)
+    .is("consumed_at", null)
+    .select("id")
+    .maybeSingle();
+
+  if (consumeError) throw new Error(consumeError.message);
+  if (!data) throw new Error("This password setup link has already been used. Ask EcoFocus for a new setup email.");
+}
+
+export async function setPortalUserPassword(emailInput: string, password: string, setupTokenInput?: string | null) {
   const admin = getServiceSupabase();
   const email = normalizeEmail(emailInput);
+  const setupToken = normalizeProvisioningValue(setupTokenInput);
 
   if (!email || !password) {
     throw new Error("Email and password are required.");
+  }
+
+  if (!setupToken) {
+    throw new Error("Use the secure password setup link from your EcoFocus access email.");
   }
 
   if (password.length < 8) {
@@ -539,6 +655,12 @@ export async function setPortalUserPassword(emailInput: string, password: string
   if (portalUser.status === "inactive") {
     throw new Error("Portal access for this account is currently paused.");
   }
+
+  const setupTokenId = await validatePortalPasswordSetupToken({
+    email,
+    token: setupToken,
+    userId: portalUser.id,
+  });
 
   const existingAuthUser = await findAuthUserByEmail(email);
 
@@ -575,6 +697,8 @@ export async function setPortalUserPassword(emailInput: string, password: string
   if (activation.status === "missing" || activation.status === "inactive") {
     throw new Error("Portal access could not be activated for this account.");
   }
+
+  await consumePortalPasswordSetupToken(setupTokenId);
 
   return {
     userId: portalUser.id,

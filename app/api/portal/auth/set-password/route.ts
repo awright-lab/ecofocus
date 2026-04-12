@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
     email?: string;
     password?: string;
     confirmPassword?: string;
+    token?: string;
   };
 
   try {
@@ -25,9 +26,10 @@ export async function POST(req: NextRequest) {
   const email = String(body.email || "").trim().toLowerCase();
   const password = String(body.password || "");
   const confirmPassword = String(body.confirmPassword || "");
+  const token = String(body.token || "").trim();
 
-  if (!email || !password || !confirmPassword) {
-    return asJson({ error: "Email, password, and password confirmation are required." }, 400);
+  if (!email || !password || !confirmPassword || !token) {
+    return asJson({ error: "Email, password, password confirmation, and secure setup token are required." }, 400);
   }
 
   if (password !== confirmPassword) {
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await setPortalUserPassword(email, password);
+    await setPortalUserPassword(email, password, token);
     return asJson({ ok: true }, 201);
   } catch (error) {
     return asJson(

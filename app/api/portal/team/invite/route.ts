@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { isPortalWorkspaceManager } from "@/lib/portal/data";
 import { getPortalOrigin } from "@/lib/portal/host";
-import { createPortalTeamInvite } from "@/lib/portal/provisioning";
+import { createPortalPasswordSetupToken, createPortalTeamInvite } from "@/lib/portal/provisioning";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -63,6 +63,12 @@ export async function POST(req: NextRequest) {
     const inviteUrl = new URL("/set-password", getPortalOrigin(req.url));
     inviteUrl.searchParams.set("email", result.email);
     inviteUrl.searchParams.set("invite", "1");
+    const setupToken = await createPortalPasswordSetupToken({
+      createdByUserId: access.user.id,
+      email: result.email,
+      userId: result.userId,
+    });
+    inviteUrl.searchParams.set("token", setupToken.token);
     const emailSent = false;
     const emailWarning = "Copy and share the password setup link directly with the teammate.";
     const deliveryStatus = "manual_only";

@@ -3,6 +3,7 @@ import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { getPortalOrigin } from "@/lib/portal/host";
 import { sendPortalAccessSetupEmail } from "@/lib/portal/email";
+import { createPortalPasswordSetupToken } from "@/lib/portal/provisioning";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -13,10 +14,11 @@ function asJson(body: Record<string, unknown>, status = 200) {
   return NextResponse.json(body, { status, headers: NOINDEX_HEADERS });
 }
 
-function buildSetupUrl(req: NextRequest, email: string) {
+function buildSetupUrl(req: NextRequest, email: string, token: string) {
   const setupUrl = new URL("/set-password", getPortalOrigin(req.url));
   setupUrl.searchParams.set("email", email);
   setupUrl.searchParams.set("invite", "1");
+  setupUrl.searchParams.set("token", token);
   return setupUrl.toString();
 }
 
@@ -86,7 +88,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
       return asJson({ error: "No active company admin user is available for this workspace." }, 404);
     }
 
-    const setupUrl = buildSetupUrl(req, String(clientAdmin.email));
+    const setupToken = await createPortalPasswordSetupToken({
+      createdByUserId: access.user.id,
+      email: String(clientAdmin.email),
+      userId: String(clientAdmin.id),
+    });
+    const setupUrl = buildSetupUrl(req, String(clientAdmin.email), setupToken.token);
     const delivery = await sendPortalAccessSetupEmail({
       accessMode: isDemoSuite ? "demo" : "paid",
       companyName: String(company.name),
@@ -112,6 +119,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
           recipientEmail: String(clientAdmin.email),
           recipientName: String(clientAdmin.name),
           sentAt,
+          tokenExpiresAt: setupToken.expiresAt,
         },
       });
     }
@@ -122,6 +130,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
       emailSent: delivery.emailSent,
       emailWarning: delivery.emailWarning,
       sentAt,
+      tokenExpiresAt: setupToken.expiresAt,
       setupUrl: delivery.emailSent ? null : setupUrl,
       accessMode: isDemoSuite ? "demo" : "paid",
     });

@@ -36,6 +36,7 @@
 - `portal_dashboard_configs` stores private company-scoped dashboard embed URLs for runtime provisioning without redeploys.
 - `portal_dashboard_entitlements` stores workspace-level dashboard assignment separately from embed configuration.
 - `portal_tickets` and `portal_ticket_messages` store support requests, replies, and internal support notes.
+- `portal_password_setup_tokens` stores hashed, single-use setup tokens for portal password creation links.
 
 ## Provisioning metadata
 - To auto-provision portal account records and a dashboard mapping from Stripe checkout, send metadata keys such as:
@@ -56,6 +57,7 @@
 - `docs/portal_chat_logs.sql`
 - `docs/portal_dashboard_configs.sql`
 - `docs/portal_dashboard_entitlements.sql`
+- `docs/portal_password_setup_tokens.sql`
 - `docs/portal_question_search.sql`
 - `docs/portal_support.sql`
 - `docs/portal_usage_allowances.sql`
