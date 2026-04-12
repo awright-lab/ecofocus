@@ -32,16 +32,16 @@ export default async function PortalHomePage() {
   const activeWorkspaceConfigsBySlug = new Map(
     activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),
   );
-  const dashboards = baseDashboards
-    .map((dashboard) => ({
-      ...dashboard,
-      embedUrl: activeWorkspaceConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
-    }))
-    .slice(0, 3);
+  const allDashboards = baseDashboards.map((dashboard) => ({
+    ...dashboard,
+    embedUrl: activeWorkspaceConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
+  }));
+  const dashboards = allDashboards.slice(0, 3);
   const tickets = (await getPortalTicketsForUser(access.effectiveUser)).slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
   const usage = await getPortalUsageStatus(access.effectiveUser);
-  const availableDashboardCount = dashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).length;
+  const availableDashboardCount = allDashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).length;
+  const assignedDashboardCount = allDashboards.length - availableDashboardCount;
   const openTicketCount = tickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived").length;
 
   if (access.effectiveRole === "support_admin") {
@@ -185,6 +185,9 @@ export default async function PortalHomePage() {
                 <p className="text-[1.75rem] font-semibold leading-none text-slate-950">{availableDashboardCount}</p>
                 <p className="text-right text-xs text-slate-600">Ready to open</p>
               </div>
+              <p className="mt-2 text-xs text-emerald-800">
+                {assignedDashboardCount} assigned, pending access
+              </p>
             </div>
             <div className="rounded-[20px] border border-sky-100 bg-[linear-gradient(135deg,#eff6ff_0%,#f8fafc_100%)] px-4 py-3.5">
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700">
