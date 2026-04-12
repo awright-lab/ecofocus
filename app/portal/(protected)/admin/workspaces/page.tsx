@@ -11,7 +11,7 @@ import { listPortalInvoicesByCompany } from "@/lib/portal/billing";
 import {
   getPortalCompanies,
   getPortalDashboardCatalog,
-  getPortalDashboardEntitlementsByCompany,
+  getPortalDashboardConfigsByCompany,
   getPortalSubscriptionByCompany,
   getPortalTeamMembersByCompany,
   getPortalUsageLogsForAdmin,
@@ -76,9 +76,12 @@ export default async function AdminWorkspacesPage({
         const selectedAllowance = selectedCompanyId
           ? await getPortalUsageAllowanceByCompany(selectedCompanyId)
           : null;
-        const selectedEntitlements = selectedCompanyId
-          ? await getPortalDashboardEntitlementsByCompany(selectedCompanyId)
+        const selectedDashboardConfigs = selectedCompanyId
+          ? await getPortalDashboardConfigsByCompany(selectedCompanyId)
           : [];
+        const selectedActiveDashboardConfigs = selectedDashboardConfigs.filter(
+          (config) => config.isActive && config.displayrEmbedUrl,
+        );
         const selectedInvoices = selectedCompanyId
           ? await listPortalInvoicesByCompany(selectedCompanyId, 8)
           : [];
@@ -164,7 +167,7 @@ export default async function AdminWorkspacesPage({
                 </div>
                 <div className="rounded-[24px] bg-sky-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700">Selected assignments</p>
-                  <p className="mt-2 text-3xl font-semibold text-sky-950">{selectedEntitlements.length}</p>
+                  <p className="mt-2 text-3xl font-semibold text-sky-950">{selectedActiveDashboardConfigs.length}</p>
                 </div>
                 <div className="rounded-[24px] bg-amber-50 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-700">Recent invoices</p>
@@ -261,7 +264,9 @@ export default async function AdminWorkspacesPage({
                       </div>
                       <div className="rounded-[24px] bg-sky-50 p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">Dashboard access</p>
-                        <p className="mt-3 text-2xl font-semibold text-sky-950">{selectedEntitlements.length} assigned</p>
+                        <p className="mt-3 text-2xl font-semibold text-sky-950">
+                          {selectedActiveDashboardConfigs.length} assigned
+                        </p>
                         <p className="mt-2 text-sm leading-6 text-sky-900">
                           Assign or update company-specific Displayr URLs from the dashboard access console.
                         </p>
