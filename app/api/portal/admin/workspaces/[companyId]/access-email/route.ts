@@ -10,6 +10,10 @@ const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
 
+type AccessEmailBody = {
+  deliveryKind?: "initial" | "resend";
+};
+
 function asJson(body: Record<string, unknown>, status = 200) {
   return NextResponse.json(body, { status, headers: NOINDEX_HEADERS });
 }
@@ -36,6 +40,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
   if (!targetCompanyId) {
     return asJson({ error: "Company id is required." }, 400);
   }
+  let body: AccessEmailBody = {};
+  try {
+    body = (await req.json()) as AccessEmailBody;
+  } catch {
+    body = {};
+  }
+  const deliveryKind = body.deliveryKind === "resend" ? "resend" : "initial";
 
   try {
     const admin = getServiceSupabase();
@@ -97,6 +108,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
     const delivery = await sendPortalAccessSetupEmail({
       accessMode: isDemoSuite ? "demo" : "paid",
       companyName: String(company.name),
+      deliveryKind,
       planName,
       recipientName: String(clientAdmin.name),
       setupUrl,
@@ -116,6 +128,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
       metadata: {
         accessMode: isDemoSuite ? "demo" : "paid",
         billingStatus,
+        deliveryKind,
         emailSent: delivery.emailSent,
         planName,
         recipientEmail: String(clientAdmin.email),

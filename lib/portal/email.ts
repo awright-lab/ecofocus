@@ -135,6 +135,7 @@ export async function sendPortalPasswordResetEmail({
 export async function sendPortalAccessSetupEmail({
   accessMode,
   companyName,
+  deliveryKind = "initial",
   planName,
   setupUrl,
   to,
@@ -142,20 +143,38 @@ export async function sendPortalAccessSetupEmail({
 }: {
   accessMode: "demo" | "paid";
   companyName: string;
+  deliveryKind?: "initial" | "resend";
   planName: string;
   setupUrl: string;
   to: string;
   recipientName: string;
 }) {
   const modeLabel = accessMode === "demo" ? "demo portal access" : "portal access";
-  const title = accessMode === "demo" ? "Your EcoFocus demo portal is ready" : "Your EcoFocus portal access is ready";
+  const isResend = deliveryKind === "resend";
+  const title = isResend
+    ? accessMode === "demo"
+      ? "Replacement EcoFocus demo portal setup link"
+      : "Replacement EcoFocus portal setup link"
+    : accessMode === "demo"
+      ? "Your EcoFocus demo portal is ready"
+      : "Your EcoFocus portal access is ready";
   const intro =
-    accessMode === "demo"
+    isResend
+      ? "EcoFocus generated a new portal setup link for you. This link replaces any earlier setup links."
+      : accessMode === "demo"
       ? "EcoFocus has prepared a demo workspace so your team can explore the portal experience."
       : "EcoFocus has prepared your private workspace so your team can access licensed dashboards and support tools.";
   const escapedSetupUrl = escapeHtml(setupUrl);
   const body = `
     <div style="display:grid; gap:18px;">
+      ${
+        isResend
+          ? `<div style="background:#fff7ed; border:1px solid #fed7aa; border-radius:20px; padding:16px; color:#9a3412; font-size:14px; line-height:1.6;">
+              <strong>This is a replacement setup link.</strong><br />
+              Use this newest link to create your password. Any earlier EcoFocus portal setup links should be ignored.
+            </div>`
+          : ""
+      }
       <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
         <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Workspace</div>
         <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(companyName)}</div>
@@ -163,7 +182,11 @@ export async function sendPortalAccessSetupEmail({
       </div>
       <div style="font-size:14px; line-height:1.7; color:#334155;">
         Hello ${escapeHtml(recipientName)},<br /><br />
-        Use the button below to create your EcoFocus portal password. After that, you can sign in with your work email and password.
+        ${
+          isResend
+            ? "Use the button below to create your EcoFocus portal password with this replacement link. Older setup links will no longer work."
+            : "Use the button below to create your EcoFocus portal password. After that, you can sign in with your work email and password."
+        }
       </div>
       <div>
         <a
@@ -187,9 +210,12 @@ export async function sendPortalAccessSetupEmail({
       text: [
         `Hello ${recipientName},`,
         ``,
-        `EcoFocus has prepared ${modeLabel} for ${companyName}.`,
+        isResend
+          ? `EcoFocus generated a replacement setup link for ${modeLabel} for ${companyName}.`
+          : `EcoFocus has prepared ${modeLabel} for ${companyName}.`,
         `Plan: ${planName}`,
         ``,
+        ...(isResend ? [`This newest link replaces any earlier EcoFocus portal setup links.`, ``] : []),
         `Create your portal password:`,
         setupUrl,
       ].join("\n"),

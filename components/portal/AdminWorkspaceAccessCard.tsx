@@ -58,6 +58,10 @@ export function AdminWorkspaceAccessCard({
     try {
       const response = await fetch(`/api/portal/admin/workspaces/${encodeURIComponent(companyId)}/access-email`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deliveryKind: sentState.sentAt ? "resend" : "initial",
+        }),
       });
       const data = (await response.json()) as {
         email?: string;
