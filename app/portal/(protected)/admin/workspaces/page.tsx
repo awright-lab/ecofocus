@@ -5,6 +5,7 @@ import { AdminWorkspaceDeleteCard } from "@/components/portal/AdminWorkspaceDele
 import { AdminWorkspaceInvoiceForm } from "@/components/portal/AdminWorkspaceInvoiceForm";
 import { AdminWorkspacePicker } from "@/components/portal/AdminWorkspacePicker";
 import { AdminWorkspaceProvisioningForm } from "@/components/portal/AdminWorkspaceProvisioningForm";
+import { AdminWorkspaceUpgradeCard } from "@/components/portal/AdminWorkspaceUpgradeCard";
 import { RoleGuard } from "@/components/portal/RoleGuard";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { listPortalInvoicesByCompany } from "@/lib/portal/billing";
@@ -328,17 +329,27 @@ export default async function AdminWorkspacesPage({
                 />
 
                 {selectedCompany && selectedSubscription ? (
-                  <AdminWorkspaceAccessCard
-                    accessEmailDeliveryStatus={selectedAccessEmailDeliveryStatus}
-                    accessEmailSentAt={selectedAccessEmailSentAt}
-                    accessEmailSentTo={selectedAccessEmailSentTo}
-                    adminEmail={selectedClientAdmin?.email || null}
-                    adminName={selectedClientAdmin?.name || null}
-                    billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
-                    companyId={selectedCompany.id}
-                    companyName={selectedCompany.name}
-                    planName={selectedSubscription.planName}
-                  />
+                  <div className="space-y-6">
+                    <AdminWorkspaceUpgradeCard
+                      annualHoursLimit={selectedAllowance?.annualHoursLimit || null}
+                      companyId={selectedCompany.id}
+                      companyName={selectedCompany.name}
+                      planName={selectedSubscription.planName}
+                      seatsPurchased={selectedSubscription.seatsPurchased}
+                      stripeCustomerId={selectedCompany.stripeCustomerId}
+                    />
+                    <AdminWorkspaceAccessCard
+                      accessEmailDeliveryStatus={selectedAccessEmailDeliveryStatus}
+                      accessEmailSentAt={selectedAccessEmailSentAt}
+                      accessEmailSentTo={selectedAccessEmailSentTo}
+                      adminEmail={selectedClientAdmin?.email || null}
+                      adminName={selectedClientAdmin?.name || null}
+                      billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
+                      companyId={selectedCompany.id}
+                      companyName={selectedCompany.name}
+                      planName={selectedSubscription.planName}
+                    />
+                  </div>
                 ) : (
                   <div className="rounded-[32px] border border-slate-200 bg-white p-6">
                     <SectionHeader
