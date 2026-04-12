@@ -131,6 +131,7 @@ export function AdminDashboardManagementCard({
             displayrEmbedUrl: string;
             isActive: boolean;
             notes: string;
+            isFallback?: boolean;
           } | null;
         };
 

@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
-import { getPortalCompanies, getPortalDashboardCatalog, getPortalDashboardConfig, getPortalDashboardConfigsByCompany } from "@/lib/portal/data";
+import {
+  getPortalCompanies,
+  getPortalDashboardCatalog,
+  getPortalDashboardConfig,
+  getPortalDashboardConfigsByCompany,
+  getPortalAnyActiveDashboardConfigBySlug,
+} from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -71,8 +77,13 @@ export async function POST(req: NextRequest) {
     return asJson({ error: "Dashboard not found." }, 404);
   }
 
-  const existingConfig = (await getPortalDashboardConfigsByCompany(companyId)).find((config) => config.dashboardSlug === dashboardSlug) || null;
-  const persistedUrl = normalizedUrl || existingConfig?.displayrEmbedUrl || "";
+  const existingConfig =
+    (await getPortalDashboardConfigsByCompany(companyId)).find((config) => config.dashboardSlug === dashboardSlug) || null;
+  const fallbackConfig =
+    !normalizedUrl && !existingConfig && dashboard.availableToAll
+      ? await getPortalAnyActiveDashboardConfigBySlug(dashboardSlug)
+      : null;
+  const persistedUrl = normalizedUrl || existingConfig?.displayrEmbedUrl || fallbackConfig?.displayrEmbedUrl || "";
 
   if (isActive && !persistedUrl) {
     return asJson({ error: "An active dashboard needs a private dashboard URL." }, 400);
@@ -143,7 +154,14 @@ export async function GET(req: NextRequest) {
     return asJson({ error: "companyId and dashboardSlug are required." }, 400);
   }
 
+  const dashboard = (await getPortalDashboardCatalog()).find((item) => item.slug === dashboardSlug);
+  if (!dashboard) {
+    return asJson({ error: "Dashboard not found." }, 404);
+  }
+
   const config = await getPortalDashboardConfig(companyId, dashboardSlug);
+  const fallbackConfig =
+    !config && dashboard.availableToAll ? await getPortalAnyActiveDashboardConfigBySlug(dashboardSlug) : null;
   return asJson({
     ok: true,
     config: config
@@ -153,7 +171,17 @@ export async function GET(req: NextRequest) {
           displayrEmbedUrl: config.displayrEmbedUrl,
           isActive: config.isActive,
           notes: config.notes || "",
+          isFallback: false,
         }
-      : null,
+      : fallbackConfig
+        ? {
+            companyId,
+            dashboardSlug,
+            displayrEmbedUrl: fallbackConfig.displayrEmbedUrl,
+            isActive: false,
+            notes: "",
+            isFallback: true,
+          }
+        : null,
   });
 }

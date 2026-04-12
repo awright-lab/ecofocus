@@ -6,6 +6,7 @@ import {
   getPortalCompanies,
   getPortalDashboardCatalog,
   isPortalDashboardCatalogStorageReady,
+  getPortalActiveDashboardConfigs,
   getPortalDashboardConfigsByCompany,
 } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
@@ -31,6 +32,10 @@ export default async function AdminDashboardsPage({
         const selectedCompany = companies.find((company) => company.id === selectedCompanyId) || null;
         const dashboardCatalog = await getPortalDashboardCatalog();
         const isCatalogStorageReady = await isPortalDashboardCatalogStorageReady();
+        const activeDashboardConfigs = await getPortalActiveDashboardConfigs();
+        const activeConfigsBySlug = new Map(
+          activeDashboardConfigs.map((config) => [config.dashboardSlug, config]),
+        );
         const selectedCompanyDashboardConfigs = selectedCompanyId
           ? await getPortalDashboardConfigsByCompany(selectedCompanyId)
           : [];
@@ -45,7 +50,9 @@ export default async function AdminDashboardsPage({
             embedAccess: dashboard.embedAccess,
             availableToAll: dashboard.availableToAll ?? false,
             isActive: config?.isActive ?? false,
-            displayrEmbedUrl: config?.displayrEmbedUrl ?? "",
+            displayrEmbedUrl:
+              config?.displayrEmbedUrl ??
+              (dashboard.availableToAll ? activeConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl ?? "" : ""),
             notes: config?.notes ?? "",
           };
         });
