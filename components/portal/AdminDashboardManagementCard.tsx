@@ -13,6 +13,7 @@ type DashboardEditorItem = {
   accessTag: string;
   embedAccess: "public_link" | "displayr_login_required";
   availableToAll: boolean;
+  isHidden: boolean;
   isActive: boolean;
   displayrEmbedUrl: string;
   notes: string;
@@ -25,6 +26,7 @@ type FormState = {
   accessTag: string;
   embedAccess: "public_link" | "displayr_login_required";
   availableToAll: boolean;
+  isHidden: boolean;
   isActive: boolean;
   displayrEmbedUrl: string;
   notes: string;
@@ -43,6 +45,7 @@ function buildFormState(dashboard?: DashboardEditorItem): FormState {
     accessTag: dashboard?.accessTag || "",
     embedAccess: dashboard?.embedAccess || "public_link",
     availableToAll: dashboard?.availableToAll ?? false,
+    isHidden: dashboard?.isHidden ?? false,
     isActive: dashboard?.isActive || false,
     displayrEmbedUrl: dashboard?.displayrEmbedUrl || "",
     notes: dashboard?.notes || "",
@@ -202,6 +205,7 @@ export function AdminDashboardManagementCard({
           accessTag: formState.accessTag,
           embedAccess: formState.embedAccess,
           availableToAll: formState.availableToAll,
+          isHidden: formState.isHidden,
         }),
       });
       const data = (await response.json()) as { error?: string; slug?: string };
@@ -347,6 +351,11 @@ export function AdminDashboardManagementCard({
               {dashboard.availableToAll ? (
                 <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
                   Available to all
+                </span>
+              ) : null}
+              {dashboard.isHidden ? (
+                <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                  Hidden
                 </span>
               ) : null}
             </div>
@@ -520,6 +529,26 @@ export function AdminDashboardManagementCard({
                       <span className="block font-semibold">Available to all workspaces</span>
                       <span className="mt-1 block leading-6 text-sky-800">
                         Show this dashboard as an assignable option for every company. It still will not appear in that workspace until support enables access below.
+                      </span>
+                    </span>
+                  </label>
+
+                  <label className="flex gap-3 rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+                    <input
+                      type="checkbox"
+                      checked={formState.isHidden}
+                      onChange={(event) =>
+                        setFormState((current) => ({
+                          ...current,
+                          isHidden: event.target.checked,
+                        }))
+                      }
+                      className="mt-1 h-4 w-4 rounded border-rose-300 text-rose-600 focus:ring-rose-500"
+                    />
+                    <span>
+                      <span className="block font-semibold">Hide from client workspaces</span>
+                      <span className="mt-1 block leading-6 text-rose-800">
+                        This dashboard will not appear for client users or admins, even if assigned. Support admins can still manage it here.
                       </span>
                     </span>
                   </label>

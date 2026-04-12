@@ -12,12 +12,14 @@ create table if not exists public.portal_dashboards (
   access_tag text not null,
   embed_access text not null default 'public_link' check (embed_access in ('public_link', 'displayr_login_required')),
   available_to_all boolean not null default false,
+  is_hidden boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 alter table public.portal_dashboards
-  add column if not exists available_to_all boolean not null default false;
+  add column if not exists available_to_all boolean not null default false,
+  add column if not exists is_hidden boolean not null default false;
 
 create index if not exists portal_dashboards_name_idx
   on public.portal_dashboards (name);
@@ -38,6 +40,9 @@ comment on column public.portal_dashboards.access_tag is
 
 comment on column public.portal_dashboards.available_to_all is
   'When true, support admins can see this dashboard as assignable for every workspace. Company access still requires explicit workspace activation.';
+
+comment on column public.portal_dashboards.is_hidden is
+  'When true, the dashboard is hidden from client workspaces, even if assigned.';
 
 create or replace function public.set_portal_dashboards_updated_at()
 returns trigger
@@ -62,7 +67,8 @@ insert into public.portal_dashboards (
   description,
   access_tag,
   embed_access,
-  available_to_all
+  available_to_all,
+  is_hidden
 )
 values
   (
@@ -72,7 +78,8 @@ values
     'Topline sustainability perception trends, brand positioning, and audience shifts.',
     'Included',
     'public_link',
-    true
+    true,
+    false
   ),
   (
     'dashboard-category',
@@ -81,6 +88,7 @@ values
     'Track category-level movement, segment filters, and quarterly benchmark changes.',
     'Licensed',
     'displayr_login_required',
+    false,
     false
   ),
   (
@@ -90,6 +98,7 @@ values
     'Interactive Displayr dashboard for the 2024 study with page-level navigation, segment analysis, and export-ready views.',
     '2024 Study',
     'public_link',
+    false,
     false
   ),
   (
@@ -99,6 +108,7 @@ values
     'Download-oriented dashboard shell for chart and table extraction workflows.',
     'Advanced',
     'displayr_login_required',
+    false,
     false
   ),
   (
@@ -108,6 +118,7 @@ values
     'Reserved for project-specific Displayr embeds and custom stakeholder views.',
     'Project',
     'displayr_login_required',
+    false,
     false
   )
 on conflict (slug) do update
@@ -117,4 +128,5 @@ set
   access_tag = excluded.access_tag,
   embed_access = excluded.embed_access,
   available_to_all = excluded.available_to_all,
+  is_hidden = excluded.is_hidden,
   updated_at = now();

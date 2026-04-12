@@ -100,6 +100,7 @@ export type PortalDashboard = {
   embedUrl: string | null;
   embedAccess: "public_link" | "displayr_login_required";
   availableToAll?: boolean;
+  isHidden?: boolean;
 };
 
 export type PortalDashboardConfig = {

@@ -15,6 +15,7 @@ type DashboardCatalogBody = {
   accessTag?: string;
   embedAccess?: "public_link" | "displayr_login_required";
   availableToAll?: boolean;
+  isHidden?: boolean;
 };
 
 function asJson(body: Record<string, unknown>, status = 200) {
@@ -23,7 +24,7 @@ function asJson(body: Record<string, unknown>, status = 200) {
 
 function normalizeCatalogStorageError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
-  if (message.includes("portal_dashboards") || message.includes("available_to_all")) {
+  if (message.includes("portal_dashboards") || message.includes("available_to_all") || message.includes("is_hidden")) {
     return "Dashboard catalog storage is not ready yet. Apply docs/portal_dashboards.sql in Supabase first.";
   }
   return message;
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
   const embedAccess =
     body.embedAccess === "displayr_login_required" ? "displayr_login_required" : "public_link";
   const availableToAll = Boolean(body.availableToAll);
+  const isHidden = Boolean(body.isHidden);
 
   if (!name || !description || !accessTag) {
     return asJson({ error: "Name, description, and category are required." }, 400);
@@ -97,6 +99,7 @@ export async function POST(req: NextRequest) {
         access_tag: accessTag,
         embed_access: embedAccess,
         available_to_all: availableToAll,
+        is_hidden: isHidden,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "slug" },
@@ -118,6 +121,7 @@ export async function POST(req: NextRequest) {
         slug,
         accessTag,
         availableToAll,
+        isHidden,
         embedAccess,
       },
     });

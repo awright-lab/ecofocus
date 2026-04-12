@@ -135,6 +135,7 @@ export const portalDashboards: PortalDashboard[] = [
     embedUrl: null,
     embedAccess: "public_link",
     availableToAll: true,
+    isHidden: false,
   },
   {
     id: "dashboard-category",
@@ -145,6 +146,7 @@ export const portalDashboards: PortalDashboard[] = [
     embedUrl: null,
     embedAccess: "displayr_login_required",
     availableToAll: false,
+    isHidden: false,
   },
   {
     id: "dashboard-2024-interactive",
@@ -155,6 +157,7 @@ export const portalDashboards: PortalDashboard[] = [
     embedUrl: null,
     embedAccess: "public_link",
     availableToAll: false,
+    isHidden: false,
   },
   {
     id: "dashboard-export",
@@ -165,6 +168,7 @@ export const portalDashboards: PortalDashboard[] = [
     embedUrl: null,
     embedAccess: "displayr_login_required",
     availableToAll: false,
+    isHidden: false,
   },
   {
     id: "dashboard-custom",
@@ -175,6 +179,7 @@ export const portalDashboards: PortalDashboard[] = [
     embedUrl: null,
     embedAccess: "displayr_login_required",
     availableToAll: false,
+    isHidden: false,
   },
 ];
 

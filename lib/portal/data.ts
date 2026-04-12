@@ -544,7 +544,11 @@ async function queryCompanyDashboards(companyId: string): Promise<PortalDashboar
     const runtimeEntitlements = await queryPortalDashboardEntitlements(companyId);
     const dashboardCatalog = await getPortalDashboardCatalog();
     const entitledIds = new Set((runtimeEntitlements || []).map((entitlement) => entitlement.dashboardId));
-    return dashboardCatalog.filter((dashboard) => activeSlugs.has(dashboard.slug) || entitledIds.has(dashboard.id));
+    return dashboardCatalog.filter(
+      (dashboard) =>
+        !dashboard.isHidden &&
+        (activeSlugs.has(dashboard.slug) || entitledIds.has(dashboard.id) || dashboard.availableToAll),
+    );
   } catch (error) {
     console.warn("[portal/data] portal_dashboard_configs storage unavailable.", {
       companyId,
@@ -563,6 +567,7 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
     access_tag?: unknown;
     embed_access?: unknown;
     available_to_all?: unknown;
+    is_hidden?: unknown;
   };
 
   try {
@@ -571,12 +576,12 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
     let error: { message: string } | null = null;
     const result = await admin
       .from("portal_dashboards")
-      .select("id, slug, name, description, access_tag, embed_access, available_to_all")
+      .select("id, slug, name, description, access_tag, embed_access, available_to_all, is_hidden")
       .order("name", { ascending: true });
     data = result.data;
     error = result.error;
 
-    if (error && error.message.includes("available_to_all")) {
+    if (error && (error.message.includes("available_to_all") || error.message.includes("is_hidden"))) {
       const fallback = await admin
         .from("portal_dashboards")
         .select("id, slug, name, description, access_tag, embed_access")
@@ -600,6 +605,7 @@ async function queryPortalDashboardCatalog(): Promise<PortalDashboard[] | null> 
       embedAccess:
         dashboard.embed_access === "displayr_login_required" ? "displayr_login_required" : "public_link",
       availableToAll: Boolean(dashboard.available_to_all),
+      isHidden: Boolean(dashboard.is_hidden),
     }));
   } catch (error) {
     console.warn("[portal/data] portal_dashboards storage unavailable.", {
@@ -1000,7 +1006,9 @@ export async function getPortalDashboardsForUser(user: PortalUser, companyId = u
       .map((entitlement) => entitlement.dashboardId),
   );
 
-  return portalDashboards.filter((dashboard) => entitledIds.has(dashboard.id));
+  return portalDashboards.filter(
+    (dashboard) => !dashboard.isHidden && (entitledIds.has(dashboard.id) || dashboard.availableToAll),
+  );
 }
 
 export async function getPortalDashboardForUser(user: PortalUser, slug: string, companyId = user.companyId) {
