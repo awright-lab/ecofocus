@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSupabase, getServiceSupabase } from "@/lib/supabase/server";
+import { getAuthenticatedUser, getServiceSupabase } from "@/lib/supabase/server";
 
 type ToolCall =
   | { tool: "searchQuestions"; args: { q: string } }
@@ -24,12 +24,7 @@ function asJsonResponse(body: Record<string, any>, status = 200) {
 }
 
 async function assertAuthed() {
-  const supabase = await getServerSupabase();
-  const { data, error } = await supabase.auth.getSession();
-  if (error || !data?.session) {
-    return null;
-  }
-  return data.session;
+  return getAuthenticatedUser().catch(() => null);
 }
 
 function looksLikeJson(message: string) {
@@ -197,8 +192,8 @@ async function logChat({
 }
 
 export async function POST(req: NextRequest) {
-  const session = await assertAuthed();
-  if (!session) {
+  const authUser = await assertAuthed();
+  if (!authUser) {
     return asJsonResponse({ error: "Unauthorized" }, 401);
   }
 
@@ -219,7 +214,7 @@ export async function POST(req: NextRequest) {
   const validationError = validateToolCall(toolCall);
   if (validationError) {
     await logChat({
-      userId: session.user.id,
+      userId: authUser.id,
       message,
       toolUsed: toolCall.tool,
       variablesUsed: toolCall.tool === "runCrosstab" ? toolCall.args : toolCall.tool === "searchQuestions" ? toolCall.args : null,
@@ -341,7 +336,7 @@ export async function POST(req: NextRequest) {
   }
 
   await logChat({
-    userId: session.user.id,
+    userId: authUser.id,
     message,
     toolUsed: toolCall.tool,
     variablesUsed,

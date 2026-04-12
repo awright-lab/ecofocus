@@ -143,11 +143,11 @@ export async function middleware(req: NextRequest) {
       })
     : null;
 
-  let session = null;
+  let authUser = null;
   if (supabase) {
     try {
-      const { data } = await supabase.auth.getSession();
-      session = data.session;
+      const { data } = await supabase.auth.getUser();
+      authUser = data.user;
     } catch (error) {
       console.warn('[middleware] Supabase session lookup failed; treating request as unauthenticated.', {
         pathname,
@@ -156,7 +156,7 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  const portalDefaultPath = session ? '/home' : '/login';
+  const portalDefaultPath = authUser ? '/home' : '/login';
 
   if (portalHost && pathname === '/') {
     const redirectUrl = req.nextUrl.clone();
@@ -178,7 +178,7 @@ export async function middleware(req: NextRequest) {
     !isPortalForgotPassword &&
     !isPortalPasswordSetup &&
     !isPortalResetPassword &&
-    !session
+    !authUser
   ) {
     const redirectUrl = req.nextUrl.clone();
     redirectUrl.pathname = portalHost ? '/login' : '/portal/login';

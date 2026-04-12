@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSupabase, getServiceSupabase } from "@/lib/supabase/server";
+import { getAuthenticatedUser, getServiceSupabase } from "@/lib/supabase/server";
 
 const FALLBACK_TABLES = [
   "responses_2025_core",
@@ -26,12 +26,7 @@ function isMissingColumnError(error: any, column: string) {
 }
 
 async function assertAuthed() {
-  const supabase = await getServerSupabase();
-  const { data, error } = await supabase.auth.getSession();
-  if (error || !data?.session) {
-    return null;
-  }
-  return data.session;
+  return getAuthenticatedUser().catch(() => null);
 }
 
 async function loadAllowlist(admin: ReturnType<typeof getServiceSupabase>) {

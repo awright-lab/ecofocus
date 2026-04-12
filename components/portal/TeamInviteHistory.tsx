@@ -31,7 +31,7 @@ export function TeamInviteHistory({
 }) {
   const router = useRouter();
   const [resendingId, setResendingId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<Record<string, { error?: string; success?: string }>>({});
+  const [feedback, setFeedback] = useState<Record<string, { error?: string; success?: string; warning?: string }>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   async function copyInviteUrl(inviteId: string, inviteUrl: string) {
@@ -52,7 +52,12 @@ export function TeamInviteHistory({
         method: "POST",
       });
 
-      const data = (await response.json()) as { error?: string; emailSent?: boolean; inviteUrl?: string };
+      const data = (await response.json()) as {
+        error?: string;
+        emailSent?: boolean;
+        emailWarning?: string | null;
+        inviteUrl?: string;
+      };
       if (!response.ok) {
         setFeedback((current) => ({
           ...current,
@@ -64,7 +69,10 @@ export function TeamInviteHistory({
 
       setFeedback((current) => ({
         ...current,
-        [inviteId]: { success: data.emailSent ? "Invite email sent." : "Setup link is ready to share." },
+        [inviteId]: {
+          success: data.emailSent ? "Invite email sent." : "Setup link is ready to share.",
+          warning: data.emailWarning || undefined,
+        },
       }));
       setResendingId(null);
       if (data.inviteUrl) {
@@ -128,6 +136,7 @@ export function TeamInviteHistory({
                   {resendingId === invite.id ? "Refreshing..." : "Refresh setup link"}
                 </button>
                 {messages.success ? <p className="text-xs font-medium text-emerald-700">{messages.success}</p> : null}
+                {messages.warning ? <p className="text-xs font-medium text-amber-700">{messages.warning}</p> : null}
                 {messages.error ? <p className="text-xs font-medium text-rose-600">{messages.error}</p> : null}
               </div>
             ) : (

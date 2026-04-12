@@ -2,6 +2,7 @@ import type { PortalUser } from "@/lib/portal/types";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const DEFAULT_SUPPORT_EMAIL = "support@ecofocusresearch.com";
+const EMAIL_DELIVERY_TIMEOUT_MS = 8000;
 
 function escapeHtml(value: string) {
   return value
@@ -66,20 +67,34 @@ async function sendPortalEmail({
     return { sent: false as const };
   }
 
-  const response = await fetch(RESEND_API_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: fromEmail,
-      to: Array.isArray(to) ? to : [to],
-      subject,
-      html,
-      text,
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), EMAIL_DELIVERY_TIMEOUT_MS);
+  let response: Response;
+
+  try {
+    response = await fetch(RESEND_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        from: fromEmail,
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        html,
+        text,
+      }),
+    });
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Email delivery timed out. Copy the setup link manually.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const details = await response.text().catch(() => "");

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSupabase, getServiceSupabase } from "@/lib/supabase/server";
+import { getAuthenticatedUser, getServiceSupabase } from "@/lib/supabase/server";
 
 const LOOKUP_TABLE = "responses_2025_question_lookup";
 const ALIAS_TABLE = "responses_2025_question_aliases";
@@ -145,9 +145,8 @@ function classifyRow(row: Record<string, any>) {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await getServerSupabase();
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError || !sessionData?.session) {
+  const authUser = await getAuthenticatedUser().catch(() => null);
+  if (!authUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

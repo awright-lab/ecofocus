@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { getSession } from "@/lib/supabase/server";
+import { getAuthenticatedUser } from "@/lib/supabase/server";
 import {
   getPortalAccessibleCompaniesForUser,
   getPortalCompany,
@@ -48,7 +48,7 @@ function getPreviewRoleFromCookie(
 }
 
 export type PortalAccessContext = {
-  session: Awaited<ReturnType<typeof getSession>>;
+  session: Awaited<ReturnType<typeof getAuthenticatedUser>> | null;
   user: PortalUser;
   effectiveUser: PortalUser;
   effectiveRole: PortalRole;
@@ -103,10 +103,10 @@ export async function getPortalAccessContext(): Promise<PortalAccessContext | nu
     };
   }
 
-  const session = await getSession().catch(() => null);
-  if (!session?.user) return null;
+  const authUser = await getAuthenticatedUser().catch(() => null);
+  if (!authUser?.email) return null;
 
-  const matchedUser = await getPortalUserByEmail(session.user.email);
+  const matchedUser = await getPortalUserByEmail(authUser.email);
   if (!matchedUser || matchedUser.status === "invited" || matchedUser.status === "inactive") {
     return null;
   }
@@ -136,7 +136,7 @@ export async function getPortalAccessContext(): Promise<PortalAccessContext | nu
   if (!company || !homeCompany || !subscription) return null;
 
   return {
-    session,
+    session: authUser,
     user,
     effectiveUser,
     effectiveRole: effectiveUser.role,

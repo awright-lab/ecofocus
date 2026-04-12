@@ -65,3 +65,10 @@ export async function getSession() {
   if (error) throw error;
   return data.session;
 }
+
+export async function getAuthenticatedUser() {
+  const supabase = await getServerSupabase();
+  const { data, error } = await supabase.auth.getUser();
+  if (error) throw error;
+  return data.user;
+}
