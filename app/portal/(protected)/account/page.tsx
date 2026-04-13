@@ -170,7 +170,10 @@ export default async function AccountPage() {
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             {!access.isPreviewMode ? (
-              <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+              <Link
+                href={`/portal/support/new?issueType=${encodeURIComponent("Billing / Invoices")}`}
+                className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white"
+              >
                 Request additional hours
               </Link>
             ) : null}
@@ -208,7 +211,10 @@ export default async function AccountPage() {
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             {!access.isPreviewMode ? (
-              <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+              <Link
+                href={`/portal/support/new?issueType=${encodeURIComponent("Billing / Invoices")}`}
+                className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white"
+              >
                 Contact billing support
               </Link>
             ) : null}

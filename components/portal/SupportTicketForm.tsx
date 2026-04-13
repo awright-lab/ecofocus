@@ -9,6 +9,7 @@ const issueTypes = [
   "Dashboard Navigation",
   "Chart Export",
   "Data Question",
+  "Billing / Invoices",
   "Possible Bug",
   "Feature Request",
   "Training Request",

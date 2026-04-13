@@ -1,5 +1,6 @@
 import type Stripe from "stripe";
-import { getPortalCompanies } from "@/lib/portal/data";
+import { getPortalCompanies, getPortalTeamMembersByCompany } from "@/lib/portal/data";
+import { sendPortalInvoiceSentEmail } from "@/lib/portal/email";
 import type { PortalInvoiceSummary, PortalSubscription } from "@/lib/portal/types";
 import { getStripeServer } from "@/lib/stripe";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -426,6 +427,38 @@ export async function createPortalInvoiceForCompany(input: {
   }
   const sentInvoice = await stripe.invoices.sendInvoice(finalizedInvoice.id);
   await syncPortalInvoiceStatusFromStripeInvoice(sentInvoice, "invoice.sent");
+
+  try {
+    const teamMembers = await getPortalTeamMembersByCompany(company.id);
+    const adminEmails = teamMembers
+      .filter(
+        (member) =>
+          (member.role === "client_admin" || member.role === "agency_admin") && member.status === "active",
+      )
+      .map((member) => member.email)
+      .filter(Boolean);
+    const recipientSet = new Set<string>(adminEmails);
+    if (company.billingEmail) {
+      recipientSet.add(company.billingEmail);
+    }
+    const recipients = Array.from(recipientSet);
+    if (recipients.length) {
+      await sendPortalInvoiceSentEmail({
+        to: recipients,
+        companyName: company.name,
+        billingContactName: company.billingContactName,
+        amountUsd,
+        description,
+        dueAt: sentInvoice.due_date ? new Date(sentInvoice.due_date * 1000).toISOString() : null,
+        hostedInvoiceUrl: sentInvoice.hosted_invoice_url || null,
+      });
+    }
+  } catch (error) {
+    console.warn("[portal/billing] Invoice email delivery failed.", {
+      companyId: company.id,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 
   return {
     id: sentInvoice.id,

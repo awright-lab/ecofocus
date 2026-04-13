@@ -2,6 +2,8 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { syncPortalInvoiceStatusFromStripeInvoice, syncPortalSubscriptionStatusFromStripeSubscription } from "@/lib/portal/billing";
+import { getPortalCompanies } from "@/lib/portal/data";
+import { sendPortalInvoicePaidNotificationEmail } from "@/lib/portal/email";
 import { getPortalProvisioningMetadata, upsertPortalAccountRecords, upsertPortalDashboardConfig } from "@/lib/portal/provisioning";
 import { getStripeServer } from "@/lib/stripe";
 
@@ -20,6 +22,37 @@ async function handleCheckoutCompleted(s: Stripe.Checkout.Session) {
 
 async function handleInvoiceEvent(invoice: Stripe.Invoice, eventType: string) {
   await syncPortalInvoiceStatusFromStripeInvoice(invoice, eventType);
+
+  if (eventType !== "invoice.paid") {
+    return;
+  }
+
+  const portalCompanyId = String(invoice.metadata?.portalCompanyId || "").trim();
+  const customerId = typeof invoice.customer === "string" ? invoice.customer : invoice.customer?.id || null;
+  const companies = await getPortalCompanies();
+  const company =
+    (portalCompanyId ? companies.find((item) => item.id === portalCompanyId) : null) ||
+    (customerId ? companies.find((item) => item.stripeCustomerId === customerId) : null) ||
+    null;
+
+  if (!company) {
+    console.warn("[portal/billing] Invoice paid email skipped because the company could not be resolved.", {
+      invoiceId: invoice.id,
+      portalCompanyId,
+      customerId,
+    });
+    return;
+  }
+
+  await sendPortalInvoicePaidNotificationEmail({
+    companyName: company.name,
+    amountPaidUsd: (invoice.amount_paid || 0) / 100,
+    invoiceId: invoice.id,
+    hostedInvoiceUrl: invoice.hosted_invoice_url || null,
+    paidAt: invoice.status_transitions?.paid_at
+      ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
+      : null,
+  });
 }
 
 async function handleSubscriptionEvent(subscription: Stripe.Subscription) {

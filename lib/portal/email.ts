@@ -2,6 +2,7 @@ import type { PortalUser } from "@/lib/portal/types";
 
 const RESEND_API_URL = "https://api.resend.com/emails";
 const DEFAULT_SUPPORT_EMAIL = "support@ecofocusresearch.com";
+const DEFAULT_BILLING_EMAIL = "billing@ecofocusresearch.com";
 const EMAIL_DELIVERY_TIMEOUT_MS = 8000;
 
 function escapeHtml(value: string) {
@@ -43,6 +44,17 @@ function renderPortalEmailFrame({
 
 function getPortalSiteUrl(fallbackOrigin?: string) {
   return process.env.NEXT_PUBLIC_SITE_URL || fallbackOrigin || "https://ecofocusresearch.com";
+}
+
+function formatUsd(amountUsd: number) {
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amountUsd);
+}
+
+function formatShortDate(value?: string | number | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return null;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 async function sendPortalEmail({
@@ -102,6 +114,175 @@ async function sendPortalEmail({
   }
 
   return { sent: true as const };
+}
+
+export async function sendPortalInvoiceSentEmail({
+  to,
+  companyName,
+  billingContactName,
+  amountUsd,
+  description,
+  dueAt,
+  hostedInvoiceUrl,
+}: {
+  to: string[];
+  companyName: string;
+  billingContactName?: string | null;
+  amountUsd: number;
+  description: string;
+  dueAt?: string | null;
+  hostedInvoiceUrl?: string | null;
+}) {
+  const dueLabel = formatShortDate(dueAt);
+  const amountLabel = formatUsd(amountUsd);
+  const subject = `EcoFocus invoice sent for ${companyName}`;
+  const intro = "A new EcoFocus invoice is ready. Review the details below and open the hosted invoice to submit payment.";
+  const escapedInvoiceUrl = hostedInvoiceUrl ? escapeHtml(hostedInvoiceUrl) : "";
+  const body = `
+    <div style="display:grid; gap:18px;">
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Workspace</div>
+        <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(companyName)}</div>
+        ${billingContactName ? `<div style="margin-top:6px; font-size:13px; color:#475569;">Billing contact: ${escapeHtml(billingContactName)}</div>` : ""}
+      </div>
+      <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Invoice details</div>
+        <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(amountLabel)}</div>
+        <div style="margin-top:6px; font-size:13px; color:#475569;">${escapeHtml(description)}</div>
+        ${dueLabel ? `<div style="margin-top:6px; font-size:13px; color:#475569;">Due ${escapeHtml(dueLabel)}</div>` : ""}
+      </div>
+      ${
+        hostedInvoiceUrl
+          ? `<div>
+              <a
+                href="${escapedInvoiceUrl}"
+                style="display:inline-block; background:#0f172a; color:#ffffff; text-decoration:none; font-weight:700; font-size:14px; padding:14px 20px; border-radius:14px;"
+              >
+                Open invoice
+              </a>
+            </div>`
+          : ""
+      }
+      ${
+        hostedInvoiceUrl
+          ? `<div style="font-size:12px; line-height:1.6; color:#64748b;">
+              If the button does not work, copy and paste this link into your browser:<br />
+              <a href="${escapedInvoiceUrl}" style="color:#0f766e;">${escapedInvoiceUrl}</a>
+            </div>`
+          : ""
+      }
+    </div>
+  `;
+
+  try {
+    const delivery = await sendPortalEmail({
+      to,
+      subject,
+      text: [
+        `EcoFocus invoice sent for ${companyName}.`,
+        `Amount: ${amountLabel}`,
+        `Description: ${description}`,
+        dueLabel ? `Due: ${dueLabel}` : "",
+        hostedInvoiceUrl ? `Invoice link: ${hostedInvoiceUrl}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      html: renderPortalEmailFrame({
+        eyebrow: "Billing update",
+        title: "Your EcoFocus invoice is ready",
+        intro,
+        body,
+      }),
+    });
+
+    return {
+      emailSent: delivery.sent,
+      emailWarning: delivery.sent ? null : "Email delivery is not configured, so the invoice alert was not sent.",
+    };
+  } catch (error) {
+    return {
+      emailSent: false,
+      emailWarning: error instanceof Error ? error.message : "Email delivery failed.",
+    };
+  }
+}
+
+export async function sendPortalInvoicePaidNotificationEmail({
+  companyName,
+  amountPaidUsd,
+  invoiceId,
+  hostedInvoiceUrl,
+  paidAt,
+}: {
+  companyName: string;
+  amountPaidUsd: number;
+  invoiceId: string;
+  hostedInvoiceUrl?: string | null;
+  paidAt?: string | null;
+}) {
+  const amountLabel = formatUsd(amountPaidUsd);
+  const paidLabel = formatShortDate(paidAt);
+  const escapedInvoiceUrl = hostedInvoiceUrl ? escapeHtml(hostedInvoiceUrl) : "";
+  const subject = `Invoice paid: ${companyName}`;
+  const intro = "Stripe confirmed an EcoFocus invoice payment. Review the details below for billing follow-up.";
+  const body = `
+    <div style="display:grid; gap:18px;">
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Workspace</div>
+        <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(companyName)}</div>
+      </div>
+      <div style="background:#ecfdf3; border:1px solid #bbf7d0; border-radius:20px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#166534;">Payment received</div>
+        <div style="margin-top:8px; font-size:18px; font-weight:700; color:#166534;">${escapeHtml(amountLabel)}</div>
+        <div style="margin-top:6px; font-size:13px; color:#14532d;">Invoice ID: ${escapeHtml(invoiceId)}</div>
+        ${paidLabel ? `<div style="margin-top:6px; font-size:13px; color:#14532d;">Paid ${escapeHtml(paidLabel)}</div>` : ""}
+      </div>
+      ${
+        hostedInvoiceUrl
+          ? `<div>
+              <a
+                href="${escapedInvoiceUrl}"
+                style="display:inline-block; background:#0f172a; color:#ffffff; text-decoration:none; font-weight:700; font-size:14px; padding:14px 20px; border-radius:14px;"
+              >
+                View invoice
+              </a>
+            </div>`
+          : ""
+      }
+    </div>
+  `;
+
+  try {
+    const delivery = await sendPortalEmail({
+      to: DEFAULT_BILLING_EMAIL,
+      subject,
+      text: [
+        `Invoice paid for ${companyName}.`,
+        `Amount: ${amountLabel}`,
+        `Invoice ID: ${invoiceId}`,
+        paidLabel ? `Paid: ${paidLabel}` : "",
+        hostedInvoiceUrl ? `Invoice link: ${hostedInvoiceUrl}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      html: renderPortalEmailFrame({
+        eyebrow: "Billing update",
+        title: "Invoice payment confirmed",
+        intro,
+        body,
+      }),
+    });
+
+    return {
+      emailSent: delivery.sent,
+      emailWarning: delivery.sent ? null : "Email delivery is not configured, so the billing alert was not sent.",
+    };
+  } catch (error) {
+    return {
+      emailSent: false,
+      emailWarning: error instanceof Error ? error.message : "Email delivery failed.",
+    };
+  }
 }
 
 export async function sendPortalPasswordResetEmail({
