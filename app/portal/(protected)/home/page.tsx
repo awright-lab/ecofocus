@@ -226,10 +226,10 @@ export default async function PortalHomePage() {
                 >
                   {isClientUser
                     ? hasUserAllocation
-                      ? usage.hoursRemainingDisplay
+                      ? usage.hoursRemainingDisplay || "0 hours"
                       : "Not assigned"
                     : usage.annualHoursLimit
-                      ? usage.hoursRemainingDisplay
+                      ? usage.hoursRemainingDisplay || "0 hours"
                       : "Included"}
                 </p>
                 <p className={`text-right text-xs ${isUsageNearLimit ? "text-rose-700" : "text-slate-600"}`}>

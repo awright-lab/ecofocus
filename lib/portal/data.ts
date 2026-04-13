@@ -1290,10 +1290,13 @@ export async function getPortalUsageStatus(user: PortalUser) {
       allowance: null,
       allocation: null,
       hoursUsed: 0,
+      hoursUsedDisplay: null,
       annualHoursLimit: null,
       hoursRemaining: null,
+      hoursRemainingDisplay: null,
       utilizationPct: 0,
       isLocked: false,
+      devOverride: null,
     };
   }
 
