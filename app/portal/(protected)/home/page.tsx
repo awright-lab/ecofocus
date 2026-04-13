@@ -223,7 +223,10 @@ export default async function PortalHomePage() {
                 <p className="mt-1.5 text-sm text-slate-600">Open a dashboard or jump into support.</p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <Link href="/portal/dashboards" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                <Link
+                  href="/portal/dashboards"
+                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:bg-slate-950 hover:text-white"
+                >
                   Open dashboards
                 </Link>
                 {access.isPreviewMode ? (
@@ -231,11 +234,17 @@ export default async function PortalHomePage() {
                     Request submission disabled
                   </span>
                 ) : (
-                  <Link href="/portal/support/new" className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white">
+                  <Link
+                    href="/portal/support/new"
+                    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:bg-slate-950 hover:text-white"
+                  >
                     Start support request
                   </Link>
                 )}
-                <Link href="/portal/support/tickets" className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700">
+                <Link
+                  href="/portal/support/tickets"
+                  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-950 hover:bg-slate-950 hover:text-white"
+                >
                   View requests
                 </Link>
               </div>
