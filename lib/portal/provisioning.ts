@@ -349,11 +349,8 @@ export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
     .maybeSingle();
 
   if (existingUserError) throw new Error(existingUserError.message);
-  if (existingUser && (existingUser.home_company_id || existingUser.company_id) !== input.companyId) {
-    throw new Error(
-      "A portal user with this email already belongs to a different subscriber account. Cross-account access should be granted through workspace memberships, not by moving the user.",
-    );
-  }
+  const existingHomeCompanyId = existingUser?.home_company_id || existingUser?.company_id || null;
+  const isCrossAccount = Boolean(existingUser && existingHomeCompanyId && existingHomeCompanyId !== input.companyId);
   if (existingUser && existingUser.company_id === input.companyId && existingUser.status !== "inactive") {
     throw new Error("A portal user with this email already exists for the selected company.");
   }
@@ -364,28 +361,38 @@ export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
     .eq("id", input.subscriptionId)
     .maybeSingle();
 
+  const userId = existingUser?.id || slugifyUserId(email);
+  const { data: existingMembership, error: membershipLookupError } = await admin
+    .from("portal_workspace_memberships")
+    .select("id")
+    .eq("workspace_company_id", input.companyId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (membershipLookupError) throw new Error(membershipLookupError.message);
+
   if (subscriptionError) throw new Error(subscriptionError.message);
   if (!subscription) throw new Error("Subscription not found.");
-  if (subscription.seats_used >= subscription.seats_purchased) {
+  if (subscription.seats_used >= subscription.seats_purchased && !existingMembership) {
     throw new Error("No seats are currently available for this account.");
   }
 
-  const userId = existingUser?.id || slugifyUserId(email);
+  if (!existingUser || !isCrossAccount) {
+    const { error: userError } = await admin.from("portal_users").upsert(
+      {
+        id: userId,
+        name,
+        email,
+        company_id: input.companyId,
+        home_company_id: input.companyId,
+        role: input.role,
+        status: "invited",
+      },
+      { onConflict: "id" },
+    );
 
-  const { error: userError } = await admin.from("portal_users").upsert(
-    {
-      id: userId,
-      name,
-      email,
-      company_id: input.companyId,
-      home_company_id: input.companyId,
-      role: input.role,
-      status: "invited",
-    },
-    { onConflict: "id" },
-  );
-
-  if (userError) throw new Error(userError.message);
+    if (userError) throw new Error(userError.message);
+  }
 
   const { error: membershipError } = await admin.from("portal_workspace_memberships").upsert(
     {
@@ -399,7 +406,7 @@ export async function createPortalTeamInvite(input: PortalTeamInviteInput) {
 
   if (membershipError) throw new Error(membershipError.message);
 
-  const seatsUsedIncrement = existingUser?.status === "inactive" || !existingUser ? 1 : 0;
+  const seatsUsedIncrement = existingMembership ? 0 : 1;
   const { error: subscriptionUpdateError } = await admin
     .from("portal_subscriptions")
     .update({
