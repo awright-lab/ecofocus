@@ -102,7 +102,7 @@ export function TeamMemberActions({
               <button
                 type="button"
                 onClick={() => setIsRemoveModalOpen(false)}
-                className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
                 aria-label="Close"
               >
                 ×
