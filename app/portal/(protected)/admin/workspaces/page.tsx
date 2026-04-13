@@ -13,6 +13,7 @@ import {
   getPortalCompanies,
   getPortalDashboardCatalog,
   getPortalDashboardConfigsByCompany,
+  getLatestPortalPasswordSetupTokenByUserId,
   getPortalSubscriptionByCompany,
   getPortalTeamMembersByCompany,
   getPortalUsageLogsForAdmin,
@@ -105,22 +106,31 @@ export default async function AdminWorkspacesPage({
               })
             ).find((log) => log.metadata?.action === "portal_access_email_sent") || null
           : null;
+        const fallbackSetupToken =
+          !selectedAccessEmailLog && selectedClientAdmin
+            ? await getLatestPortalPasswordSetupTokenByUserId(selectedClientAdmin.id)
+            : null;
         const selectedAccessEmailSentAt =
           typeof selectedAccessEmailLog?.metadata?.sentAt === "string"
             ? selectedAccessEmailLog.metadata.sentAt
-            : selectedAccessEmailLog?.eventAt || null;
+            : selectedAccessEmailLog?.eventAt || fallbackSetupToken?.createdAt || null;
         const selectedAccessEmailSentTo =
           typeof selectedAccessEmailLog?.metadata?.recipientEmail === "string"
             ? selectedAccessEmailLog.metadata.recipientEmail
-            : null;
+            : fallbackSetupToken?.email || null;
         const selectedAccessEmailDeliveryStatus =
           selectedAccessEmailLog && selectedAccessEmailLog.metadata?.emailSent === false
             ? "manual_only"
-            : selectedAccessEmailLog
+            : selectedAccessEmailLog || fallbackSetupToken
               ? "sent"
               : null;
         const selectedPlanName = selectedSubscription?.planName || "";
         const isSelectedDemoSuite = selectedPlanName === "Demo Suite";
+        const hasPaidInvoice = selectedInvoices.some((invoice) => invoice.status === "paid");
+        const effectiveBillingStatus =
+          selectedSubscription?.billingStatus === "paid" || hasPaidInvoice
+            ? "paid"
+            : selectedSubscription?.billingStatus || "not_invoiced";
         const workspaceTabs: { view: AdminWorkspaceView; label: string }[] = [
           { view: "overview", label: "Overview" },
           { view: "create", label: "New workspace" },
@@ -214,7 +224,7 @@ export default async function AdminWorkspacesPage({
                         {isSelectedDemoSuite ? "Demo Suite" : "Enterprise Insight Suite"}
                       </span>
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-700">
-                        {(selectedSubscription.billingStatus || "not_invoiced").replace(/_/g, " ")}
+                        {effectiveBillingStatus.replace(/_/g, " ")}
                       </span>
                     </div>
                   ) : null}
@@ -223,7 +233,7 @@ export default async function AdminWorkspacesPage({
                       <div className="rounded-[24px] bg-slate-50 p-5">
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Billing status</p>
                         <p className="mt-3 text-2xl font-semibold capitalize text-slate-950">
-                          {formatStatusLabel(selectedSubscription?.billingStatus)}
+                          {formatStatusLabel(effectiveBillingStatus)}
                         </p>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
                           {selectedCompany.billingEmail || "No billing email saved yet."}
@@ -255,7 +265,7 @@ export default async function AdminWorkspacesPage({
                             ? selectedAccessEmailSentAt
                               ? "Demo setup already sent"
                               : "Demo access can be sent"
-                            : selectedSubscription?.billingStatus === "paid"
+                            : effectiveBillingStatus === "paid"
                               ? selectedAccessEmailSentAt
                                 ? "Paid setup already sent"
                                 : "Paid access can be sent"
@@ -344,7 +354,7 @@ export default async function AdminWorkspacesPage({
                       accessEmailSentTo={selectedAccessEmailSentTo}
                       adminEmail={selectedClientAdmin?.email || null}
                       adminName={selectedClientAdmin?.name || null}
-                      billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
+                      billingStatus={effectiveBillingStatus}
                       companyId={selectedCompany.id}
                       companyName={selectedCompany.name}
                       planName={selectedSubscription.planName}
@@ -530,7 +540,7 @@ export default async function AdminWorkspacesPage({
                           companyId={selectedCompany.id}
                           planName={selectedSubscription.planName}
                           subscriptionStatus={selectedSubscription.status}
-                          billingStatus={selectedSubscription.billingStatus || "not_invoiced"}
+                          billingStatus={effectiveBillingStatus}
                           renewalDate={selectedSubscription.renewalDate}
                           stripeCustomerId={selectedCompany.stripeCustomerId}
                           stripeSubscriptionId={selectedSubscription.stripeSubscriptionId}

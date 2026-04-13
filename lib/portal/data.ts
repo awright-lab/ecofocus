@@ -1258,6 +1258,37 @@ export async function getPortalUsageLogsForAdmin(filters: PortalUsageLogFilters 
     .slice(0, filters.limit ?? 100);
 }
 
+export async function getLatestPortalPasswordSetupTokenByUserId(userId: string) {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_password_setup_tokens")
+      .select("email, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.warn("[portal/data] portal_password_setup_tokens lookup failed.", { userId, error: error.message });
+      return null;
+    }
+
+    if (!data) return null;
+
+    return {
+      email: data.email ? String(data.email) : null,
+      createdAt: data.created_at ? String(data.created_at) : null,
+    };
+  } catch (error) {
+    console.warn("[portal/data] portal_password_setup_tokens storage unavailable.", {
+      userId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
 export async function getPortalCompany(user: PortalUser) {
   const runtimeCompany = await queryPortalCompanyById(user.companyId);
   if (runtimeCompany) return runtimeCompany;
