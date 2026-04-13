@@ -17,6 +17,7 @@ export function TeamMemberActions({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
 
   if (!canManage) {
     return <span className="text-sm text-slate-500">View only</span>;
@@ -35,12 +36,6 @@ export function TeamMemberActions({
         : "Deactivate";
 
   async function onClick(action: "deactivate" | "reactivate" | "remove") {
-    if (action === "remove") {
-      const confirmed = window.confirm("Remove this teammate from the list? You can invite them again later.");
-      if (!confirmed) {
-        return;
-      }
-    }
     setIsSubmitting(true);
     setError(null);
 
@@ -79,7 +74,7 @@ export function TeamMemberActions({
       {memberStatus === "inactive" ? (
         <button
           type="button"
-          onClick={() => onClick("remove")}
+          onClick={() => setIsRemoveModalOpen(true)}
           disabled={isSubmitting}
           className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
@@ -87,6 +82,56 @@ export function TeamMemberActions({
         </button>
       ) : null}
       {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
+
+      {isRemoveModalOpen ? (
+        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-slate-950/55 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Remove teammate"
+            className="w-full max-w-lg rounded-[28px] bg-white p-6 shadow-[0_28px_120px_-36px_rgba(15,23,42,0.55)]"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-rose-700">Remove teammate</p>
+                <h4 className="mt-2 text-2xl font-semibold text-slate-950">Remove from this workspace?</h4>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  This removes the teammate from the list for this workspace. You can invite them again later if needed.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsRemoveModalOpen(false)}
+                className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  await onClick("remove");
+                  setIsRemoveModalOpen(false);
+                }}
+                disabled={isSubmitting}
+                className="rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting ? "Removing..." : "Remove teammate"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsRemoveModalOpen(false)}
+                className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-400"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
