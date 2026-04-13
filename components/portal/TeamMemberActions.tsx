@@ -26,15 +26,21 @@ export function TeamMemberActions({
     return <span className="text-sm text-slate-500">Current user</span>;
   }
 
-  const action = memberStatus === "inactive" ? "reactivate" : "deactivate";
-  const label =
+  const primaryAction = memberStatus === "inactive" ? "reactivate" : "deactivate";
+  const primaryLabel =
     memberStatus === "inactive"
       ? "Reinvite"
       : memberStatus === "invited"
         ? "Cancel invite"
         : "Deactivate";
 
-  async function onClick() {
+  async function onClick(action: "deactivate" | "reactivate" | "remove") {
+    if (action === "remove") {
+      const confirmed = window.confirm("Remove this teammate from the list? You can invite them again later.");
+      if (!confirmed) {
+        return;
+      }
+    }
     setIsSubmitting(true);
     setError(null);
 
@@ -64,12 +70,22 @@ export function TeamMemberActions({
     <div className="space-y-1">
       <button
         type="button"
-        onClick={onClick}
+        onClick={() => onClick(primaryAction)}
         disabled={isSubmitting}
         className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-emerald-400 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isSubmitting ? "Saving..." : label}
+        {isSubmitting ? "Saving..." : primaryLabel}
       </button>
+      {memberStatus === "inactive" ? (
+        <button
+          type="button"
+          onClick={() => onClick("remove")}
+          disabled={isSubmitting}
+          className="rounded-xl border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Remove
+        </button>
+      ) : null}
       {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
     </div>
   );

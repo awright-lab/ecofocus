@@ -42,7 +42,7 @@ export type PortalTeamStatusUpdateInput = {
   userId: string;
   companyId: string;
   subscriptionId: string;
-  action: "deactivate" | "reactivate";
+  action: "deactivate" | "reactivate" | "remove";
 };
 
 export type PortalUsageAllowanceProvisioningInput = {
@@ -441,6 +441,30 @@ export async function updatePortalTeamMemberStatus(input: PortalTeamStatusUpdate
 
   if (subscriptionError) throw new Error(subscriptionError.message);
   if (!subscription) throw new Error("Subscription not found.");
+
+  if (input.action === "remove") {
+    if (existingUser.status !== "inactive") {
+      throw new Error("Deactivate this teammate before removing them from the list.");
+    }
+
+    const { error: deleteMembershipError } = await admin
+      .from("portal_workspace_memberships")
+      .delete()
+      .eq("workspace_company_id", input.companyId)
+      .eq("user_id", input.userId);
+
+    if (deleteMembershipError) throw new Error(deleteMembershipError.message);
+
+    const { error: deleteUserError } = await admin
+      .from("portal_users")
+      .delete()
+      .eq("id", input.userId)
+      .eq("company_id", input.companyId);
+
+    if (deleteUserError) throw new Error(deleteUserError.message);
+
+    return { status: "removed" as const };
+  }
 
   if (input.action === "deactivate") {
     if (existingUser.status === "inactive") {
