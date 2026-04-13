@@ -69,6 +69,16 @@ export default function Leadership() {
       focal: '50% 38%',
     },
     {
+      name: 'Leah Riccolo',
+      title: 'Agency Sales Specialist',
+      img: '/images/team/Leah.jpg',
+      blurb:
+        'Helps agencies make sustainability intelligence accessible, actionable, and useful for stronger client strategies.',
+      details:
+        'Leah brings a blend of sales expertise, marketing insight, and media research experience to her role as Agency Sales Specialist at EcoFocus Research. Her background includes supporting clients at Insider Intelligence (eMarketer), where she helped agencies and brands interpret market trends and consumer behavior. And at Simpli.fi, where she worked closely with partners to translate programmatic advertising capabilities into practical solutions for their campaigns. Across her roles, Leah has built a reputation for making complex information accessible and actionable. She’s especially skilled at understanding what agencies need to strengthen their strategies, communicate value, and deliver results for clients. At EcoFocus, she applies that same approach to helping partners integrate sustainability intelligence into their work in a way that feels relevant, credible, and easy to use.',
+      focal: '50% 35%',
+    },
+    {
       name: 'Mike Wright',
       title: 'Director, Business Intelligence & Design',
       img: '/images/team/arif.jpg',
@@ -323,5 +333,4 @@ export default function Leadership() {
     </section>
   );
 }
-
 
