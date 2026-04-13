@@ -381,7 +381,9 @@ export default async function AdminWorkspacesPage({
                 />
                 <div className="mt-6">
                   <AdminWorkspaceProvisioningForm
-                    dashboards={dashboardCatalog.map((dashboard) => ({
+                    dashboards={dashboardCatalog
+                      .filter((dashboard) => dashboard.availableToAll)
+                      .map((dashboard) => ({
                       id: dashboard.id,
                       name: dashboard.name,
                       accessTag: dashboard.accessTag,
