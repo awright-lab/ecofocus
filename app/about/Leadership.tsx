@@ -69,16 +69,6 @@ export default function Leadership() {
       focal: '50% 38%',
     },
     {
-      name: 'Jeff Bedard',
-      title: 'Senior Strategic Advisor / New Business Development',
-      img: '/images/team/jeff.jpg',
-      blurb:
-        'Helps business leaders unlock customer value and develop winning growth strategies rooted in sustainability insights.',
-      details:
-        'With decades of client-side executive leadership Jeff has led customer insights research, integrated advertising, and product/service development across companies including The Campbell’s Company, JPMorganChase and Compass RE. Currently, in addition to being the Senior Strategic Advisor for New Business at EcoFocus, Jeff also leads Bridgefield Advisory, a customer-first management consultancy supporting startups and growth-stage organizations. A Wharton MBA, mentor, and School Board President, Jeff is passionate about creating environments where people, purpose and insights drive meaningful performance.',
-      focal: '50% 35%',
-    },
-    {
       name: 'Mike Wright',
       title: 'Director, Business Intelligence & Design',
       img: '/images/team/arif.jpg',
@@ -97,6 +87,17 @@ export default function Leadership() {
       details:
         'Alex Murrey is a seasoned technology leader with over seven years of experience in product management, strategic leadership, and research & development. Having worked with companies like Twilio, Launch Consulting, and TangoTeams, with expertise in areas such as AI leadership, cloud transformation, and user experience, Alex has successfully led teams to innovate and deliver customer-centric solutions and has been instrumental in advancing the use of AI at EcoFocus. Alex has a proven track record in driving product strategy, fostering cross-functional collaborations, and leading high-stakes projects in dynamic environments.',
       focal: '50% 40%',
+    },
+    {
+      name: 'Jeff Bedard',
+      title: 'Senior Strategic Advisor / New Business Development',
+      img: '/images/team/jeff.jpg',
+      eyebrow: 'Advisory Team',
+      blurb:
+        'Helps business leaders unlock customer value and develop winning growth strategies rooted in sustainability insights.',
+      details:
+        'With decades of client-side executive leadership Jeff has led customer insights research, integrated advertising, and product/service development across companies including The Campbell’s Company, JPMorganChase and Compass RE. Currently, in addition to being the Senior Strategic Advisor for New Business at EcoFocus, Jeff also leads Bridgefield Advisory, a customer-first management consultancy supporting startups and growth-stage organizations. A Wharton MBA, mentor, and School Board President, Jeff is passionate about creating environments where people, purpose and insights drive meaningful performance.',
+      focal: '50% 35%',
     },
     {
       name: 'Russ Whitman',
@@ -322,6 +323,5 @@ export default function Leadership() {
     </section>
   );
 }
-
 
 
