@@ -114,6 +114,30 @@ export async function sendPortalPasswordResetEmail({
   resetUrl: string;
 }) {
   try {
+    const escapedResetUrl = escapeHtml(resetUrl);
+    const body = `
+      <div style="display:grid; gap:18px;">
+        <div style="font-size:14px; line-height:1.7; color:#334155;">
+          <p style="margin:0 0 12px;">Hello ${escapeHtml(recipientName)},</p>
+          <p style="margin:0;">Use the button below to reset your EcoFocus portal password.</p>
+        </div>
+        <div>
+          <a
+            href="${escapedResetUrl}"
+            style="display:inline-block; background:#0f172a; color:#ffffff; text-decoration:none; font-weight:700; font-size:14px; padding:14px 20px; border-radius:14px;"
+          >
+            Reset password
+          </a>
+        </div>
+        <div style="font-size:12px; line-height:1.6; color:#64748b;">
+          If the button does not work, copy and paste this link into your browser:<br />
+          <a href="${escapedResetUrl}" style="color:#0f766e;">${escapedResetUrl}</a>
+        </div>
+        <div style="font-size:12px; line-height:1.6; color:#94a3b8;">
+          If you didn't request this, you can ignore this email.
+        </div>
+      </div>
+    `;
     const delivery = await sendPortalEmail({
       to,
       subject: "Reset your EcoFocus portal password",
@@ -125,14 +149,12 @@ export async function sendPortalPasswordResetEmail({
         ``,
         `If you didn't request this, you can ignore this email.`,
       ].join("\n"),
-      html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.7; color: #0f172a;">
-          <p style="margin:0 0 12px;">Hello ${recipientName},</p>
-          <p style="margin:0 0 16px;">Use the link below to reset your EcoFocus portal password.</p>
-          <p style="margin:0 0 16px;"><a href="${resetUrl}">Reset password</a></p>
-          <p style="margin:0;">If you didn't request this, you can ignore this email.</p>
-        </div>
-      `,
+      html: renderPortalEmailFrame({
+        eyebrow: "Password reset",
+        title: "Reset your EcoFocus portal password",
+        intro: "Use the secure link below to reset your password and return to the portal.",
+        body,
+      }),
     });
 
     return {

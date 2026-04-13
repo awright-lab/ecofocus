@@ -69,6 +69,7 @@ export async function POST(req: NextRequest) {
       email: result.email,
       userId: result.userId,
     });
+    inviteUrl.searchParams.set("setup", setupToken.token);
     inviteUrl.searchParams.set("token", setupToken.token);
     const emailDelivery = await sendPortalTeamInviteEmail({
       companyName: access.company.name,

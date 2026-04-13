@@ -23,6 +23,7 @@ function buildSetupUrl(req: NextRequest, email: string, token: string) {
   const setupUrl = new URL("/set-password", getPortalOrigin(req.url));
   setupUrl.searchParams.set("email", email);
   setupUrl.searchParams.set("invite", "1");
+  setupUrl.searchParams.set("setup", token);
   setupUrl.searchParams.set("token", token);
   return setupUrl.toString();
 }

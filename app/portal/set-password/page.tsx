@@ -16,8 +16,11 @@ export default async function PortalSetPasswordPage({
   const email = Array.isArray(emailParam) ? emailParam[0] : emailParam || "";
   const inviteParam = params.invite;
   const invite = Array.isArray(inviteParam) ? inviteParam[0] : inviteParam;
+  const setupParam = params.setup;
+  const setup = Array.isArray(setupParam) ? setupParam[0] : setupParam;
   const tokenParam = params.token;
   const token = Array.isArray(tokenParam) ? tokenParam[0] : tokenParam || "";
+  const setupToken = setup || token;
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#effcf6_0%,#eef5ff_100%)] px-4 py-10 sm:px-6">
@@ -49,7 +52,7 @@ export default async function PortalSetPasswordPage({
               </div>
             ) : null}
 
-            <PortalPasswordSetupForm initialEmail={email} setupToken={token} />
+            <PortalPasswordSetupForm initialEmail={email} setupToken={setupToken} />
           </div>
         </section>
       </div>
