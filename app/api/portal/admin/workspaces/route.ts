@@ -87,14 +87,16 @@ export async function POST(req: NextRequest) {
   const billingContactName = normalizeText(body.billingContactName || body.adminName);
   const seatsPurchased = isDemoSuite ? 1 : Number(body.seatsPurchased);
   const annualHoursLimit = isDemoSuite ? 5 : Number(body.annualHoursLimit);
-  const renewalDate = normalizeText(body.renewalDate);
+  const renewalDate = normalizeText(body.renewalDate) || null;
+  const periodStart = normalizeText(body.periodStart);
+  const periodEnd = normalizeText(body.periodEnd);
   const dashboardIds = Array.isArray(body.dashboardIds)
     ? body.dashboardIds.map((dashboardId) => normalizeText(dashboardId)).filter(Boolean)
     : [];
   const subscriberType =
     body.subscriberType === "agency" || body.subscriberType === "internal" ? body.subscriberType : "brand";
 
-  if (!companyName || !billingEmail || !adminEmail || !adminName || !renewalDate) {
+  if (!companyName || !billingEmail || !adminEmail || !adminName || (!isDemoSuite && !renewalDate)) {
     return asJson({ error: "Company, billing contact, admin contact, and renewal date are required." }, 400);
   }
 
@@ -140,12 +142,16 @@ export async function POST(req: NextRequest) {
       adminRole,
     });
 
+    const renewalYear = renewalDate?.slice(0, 4) || "";
+    const allowancePeriodStart = isDemoSuite ? null : periodStart || `${renewalYear}-01-01`;
+    const allowancePeriodEnd = isDemoSuite ? null : periodEnd || `${renewalYear}-12-31`;
+
     await upsertPortalUsageAllowance({
       companyId,
       annualHoursLimit,
       hoursUsed: 0,
-      periodStart: normalizeText(body.periodStart) || `${renewalDate.slice(0, 4)}-01-01`,
-      periodEnd: normalizeText(body.periodEnd) || `${renewalDate.slice(0, 4)}-12-31`,
+      periodStart: allowancePeriodStart,
+      periodEnd: allowancePeriodEnd,
     });
 
     await replacePortalDashboardEntitlements({

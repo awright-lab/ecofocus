@@ -32,6 +32,9 @@ export function AdminWorkspaceProvisioningForm({
 }) {
   const router = useRouter();
   const currentYear = new Date().getUTCFullYear();
+  const defaultRenewalDate = `${currentYear}-12-31`;
+  const defaultPeriodStart = `${currentYear}-01-01`;
+  const defaultPeriodEnd = `${currentYear}-12-31`;
   const [form, setForm] = useState({
     companyName: "",
     subscriberType: "brand",
@@ -42,10 +45,10 @@ export function AdminWorkspaceProvisioningForm({
     adminEmail: "",
     planName: "Enterprise Insight Suite",
     seatsPurchased: "12",
-    renewalDate: `${currentYear}-12-31`,
+    renewalDate: defaultRenewalDate,
     annualHoursLimit: "120",
-    periodStart: `${currentYear}-01-01`,
-    periodEnd: `${currentYear}-12-31`,
+    periodStart: defaultPeriodStart,
+    periodEnd: defaultPeriodEnd,
     createStripeCustomer: true,
   });
   const [selectedDashboardIds, setSelectedDashboardIds] = useState<string[]>([]);
@@ -81,6 +84,9 @@ export function AdminWorkspaceProvisioningForm({
       seatsPurchased: preset.seatsPurchased,
       annualHoursLimit: preset.annualHoursLimit,
       createStripeCustomer: preset.createStripeCustomer,
+      renewalDate: planName === "Demo Suite" ? "" : current.renewalDate || defaultRenewalDate,
+      periodStart: planName === "Demo Suite" ? "" : current.periodStart || defaultPeriodStart,
+      periodEnd: planName === "Demo Suite" ? "" : current.periodEnd || defaultPeriodEnd,
     }));
   }
 
@@ -316,35 +322,43 @@ export function AdminWorkspaceProvisioningForm({
           />
         </label>
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium text-slate-800">Renewal date</span>
-          <input
-            type="date"
-            value={form.renewalDate}
-            onChange={(event) => setForm((current) => ({ ...current, renewalDate: event.target.value }))}
-            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-          />
-        </label>
+        {isDemoSuite ? (
+          <div className="md:col-span-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            Demo Suite workspaces do not require a renewal date or allowance window. Usage remains available indefinitely.
+          </div>
+        ) : (
+          <>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-800">Renewal date</span>
+              <input
+                type="date"
+                value={form.renewalDate}
+                onChange={(event) => setForm((current) => ({ ...current, renewalDate: event.target.value }))}
+                className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              />
+            </label>
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium text-slate-800">Allowance period start</span>
-          <input
-            type="date"
-            value={form.periodStart}
-            onChange={(event) => setForm((current) => ({ ...current, periodStart: event.target.value }))}
-            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-          />
-        </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-800">Allowance period start</span>
+              <input
+                type="date"
+                value={form.periodStart}
+                onChange={(event) => setForm((current) => ({ ...current, periodStart: event.target.value }))}
+                className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              />
+            </label>
 
-        <label className="block">
-          <span className="mb-2 block text-sm font-medium text-slate-800">Allowance period end</span>
-          <input
-            type="date"
-            value={form.periodEnd}
-            onChange={(event) => setForm((current) => ({ ...current, periodEnd: event.target.value }))}
-            className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-          />
-        </label>
+            <label className="block">
+              <span className="mb-2 block text-sm font-medium text-slate-800">Allowance period end</span>
+              <input
+                type="date"
+                value={form.periodEnd}
+                onChange={(event) => setForm((current) => ({ ...current, periodEnd: event.target.value }))}
+                className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              />
+            </label>
+          </>
+        )}
       </div>
 
       <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">

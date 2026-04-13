@@ -7,8 +7,8 @@ create table if not exists public.portal_usage_allowances (
   company_id text primary key references public.portal_companies(id) on delete cascade,
   annual_hours_limit integer not null check (annual_hours_limit >= 0),
   hours_used integer not null default 0 check (hours_used >= 0),
-  period_start date not null,
-  period_end date not null,
+  period_start date,
+  period_end date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -17,6 +17,10 @@ create index if not exists portal_usage_allowances_period_idx
   on public.portal_usage_allowances (period_end);
 
 alter table public.portal_usage_allowances enable row level security;
+
+alter table public.portal_usage_allowances
+  alter column period_start drop not null,
+  alter column period_end drop not null;
 
 comment on table public.portal_usage_allowances is
   'Subscriber-account dashboard hour allowances for the EcoFocus portal. These are the billing-side allowances, not shared workspace totals.';

@@ -71,7 +71,7 @@ export type PortalSubscription = {
   planName: string;
   seatsPurchased: number;
   seatsUsed: number;
-  renewalDate: string;
+  renewalDate: string | null;
   status: "active" | "trialing" | "past_due";
   stripeSubscriptionId?: string | null;
   billingStatus?:
@@ -142,8 +142,8 @@ export type PortalUsageAllowance = {
   companyId: string;
   annualHoursLimit: number;
   hoursUsed: number;
-  periodStart: string;
-  periodEnd: string;
+  periodStart: string | null;
+  periodEnd: string | null;
 };
 
 export type PortalUsageLogEvent =

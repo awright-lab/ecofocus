@@ -9,7 +9,7 @@ create table if not exists public.portal_subscriptions (
   plan_name text not null,
   seats_purchased integer not null default 1 check (seats_purchased >= 0),
   seats_used integer not null default 0 check (seats_used >= 0),
-  renewal_date date not null,
+  renewal_date date,
   status text not null check (status in ('active', 'trialing', 'past_due')),
   stripe_subscription_id text,
   billing_status text not null default 'not_invoiced'
@@ -71,6 +71,9 @@ alter table public.portal_subscriptions
   add column if not exists latest_invoice_currency text,
   add column if not exists latest_invoice_due_at timestamptz,
   add column if not exists latest_invoice_paid_at timestamptz;
+
+alter table public.portal_subscriptions
+  alter column renewal_date drop not null;
 
 alter table if exists public.portal_subscriptions
   drop constraint if exists portal_subscriptions_billing_status_check;

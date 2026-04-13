@@ -72,8 +72,9 @@ export async function POST(req: NextRequest) {
   const subscriptionStatus = String(body.subscriptionStatus || "").trim();
   const billingStatus = String(body.billingStatus || "").trim();
   const renewalDate = String(body.renewalDate || "").trim();
+  const isDemoSuite = planName === "Demo Suite";
 
-  if (!companyId || !planName || !subscriptionStatus || !billingStatus || !renewalDate) {
+  if (!companyId || !planName || !subscriptionStatus || !billingStatus || (!isDemoSuite && !renewalDate)) {
     return asJson({ error: "companyId, planName, subscriptionStatus, billingStatus, and renewalDate are required." }, 400);
   }
 
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
     return asJson({ error: "Invalid billing status." }, 400);
   }
 
-  if (!isValidDate(renewalDate)) {
+  if (renewalDate && !isValidDate(renewalDate)) {
     return asJson({ error: "Renewal date must use YYYY-MM-DD format." }, 400);
   }
 
@@ -108,7 +109,7 @@ export async function POST(req: NextRequest) {
         plan_name: planName,
         status: subscriptionStatus,
         billing_status: billingStatus,
-        renewal_date: renewalDate,
+        renewal_date: renewalDate || null,
         stripe_subscription_id: normalizeNullableText(body.stripeSubscriptionId),
       })
       .eq("id", subscription.id);
@@ -141,7 +142,7 @@ export async function POST(req: NextRequest) {
         subscriptionId: subscription.id,
         subscriptionStatus,
         billingStatus,
-        renewalDate,
+        renewalDate: renewalDate || null,
         stripeCustomerId: normalizeNullableText(body.stripeCustomerId),
         stripeSubscriptionId: normalizeNullableText(body.stripeSubscriptionId),
       },

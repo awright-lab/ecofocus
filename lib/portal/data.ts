@@ -359,7 +359,7 @@ async function queryPortalSubscriptionById(subscriptionId: string): Promise<Port
       planName: data.plan_name,
       seatsPurchased: data.seats_purchased,
       seatsUsed: data.seats_used,
-      renewalDate: data.renewal_date,
+      renewalDate: data.renewal_date ? String(data.renewal_date) : null,
       status: data.status,
       stripeSubscriptionId: data.stripe_subscription_id || null,
       billingStatus: normalizePortalBillingStatus(data.billing_status),
@@ -1181,10 +1181,15 @@ export async function getPortalUsageStatus(user: PortalUser) {
     };
   }
 
+  const hasAllowanceWindow = Boolean(allowance.periodStart && allowance.periodEnd);
   const loggedUsage = await getPortalUsageLogsForAdmin({
     companyId: billingCompanyId,
-    startAt: `${allowance.periodStart}T00:00:00Z`,
-    endAt: `${allowance.periodEnd}T23:59:59Z`,
+    ...(hasAllowanceWindow
+      ? {
+          startAt: `${allowance.periodStart}T00:00:00Z`,
+          endAt: `${allowance.periodEnd}T23:59:59Z`,
+        }
+      : {}),
     limit: 500,
   });
   const loggedMinutes = loggedUsage.reduce((total, log) => total + log.minutesTracked, 0);

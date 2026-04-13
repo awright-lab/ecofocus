@@ -37,6 +37,7 @@ export default async function AdminUsagePage({
         const subscription = selectedCompanyId
           ? await getPortalSubscriptionByCompany(selectedCompanyId)
           : null;
+        const isDemoSuite = subscription?.planName === "Demo Suite";
         const annualHoursLimit = usageAllowance?.annualHoursLimit ?? 0;
         const hoursUsed = usageAllowance?.hoursUsed ?? 0;
         const hoursRemaining = Math.max(annualHoursLimit - hoursUsed, 0);
@@ -190,7 +191,11 @@ export default async function AdminUsagePage({
                   <div className="mt-6 rounded-[24px] bg-slate-50 p-5">
                     <p className="text-sm font-semibold text-slate-900">{selectedCompany.name}</p>
                     <p className="mt-1 text-sm text-slate-600">
-                      Current period: {formatDate(usageAllowance.periodStart)} to {formatDate(usageAllowance.periodEnd)}
+                      {usageAllowance.periodStart && usageAllowance.periodEnd
+                        ? `Current period: ${formatDate(usageAllowance.periodStart)} to ${formatDate(usageAllowance.periodEnd)}`
+                        : isDemoSuite
+                          ? "No allowance window for Demo Suite."
+                          : "No allowance window configured."}
                     </p>
                     <div className="mt-4">
                       <AdminUsageAllowanceForm
@@ -228,7 +233,13 @@ export default async function AdminUsagePage({
                       </div>
                       <div className="rounded-[20px] bg-white p-4">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Renewal</p>
-                        <p className="mt-2 text-sm font-semibold text-slate-900">{formatDate(subscription.renewalDate)}</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">
+                          {subscription.renewalDate
+                            ? formatDate(subscription.renewalDate)
+                            : isDemoSuite
+                              ? "No renewal date (Demo Suite)"
+                              : "No renewal date set"}
+                        </p>
                       </div>
                     </div>
 

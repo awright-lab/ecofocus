@@ -41,9 +41,15 @@ export async function POST(req: NextRequest) {
   const hoursUsed = Number(body.hoursUsed);
   const periodStart = String(body.periodStart || "").trim();
   const periodEnd = String(body.periodEnd || "").trim();
+  const hasPeriodStart = Boolean(periodStart);
+  const hasPeriodEnd = Boolean(periodEnd);
 
-  if (!companyId || !Number.isFinite(annualHoursLimit) || !Number.isFinite(hoursUsed) || !periodStart || !periodEnd) {
-    return asJson({ error: "companyId, annualHoursLimit, hoursUsed, periodStart, and periodEnd are required." }, 400);
+  if (!companyId || !Number.isFinite(annualHoursLimit) || !Number.isFinite(hoursUsed)) {
+    return asJson({ error: "companyId, annualHoursLimit, and hoursUsed are required." }, 400);
+  }
+
+  if (hasPeriodStart !== hasPeriodEnd) {
+    return asJson({ error: "Provide both periodStart and periodEnd, or leave both blank." }, 400);
   }
 
   const companies = await getPortalCompanies();
@@ -57,8 +63,8 @@ export async function POST(req: NextRequest) {
       company_id: companyId,
       annual_hours_limit: annualHoursLimit,
       hours_used: hoursUsed,
-      period_start: periodStart,
-      period_end: periodEnd,
+      period_start: hasPeriodStart ? periodStart : null,
+      period_end: hasPeriodEnd ? periodEnd : null,
       updated_at: new Date().toISOString(),
     });
 
@@ -76,8 +82,8 @@ export async function POST(req: NextRequest) {
       metadata: {
         annualHoursLimit,
         hoursUsed,
-        periodStart,
-        periodEnd,
+        periodStart: hasPeriodStart ? periodStart : null,
+        periodEnd: hasPeriodEnd ? periodEnd : null,
       },
     });
 

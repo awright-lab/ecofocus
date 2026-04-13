@@ -131,6 +131,18 @@ export default async function AdminWorkspacesPage({
           selectedSubscription?.billingStatus === "paid" || hasPaidInvoice
             ? "paid"
             : selectedSubscription?.billingStatus || "not_invoiced";
+        const renewalLabel = selectedSubscription?.renewalDate
+          ? `Renews ${formatDate(selectedSubscription.renewalDate)}`
+          : isSelectedDemoSuite
+            ? "No renewal date (Demo Suite)"
+            : "No renewal date set";
+        const planSummaryLabel = selectedSubscription
+          ? selectedSubscription.renewalDate
+            ? `${selectedSubscription.seatsPurchased} seats · renews ${formatDate(selectedSubscription.renewalDate)}`
+            : `${selectedSubscription.seatsPurchased} seats · ${
+                isSelectedDemoSuite ? "no renewal date (Demo Suite)" : "no renewal date"
+              }`
+          : "No subscription record is available yet.";
         const workspaceTabs: { view: AdminWorkspaceView; label: string }[] = [
           { view: "overview", label: "Overview" },
           { view: "create", label: "New workspace" },
@@ -253,9 +265,7 @@ export default async function AdminWorkspacesPage({
                             : "No plan"}
                         </p>
                         <p className="mt-2 text-sm leading-6 text-emerald-900">
-                          {selectedSubscription
-                            ? `Renews ${formatDate(selectedSubscription.renewalDate)}`
-                            : "Create a subscription record before sending access."}
+                          {selectedSubscription ? renewalLabel : "Create a subscription record before sending access."}
                         </p>
                       </div>
                       <div className="rounded-[24px] bg-teal-50 p-5">
@@ -427,9 +437,7 @@ export default async function AdminWorkspacesPage({
                           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Plan summary</p>
                           <p className="mt-2 font-semibold text-slate-950">{selectedSubscription?.planName || "No plan record"}</p>
                           <p className="mt-1">
-                            {selectedSubscription
-                              ? `${selectedSubscription.seatsPurchased} seats · renews ${formatDate(selectedSubscription.renewalDate)}`
-                              : "No subscription record is available yet."}
+                            {planSummaryLabel}
                           </p>
                           <p className="mt-1">
                             {selectedAllowance
@@ -543,7 +551,7 @@ export default async function AdminWorkspacesPage({
                           planName={selectedSubscription.planName}
                           subscriptionStatus={selectedSubscription.status}
                           billingStatus={effectiveBillingStatus}
-                          renewalDate={selectedSubscription.renewalDate}
+                          renewalDate={selectedSubscription.renewalDate || ""}
                           stripeCustomerId={selectedCompany.stripeCustomerId}
                           stripeSubscriptionId={selectedSubscription.stripeSubscriptionId}
                           billingContactName={selectedCompany.billingContactName}

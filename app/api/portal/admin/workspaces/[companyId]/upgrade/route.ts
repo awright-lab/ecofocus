@@ -131,6 +131,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
       status: subscription.status || "active",
       billing_status: billingStatus,
     };
+    if (!subscription.renewal_date) {
+      subscriptionUpdate.renewal_date = `${renewalYear}-12-31`;
+    }
 
     if (billingStatus !== "paid") {
       subscriptionUpdate.latest_invoice_id = null;

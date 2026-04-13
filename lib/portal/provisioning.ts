@@ -21,7 +21,7 @@ export type PortalAccountProvisioningInput = {
   planName: string;
   seatsPurchased: number;
   seatsUsed: number;
-  renewalDate: string;
+  renewalDate: string | null;
   subscriptionStatus: "active" | "trialing" | "past_due";
   stripeSubscriptionId?: string | null;
   adminUserId: string;
@@ -49,8 +49,8 @@ export type PortalUsageAllowanceProvisioningInput = {
   companyId: string;
   annualHoursLimit: number;
   hoursUsed?: number;
-  periodStart: string;
-  periodEnd: string;
+  periodStart?: string | null;
+  periodEnd?: string | null;
 };
 
 export type PortalDashboardEntitlementProvisioningInput = {
@@ -110,6 +110,12 @@ function normalizeDate(value?: string | null, fallback = "2026-12-31") {
   const raw = normalizeProvisioningValue(value);
   if (!raw) return fallback;
   return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : fallback;
+}
+
+function normalizeOptionalDate(value?: string | null) {
+  const raw = normalizeProvisioningValue(value);
+  if (!raw) return null;
+  return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
 }
 
 function normalizeIsoDateTime(value?: string | null) {
@@ -218,7 +224,7 @@ export async function upsertPortalAccountRecords(input: PortalAccountProvisionin
       plan_name: input.planName,
       seats_purchased: input.seatsPurchased,
       seats_used: input.seatsUsed,
-      renewal_date: input.renewalDate,
+      renewal_date: normalizeOptionalDate(input.renewalDate),
       status: input.subscriptionStatus,
       stripe_subscription_id: normalizeProvisioningValue(input.stripeSubscriptionId) || null,
     },
@@ -281,8 +287,8 @@ export async function upsertPortalUsageAllowance(input: PortalUsageAllowanceProv
       company_id: input.companyId,
       annual_hours_limit: normalizePositiveInt(input.annualHoursLimit, 0),
       hours_used: normalizePositiveInt(input.hoursUsed ?? 0, 0),
-      period_start: normalizeDate(input.periodStart, "2026-01-01"),
-      period_end: normalizeDate(input.periodEnd, "2026-12-31"),
+      period_start: normalizeOptionalDate(input.periodStart),
+      period_end: normalizeOptionalDate(input.periodEnd),
     },
     { onConflict: "company_id" },
   );

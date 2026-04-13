@@ -123,7 +123,13 @@ export default async function AccountPage() {
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt>Renewal</dt>
-              <dd className="font-medium text-slate-900">{formatDate(access.subscription.renewalDate)}</dd>
+              <dd className="font-medium text-slate-900">
+                {access.subscription.renewalDate
+                  ? formatDate(access.subscription.renewalDate)
+                  : access.subscription.planName === "Demo Suite"
+                    ? "No renewal date (Demo Suite)"
+                    : "No renewal date set"}
+              </dd>
             </div>
           </dl>
         </div>

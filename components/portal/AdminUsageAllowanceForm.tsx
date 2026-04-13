@@ -13,19 +13,22 @@ export function AdminUsageAllowanceForm({
   companyId: string;
   annualHoursLimit: number;
   hoursUsed: number;
-  periodStart: string;
-  periodEnd: string;
+  periodStart?: string | null;
+  periodEnd?: string | null;
 }) {
   const router = useRouter();
   const [form, setForm] = useState({
     annualHoursLimit: String(annualHoursLimit),
     hoursUsed: String(hoursUsed),
-    periodStart,
-    periodEnd,
+    periodStart: periodStart || "",
+    periodEnd: periodEnd || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const hasPeriodStart = Boolean(form.periodStart);
+  const hasPeriodEnd = Boolean(form.periodEnd);
+  const hasAllowanceWindow = hasPeriodStart && hasPeriodEnd;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -100,6 +103,14 @@ export function AdminUsageAllowanceForm({
           />
         </label>
       </div>
+
+      {!hasPeriodStart && !hasPeriodEnd ? (
+        <p className="text-xs text-slate-500">
+          No allowance window is set. Demo Suite workspaces can leave these dates blank.
+        </p>
+      ) : !hasAllowanceWindow ? (
+        <p className="text-xs text-rose-600">Provide both a period start and end date to save an allowance window.</p>
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-3">
         <button
