@@ -405,8 +405,9 @@ export function AdminDashboardManagementCard({
 
       {isModalOpen ? (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/45 p-4">
-          <div role="dialog" aria-modal="true" className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-[32px] bg-white p-6 shadow-[0_28px_120px_-36px_rgba(15,23,42,0.55)]">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+          <div role="dialog" aria-modal="true" className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-[32px] bg-white shadow-[0_28px_120px_-36px_rgba(15,23,42,0.55)]">
+            <div className="max-h-[90vh] overflow-y-auto p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">Dashboard editor</p>
                 <h4 className="mt-2 text-2xl font-semibold text-slate-950">
@@ -651,6 +652,7 @@ export function AdminDashboardManagementCard({
               </button>
               {feedback.success ? <p className="text-xs font-medium text-emerald-700">{feedback.success}</p> : null}
               {feedback.error ? <p className="text-xs font-medium text-rose-600">{feedback.error}</p> : null}
+            </div>
             </div>
           </div>
         </div>
