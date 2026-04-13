@@ -43,7 +43,7 @@ export default async function PortalHomePage() {
     ...dashboard,
     embedUrl: activeWorkspaceConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
   }));
-  const dashboards = allDashboards.slice(0, 3);
+  const dashboards = allDashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).slice(0, 3);
   const limitedTickets = tickets.slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
   const availableDashboardCount = allDashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).length;
