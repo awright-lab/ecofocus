@@ -34,25 +34,28 @@ export default async function PortalDashboardDetailPage({
   const access = await requirePortalAccess(`/portal/dashboards/${slug}`);
   const isSupportAdmin = access.effectiveRole === "support_admin";
   const selectedCompanyParam = Array.isArray(query.company) ? query.company[0] : query.company;
-  const availableCompanies = isSupportAdmin ? await getPortalCompanies() : [];
-  const fallbackCompanyConfig =
+  const [availableCompanies, fallbackCompanyConfig] = await Promise.all([
+    isSupportAdmin ? getPortalCompanies() : Promise.resolve([]),
     isSupportAdmin && access.company.subscriberType === "internal" && !selectedCompanyParam
-      ? await getPortalAnyActiveDashboardConfigBySlug(slug)
-      : null;
+      ? getPortalAnyActiveDashboardConfigBySlug(slug)
+      : Promise.resolve(null),
+  ]);
   const selectedCompany =
     isSupportAdmin && selectedCompanyParam
       ? availableCompanies.find((company) => company.id === selectedCompanyParam) || access.company
       : fallbackCompanyConfig
         ? availableCompanies.find((company) => company.id === fallbackCompanyConfig.companyId) || access.company
       : access.company;
-  const dashboard = await getPortalDashboardForUser(access.effectiveUser, slug, access.company.id);
+  const [dashboard, usage] = await Promise.all([
+    getPortalDashboardForUser(access.effectiveUser, slug, access.company.id),
+    getPortalUsageStatus(access.effectiveUser),
+  ]);
   if (!dashboard) {
     if (access.isPreviewMode) {
       redirect("/portal/home");
     }
     notFound();
   }
-  const usage = await getPortalUsageStatus(access.effectiveUser);
   const embedState = await getDisplayrEmbedState(
     dashboard,
     selectedCompany.id,

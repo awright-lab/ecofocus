@@ -18,13 +18,17 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalDashboardsPage() {
   const access = await requirePortalAccess("/portal/dashboards");
-  const baseDashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
+  const [baseDashboards, rawConfigs, usage] = await Promise.all([
+    getPortalDashboardsForUser(access.effectiveUser, access.company.id),
+    access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
+      ? getPortalActiveDashboardConfigs()
+      : getPortalDashboardConfigsByCompany(access.company.id),
+    getPortalUsageStatus(access.effectiveUser),
+  ]);
   const activeWorkspaceConfigs =
     access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
-      ? (await getPortalActiveDashboardConfigs()).filter((config) => !config.isHidden)
-      : (await getPortalDashboardConfigsByCompany(access.company.id)).filter(
-          (config) => config.isActive && !config.isHidden,
-        );
+      ? rawConfigs.filter((config) => !config.isHidden)
+      : rawConfigs.filter((config) => config.isActive && !config.isHidden);
   const activeWorkspaceConfigsBySlug = new Map(
     activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),
   );
@@ -32,8 +36,6 @@ export default async function PortalDashboardsPage() {
     ...dashboard,
     embedUrl: activeWorkspaceConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
   }));
-  const usage = await getPortalUsageStatus(access.effectiveUser);
-
   return (
     <div className="space-y-6">
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">

@@ -24,13 +24,18 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
-  const baseDashboards = await getPortalDashboardsForUser(access.effectiveUser, access.company.id);
+  const [baseDashboards, rawConfigs, tickets, usage] = await Promise.all([
+    getPortalDashboardsForUser(access.effectiveUser, access.company.id),
+    access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
+      ? getPortalActiveDashboardConfigs()
+      : getPortalDashboardConfigsByCompany(access.company.id),
+    getPortalTicketsForUser(access.effectiveUser),
+    getPortalUsageStatus(access.effectiveUser),
+  ]);
   const activeWorkspaceConfigs =
     access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
-      ? (await getPortalActiveDashboardConfigs()).filter((config) => !config.isHidden)
-      : (await getPortalDashboardConfigsByCompany(access.company.id)).filter(
-          (config) => config.isActive && !config.isHidden,
-        );
+      ? rawConfigs.filter((config) => !config.isHidden)
+      : rawConfigs.filter((config) => config.isActive && !config.isHidden);
   const activeWorkspaceConfigsBySlug = new Map(
     activeWorkspaceConfigs.map((config) => [config.dashboardSlug, config]),
   );
@@ -39,9 +44,8 @@ export default async function PortalHomePage() {
     embedUrl: activeWorkspaceConfigsBySlug.get(dashboard.slug)?.displayrEmbedUrl || dashboard.embedUrl,
   }));
   const dashboards = allDashboards.slice(0, 3);
-  const tickets = (await getPortalTicketsForUser(access.effectiveUser)).slice(0, 3);
+  const limitedTickets = tickets.slice(0, 3);
   const articles = getPortalArticles().slice(0, 3);
-  const usage = await getPortalUsageStatus(access.effectiveUser);
   const availableDashboardCount = allDashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).length;
   const assignedDashboardCount = allDashboards.length - availableDashboardCount;
   const openTicketCount = tickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived").length;
@@ -106,8 +110,8 @@ export default async function PortalHomePage() {
                 }
               />
               <div className="mt-6 space-y-3">
-                {tickets.length ? (
-                  tickets.map((ticket) => (
+                {limitedTickets.length ? (
+                  limitedTickets.map((ticket) => (
                     <Link key={ticket.id} href={`/portal/support/tickets/${ticket.id}`} className="block rounded-[24px] bg-slate-50 p-4 transition hover:bg-slate-100">
                       <div className="flex flex-wrap items-center gap-2">
                         <TicketStatusBadge status={ticket.status} />

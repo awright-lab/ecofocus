@@ -22,10 +22,12 @@ export const metadata = buildPortalMetadata(
 export default async function TeamPage() {
   const access = await requirePortalRole("client_admin", "/portal/team");
   const canManageTeam = isPortalWorkspaceManager(access.effectiveRole) && !access.isPreviewMode;
-  const teamMembers = await getPortalTeamMembers(access.effectiveUser, access.company.id);
-  const usageAllocations = await getPortalUsageAllocationsByCompany(access.company.id);
+  const [teamMembers, usageAllocations, inviteHistory] = await Promise.all([
+    getPortalTeamMembers(access.effectiveUser, access.company.id),
+    getPortalUsageAllocationsByCompany(access.company.id),
+    canManageTeam ? getPortalTeamInvitesByCompany(access.company.id) : Promise.resolve([]),
+  ]);
   const usageAllocationsByUserId = new Map(usageAllocations.map((allocation) => [allocation.userId, allocation]));
-  const inviteHistory = canManageTeam ? await getPortalTeamInvitesByCompany(access.company.id) : [];
   const inviteActorIds = Array.from(new Set(inviteHistory.map((invite) => invite.invitedByUserId)));
   const inviteActors = await getPortalUsersByIds(inviteActorIds);
   const inviteActorsById = new Map(inviteActors.map((user) => [user.id, user]));
