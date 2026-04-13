@@ -677,7 +677,7 @@ async function queryPortalDashboardConfigs(companyId: string): Promise<PortalDas
       displayrEmbedUrl: String(config.displayr_embed_url),
       isActive: Boolean(config.is_active),
       isHidden: Boolean(config.is_hidden),
-      notes: config.notes || null,
+      notes: typeof config.notes === "string" ? config.notes : null,
       createdAt: String(config.created_at),
       updatedAt: String(config.updated_at),
     }));
@@ -735,7 +735,7 @@ async function queryActivePortalDashboardConfigs(): Promise<PortalDashboardConfi
       displayrEmbedUrl: String(config.displayr_embed_url),
       isActive: Boolean(config.is_active),
       isHidden: Boolean(config.is_hidden),
-      notes: config.notes || null,
+      notes: typeof config.notes === "string" ? config.notes : null,
       createdAt: String(config.created_at),
       updatedAt: String(config.updated_at),
     }));
