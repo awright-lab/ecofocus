@@ -1,9 +1,16 @@
 import { TeamInviteHistory } from "@/components/portal/TeamInviteHistory";
 import { TeamInviteForm } from "@/components/portal/TeamInviteForm";
 import { TeamMemberActions } from "@/components/portal/TeamMemberActions";
+import { TeamMemberUsageAllocation } from "@/components/portal/TeamMemberUsageAllocation";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalRole } from "@/lib/portal/auth";
-import { getPortalTeamInvitesByCompany, getPortalTeamMembers, getPortalUsersByIds, isPortalWorkspaceManager } from "@/lib/portal/data";
+import {
+  getPortalTeamInvitesByCompany,
+  getPortalTeamMembers,
+  getPortalUsageAllocationsByCompany,
+  getPortalUsersByIds,
+  isPortalWorkspaceManager,
+} from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatDateTime } from "@/lib/utils";
 
@@ -16,6 +23,8 @@ export default async function TeamPage() {
   const access = await requirePortalRole("client_admin", "/portal/team");
   const canManageTeam = isPortalWorkspaceManager(access.effectiveRole) && !access.isPreviewMode;
   const teamMembers = await getPortalTeamMembers(access.effectiveUser, access.company.id);
+  const usageAllocations = await getPortalUsageAllocationsByCompany(access.company.id);
+  const usageAllocationsByUserId = new Map(usageAllocations.map((allocation) => [allocation.userId, allocation]));
   const inviteHistory = canManageTeam ? await getPortalTeamInvitesByCompany(access.company.id) : [];
   const inviteActorIds = Array.from(new Set(inviteHistory.map((invite) => invite.invitedByUserId)));
   const inviteActors = await getPortalUsersByIds(inviteActorIds);
@@ -81,7 +90,10 @@ export default async function TeamPage() {
           <h3 className="text-lg font-semibold text-slate-950">Team members</h3>
           <div className="mt-5 space-y-3">
             {teamMembers.map((member) => (
-              <div key={member.id} className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.2fr_1fr_0.7fr_0.7fr_0.8fr] md:items-center">
+              <div
+                key={member.id}
+                className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.15fr_0.9fr_0.7fr_0.7fr_0.9fr_0.75fr] md:items-center"
+              >
                 <div>
                   <p className="font-semibold text-slate-900">{member.name}</p>
                   <p className="text-sm text-slate-600">{member.email}</p>
@@ -91,6 +103,15 @@ export default async function TeamPage() {
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{member.status}</span>
                 </div>
                 <div className="text-sm text-slate-500">{member.status === "invited" ? "Seat reserved" : member.status === "active" ? "Seat assigned" : "Seat inactive"}</div>
+                {member.role === "client_user" || member.role === "agency_user" ? (
+                  <TeamMemberUsageAllocation
+                    userId={member.id}
+                    allocatedHours={usageAllocationsByUserId.get(member.id)?.allocatedHours ?? null}
+                    canManage={canManageTeam}
+                  />
+                ) : (
+                  <div className="text-sm text-slate-400">Admin account</div>
+                )}
                 <TeamMemberActions
                   memberId={member.id}
                   memberStatus={member.status}

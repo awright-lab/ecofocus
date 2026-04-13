@@ -33,7 +33,7 @@ function renderPortalEmailFrame({
           <div style="margin-top:10px; font-size:20px; font-weight:700; line-height:1.3;">${escapeHtml(title)}</div>
           <div style="margin-top:8px; font-size:14px; line-height:1.6; color:#d7efe8;">${escapeHtml(intro)}</div>
         </div>
-        <div style="padding:28px;">
+        <div style="padding:28px; font-size:14px; line-height:1.7; color:#334155;">
           ${body}
         </div>
       </div>
@@ -126,11 +126,11 @@ export async function sendPortalPasswordResetEmail({
         `If you didn't request this, you can ignore this email.`,
       ].join("\n"),
       html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
-          <p>Hello ${recipientName},</p>
-          <p>Use the link below to reset your EcoFocus portal password.</p>
-          <p><a href="${resetUrl}">Reset password</a></p>
-          <p>If you didn't request this, you can ignore this email.</p>
+        <div style="font-family: Arial, sans-serif; line-height: 1.7; color: #0f172a;">
+          <p style="margin:0 0 12px;">Hello ${recipientName},</p>
+          <p style="margin:0 0 16px;">Use the link below to reset your EcoFocus portal password.</p>
+          <p style="margin:0 0 16px;"><a href="${resetUrl}">Reset password</a></p>
+          <p style="margin:0;">If you didn't request this, you can ignore this email.</p>
         </div>
       `,
     });
@@ -196,12 +196,14 @@ export async function sendPortalAccessSetupEmail({
         <div style="margin-top:6px; font-size:13px; color:#475569;">${escapeHtml(planName)} - ${escapeHtml(modeLabel)}</div>
       </div>
       <div style="font-size:14px; line-height:1.7; color:#334155;">
-        Hello ${escapeHtml(recipientName)},<br /><br />
-        ${
-          isResend
-            ? "Use the button below to create your EcoFocus portal password with this replacement link. Older setup links will no longer work."
-            : "Use the button below to create your EcoFocus portal password. After that, you can sign in with your work email and password."
-        }
+        <p style="margin:0 0 12px;">Hello ${escapeHtml(recipientName)},</p>
+        <p style="margin:0;">
+          ${
+            isResend
+              ? "Use the button below to create your EcoFocus portal password with this replacement link. Older setup links will no longer work."
+              : "Use the button below to create your EcoFocus portal password. After that, you can sign in with your work email and password."
+          }
+        </p>
       </div>
       <div>
         <a
@@ -293,12 +295,14 @@ export async function sendPortalTeamInviteEmail({
         <div style="margin-top:6px; font-size:13px; color:#475569;">Role: ${escapeHtml(roleLabel)}</div>
       </div>
       <div style="font-size:14px; line-height:1.7; color:#334155;">
-        Hello ${escapeHtml(recipientName)},<br /><br />
-        ${
-          isResend
-            ? "Use the button below to create your EcoFocus portal password with this replacement invite link. Older invite links will no longer work."
-            : `${escapeHtml(invitedByName)} invited you to join the EcoFocus portal. Use the button below to create your password and activate your seat.`
-        }
+        <p style="margin:0 0 12px;">Hello ${escapeHtml(recipientName)},</p>
+        <p style="margin:0;">
+          ${
+            isResend
+              ? "Use the button below to create your EcoFocus portal password with this replacement invite link. Older invite links will no longer work."
+              : `${escapeHtml(invitedByName)} invited you to join the EcoFocus portal. Use the button below to create your password and activate your seat.`
+          }
+        </p>
       </div>
       <div>
         <a
@@ -342,6 +346,79 @@ export async function sendPortalTeamInviteEmail({
     return {
       emailSent: delivery.sent,
       emailWarning: delivery.sent ? null : "Email delivery is not configured, so copy the invite link manually.",
+    };
+  } catch (error) {
+    return {
+      emailSent: false,
+      emailWarning: error instanceof Error ? error.message : "Email delivery failed.",
+    };
+  }
+}
+
+export async function sendPortalUsageLimitWarningEmail({
+  to,
+  companyName,
+  hoursRemainingDisplay,
+  annualHoursLimit,
+  utilizationPct,
+  periodLabel,
+}: {
+  to: string[];
+  companyName: string;
+  hoursRemainingDisplay: string;
+  annualHoursLimit: number;
+  utilizationPct: number;
+  periodLabel?: string | null;
+}) {
+  const subject = `Usage alert: ${companyName} is nearing its dashboard hours limit`;
+  const intro =
+    "Your workspace is close to its dashboard hour limit. Review usage and adjust allocations or request additional hours if needed.";
+  const body = `
+    <div style="display:grid; gap:18px;">
+      <div style="background:#fff1f2; border:1px solid #fecdd3; border-radius:20px; padding:16px; color:#be123c; font-size:14px; line-height:1.6;">
+        <strong>Usage warning.</strong><br />
+        ${escapeHtml(companyName)} has used ${escapeHtml(String(utilizationPct))}% of its available dashboard hours.
+      </div>
+      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:20px; padding:16px;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#64748b;">Hours remaining</div>
+        <div style="margin-top:8px; font-size:18px; font-weight:700; color:#0f172a;">${escapeHtml(
+          hoursRemainingDisplay,
+        )}</div>
+        <div style="margin-top:6px; font-size:13px; color:#475569;">${escapeHtml(
+          `${annualHoursLimit} hour allowance${periodLabel ? ` · ${periodLabel}` : ""}`,
+        )}</div>
+      </div>
+      <div style="font-size:14px; line-height:1.7; color:#334155;">
+        <p style="margin:0;">
+          Consider assigning hours to teammates, requesting additional hours, or planning upcoming usage to avoid a pause in access.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const delivery = await sendPortalEmail({
+      to,
+      subject,
+      text: [
+        `Usage alert for ${companyName}.`,
+        `Hours remaining: ${hoursRemainingDisplay} out of ${annualHoursLimit}.`,
+        periodLabel ? `Period: ${periodLabel}.` : "",
+        `Utilization: ${utilizationPct}%`,
+      ]
+        .filter(Boolean)
+        .join("\n"),
+      html: renderPortalEmailFrame({
+        eyebrow: "Usage alert",
+        title: "Dashboard hours running low",
+        intro,
+        body,
+      }),
+    });
+
+    return {
+      emailSent: delivery.sent,
+      emailWarning: delivery.sent ? null : "Email delivery is not configured, so the alert was not sent.",
     };
   } catch (error) {
     return {
@@ -512,16 +589,18 @@ export async function notifyClientOfPortalTicketUpdate({
       .filter(Boolean)
       .join("\n"),
     html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a;">
-        <p>Hello ${requester.name},</p>
-        <p>EcoFocus Support updated your ticket <strong>${ticketSubject}</strong>.</p>
-        <p><strong>Ticket ID:</strong> ${ticketId}<br />
-        <strong>Dashboard:</strong> ${dashboardName}<br />
-        <strong>Updated by:</strong> ${actor.name}<br />
-        ${statusLabel ? `<strong>Current status:</strong> ${statusLabel}<br />` : ""}
-        <strong>Update type:</strong> ${actionLabel}</p>
-        ${safeMessage ? `<p><strong>Message</strong><br />${safeMessage.replace(/\n/g, "<br />")}</p>` : ""}
-        <p><a href="${ticketUrl}">View ticket in portal</a></p>
+      <div style="font-family: Arial, sans-serif; line-height: 1.7; color: #0f172a;">
+        <p style="margin:0 0 12px;">Hello ${requester.name},</p>
+        <p style="margin:0 0 12px;">EcoFocus Support updated your ticket <strong>${ticketSubject}</strong>.</p>
+        <p style="margin:0 0 12px;">
+          <strong>Ticket ID:</strong> ${ticketId}<br />
+          <strong>Dashboard:</strong> ${dashboardName}<br />
+          <strong>Updated by:</strong> ${actor.name}<br />
+          ${statusLabel ? `<strong>Current status:</strong> ${statusLabel}<br />` : ""}
+          <strong>Update type:</strong> ${actionLabel}
+        </p>
+        ${safeMessage ? `<p style="margin:0 0 12px;"><strong>Message</strong><br />${safeMessage.replace(/\n/g, "<br />")}</p>` : ""}
+        <p style="margin:0;"><a href="${ticketUrl}">View ticket in portal</a></p>
       </div>
     `,
   });

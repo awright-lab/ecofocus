@@ -18,8 +18,10 @@ create table if not exists public.portal_usage_logs (
       'viewer_opened',
       'viewer_session',
       'allowance_exhausted',
+      'allowance_warning',
       'allowance_override',
-      'support_review_requested'
+      'support_review_requested',
+      'admin_action'
     )
   ),
   event_at timestamptz not null default now(),

@@ -146,10 +146,19 @@ export type PortalUsageAllowance = {
   periodEnd: string | null;
 };
 
+export type PortalUsageAllocation = {
+  companyId: string;
+  userId: string;
+  allocatedHours: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type PortalUsageLogEvent =
   | "viewer_opened"
   | "viewer_session"
   | "allowance_exhausted"
+  | "allowance_warning"
   | "allowance_override"
   | "support_review_requested"
   | "admin_action";

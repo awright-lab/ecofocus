@@ -45,6 +45,10 @@ export default async function PortalHomePage() {
   const availableDashboardCount = allDashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).length;
   const assignedDashboardCount = allDashboards.length - availableDashboardCount;
   const openTicketCount = tickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived").length;
+  const isClientUser = access.effectiveRole === "client_user" || access.effectiveRole === "agency_user";
+  const hasUserAllocation = Boolean(isClientUser && usage.allocation && usage.annualHoursLimit);
+  const usageLimitValue = isClientUser ? (hasUserAllocation ? usage.annualHoursLimit : null) : usage.annualHoursLimit;
+  const isUsageNearLimit = Boolean(usageLimitValue && usage.utilizationPct >= 85);
 
   if (access.effectiveRole === "support_admin") {
     const recentOperationalEvents = (
@@ -201,17 +205,41 @@ export default async function PortalHomePage() {
                 <p className="text-right text-xs text-slate-600">In progress or waiting</p>
               </div>
             </div>
-            <div className="rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-3.5">
-              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+            <div
+              className={`rounded-[20px] border px-4 py-3.5 ${
+                isUsageNearLimit ? "border-rose-200 bg-rose-50" : "border-slate-200 bg-slate-50"
+              }`}
+            >
+              <div
+                className={`flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] ${
+                  isUsageNearLimit ? "text-rose-700" : "text-slate-500"
+                }`}
+              >
                 <Clock3 className="h-3.5 w-3.5" />
                 <span>Hours remaining</span>
               </div>
               <div className="mt-2.5 flex items-end justify-between gap-3">
-                <p className="text-[1.75rem] font-semibold leading-none text-slate-950">
-                  {usage.annualHoursLimit ? usage.hoursRemainingDisplay : "Included"}
+                <p
+                  className={`text-[1.75rem] font-semibold leading-none ${
+                    isUsageNearLimit ? "text-rose-900" : "text-slate-950"
+                  }`}
+                >
+                  {isClientUser
+                    ? hasUserAllocation
+                      ? usage.hoursRemainingDisplay
+                      : "Not assigned"
+                    : usage.annualHoursLimit
+                      ? usage.hoursRemainingDisplay
+                      : "Included"}
                 </p>
-                <p className="text-right text-xs text-slate-600">
-                  {usage.annualHoursLimit ? "This period" : "Plan access"}
+                <p className={`text-right text-xs ${isUsageNearLimit ? "text-rose-700" : "text-slate-600"}`}>
+                  {isClientUser
+                    ? hasUserAllocation
+                      ? "This period"
+                      : "Ask your admin"
+                    : usage.annualHoursLimit
+                      ? "This period"
+                      : "Plan access"}
                 </p>
               </div>
             </div>

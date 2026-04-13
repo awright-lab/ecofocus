@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
-import { getPortalDashboardsForUser } from "@/lib/portal/data";
+import {
+  getPortalDashboardsForUser,
+  getPortalUsageAllowanceByCompany,
+  getPortalUsageLogsForAdmin,
+  getPortalTeamMembersByCompany,
+} from "@/lib/portal/data";
+import { sendPortalUsageLimitWarningEmail } from "@/lib/portal/email";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type { PortalUsageLogEvent } from "@/lib/portal/types";
 
 const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
 };
+const USAGE_WARNING_THRESHOLD = 85;
 
 type UsageBody = {
   dashboardId?: string;
@@ -67,6 +74,95 @@ export async function POST(req: NextRequest) {
   try {
     const admin = getServiceSupabase();
     await admin.from("portal_usage_logs").insert(payload);
+
+    try {
+      const allowance = await getPortalUsageAllowanceByCompany(access.billingCompany.id);
+      if (allowance && allowance.annualHoursLimit > 0) {
+        const hasAllowanceWindow = Boolean(allowance.periodStart && allowance.periodEnd);
+        const loggedUsage = await getPortalUsageLogsForAdmin({
+          companyId: access.billingCompany.id,
+          ...(hasAllowanceWindow
+            ? {
+                startAt: `${allowance.periodStart}T00:00:00Z`,
+                endAt: `${allowance.periodEnd}T23:59:59Z`,
+              }
+            : {}),
+          limit: 500,
+        });
+        const loggedMinutes = loggedUsage.reduce((total, log) => total + log.minutesTracked, 0);
+        const hoursUsed = Number(((allowance.hoursUsed * 60 + loggedMinutes) / 60).toFixed(1));
+        const utilizationPct = Math.min(
+          100,
+          Math.round((hoursUsed / Math.max(allowance.annualHoursLimit, 1)) * 100),
+        );
+
+        if (utilizationPct >= USAGE_WARNING_THRESHOLD) {
+          const warningLogs = await getPortalUsageLogsForAdmin({
+            companyId: access.billingCompany.id,
+            dashboardId: `usage-limit-warning:${access.billingCompany.id}`,
+            ...(hasAllowanceWindow
+              ? {
+                  startAt: `${allowance.periodStart}T00:00:00Z`,
+                  endAt: `${allowance.periodEnd}T23:59:59Z`,
+                }
+              : {}),
+            limit: 1,
+          });
+
+          if (!warningLogs.length) {
+            const teamMembers = await getPortalTeamMembersByCompany(access.billingCompany.id);
+            const adminRecipients = teamMembers
+              .filter(
+                (member) =>
+                  (member.role === "client_admin" || member.role === "agency_admin") &&
+                  member.status === "active",
+              )
+              .map((member) => member.email);
+
+            if (adminRecipients.length) {
+              const hoursRemaining = Math.max(allowance.annualHoursLimit - hoursUsed, 0);
+              const periodLabel =
+                allowance.periodStart && allowance.periodEnd
+                  ? `${allowance.periodStart} to ${allowance.periodEnd}`
+                  : null;
+
+              await sendPortalUsageLimitWarningEmail({
+                to: adminRecipients,
+                companyName: access.billingCompany.name,
+                hoursRemainingDisplay: `${hoursRemaining} hours`,
+                annualHoursLimit: allowance.annualHoursLimit,
+                utilizationPct,
+                periodLabel,
+              });
+
+              await admin.from("portal_usage_logs").insert({
+                user_id: access.user.id,
+                company_id: access.billingCompany.id,
+                workspace_company_id: access.company.id,
+                billing_company_id: access.billingCompany.id,
+                user_home_company_id: access.homeCompany.id,
+                dashboard_id: `usage-limit-warning:${access.billingCompany.id}`,
+                dashboard_name: "Usage limit warning",
+                event_type: "allowance_warning",
+                event_at: new Date().toISOString(),
+                minutes_tracked: 0,
+                source: "portal_runtime",
+                notes: "Automated usage warning sent to client admins.",
+                metadata: {
+                  utilizationPct,
+                  annualHoursLimit: allowance.annualHoursLimit,
+                },
+              });
+            }
+          }
+        }
+      }
+    } catch (warningError) {
+      console.warn("[api/portal/usage] Usage warning email failed.", {
+        error: warningError instanceof Error ? warningError.message : String(warningError),
+      });
+    }
+
     return asJson({ ok: true, persisted: true });
   } catch (error) {
     console.warn("[api/portal/usage] Usage log persistence not configured.", {

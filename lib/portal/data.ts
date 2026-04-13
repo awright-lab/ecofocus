@@ -26,6 +26,7 @@ import type {
   PortalTicket,
   PortalTicketMessage,
   PortalTeamMember,
+  PortalUsageAllocation,
   PortalUsageAllowance,
   PortalUsageLogFilters,
   PortalUsageLog,
@@ -868,6 +869,35 @@ async function queryPortalUsageAllowance(companyId: string): Promise<PortalUsage
   }
 }
 
+async function queryPortalUsageAllocations(companyId: string): Promise<PortalUsageAllocation[]> {
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_usage_allocations")
+      .select("company_id, user_id, allocated_hours, created_at, updated_at")
+      .eq("company_id", companyId);
+
+    if (error) {
+      console.warn("[portal/data] portal_usage_allocations lookup failed.", { companyId, error: error.message });
+      return [];
+    }
+
+    return (data || []).map((allocation) => ({
+      companyId: String(allocation.company_id),
+      userId: String(allocation.user_id),
+      allocatedHours: Number(allocation.allocated_hours || 0),
+      createdAt: String(allocation.created_at),
+      updatedAt: String(allocation.updated_at),
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_usage_allocations storage unavailable.", {
+      companyId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return [];
+  }
+}
+
 async function queryPortalTickets(
   user: PortalUser,
   { includeArchived = false }: { includeArchived?: boolean } = {},
@@ -1165,14 +1195,100 @@ export async function getPortalUsageAllowanceByCompany(companyId: string) {
   return portalUsageAllowances.find((allowance) => allowance.companyId === companyId) ?? null;
 }
 
+export async function getPortalUsageAllocationsByCompany(companyId: string) {
+  const runtimeAllocations = await queryPortalUsageAllocations(companyId);
+  if (runtimeAllocations.length) return runtimeAllocations;
+  return [];
+}
+
+export async function getPortalUsageAllocationByUser(companyId: string, userId: string) {
+  const allocations = await getPortalUsageAllocationsByCompany(companyId);
+  return allocations.find((allocation) => allocation.userId === userId) ?? null;
+}
+
+function calculateUsageSummary({
+  annualHoursLimit,
+  baselineHoursUsed,
+  loggedMinutes,
+  devOverride,
+}: {
+  annualHoursLimit: number;
+  baselineHoursUsed: number;
+  loggedMinutes: number;
+  devOverride?: "available" | "exhausted" | null;
+}) {
+  const baselineMinutesUsed = baselineHoursUsed * 60;
+  const trackedMinutesUsed = baselineMinutesUsed + loggedMinutes;
+  const trackedHoursUsed = Number((trackedMinutesUsed / 60).toFixed(1));
+  const overriddenHoursUsed =
+    devOverride === "available"
+      ? Math.min(trackedHoursUsed, Math.max(0, annualHoursLimit - 1))
+      : devOverride === "exhausted"
+        ? annualHoursLimit
+        : trackedHoursUsed;
+  const overriddenMinutesUsed = Math.round(overriddenHoursUsed * 60);
+  const annualMinutesLimit = annualHoursLimit * 60;
+  const remainingMinutes = Math.max(0, annualMinutesLimit - overriddenMinutesUsed);
+  const hoursRemaining = Number((remainingMinutes / 60).toFixed(1));
+  const utilizationPct = annualHoursLimit
+    ? Math.min(100, Math.round((overriddenHoursUsed / annualHoursLimit) * 100))
+    : 0;
+
+  return {
+    hoursUsed: overriddenHoursUsed,
+    hoursUsedDisplay: formatPortalUsageDuration(overriddenMinutesUsed),
+    annualHoursLimit,
+    hoursRemaining,
+    hoursRemainingDisplay: formatPortalUsageDuration(remainingMinutes),
+    utilizationPct,
+    isLocked: overriddenHoursUsed >= annualHoursLimit,
+  };
+}
+
 export async function getPortalUsageStatus(user: PortalUser) {
   const billingCompanyId = user.homeCompanyId || user.companyId;
   const homeCompany = await getPortalHomeCompany(user);
   const hasUnlimitedInternalUsage = user.role === "support_admin" || homeCompany?.subscriberType === "internal";
   const allowance = hasUnlimitedInternalUsage ? null : await getPortalUsageAllowanceByCompany(billingCompanyId);
+  const allocation =
+    user.role === "client_user" || user.role === "agency_user"
+      ? await getPortalUsageAllocationByUser(billingCompanyId, user.id)
+      : null;
+
+  if (allocation && allocation.allocatedHours > 0) {
+    const hasAllowanceWindow = Boolean(allowance?.periodStart && allowance?.periodEnd);
+    const loggedUsage = await getPortalUsageLogsForAdmin({
+      companyId: billingCompanyId,
+      userId: user.id,
+      ...(hasAllowanceWindow
+        ? {
+            startAt: `${allowance?.periodStart}T00:00:00Z`,
+            endAt: `${allowance?.periodEnd}T23:59:59Z`,
+          }
+        : {}),
+      limit: 500,
+    });
+    const loggedMinutes = loggedUsage.reduce((total, log) => total + log.minutesTracked, 0);
+    const devOverride = await getPortalDevUsageOverrideFromCookies();
+    const summary = calculateUsageSummary({
+      annualHoursLimit: allocation.allocatedHours,
+      baselineHoursUsed: 0,
+      loggedMinutes,
+      devOverride,
+    });
+
+    return {
+      allowance,
+      allocation,
+      ...summary,
+      devOverride,
+    };
+  }
+
   if (!allowance) {
     return {
       allowance: null,
+      allocation: null,
       hoursUsed: 0,
       annualHoursLimit: null,
       hoursRemaining: null,
@@ -1193,34 +1309,18 @@ export async function getPortalUsageStatus(user: PortalUser) {
     limit: 500,
   });
   const loggedMinutes = loggedUsage.reduce((total, log) => total + log.minutesTracked, 0);
-  const baselineMinutesUsed = allowance.hoursUsed * 60;
-  const trackedMinutesUsed = baselineMinutesUsed + loggedMinutes;
-
   const devOverride = await getPortalDevUsageOverrideFromCookies();
-  const trackedHoursUsed = Number((trackedMinutesUsed / 60).toFixed(1));
-  const overriddenHoursUsed =
-    devOverride === "available"
-      ? Math.min(trackedHoursUsed, Math.max(0, allowance.annualHoursLimit - 1))
-      : devOverride === "exhausted"
-        ? allowance.annualHoursLimit
-        : trackedHoursUsed;
-  const overriddenMinutesUsed = Math.round(overriddenHoursUsed * 60);
-  const annualMinutesLimit = allowance.annualHoursLimit * 60;
-  const remainingMinutes = Math.max(0, annualMinutesLimit - overriddenMinutesUsed);
-  const hoursRemaining = Number((remainingMinutes / 60).toFixed(1));
-  const utilizationPct = allowance.annualHoursLimit
-    ? Math.min(100, Math.round((overriddenHoursUsed / allowance.annualHoursLimit) * 100))
-    : 0;
+  const summary = calculateUsageSummary({
+    annualHoursLimit: allowance.annualHoursLimit,
+    baselineHoursUsed: allowance.hoursUsed,
+    loggedMinutes,
+    devOverride,
+  });
 
   return {
     allowance,
-    hoursUsed: overriddenHoursUsed,
-    hoursUsedDisplay: formatPortalUsageDuration(overriddenMinutesUsed),
-    annualHoursLimit: allowance.annualHoursLimit,
-    hoursRemaining,
-    hoursRemainingDisplay: formatPortalUsageDuration(remainingMinutes),
-    utilizationPct,
-    isLocked: overriddenHoursUsed >= allowance.annualHoursLimit,
+    allocation: null,
+    ...summary,
     devOverride,
   };
 }
