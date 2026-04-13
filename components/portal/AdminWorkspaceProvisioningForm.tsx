@@ -56,6 +56,7 @@ export function AdminWorkspaceProvisioningForm({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [logoUploadMessage, setLogoUploadMessage] = useState<string | null>(null);
   const isDemoSuite = form.planName === "Demo Suite";
 
@@ -131,6 +132,7 @@ export function AdminWorkspaceProvisioningForm({
     setIsSubmitting(true);
     setError(null);
     setSuccess(null);
+    setIsSuccessOpen(false);
 
     try {
       const response = await fetch("/api/portal/admin/workspaces", {
@@ -161,6 +163,7 @@ export function AdminWorkspaceProvisioningForm({
           ? `Workspace created and Stripe customer connected for ${data.companyId}.`
           : `Workspace created for ${data.companyId}. Use the Access tab to send setup email when demo or paid access is approved.`,
       );
+      setIsSuccessOpen(true);
       setIsSubmitting(false);
       router.refresh();
     } catch {
@@ -438,9 +441,38 @@ export function AdminWorkspaceProvisioningForm({
         >
           {isSubmitting ? "Creating..." : "Create workspace"}
         </button>
-        {success ? <p className="text-xs font-medium text-emerald-700">{success}</p> : null}
         {error ? <p className="text-xs font-medium text-rose-600">{error}</p> : null}
       </div>
+
+      {isSuccessOpen && success ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-8">
+          <div className="w-full max-w-lg rounded-[28px] border border-slate-200 bg-white p-6 shadow-xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">Workspace created</p>
+                <h3 className="mt-2 text-lg font-semibold text-slate-950">Setup confirmation</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSuccessOpen(false)}
+                className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600"
+              >
+                Close
+              </button>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-slate-700">{success}</p>
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsSuccessOpen(false)}
+                className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </form>
   );
 }
