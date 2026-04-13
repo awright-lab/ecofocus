@@ -712,6 +712,72 @@ export async function setPortalUserPassword(emailInput: string, password: string
   };
 }
 
+export async function setPortalUserPasswordFromReset(emailInput: string, password: string) {
+  const admin = getServiceSupabase();
+  const email = normalizeEmail(emailInput);
+
+  if (!email || !password) {
+    throw new Error("Email and password are required.");
+  }
+
+  if (password.length < 8) {
+    throw new Error("Password must be at least 8 characters.");
+  }
+
+  const { data: portalUser, error: portalUserError } = await admin
+    .from("portal_users")
+    .select("id, name, email, company_id, role, status")
+    .ilike("email", email)
+    .maybeSingle();
+
+  if (portalUserError) throw new Error(portalUserError.message);
+  if (!portalUser) throw new Error("This email address is not set up for the EcoFocus portal.");
+  if (portalUser.status === "inactive") {
+    throw new Error("Portal access for this account is currently paused.");
+  }
+
+  const existingAuthUser = await findAuthUserByEmail(email);
+
+  if (existingAuthUser) {
+    const { error } = await admin.auth.admin.updateUserById(existingAuthUser.id, {
+      password,
+      email_confirm: true,
+      user_metadata: {
+        name: portalUser.name,
+        portal_user_id: portalUser.id,
+        portal_company_id: portalUser.company_id,
+        portal_role: portalUser.role,
+      },
+    });
+
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        name: portalUser.name,
+        portal_user_id: portalUser.id,
+        portal_company_id: portalUser.company_id,
+        portal_role: portalUser.role,
+      },
+    });
+
+    if (error) throw new Error(error.message);
+  }
+
+  const activation = await activatePortalUserByEmail(email);
+  if (activation.status === "missing" || activation.status === "inactive") {
+    throw new Error("Portal access could not be activated for this account.");
+  }
+
+  return {
+    userId: portalUser.id,
+    email,
+  };
+}
+
 export function getPortalProvisioningMetadata(
   session: Pick<Stripe.Checkout.Session, "metadata" | "customer" | "customer_details" | "customer_email" | "subscription">,
 ) {

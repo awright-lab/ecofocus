@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { setPortalUserPassword } from "@/lib/portal/provisioning";
+import { setPortalUserPasswordFromReset } from "@/lib/portal/provisioning";
 import { verifyPortalPasswordResetToken } from "@/lib/portal/password-reset";
 
 const NOINDEX_HEADERS = {
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await setPortalUserPassword(payload.email, password);
+    await setPortalUserPasswordFromReset(payload.email, password);
     return asJson({ ok: true, email: payload.email }, 201);
   } catch (error) {
     return asJson(
