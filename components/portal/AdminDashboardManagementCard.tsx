@@ -406,25 +406,25 @@ export function AdminDashboardManagementCard({
       {isModalOpen ? (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/45 p-4">
           <div role="dialog" aria-modal="true" className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-[32px] bg-white shadow-[0_28px_120px_-36px_rgba(15,23,42,0.55)]">
-            <div className="max-h-[90vh] overflow-y-auto p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">Dashboard editor</p>
-                <h4 className="mt-2 text-2xl font-semibold text-slate-950">
-                  {selectedSlug ? formState.name || "Edit dashboard" : "Create dashboard"}
-                </h4>
+            <div className="relative max-h-[90vh] overflow-y-auto p-6">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="absolute right-6 top-6 rounded-full border border-slate-200 bg-white p-2 text-slate-500 shadow-sm transition hover:border-slate-300 hover:text-slate-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <div className="flex flex-wrap items-start justify-between gap-4 pr-12">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700">Dashboard editor</p>
+                  <h4 className="mt-2 text-2xl font-semibold text-slate-950">
+                    {selectedSlug ? formState.name || "Edit dashboard" : "Create dashboard"}
+                  </h4>
                 <p className="mt-2 text-sm text-slate-600">
                   Update catalog details and workspace access without leaving the dashboard grid.
                   {!selectedSlug ? " New dashboards can be assigned to a workspace as part of creation." : ""}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={closeModal}
-                className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
-              >
-                <X className="h-5 w-5" />
-              </button>
             </div>
 
             <div className="mt-6 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
