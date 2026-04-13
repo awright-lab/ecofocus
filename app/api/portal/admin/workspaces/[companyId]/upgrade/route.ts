@@ -163,6 +163,75 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ com
 
     if (allowanceUpdateError) return asJson({ error: allowanceUpdateError.message }, 500);
 
+    const { data: demoDashboards, error: demoDashboardsError } = await admin
+      .from("portal_dashboards")
+      .select("slug, access_tag")
+      .ilike("access_tag", "demo");
+
+    if (demoDashboardsError) {
+      console.warn("[portal/upgrade] Unable to load demo dashboards for auto-hide.", {
+        companyId: targetCompanyId,
+        error: demoDashboardsError.message,
+      });
+    } else if (demoDashboards?.length) {
+      const demoSlugs = demoDashboards.map((dashboard) => String(dashboard.slug)).filter(Boolean);
+      if (demoSlugs.length) {
+        const { data: existingConfigs, error: existingConfigsError } = await admin
+          .from("portal_dashboard_configs")
+          .select("dashboard_slug")
+          .eq("company_id", targetCompanyId)
+          .in("dashboard_slug", demoSlugs);
+
+        if (existingConfigsError) {
+          console.warn("[portal/upgrade] Unable to load existing demo configs for auto-hide.", {
+            companyId: targetCompanyId,
+            error: existingConfigsError.message,
+          });
+        } else {
+          const existingSlugs = new Set((existingConfigs || []).map((config) => String(config.dashboard_slug)));
+          const missingSlugs = demoSlugs.filter((slug) => !existingSlugs.has(slug));
+
+          const { error: hideUpdateError } = await admin
+            .from("portal_dashboard_configs")
+            .update({
+              is_hidden: true,
+              is_active: false,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("company_id", targetCompanyId)
+            .in("dashboard_slug", demoSlugs);
+
+          if (hideUpdateError) {
+            console.warn("[portal/upgrade] Unable to hide demo dashboards on upgrade.", {
+              companyId: targetCompanyId,
+              error: hideUpdateError.message,
+            });
+          }
+
+          if (missingSlugs.length) {
+            const { error: insertError } = await admin.from("portal_dashboard_configs").upsert(
+              missingSlugs.map((slug) => ({
+                company_id: targetCompanyId,
+                dashboard_slug: slug,
+                displayr_embed_url: "",
+                is_active: false,
+                is_hidden: true,
+                notes: "Auto-hidden after demo upgrade.",
+              })),
+              { onConflict: "company_id,dashboard_slug" },
+            );
+
+            if (insertError) {
+              console.warn("[portal/upgrade] Unable to insert hidden demo dashboard configs.", {
+                companyId: targetCompanyId,
+                error: insertError.message,
+              });
+            }
+          }
+        }
+      }
+    }
+
     await logPortalAdminAuditEvent({
       access,
       action: "workspace_upgraded_to_enterprise",
