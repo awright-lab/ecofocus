@@ -398,7 +398,14 @@ export function AdminWorkspaceProvisioningForm({
                           : "border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:bg-emerald-50/50"
                       }`}
                     >
-                      <span className="block font-medium">{dashboard.name}</span>
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="block font-medium">{dashboard.name}</span>
+                        {isSelected ? (
+                          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs font-semibold text-white">
+                            ✓
+                          </span>
+                        ) : null}
+                      </span>
                     </button>
                   );
                 })}
