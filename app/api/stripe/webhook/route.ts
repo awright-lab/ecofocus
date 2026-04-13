@@ -44,10 +44,19 @@ async function handleInvoiceEvent(invoice: Stripe.Invoice, eventType: string) {
     return;
   }
 
+  const invoiceId = String(invoice.id || "").trim();
+  if (!invoiceId) {
+    console.warn("[portal/billing] Invoice paid email skipped because the invoice id is missing.", {
+      portalCompanyId,
+      customerId,
+    });
+    return;
+  }
+
   await sendPortalInvoicePaidNotificationEmail({
     companyName: company.name,
     amountPaidUsd: (invoice.amount_paid || 0) / 100,
-    invoiceId: invoice.id,
+    invoiceId,
     hostedInvoiceUrl: invoice.hosted_invoice_url || null,
     paidAt: invoice.status_transitions?.paid_at
       ? new Date(invoice.status_transitions.paid_at * 1000).toISOString()
