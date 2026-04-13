@@ -245,6 +245,10 @@ export function AdminWorkspaceProvisioningForm({
           />
         </label>
 
+        <div className="md:col-span-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          Billing contact
+        </div>
+
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-slate-800">Billing contact name</span>
           <input
@@ -264,6 +268,10 @@ export function AdminWorkspaceProvisioningForm({
             placeholder="billing@greenloopfoods.com"
           />
         </label>
+
+        <div className="md:col-span-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          Primary admin
+        </div>
 
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-slate-800">Admin name</span>
