@@ -2,9 +2,10 @@ import Link from "next/link";
 import { MessageSquareText } from "lucide-react";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
+import { TicketNotificationReadMarker } from "@/components/portal/TicketNotificationReadMarker";
 import { TicketStatusBadge } from "@/components/portal/TicketStatusBadge";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalTicketMessages, getPortalTicketsForUser, getPortalUsersByIds } from "@/lib/portal/data";
+import { getPortalTicketMessages, getPortalTicketsForUser, getPortalUnreadTicketIds, getPortalUsersByIds } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 import { formatResponseTime, getPortalTicketLifecycle } from "@/lib/portal/ticket-lifecycle";
 import { formatDate } from "@/lib/utils";
@@ -16,7 +17,10 @@ export const metadata = buildPortalMetadata(
 
 export default async function TicketsPage() {
   const access = await requirePortalAccess("/portal/support/tickets");
-  const tickets = await getPortalTicketsForUser(access.effectiveUser);
+  const [tickets, unreadTicketIds] = await Promise.all([
+    getPortalTicketsForUser(access.effectiveUser),
+    getPortalUnreadTicketIds(access.effectiveUser, access.company.id),
+  ]);
   const messagesByTicket = new Map(
     await Promise.all(
       tickets.map(async (ticket) => [
@@ -39,6 +43,7 @@ export default async function TicketsPage() {
 
   return (
     <div className="space-y-6">
+      {!access.isPreviewMode ? <TicketNotificationReadMarker /> : null}
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
           eyebrow="Support"
@@ -75,6 +80,11 @@ export default async function TicketsPage() {
               <div className="grid gap-4 md:grid-cols-[1.35fr_0.85fr_0.7fr_0.95fr_1.1fr_0.8fr] md:gap-4">
                 <div>
                   <p className="font-semibold text-slate-900">{ticket.subject}</p>
+                  {unreadTicketIds.has(ticket.id) ? (
+                    <span className="mt-2 inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                      New update
+                    </span>
+                  ) : null}
                   <p className="mt-1 text-slate-600">{ticket.dashboardName}</p>
                   <p className="mt-2 text-xs text-slate-500">{formatResponseTime(lifecycle.firstResponseMinutes)}</p>
                 </div>

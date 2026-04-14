@@ -46,6 +46,20 @@ create table if not exists public.portal_ticket_messages (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.portal_ticket_notifications (
+  id uuid primary key default gen_random_uuid(),
+  ticket_id text not null references public.portal_tickets(id) on delete cascade,
+  company_id text not null references public.portal_companies(id) on delete cascade,
+  user_id text not null references public.portal_users(id) on delete cascade,
+  notification_type text not null check (
+    notification_type in ('assigned', 'status_changed', 'waiting_on_client', 'support_reply')
+  ),
+  title text not null,
+  body text not null,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists portal_tickets_company_updated_idx
   on public.portal_tickets (company_id, updated_at desc);
 
@@ -58,14 +72,24 @@ create index if not exists portal_tickets_owner_updated_idx
 create index if not exists portal_ticket_messages_ticket_created_idx
   on public.portal_ticket_messages (ticket_id, created_at asc);
 
+create index if not exists portal_ticket_notifications_user_unread_idx
+  on public.portal_ticket_notifications (user_id, company_id, read_at, created_at desc);
+
+create index if not exists portal_ticket_notifications_ticket_user_idx
+  on public.portal_ticket_notifications (ticket_id, user_id);
+
 alter table public.portal_tickets enable row level security;
 alter table public.portal_ticket_messages enable row level security;
+alter table public.portal_ticket_notifications enable row level security;
 
 comment on table public.portal_tickets is
   'Private EcoFocus portal support tickets.';
 
 comment on table public.portal_ticket_messages is
   'Private EcoFocus portal support ticket messages and internal notes.';
+
+comment on table public.portal_ticket_notifications is
+  'Unread client-facing support ticket updates shown in portal navigation and request lists.';
 
 create or replace function public.set_portal_tickets_updated_at()
 returns trigger

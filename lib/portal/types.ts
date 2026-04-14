@@ -205,6 +205,18 @@ export type PortalTicketMessage = {
   isInternal: boolean;
 };
 
+export type PortalTicketNotification = {
+  id: string;
+  ticketId: string;
+  companyId: string;
+  userId: string;
+  notificationType: "assigned" | "status_changed" | "waiting_on_client" | "support_reply";
+  title: string;
+  body: string;
+  readAt?: string | null;
+  createdAt: string;
+};
+
 export type PortalHelpArticle = {
   id: string;
   slug: string;

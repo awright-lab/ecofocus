@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { CircleHelp, LifeBuoy, Ticket } from "lucide-react";
+import { Bell, CircleHelp, LifeBuoy, Ticket } from "lucide-react";
 import { SectionHeader } from "@/components/portal/SectionHeader";
 import { requirePortalAccess } from "@/lib/portal/auth";
-import { getPortalArticles } from "@/lib/portal/data";
+import { getPortalArticles, getPortalUnreadTicketNotificationCount } from "@/lib/portal/data";
 import { buildPortalMetadata } from "@/lib/portal/metadata";
 
 export const metadata = buildPortalMetadata(
@@ -15,6 +15,10 @@ const categories = ["Login / Access", "Dashboard Navigation", "Chart Export", "D
 export default async function PortalSupportPage() {
   const access = await requirePortalAccess("/portal/support");
   const articles = getPortalArticles().slice(0, 4);
+  const supportNotificationCount =
+    access.effectiveRole === "support_admin"
+      ? 0
+      : await getPortalUnreadTicketNotificationCount(access.effectiveUser, access.company.id);
 
   return (
     <div className="space-y-6">
@@ -43,7 +47,15 @@ export default async function PortalSupportPage() {
               </Link>
             )}
             <Link href="/portal/support/tickets" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white">
-              View requests
+              <span className="inline-flex items-center gap-2">
+                View requests
+                {supportNotificationCount > 0 ? (
+                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
+                    <Bell className="h-3 w-3" />
+                    {supportNotificationCount > 9 ? "9+" : supportNotificationCount}
+                  </span>
+                ) : null}
+              </span>
             </Link>
             <Link href="/portal/help" className="rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white">
               Browse help

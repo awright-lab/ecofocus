@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Activity,
   BarChart3,
+  Bell,
   CircleHelp,
   Gauge,
   Home,
@@ -58,9 +59,11 @@ const supportAdminNavSections = [
 export function PortalSidebar({
   role,
   showWorkspaceDirectory,
+  supportNotificationCount = 0,
 }: {
   role: PortalRole;
   showWorkspaceDirectory: boolean;
+  supportNotificationCount?: number;
 }) {
   const pathname = usePathname();
   const normalizedPathname =
@@ -139,6 +142,12 @@ export function PortalSidebar({
                   >
                     <Icon className="h-4 w-4" />
                     <span>{item.label}</span>
+                    {item.href === "/portal/support" && supportNotificationCount > 0 ? (
+                      <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 py-0.5 text-[11px] font-semibold leading-none text-white">
+                        <Bell className="mr-1 h-3 w-3" />
+                        {supportNotificationCount > 9 ? "9+" : supportNotificationCount}
+                      </span>
+                    ) : null}
                   </Link>
                 );
               })}

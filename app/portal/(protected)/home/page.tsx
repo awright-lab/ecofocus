@@ -11,6 +11,7 @@ import {
   getPortalDashboardConfigsByCompany,
   getPortalDashboardsForUser,
   getPortalTicketsForUser,
+  getPortalUnreadTicketIds,
   getPortalUsageLogsForAdmin,
   getPortalUsageStatus,
 } from "@/lib/portal/data";
@@ -24,13 +25,14 @@ export const metadata = buildPortalMetadata(
 
 export default async function PortalHomePage() {
   const access = await requirePortalAccess("/portal/home");
-  const [baseDashboards, rawConfigs, tickets, usage] = await Promise.all([
+  const [baseDashboards, rawConfigs, tickets, usage, unreadTicketIds] = await Promise.all([
     getPortalDashboardsForUser(access.effectiveUser, access.company.id),
     access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
       ? getPortalActiveDashboardConfigs()
       : getPortalDashboardConfigsByCompany(access.company.id),
     getPortalTicketsForUser(access.effectiveUser),
     getPortalUsageStatus(access.effectiveUser),
+    getPortalUnreadTicketIds(access.effectiveUser, access.company.id),
   ]);
   const activeWorkspaceConfigs =
     access.effectiveUser.role === "support_admin" && access.company.subscriberType === "internal"
@@ -330,11 +332,16 @@ export default async function PortalHomePage() {
             description="Keep active issues, training requests, and follow-up items visible without leaving your workspace."
           />
           <div className="mt-6 space-y-4">
-            {tickets.map((ticket) => (
+            {limitedTickets.map((ticket) => (
               <Link key={ticket.id} href={`/portal/support/tickets/${ticket.id}`} className="block rounded-[24px] bg-slate-50 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <TicketStatusBadge status={ticket.status} />
                   <PriorityBadge priority={ticket.priority} />
+                  {unreadTicketIds.has(ticket.id) ? (
+                    <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                      New update
+                    </span>
+                  ) : null}
                 </div>
                 <h3 className="mt-3 text-base font-semibold text-slate-900">{ticket.subject}</h3>
                 <p className="mt-2 text-sm text-slate-600">{ticket.dashboardName}</p>

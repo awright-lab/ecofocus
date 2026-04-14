@@ -3,6 +3,7 @@ import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalTeamMembersByCompany, getPortalTicketForUser, getPortalUsersByIds } from "@/lib/portal/data";
 import { notifyClientOfPortalTicketUpdate } from "@/lib/portal/email";
+import { buildTicketUpdateNotification, createPortalTicketNotifications } from "@/lib/portal/ticket-notifications";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -51,7 +52,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!validStatuses.has(rawStatus)) {
     return asJson({ error: "A valid ticket status is required." }, 400);
   }
-  const status = rawStatus === "resolved" ? "completed" : rawStatus;
+  const status = (rawStatus === "resolved" ? "completed" : rawStatus) as typeof ticket.status;
 
   if (ownerId) {
     const supportTeam = await getPortalTeamMembersByCompany(access.company.id);
@@ -113,7 +114,27 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     });
 
     const [requester] = await getPortalUsersByIds([ticket.requesterId]);
-    if (requester && changedFields.length && status !== "archived") {
+    if (requester && changedFields.length) {
+      const notification = buildTicketUpdateNotification({
+        previousStatus: ticket.status,
+        nextStatus: status,
+        previousOwnerId: ticket.ownerId,
+        nextOwnerId: ownerId,
+      });
+      if (notification) {
+        await createPortalTicketNotifications({
+          ticket: {
+            ...ticket,
+            status,
+            ownerId,
+            updatedAt: now,
+            completedAt: nextCompletedAt,
+            clientReviewedCompletedAt: nextClientReviewedCompletedAt,
+          },
+          ...notification,
+        });
+      }
+
       try {
         await notifyClientOfPortalTicketUpdate({
           actionLabel: "Ticket updated",

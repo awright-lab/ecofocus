@@ -4,6 +4,7 @@ import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalTicketForUser, getPortalUsersByIds } from "@/lib/portal/data";
 import { notifyClientOfPortalTicketUpdate } from "@/lib/portal/email";
 import { appendAttachmentToMessage, uploadSupportAttachment } from "@/lib/portal/support-attachments";
+import { createPortalTicketNotifications } from "@/lib/portal/ticket-notifications";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const NOINDEX_HEADERS = {
@@ -116,6 +117,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       });
 
       if (!isInternal) {
+        const nextStatus = ticket.status === "completed" ? ticket.status : "in_progress";
+        await createPortalTicketNotifications({
+          ticket: {
+            ...ticket,
+            status: nextStatus,
+            ownerId: ticket.ownerId || access.user.id,
+            updatedAt: now,
+          },
+          notificationType: "support_reply",
+          title: "EcoFocus replied to your request",
+          body: "There is a new support reply ready for review.",
+        });
+
         const [requester] = await getPortalUsersByIds([ticket.requesterId]);
         if (requester) {
           try {

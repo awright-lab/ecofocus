@@ -4,6 +4,7 @@ import { PreviewModeControls } from "@/components/portal/PreviewModeControls";
 import { PortalSessionMenu } from "@/components/portal/PortalSessionMenu";
 import { PortalSidebar } from "@/components/portal/PortalSidebar";
 import type { PortalAccessContext } from "@/lib/portal/auth";
+import { getPortalUnreadTicketNotificationCount } from "@/lib/portal/data";
 import { isPortalDevBypassEnabled } from "@/lib/portal/dev-auth";
 
 export function PortalShell({
@@ -39,6 +40,9 @@ async function PortalShellInner({
   const showWorkspaceDirectory =
     !access.isPreviewMode &&
     (access.effectiveRole === "support_admin" || access.accessibleCompanies.length > 1);
+  const supportNotificationCount = isSupportAdmin
+    ? 0
+    : await getPortalUnreadTicketNotificationCount(access.effectiveUser, access.company.id);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#f6fbf8_0%,#eef5ff_100%)] text-slate-900">
@@ -114,7 +118,11 @@ async function PortalShellInner({
         </header>
 
         <div className="mt-6 flex flex-col gap-5 xl:flex-row">
-          <PortalSidebar role={access.effectiveRole} showWorkspaceDirectory={showWorkspaceDirectory} />
+          <PortalSidebar
+            role={access.effectiveRole}
+            showWorkspaceDirectory={showWorkspaceDirectory}
+            supportNotificationCount={supportNotificationCount}
+          />
           <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>

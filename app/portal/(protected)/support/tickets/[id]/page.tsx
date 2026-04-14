@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MessageSquarePlus, ShieldCheck } from "lucide-react";
 import { TicketAdminControls } from "@/components/portal/TicketAdminControls";
+import { TicketNotificationReadMarker } from "@/components/portal/TicketNotificationReadMarker";
 import { TicketReplyForm } from "@/components/portal/TicketReplyForm";
 import { PriorityBadge } from "@/components/portal/PriorityBadge";
 import { SectionHeader } from "@/components/portal/SectionHeader";
@@ -76,6 +77,7 @@ export default async function TicketDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="space-y-6">
+      {!access.isPreviewMode ? <TicketNotificationReadMarker ticketId={ticket.id} /> : null}
       <section className="rounded-[32px] border border-slate-200 bg-white p-6">
         <SectionHeader
           eyebrow="Ticket Detail"

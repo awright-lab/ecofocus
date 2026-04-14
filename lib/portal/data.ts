@@ -25,6 +25,7 @@ import type {
   PortalTeamInvite,
   PortalTicket,
   PortalTicketMessage,
+  PortalTicketNotification,
   PortalTeamMember,
   PortalUsageAllocation,
   PortalUsageAllowance,
@@ -1042,6 +1043,57 @@ async function queryPortalTicketMessages(ticketId: string, includeInternal: bool
   }
 }
 
+async function queryPortalUnreadTicketNotifications(
+  user: PortalUser,
+  companyId = user.companyId,
+): Promise<PortalTicketNotification[] | null> {
+  if (user.role === "support_admin") return [];
+
+  try {
+    const admin = getServiceSupabase();
+    const { data, error } = await admin
+      .from("portal_ticket_notifications")
+      .select("id, ticket_id, company_id, user_id, notification_type, title, body, read_at, created_at")
+      .eq("user_id", user.id)
+      .eq("company_id", companyId)
+      .is("read_at", null)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.warn("[portal/data] portal_ticket_notifications unread lookup failed.", {
+        userId: user.id,
+        companyId,
+        error: error.message,
+      });
+      return null;
+    }
+
+    return (data || []).map((notification) => ({
+      id: String(notification.id),
+      ticketId: String(notification.ticket_id),
+      companyId: String(notification.company_id),
+      userId: String(notification.user_id),
+      notificationType:
+        notification.notification_type === "assigned" ||
+        notification.notification_type === "waiting_on_client" ||
+        notification.notification_type === "support_reply"
+          ? notification.notification_type
+          : "status_changed",
+      title: String(notification.title),
+      body: String(notification.body),
+      readAt: notification.read_at || null,
+      createdAt: String(notification.created_at),
+    }));
+  } catch (error) {
+    console.warn("[portal/data] portal_ticket_notifications unread storage unavailable.", {
+      userId: user.id,
+      companyId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
+
 export async function getPortalUserByEmail(email?: string | null): Promise<PortalUser | null> {
   const runtimeUser = await queryPortalUserByEmail(email);
   if (runtimeUser) return runtimeUser;
@@ -1499,6 +1551,63 @@ export async function getPortalTicketMessages(ticketId: string, includeInternal:
   return portalTicketMessages
     .filter((message) => message.ticketId === ticketId && (includeInternal || !message.isInternal))
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+export async function getPortalUnreadTicketNotifications(user: PortalUser, companyId = user.companyId) {
+  const runtimeNotifications = await queryPortalUnreadTicketNotifications(user, companyId);
+  return runtimeNotifications || [];
+}
+
+export async function getPortalUnreadTicketNotificationCount(user: PortalUser, companyId = user.companyId) {
+  return (await getPortalUnreadTicketNotifications(user, companyId)).length;
+}
+
+export async function getPortalUnreadTicketIds(user: PortalUser, companyId = user.companyId) {
+  const notifications = await getPortalUnreadTicketNotifications(user, companyId);
+  return new Set(notifications.map((notification) => notification.ticketId));
+}
+
+export async function markPortalTicketNotificationsRead({
+  user,
+  companyId = user.companyId,
+  ticketId,
+}: {
+  user: PortalUser;
+  companyId?: string;
+  ticketId?: string;
+}) {
+  if (user.role === "support_admin") return;
+
+  try {
+    const admin = getServiceSupabase();
+    let query = admin
+      .from("portal_ticket_notifications")
+      .update({ read_at: new Date().toISOString() })
+      .eq("user_id", user.id)
+      .eq("company_id", companyId)
+      .is("read_at", null);
+
+    if (ticketId) {
+      query = query.eq("ticket_id", ticketId);
+    }
+
+    const { error } = await query;
+    if (error) {
+      console.warn("[portal/data] ticket notification read tracking failed.", {
+        userId: user.id,
+        companyId,
+        ticketId,
+        error: error.message,
+      });
+    }
+  } catch (error) {
+    console.warn("[portal/data] ticket notification read tracking unavailable.", {
+      userId: user.id,
+      companyId,
+      ticketId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 }
 
 export async function markPortalCompletedTicketReviewed(ticketId: string, user: PortalUser, ticket?: PortalTicket) {
