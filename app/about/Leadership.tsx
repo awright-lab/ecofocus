@@ -110,7 +110,7 @@ export default function Leadership() {
     },
     {
       name: 'Jeff Bedard',
-      title: 'Senior Strategic Advisor / New Business Development',
+      title: 'Sr. Strategic Advisor, New Business',
       img: '/images/team/jeff.jpg',
       eyebrow: 'Advisory Team',
       blurb:
