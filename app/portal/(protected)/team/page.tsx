@@ -90,36 +90,71 @@ export default async function TeamPage() {
 
         <div className="rounded-[32px] border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-950">Team members</h3>
-          <div className="mt-5 space-y-3">
+          <div className="mt-5 overflow-hidden rounded-[26px] border border-slate-200 bg-white">
+            <div className="hidden grid-cols-[minmax(220px,1.3fr)_minmax(120px,0.75fr)_minmax(110px,0.65fr)_minmax(130px,0.7fr)_minmax(190px,0.95fr)_minmax(130px,0.7fr)] border-b border-slate-200 bg-slate-50/80 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 lg:grid">
+              <span>Teammate</span>
+              <span>Role</span>
+              <span>Status</span>
+              <span>Seat</span>
+              <span>Hours</span>
+              <span className="text-right">Actions</span>
+            </div>
             {teamMembers.map((member) => (
               <div
                 key={member.id}
-                className="grid gap-3 rounded-[24px] bg-slate-50 p-4 md:grid-cols-[1.15fr_0.9fr_0.7fr_0.7fr_0.9fr_0.75fr] md:items-center"
+                className="grid gap-4 border-b border-slate-100 bg-white px-5 py-4 last:border-b-0 lg:grid-cols-[minmax(220px,1.3fr)_minmax(120px,0.75fr)_minmax(110px,0.65fr)_minmax(130px,0.7fr)_minmax(190px,0.95fr)_minmax(130px,0.7fr)] lg:items-center"
               >
-                <div>
+                <div className="min-w-0">
                   <p className="font-semibold text-slate-900">{member.name}</p>
-                  <p className="text-sm text-slate-600">{member.email}</p>
+                  <p className="truncate text-sm text-slate-600">{member.email}</p>
                 </div>
-                <div className="text-sm text-slate-700">{member.role.replace("_", " ")}</div>
+                <div className="border-slate-200 lg:border-l lg:pl-4">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 lg:hidden">
+                    Role
+                  </p>
+                  <p className="text-sm capitalize text-slate-700">{member.role.replace("_", " ")}</p>
+                </div>
                 <div>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700">{member.status}</span>
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 lg:hidden">
+                    Status
+                  </p>
+                  <span className="inline-flex rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                    {member.status}
+                  </span>
                 </div>
-                <div className="text-sm text-slate-500">{member.status === "invited" ? "Seat reserved" : member.status === "active" ? "Seat assigned" : "Seat inactive"}</div>
-                {member.role === "client_user" || member.role === "agency_user" ? (
-                  <TeamMemberUsageAllocation
-                    userId={member.id}
-                    allocatedHours={usageAllocationsByUserId.get(member.id)?.allocatedHours ?? null}
+                <div className="border-slate-200 lg:border-l lg:pl-4">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 lg:hidden">
+                    Seat
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {member.status === "invited" ? "Reserved" : member.status === "active" ? "Assigned" : "Inactive"}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 lg:hidden">
+                    Hours
+                  </p>
+                  {member.role === "client_user" || member.role === "agency_user" ? (
+                    <TeamMemberUsageAllocation
+                      userId={member.id}
+                      allocatedHours={usageAllocationsByUserId.get(member.id)?.allocatedHours ?? null}
+                      canManage={canManageTeam}
+                    />
+                  ) : (
+                    <p className="text-sm text-slate-400">Admin account</p>
+                  )}
+                </div>
+                <div className="border-slate-200 lg:border-l lg:pl-4 lg:text-right">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400 lg:hidden">
+                    Actions
+                  </p>
+                  <TeamMemberActions
+                    memberId={member.id}
+                    memberStatus={member.status}
                     canManage={canManageTeam}
+                    isSelf={member.id === access.user.id}
                   />
-                ) : (
-                  <div className="text-sm text-slate-400">Admin account</div>
-                )}
-                <TeamMemberActions
-                  memberId={member.id}
-                  memberStatus={member.status}
-                  canManage={canManageTeam}
-                  isSelf={member.id === access.user.id}
-                />
+                </div>
               </div>
             ))}
           </div>
