@@ -88,6 +88,31 @@
         --surface-emerald-50: #ECFDF5;
 }
 
+html {
+    color-scheme: light;
+}
+
+:where(input, textarea, select) {
+    color-scheme: light;
+    background-color: #fff;
+    color: #0f172a;
+}
+
+:where(input, textarea, select)::placeholder {
+    color: #94a3b8;
+    opacity: 1;
+}
+
+:where(input, textarea, select):-webkit-autofill,
+:where(input, textarea, select):-webkit-autofill:hover,
+:where(input, textarea, select):-webkit-autofill:focus,
+:where(input, textarea, select):-webkit-autofill:active {
+    -webkit-text-fill-color: #0f172a;
+    caret-color: #0f172a;
+    box-shadow: 0 0 0 1000px #fff inset;
+    transition: background-color 9999s ease-out;
+}
+
 /* Soft brand tints for alternating sections */
 .bg-brand-tint-blue {
     background: linear-gradient(180deg, #ffffff 0%, var(--brand-surface-blue) 100%);
