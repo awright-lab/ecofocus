@@ -49,7 +49,7 @@ export default async function TeamPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[0.7fr_1.3fr]">
+      <section className="grid max-w-[1280px] gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
         <div className="space-y-6">
           <div className="rounded-[32px] border border-slate-200 bg-white p-6">
             <h3 className="text-lg font-semibold text-slate-950">Seat summary</h3>
