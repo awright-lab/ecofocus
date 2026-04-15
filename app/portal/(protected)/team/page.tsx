@@ -7,6 +7,7 @@ import { requirePortalRole } from "@/lib/portal/auth";
 import {
   getPortalTeamInvitesByCompany,
   getPortalTeamMembers,
+  getPortalUsageAllowanceByCompany,
   getPortalUsageAllocationsByCompany,
   getPortalUsersByIds,
   isPortalWorkspaceManager,
@@ -22,8 +23,9 @@ export const metadata = buildPortalMetadata(
 export default async function TeamPage() {
   const access = await requirePortalRole("client_admin", "/portal/team");
   const canManageTeam = isPortalWorkspaceManager(access.effectiveRole) && !access.isPreviewMode;
-  const [teamMembers, usageAllocations, inviteHistory] = await Promise.all([
+  const [teamMembers, usageAllowance, usageAllocations, inviteHistory] = await Promise.all([
     getPortalTeamMembers(access.effectiveUser, access.company.id),
+    getPortalUsageAllowanceByCompany(access.company.id),
     getPortalUsageAllocationsByCompany(access.company.id),
     canManageTeam ? getPortalTeamInvitesByCompany(access.company.id) : Promise.resolve([]),
   ]);
@@ -34,6 +36,15 @@ export default async function TeamPage() {
   const seatsAvailable = access.subscription.seatsPurchased - access.subscription.seatsUsed;
   const invitedCount = teamMembers.filter((member) => member.status === "invited").length;
   const activeCount = teamMembers.filter((member) => member.status === "active").length;
+  const allocatedHoursTotal = usageAllocations.reduce((total, allocation) => total + allocation.allocatedHours, 0);
+  const annualHoursLimit = usageAllowance?.annualHoursLimit ?? 0;
+  const unallocatedHours = Math.max(annualHoursLimit - allocatedHoursTotal, 0);
+  const allocatedMembers = usageAllocations
+    .map((allocation) => ({
+      allocation,
+      member: teamMembers.find((member) => member.id === allocation.userId) || null,
+    }))
+    .filter((item) => item.allocation.allocatedHours > 0);
 
   return (
     <div className="space-y-6">
@@ -49,48 +60,79 @@ export default async function TeamPage() {
         />
       </section>
 
-      <section className="grid max-w-[1280px] gap-6 xl:grid-cols-[280px_minmax(0,1fr)]">
-        <div className="space-y-6">
-          <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-            <h3 className="text-lg font-semibold text-slate-950">Seat summary</h3>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[24px] bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Purchased</p>
-                <p className="mt-2 text-3xl font-semibold text-slate-900">{access.subscription.seatsPurchased}</p>
-              </div>
-              <div className="rounded-[24px] bg-slate-950 p-4 text-white">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Available</p>
-                <p className="mt-2 text-3xl font-semibold">{seatsAvailable}</p>
-              </div>
-              <div className="rounded-[24px] bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Active</p>
-                <p className="mt-2 text-3xl font-semibold text-slate-900">{activeCount}</p>
-              </div>
-              <div className="rounded-[24px] bg-slate-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Invited</p>
-                <p className="mt-2 text-3xl font-semibold text-slate-900">{invitedCount}</p>
-              </div>
-            </div>
+      <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+        <h3 className="text-lg font-semibold text-slate-950">Seat summary</h3>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-[24px] bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Purchased</p>
+            <p className="mt-2 text-3xl font-semibold text-slate-900">{access.subscription.seatsPurchased}</p>
           </div>
-
-          <div className="rounded-[32px] border border-slate-200 bg-white p-6">
-            <h3 className="text-lg font-semibold text-slate-950">Invite teammate</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              {access.isPreviewMode
-                ? "Invites are disabled in support preview mode so you can inspect the screen without changing access."
-                : "Add a teammate by reserving a seat and sending them access for this workspace."}
-            </p>
-            <TeamInviteForm
-              canManage={canManageTeam}
-              seatsAvailable={seatsAvailable}
-              subscriberType={access.company.subscriberType || "brand"}
-            />
+          <div className="rounded-[24px] bg-slate-950 p-4 text-white">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">Available</p>
+            <p className="mt-2 text-3xl font-semibold">{seatsAvailable}</p>
+          </div>
+          <div className="rounded-[24px] bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Active</p>
+            <p className="mt-2 text-3xl font-semibold text-slate-900">{activeCount}</p>
+          </div>
+          <div className="rounded-[24px] bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Invited</p>
+            <p className="mt-2 text-3xl font-semibold text-slate-900">{invitedCount}</p>
           </div>
         </div>
+      </section>
 
-        <div className="rounded-[32px] border border-slate-200 bg-white p-6">
+      <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-950">Hours allocation</h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Track how many dashboard hours are assigned to teammates and how many are still available to allocate.
+            </p>
+          </div>
+          <div className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-100">
+            {annualHoursLimit ? `${unallocatedHours} hours left to assign` : "No hour limit set"}
+          </div>
+        </div>
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-[24px] bg-slate-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Plan hours</p>
+            <p className="mt-2 text-3xl font-semibold text-slate-900">{annualHoursLimit || "Included"}</p>
+          </div>
+          <div className="rounded-[24px] bg-sky-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sky-700">Allocated</p>
+            <p className="mt-2 text-3xl font-semibold text-sky-950">{allocatedHoursTotal}</p>
+          </div>
+          <div className="rounded-[24px] bg-emerald-50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Unassigned</p>
+            <p className="mt-2 text-3xl font-semibold text-emerald-950">{annualHoursLimit ? unallocatedHours : "Open"}</p>
+          </div>
+        </div>
+        <div className="mt-5 rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Assigned by teammate</p>
+          {allocatedMembers.length ? (
+            <div className="mt-3 divide-y divide-slate-200">
+              {allocatedMembers.map(({ allocation, member }) => (
+                <div key={allocation.userId} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{member?.name || allocation.userId}</p>
+                    <p className="text-xs text-slate-500">{member?.email || "Workspace teammate"}</p>
+                  </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
+                    {allocation.allocatedHours} hours
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-slate-600">No teammate hours have been assigned yet.</p>
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-[32px] border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-950">Team members</h3>
-          <div className="mt-5 overflow-hidden rounded-[26px] border border-slate-200 bg-white">
+          <div className="mt-5 overflow-x-auto rounded-[26px] border border-slate-200 bg-white">
             <div className="hidden grid-cols-[minmax(220px,1.3fr)_minmax(120px,0.75fr)_minmax(110px,0.65fr)_minmax(130px,0.7fr)_minmax(190px,0.95fr)_minmax(130px,0.7fr)] border-b border-slate-200 bg-slate-50/80 px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 lg:grid">
               <span>Teammate</span>
               <span>Role</span>
@@ -158,6 +200,21 @@ export default async function TeamPage() {
               </div>
             ))}
           </div>
+      </section>
+
+      <section className="rounded-[32px] border border-slate-200 bg-white p-6">
+        <div className="max-w-xl">
+          <h3 className="text-lg font-semibold text-slate-950">Invite teammate</h3>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            {access.isPreviewMode
+              ? "Invites are disabled in support preview mode so you can inspect the screen without changing access."
+              : "Add a teammate by reserving a seat and sending them access for this workspace."}
+          </p>
+          <TeamInviteForm
+            canManage={canManageTeam}
+            seatsAvailable={seatsAvailable}
+            subscriberType={access.company.subscriberType || "brand"}
+          />
         </div>
       </section>
 
