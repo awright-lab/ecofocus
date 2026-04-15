@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import { getPortalTicketForUser, getPortalUsersByIds } from "@/lib/portal/data";
@@ -163,6 +164,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       }
       await admin.from("portal_tickets").update(updatePayload).eq("id", ticket.id);
     }
+
+    revalidatePath("/portal/home");
+    revalidatePath("/portal/support");
+    revalidatePath("/portal/support/tickets");
+    revalidatePath(`/portal/support/tickets/${ticket.id}`);
+    revalidatePath("/portal/admin/support");
 
     return asJson({ ok: true }, 201);
   } catch (error) {

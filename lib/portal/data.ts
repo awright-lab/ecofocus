@@ -1576,7 +1576,7 @@ export async function markPortalTicketNotificationsRead({
   companyId?: string;
   ticketId?: string;
 }) {
-  if (user.role === "support_admin") return;
+  if (user.role === "support_admin") return 0;
 
   try {
     const admin = getServiceSupabase();
@@ -1591,7 +1591,7 @@ export async function markPortalTicketNotificationsRead({
       query = query.eq("ticket_id", ticketId);
     }
 
-    const { error } = await query;
+    const { data, error } = await query.select("id");
     if (error) {
       console.warn("[portal/data] ticket notification read tracking failed.", {
         userId: user.id,
@@ -1599,7 +1599,9 @@ export async function markPortalTicketNotificationsRead({
         ticketId,
         error: error.message,
       });
+      return 0;
     }
+    return data?.length || 0;
   } catch (error) {
     console.warn("[portal/data] ticket notification read tracking unavailable.", {
       userId: user.id,
@@ -1607,6 +1609,7 @@ export async function markPortalTicketNotificationsRead({
       ticketId,
       error: error instanceof Error ? error.message : String(error),
     });
+    return 0;
   }
 }
 

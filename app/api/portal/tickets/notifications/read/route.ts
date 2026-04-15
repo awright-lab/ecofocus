@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getPortalAccessContext } from "@/lib/portal/auth";
 import { markPortalTicketNotificationsRead } from "@/lib/portal/data";
 
@@ -27,11 +28,20 @@ export async function POST(req: NextRequest) {
     body = {};
   }
 
-  await markPortalTicketNotificationsRead({
+  const markedCount = await markPortalTicketNotificationsRead({
     user: access.effectiveUser,
     companyId: access.company.id,
     ticketId: body.ticketId ? String(body.ticketId) : undefined,
   });
 
-  return asJson({ ok: true });
+  if (markedCount > 0) {
+    revalidatePath("/portal/home");
+    revalidatePath("/portal/support");
+    revalidatePath("/portal/support/tickets");
+    if (body.ticketId) {
+      revalidatePath(`/portal/support/tickets/${String(body.ticketId)}`);
+    }
+  }
+
+  return asJson({ ok: true, markedCount });
 }

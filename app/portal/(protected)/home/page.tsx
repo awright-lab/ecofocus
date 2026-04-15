@@ -50,7 +50,15 @@ export default async function PortalHomePage() {
   const articles = getPortalArticles().slice(0, 3);
   const availableDashboardCount = allDashboards.filter((dashboard) => Boolean(dashboard.embedUrl)).length;
   const assignedDashboardCount = allDashboards.length - availableDashboardCount;
-  const openTicketCount = tickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived").length;
+  const openTickets = tickets.filter((ticket) => ticket.status !== "completed" && ticket.status !== "archived");
+  const openTicketCount = openTickets.length;
+  const openTicketSummary = openTickets.some((ticket) => ticket.status === "waiting_on_client")
+    ? "Waiting on you"
+    : openTickets.some((ticket) => ticket.status === "open")
+      ? "Awaiting review"
+      : openTickets.some((ticket) => ticket.status === "in_progress")
+        ? "In progress"
+        : "No open requests";
   const isClientUser = access.effectiveRole === "client_user" || access.effectiveRole === "agency_user";
   const hasUserAllocation = Boolean(isClientUser && usage.allocation && usage.annualHoursLimit);
   const usageLimitValue = isClientUser ? (hasUserAllocation ? usage.annualHoursLimit : null) : usage.annualHoursLimit;
@@ -208,7 +216,7 @@ export default async function PortalHomePage() {
               </div>
               <div className="mt-2.5 flex items-end justify-between gap-3">
                 <p className="text-[1.75rem] font-semibold leading-none text-slate-950">{openTicketCount}</p>
-                <p className="text-right text-xs text-slate-600">In progress or waiting</p>
+                <p className="text-right text-xs text-slate-600">{openTicketSummary}</p>
               </div>
             </div>
             <div
