@@ -59,6 +59,16 @@ export default function Leadership() {
       focal: '50% 45%',
     },
     {
+      name: 'Mike Wright',
+      title: 'Director, Business Intelligence & Design',
+      img: '/images/team/arif.jpg',
+      blurb:
+        'Leads data access and dashboard delivery, connecting EcoFocus insights to Snowflake users.',
+      details:
+        "Mike Wright is a dynamic professional with a unique blend of technology and creative graphic design skills and is leading up the Snowflake team working to make EcoFocus data available to Snowflake users. A Web Development and Computer Engineering graduate, he has excelled in roles such as a Data Market Analyst at AMI Corp, where he showcased his analytical and strategic talents. Passionate about sustainable agriculture, particularly hydroponic farming, Mike's environmental advocacy complements his professional pursuits. An avid hiker, his adventurous spirit mirrors his dynamic approach to technology and creativity.",
+      focal: '50% 38%',
+    },
+    {
       name: 'Craig Miller',
       title: 'Director of Agency Partnerships',
       img: '/images/team/craig.png',
@@ -79,14 +89,14 @@ export default function Leadership() {
       focal: '50% 35%',
     },
     {
-      name: 'Mike Wright',
-      title: 'Director, Business Intelligence & Design',
-      img: '/images/team/arif.jpg',
+      name: 'Deborah Marshall',
+      title: 'Agency Sales Specialist',
+      img: '/images/team/Deborah.jpg',
       blurb:
-        'Leads data access and dashboard delivery, connecting EcoFocus insights to Snowflake users.',
+        'Helps brands, agencies, and partners apply EcoFocus sustainability data to strategy, outreach, and growth.',
       details:
-        "Mike Wright is a dynamic professional with a unique blend of technology and creative graphic design skills and is leading up the Snowflake team working to make EcoFocus data available to Snowflake users. A Web Development and Computer Engineering graduate, he has excelled in roles such as a Data Market Analyst at AMI Corp, where he showcased his analytical and strategic talents. Passionate about sustainable agriculture, particularly hydroponic farming, Mike's environmental advocacy complements his professional pursuits. An avid hiker, his adventurous spirit mirrors his dynamic approach to technology and creativity.",
-      focal: '50% 38%',
+        'Deborah Marshall brings more than 30 years of media, marketing, and business-development experience to EcoFocus. Across leadership roles with Missouri Life Magazine, GateHouse Media, Columbia Daily Tribune, McClatchy, and Gannett, she has built strategic partnerships, launched innovative sales and marketing solutions, and driven meaningful revenue growth across advertising, publishing, events, and multimedia platforms. At EcoFocus, Deborah works with brands, agencies, and partners to help them access and apply EcoFocus’s proprietary sustainability data in ways that inform strategy, strengthen outreach, and support growth. Her deep experience in audience development, client relationships, and market-facing solutions makes her a strong addition to the EcoFocus team.',
+      focal: '50% 35%',
     },
     {
       name: 'Alex Murrey',
@@ -110,6 +120,17 @@ export default function Leadership() {
       focal: '50% 35%',
     },
     {
+      name: 'Jim Elliott',
+      title: 'Media Research & Revenue Strategy Advisor',
+      img: '/images/team/Jim.jpg',
+      eyebrow: 'Advisory Team',
+      blurb:
+        'Turns market data into revenue-driving strategies that help agencies target the purpose-driven generation with stronger narratives.',
+      details:
+        'Jim Elliott brings unparalleled expertise in translating market data into revenue-driving strategies. He understands that when advertisers target the purpose-driven generation, agencies must rely on robust research to build the vivid personas and compelling narratives required to win the pitch and sell products. Currently President of an advertising sales and consulting firm that has generated over $750 million for 600+ media brands, Jim’s career spans media planning at Ogilvy & Mather to executive leadership at CBS Magazines. Drawing on deep experience designing research, representing MRI-Simmons, and partnering with Kantar Media, Jim ensures EcoFocus delivers relevant insights that are commercially vital.',
+      focal: '50% 28%',
+    },
+    {
       name: 'Russ Whitman',
       title: 'AI and Growth Strategist',
       img: '/images/team/russ.png',
@@ -129,17 +150,6 @@ export default function Leadership() {
         'Brings agency, media research, and marketing support experience to help EcoFocus serve ad, PR, marketing, and communications agencies.',
       details:
         'With a background that spans agencies, media research, and marketing support, Paul brings EcoFocus valuable perspective for serving ad, PR, marketing, and communications agencies. He began on the agency side at DDB Needham in media planning before going on to lead custom media research at MRI-Simmons, where he helped media brands use audience data across print, digital, newsletters, social, and events to build stronger sales and marketing narratives. At DJG Marketing, he also directed strategic marketing, research support, and ad sales development for hundreds of media brands. Paul was recently featured in Alliance for Audited Media’s “Media Mavens” blog series, “Paul Sammon on the Power of Innovative Data,” where he explored how trust and confidence shape today’s media marketplace. That focus on trusted, differentiated data is especially relevant to EcoFocus and its unique sustainability intelligence. In addition to advising EcoFocus, Paul is President of All In One Insights focusing on providing high quality full-service research, marketing and ad support for media brands across their full multi-platform footprint.',
-      focal: '50% 28%',
-    },
-    {
-      name: 'Jim Elliott',
-      title: 'Media Research & Revenue Strategy Advisor',
-      img: '/images/team/Jim.jpg',
-      eyebrow: 'Advisory Team',
-      blurb:
-        'Turns market data into revenue-driving strategies that help agencies target the purpose-driven generation with stronger narratives.',
-      details:
-        'Jim Elliott brings unparalleled expertise in translating market data into revenue-driving strategies. He understands that when advertisers target the purpose-driven generation, agencies must rely on robust research to build the vivid personas and compelling narratives required to win the pitch and sell products. Currently President of an advertising sales and consulting firm that has generated over $750 million for 600+ media brands, Jim’s career spans media planning at Ogilvy & Mather to executive leadership at CBS Magazines. Drawing on deep experience designing research, representing MRI-Simmons, and partnering with Kantar Media, Jim ensures EcoFocus delivers relevant insights that are commercially vital.',
       focal: '50% 28%',
     },
   ];
@@ -333,4 +343,3 @@ export default function Leadership() {
     </section>
   );
 }
-
