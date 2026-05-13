@@ -12,9 +12,30 @@ const VALUE_POINTS = [
 ];
 
 const PACKAGE_ROWS = [
-  { term: "3 months", hours: "8-16 hrs/mo", access: "Light data access", fit: "Pilot a working rhythm fast" },
-  { term: "6 months", hours: "8-16 hrs/mo", access: "Blended support + access", fit: "Support active pitches and delivery" },
-  { term: "12 months", hours: "8-16 hrs/mo", access: "Best value structure", fit: "Operate with embedded insight support" },
+  {
+    term: "3 months",
+    hours: "8-16 hrs/mo",
+    access: "Light data access",
+    fit: "Pilot a working rhythm fast",
+    accent: "from-[#0f766e] to-[#14b8a6]",
+    badge: "Quick start",
+  },
+  {
+    term: "6 months",
+    hours: "8-16 hrs/mo",
+    access: "Blended support + access",
+    fit: "Support active pitches and delivery",
+    accent: "from-[#1d4ed8] to-[#38bdf8]",
+    badge: "Most balanced",
+  },
+  {
+    term: "12 months",
+    hours: "8-16 hrs/mo",
+    access: "Best value structure",
+    fit: "Operate with embedded insight support",
+    accent: "from-[#5b21b6] to-[#a855f7]",
+    badge: "Best value",
+  },
 ];
 
 export default function RetainerOffer() {
@@ -55,16 +76,16 @@ export default function RetainerOffer() {
               ))}
             </ul>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-6 flex flex-wrap gap-3 sm:flex-nowrap">
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
                 Schedule a discovery call
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-full border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
               >
                 Request pricing details
               </Link>
@@ -88,12 +109,17 @@ export default function RetainerOffer() {
                     sizes="(min-width: 1024px) 26vw, 100vw"
                     className="object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-900/20 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5 text-white">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-300">Best for</p>
-                    <p className="mt-2 text-sm leading-relaxed text-white/90">
-                      Agencies, brand teams, and consultants who want recurring help turning data into decisions.
-                    </p>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/55 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <div className="rounded-2xl border border-white/15 bg-slate-950/72 p-5 backdrop-blur-sm text-white">
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-300">What it unlocks</p>
+                      <ul className="mt-3 space-y-2.5 text-sm leading-relaxed text-white/95">
+                        <li>Monthly insight mining tailored to active briefs</li>
+                        <li>Strategic framing for decks, pitches, and presentations</li>
+                        <li>Support for proposals, messaging, and stakeholder storytelling</li>
+                        <li>A practical bridge before a full seat license or custom study</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -104,31 +130,43 @@ export default function RetainerOffer() {
                     <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Flexible structure</p>
                     <h3 className="mt-2 text-xl font-semibold text-gray-900">Retainer options by term and support level</h3>
                   </div>
-                  <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-medium text-emerald-800">
-                    Value-led first
+                  <span className="shrink-0 whitespace-nowrap rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-medium text-emerald-800">
+                    Access + strategy support
                   </span>
                 </div>
 
+                <p className="mt-4 text-sm leading-relaxed text-gray-600">
+                  Choose a structure that matches how often your team needs help translating EcoFocus data into practical,
+                  presentation-ready work.
+                </p>
+
                 <div className="mt-5 space-y-3">
                   {PACKAGE_ROWS.map((row) => (
-                    <div key={row.term} className="rounded-2xl border border-gray-200 bg-white p-4">
+                    <div key={row.term} className="relative overflow-hidden rounded-[1.4rem] border border-gray-200 bg-white p-4 shadow-sm">
+                      <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${row.accent}`} />
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-gray-900">{row.term}</p>
+                          <p className="pt-2 text-base font-semibold text-gray-900">{row.term}</p>
                           <p className="mt-1 text-xs text-gray-500">{row.fit}</p>
                         </div>
-                        <div className="flex flex-wrap gap-2 text-xs text-gray-700">
-                          <span className="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-800">{row.hours}</span>
-                          <span className="rounded-full bg-amber-50 px-2.5 py-1 font-medium text-amber-800">{row.access}</span>
-                        </div>
+                        <span className="rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                          {row.badge}
+                        </span>
                       </div>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-700">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-800">{row.hours}</span>
+                        <span className="rounded-full bg-amber-50 px-2.5 py-1 font-medium text-amber-800">{row.access}</span>
+                      </div>
+                      <div className="mt-4 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                      <p className="mt-4 text-xs leading-relaxed text-slate-500">
+                        Start with the cadence that fits now, then expand support as your team’s needs evolve.
+                      </p>
                     </div>
                   ))}
                 </div>
 
                 <p className="mt-4 text-xs leading-relaxed text-gray-500">
-                  Public site copy should introduce the model and use cases first. Detailed monthly pricing can stay in the sales
-                  conversation or a downloadable rate card.
+                  Detailed pricing can be shared during the sales conversation or through a downloadable rate card once scope and support needs are clear.
                 </p>
               </div>
             </div>

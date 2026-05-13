@@ -29,7 +29,7 @@ export default function SolutionsOverview() {
         "Presentation and proposal support",
         "Flexible term and support-hour options",
       ],
-      href: "/contact",
+      href: "/solutions/strategic-retainer",
     },
     {
       tag: "Most versatile",
@@ -148,6 +148,5 @@ export default function SolutionsOverview() {
     </section>
   );
 }
-
 
 
