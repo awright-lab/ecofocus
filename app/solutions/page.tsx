@@ -131,7 +131,7 @@ export default function SolutionsPage() {
 
         <DashboardIntro />
 
-        <RetainerOffer />
+        <RetainerOffer compact />
 
         {/* Comparison */}
         <SolutionsComparison />
@@ -146,7 +146,6 @@ export default function SolutionsPage() {
     </>
   );
 }
-
 
 
 

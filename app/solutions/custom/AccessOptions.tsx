@@ -9,18 +9,21 @@ const accessItems = [
     description:
       "Track results in real-time, filter by segment, and explore diagnostics built around your study design.",
     image: "/images/custom-dashboard.png", // replace with your asset
+    imageClassName: "object-center object-[center_42%]",
   },
   {
     title: "Exportable Crosstabs & Deliverables",
     description:
       "Download crosstabs, respondent profiles, and full data exports—aligned to your audiences and priorities.",
     image: "/images/custom-crosstab.png", // replace with your asset
+    imageClassName: "object-center",
   },
   {
     title: "Executive Debrief & Advisory",
     description:
       "Executive-ready summary decks, insight narratives, and optional advisory support to align teams and guide activation.",
     image: "/images/custom-report.png", // replace with your asset
+    imageClassName: "object-center",
   },
 ];
 
@@ -71,7 +74,7 @@ export default function AccessOptions() {
                   src={item.image}
                   alt={item.title}
                   fill
-                  className="object-cover"
+                  className={`object-cover ${item.imageClassName ?? ""}`}
                 />
               </div>
             </div>

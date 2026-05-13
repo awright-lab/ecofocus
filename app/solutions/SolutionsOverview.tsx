@@ -90,7 +90,7 @@ export default function SolutionsOverview() {
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: i * 0.07 }}
-              className="flex flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
+              className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-lg"
             >
               <span className="inline-flex w-fit items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
                 {c.tag}
@@ -105,7 +105,7 @@ export default function SolutionsOverview() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-5 flex justify-center">
+              <div className="mt-auto flex justify-center pt-5">
                 <Link
                   href={c.href}
                   className="relative inline-flex w-full sm:w-auto sm:min-w-[180px] items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:bg-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2
@@ -148,5 +148,4 @@ export default function SolutionsOverview() {
     </section>
   );
 }
-
 

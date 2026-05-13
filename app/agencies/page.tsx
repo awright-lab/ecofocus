@@ -981,10 +981,10 @@ export default function AgenciesPage() {
                 <div className="rounded-3xl border border-gray-200 bg-slate-50 p-6 shadow-lg md:p-7">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">Flexible monthly engagement</p>
+                      <p className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">Flexible monthly engagement</p>
                       <h3 className="mt-2 text-2xl font-semibold text-slate-900">Put EcoFocus data to work with support that matches your pace.</h3>
                     </div>
-                    <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-medium text-emerald-800">
+                    <span className="shrink-0 whitespace-nowrap rounded-full border border-emerald-200 bg-white px-3 py-1 text-[10px] font-medium text-emerald-800">
                       Access + strategy + presentation support
                     </span>
                   </div>
@@ -1002,12 +1002,12 @@ export default function AgenciesPage() {
                         <div className="flex items-start justify-between gap-3 pt-2">
                           <div>
                             <p className="text-lg font-semibold text-slate-900">{pkg.term}</p>
-                            <p className="mt-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{pkg.hours}</p>
                           </div>
-                          <span className="rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                          <span className="shrink-0 whitespace-nowrap rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
                             {pkg.badge}
                           </span>
                         </div>
+                        <p className="mt-2 whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] text-slate-500">{pkg.hours}</p>
                         <p className="mt-4 text-sm leading-relaxed text-slate-600">{pkg.value}</p>
                         <div className="mt-5 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
                         <p className="mt-4 text-xs leading-relaxed text-slate-500">
@@ -1017,7 +1017,7 @@ export default function AgenciesPage() {
                     ))}
                   </div>
 
-                  <div className="mt-6 grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+                  <div className="mt-6 grid items-stretch gap-4 md:grid-cols-[1fr_1fr]">
                     <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5">
                       <p className="text-sm font-semibold text-slate-900">What’s included</p>
                       <p className="mt-2 text-sm leading-relaxed text-slate-700">
@@ -1026,12 +1026,18 @@ export default function AgenciesPage() {
                       </p>
                     </div>
 
-                    <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                    <div className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5">
                       <p className="text-sm font-semibold text-slate-900">How to get started</p>
                       <p className="mt-2 text-sm leading-relaxed text-slate-700">
                         Book a discovery call to talk through your team’s workflow, support needs, and the retainer structure
                         that makes the most sense.
                       </p>
+                      <Link
+                        href="/contact"
+                        className="mt-auto inline-flex w-full items-center justify-center rounded-full bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                      >
+                        Go to contact
+                      </Link>
                     </div>
                   </div>
                 </div>
