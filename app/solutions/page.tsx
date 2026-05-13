@@ -13,6 +13,7 @@ import SolutionsComparison from "./SolutionsComparison";
 import SolutionsHighlights from "./SolutionsHighlights";
 import FinalCTA from "./FinalCTA";
 import DashboardIntro from "./DashboardIntro";
+import RetainerOffer from "./RetainerOffer";
 
 export const dynamic = "force-dynamic";
 
@@ -130,6 +131,8 @@ export default function SolutionsPage() {
 
         <DashboardIntro />
 
+        <RetainerOffer />
+
         {/* Comparison */}
         <SolutionsComparison />
 
@@ -143,7 +146,6 @@ export default function SolutionsPage() {
     </>
   );
 }
-
 
 
 

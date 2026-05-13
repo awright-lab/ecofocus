@@ -16,8 +16,8 @@ export default function SolutionsHero() {
       }
       subhead={
         <>
-          Syndicated research, data integration, and custom studies—delivered through our
-          Interactive Dashboard with white-label exports.
+          Syndicated research, strategic retainers, data integration, and custom studies,
+          delivered through our Interactive Dashboard with white-label exports.
         </>
       }
       ctaPrimary={{ label: "See the Dashboard", href: "/solutions/dashboard" }}
@@ -28,7 +28,6 @@ export default function SolutionsHero() {
     />
   );
 }
-
 
 
 

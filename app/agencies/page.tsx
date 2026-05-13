@@ -59,10 +59,29 @@ const SECTION_ITEMS = [
   { id: 'data-breadth', label: 'Data Breadth' },
   { id: 'instant-access', label: 'Instant Access' },
   { id: 'modules', label: 'Modules' },
+  { id: 'retainer', label: 'Retainer' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'guarantee', label: 'Guarantee' },
   { id: 'faq', label: 'FAQ' },
   { id: 'contact', label: 'Contact' },
+] as const;
+
+const RETAINER_PACKAGES = [
+  {
+    term: '3 months',
+    hours: '8, 12, or 16 hrs/mo',
+    value: 'Fastest way to put EcoFocus to work on active opportunities.',
+  },
+  {
+    term: '6 months',
+    hours: '8, 12, or 16 hrs/mo',
+    value: 'A stronger fit for teams balancing pitches with live client delivery.',
+  },
+  {
+    term: '12 months',
+    hours: '8, 12, or 16 hrs/mo',
+    value: 'Best for agencies that want embedded sustainability intelligence support.',
+  },
 ] as const;
 
 const DATA_BREADTH_ITEMS = [
@@ -904,6 +923,92 @@ export default function AgenciesPage() {
               ))}
             </div>
 
+          </FadeUp>
+        </section>
+
+        <section id="retainer" className={sectionClassName()}>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Strategic Retainer</span>
+            </div>
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Ongoing EcoFocus support for agencies that need{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                more than a dashboard.
+              </span>
+            </h2>
+            <p className="mt-4 max-w-4xl text-base md:text-lg text-slate-600">
+              The new retainer option gives agencies a lighter-weight path than custom research: recurring access to
+              EcoFocus data paired with expert help shaping insights, pitches, presentations, and sustainability messaging.
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
+              <div className="lg:col-span-5">
+                <div className="relative overflow-hidden rounded-3xl bg-slate-900 p-2 shadow-2xl ring-1 ring-slate-200">
+                  <div className="relative h-[22rem] overflow-hidden rounded-[1.35rem]">
+                    <Image
+                      src="/images/solutions-consulting.png"
+                      alt="EcoFocus retainer support for agency teams"
+                      fill
+                      sizes="(min-width: 1024px) 35vw, 100vw"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-slate-900/20 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-6 text-white">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">What it unlocks</p>
+                      <ul className="mt-3 space-y-2 text-sm leading-relaxed text-white/90">
+                        <li>Monthly data mining and insight pulls</li>
+                        <li>Strategic framing for pitches and executive decks</li>
+                        <li>Proposal, RFP, and messaging support</li>
+                        <li>A natural bridge before a full seat license or custom study</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-7">
+                <div className="rounded-3xl border border-gray-200 bg-slate-50 p-6 shadow-lg md:p-7">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700">How we should present it</p>
+                      <h3 className="mt-2 text-2xl font-semibold text-slate-900">Lead with outcomes, then let pricing support the story.</h3>
+                    </div>
+                    <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-medium text-emerald-800">
+                      Better than posting the raw table first
+                    </span>
+                  </div>
+
+                  <div className="mt-6 grid gap-4 md:grid-cols-3">
+                    {RETAINER_PACKAGES.map((pkg) => (
+                      <article key={pkg.term} className="rounded-2xl border border-gray-200 bg-white p-4">
+                        <p className="text-sm font-semibold text-slate-900">{pkg.term}</p>
+                        <p className="mt-2 text-xs font-medium uppercase tracking-wide text-emerald-700">{pkg.hours}</p>
+                        <p className="mt-3 text-sm leading-relaxed text-slate-600">{pkg.value}</p>
+                      </article>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5">
+                      <p className="text-sm font-semibold text-slate-900">Recommended website framing</p>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                        Position this as flexible monthly insight support powered by EcoFocus data, not as a simple bank
+                        of hours. The point is faster decisions, stronger decks, and more credible sustainability strategy.
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-gray-200 bg-white p-5">
+                      <p className="text-sm font-semibold text-slate-900">Suggested CTA</p>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                        Invite teams to book a discovery call or request the rate card after the value proposition is clear.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </FadeUp>
         </section>
 

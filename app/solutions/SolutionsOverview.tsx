@@ -20,6 +20,18 @@ export default function SolutionsOverview() {
       href: "/solutions/syndicated",
     },
     {
+      tag: "Ongoing support",
+      title: "Strategic Retainer",
+      body:
+        "Combine EcoFocus data access with recurring analyst support for pitches, presentations, and sustainability strategy work.",
+      bullets: [
+        "Monthly insight mining and framing",
+        "Presentation and proposal support",
+        "Flexible term and support-hour options",
+      ],
+      href: "/contact",
+    },
+    {
       tag: "Most versatile",
       title: "Data Integration",
       body:
@@ -70,7 +82,7 @@ export default function SolutionsOverview() {
         </motion.p>
 
         {/* 3 pillar cards */}
-        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map((c, i) => (
             <motion.article
               key={c.title}
@@ -136,7 +148,6 @@ export default function SolutionsOverview() {
     </section>
   );
 }
-
 
 
 

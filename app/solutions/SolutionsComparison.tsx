@@ -5,19 +5,19 @@ import { motion, useReducedMotion } from "framer-motion";
 export default function SolutionsComparison() {
   const reduceMotion = useReducedMotion();
 
-  const cols = ["Syndicated Study", "Data Integration", "Custom Studies"] as const;
+  const cols = ["Syndicated Study", "Strategic Retainer", "Data Integration", "Custom Studies"] as const;
 
   const rows: { label: string; values: string[] }[] = [
-    { label: "Best for", values: ["Trendlines & defendable evidence", "Joining EcoFocus with client/BI data", "Answering a specific decision with bespoke evidence"] },
-    { label: "Typical outputs", values: ["Executive deck, dashboard seats, crosstabs", "Merged datasets, schemas, optional dashboard views", "Report + appendix; raw data as scoped"] },
-    { label: "Speed to value", values: ["Weeks", "1–3 weeks", "2–8 weeks (scope-dependent)"] },
-    { label: "Audience depth", values: ["n≈4,000/wave; segmentable (incl. Gen Z/Millennial cuts)", "Depends on client data + EcoFocus joins", "As designed (qual + quant)"] },
-    { label: "Dashboard access", values: ["Included seats (agency license) + white-label charts", "Optional dashboard module; otherwise dataset/API", "Optional dashboard module; default executive deck"] },
-    { label: "When it’s ideal", values: ["You need credible stats & trends to anchor a pitch/POV", "You need client-specific personas/validation", "You must prove or optimize a high-stakes decision"] },
-    { label: "Not great for", values: ["One-off niche questions only", "Exploration without any client data", "Immediate answers today"] },
+    { label: "Best for", values: ["Trendlines & defendable evidence", "Ongoing monthly support around active briefs", "Joining EcoFocus with client/BI data", "Answering a specific decision with bespoke evidence"] },
+    { label: "Typical outputs", values: ["Executive deck, dashboard seats, crosstabs", "Insight pulls, pitch framing, presentation support", "Merged datasets, schemas, optional dashboard views", "Report + appendix; raw data as scoped"] },
+    { label: "Speed to value", values: ["Weeks", "Days to first working session", "1–3 weeks", "2–8 weeks (scope-dependent)"] },
+    { label: "Audience depth", values: ["n≈4,000/wave; segmentable (incl. Gen Z/Millennial cuts)", "Uses EcoFocus data access plus analyst interpretation", "Depends on client data + EcoFocus joins", "As designed (qual + quant)"] },
+    { label: "Dashboard access", values: ["Included seats (agency license) + white-label charts", "Blended access structure tied to the retainer", "Optional dashboard module; otherwise dataset/API", "Optional dashboard module; default executive deck"] },
+    { label: "When it’s ideal", values: ["You need credible stats & trends to anchor a pitch/POV", "You want EcoFocus acting like an extension of your team", "You need client-specific personas/validation", "You must prove or optimize a high-stakes decision"] },
+    { label: "Not great for", values: ["One-off niche questions only", "Teams wanting full self-serve access only", "Exploration without any client data", "Immediate answers today"] },
   ];
 
-  const badges = ["Most-used", "Most versatile", "Deepest"] as const;
+  const badges = ["Most-used", "Newest", "Most versatile", "Deepest"] as const;
 
   return (
     <section id="compare" className="relative bg-brand-tint-blue" aria-labelledby="compare-title">
@@ -93,7 +93,6 @@ export default function SolutionsComparison() {
     </section>
   );
 }
-
 
 
 
