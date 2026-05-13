@@ -93,8 +93,8 @@ export default async function ArticlePage({
   }
 
   const readTime = post.readTime || estReadTimeFromHTML(post.html || '')
-  const base = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || ''
-  const canonical = base ? `${base}/blog/${slug}` : `/blog/${slug}`
+  const base = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || SITE_URL
+  const canonical = `${base}/blog/${slug}`
 
   const isLexical = (v: unknown) => v && typeof v === 'object' && 'root' in (v as any) && (v as any).root
   const isBlocks = (v: unknown) => Array.isArray(v)
@@ -301,7 +301,6 @@ async function RelatedList({ currentSlug, topicSlug }: { currentSlug?: string; t
     return null
   }
 }
-
 
 
 

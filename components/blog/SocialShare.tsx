@@ -3,9 +3,17 @@
 import { useMemo, useState } from 'react'
 import { Copy, Check, Twitter, Linkedin } from 'lucide-react'
 
+const SITE_URL = 'https://ecofocusresearch.com'
+
 export default function SocialShare({ url, title }: { url?: string; title?: string }) {
   const [copied, setCopied] = useState(false)
-  const href = useMemo(() => url || (typeof window !== 'undefined' ? window.location.href : ''), [url])
+  const href = useMemo(() => {
+    const raw = url || (typeof window !== 'undefined' ? window.location.href : '')
+    if (!raw) return ''
+    if (/^https?:\/\//i.test(raw)) return raw
+    if (raw.startsWith('/')) return `${SITE_URL}${raw}`
+    return `${SITE_URL}/${raw}`
+  }, [url])
   const text = title || ''
 
   const li = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(href)}`
@@ -48,4 +56,3 @@ export default function SocialShare({ url, title }: { url?: string; title?: stri
     </div>
   )
 }
-
