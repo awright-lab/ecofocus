@@ -1109,14 +1109,12 @@ export default function AgenciesPage() {
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
                         <div className="relative flex min-h-[19rem] flex-col">
                           <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className="text-left text-2xl font-semibold leading-tight">{pkg.term}</p>
-                              <p className={`mt-3 text-left text-sm leading-relaxed ${pkg.body}`}>{pkg.value}</p>
-                            </div>
+                            <p className="text-left text-2xl font-semibold leading-tight">{pkg.term}</p>
                             <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm">
                               {pkg.badge}
                             </span>
                           </div>
+                          <p className={`mt-3 max-w-none text-left text-sm leading-relaxed ${pkg.body}`}>{pkg.value}</p>
                           <p className={`mt-6 text-left text-xs font-semibold uppercase tracking-[0.18em] ${pkg.body}`}>
                             {pkg.hours}
                           </p>
