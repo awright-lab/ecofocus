@@ -8,32 +8,47 @@ const VALUE_POINTS = [
   "Monthly data mining and insight pulls tailored to active briefs",
   "Strategic framing for pitches, presentations, and executive storytelling",
   "Support for RFPs, proposals, and sustainability messaging decisions",
-  "A practical stepping stone before a full seat license or bespoke study",
+  "A lighter-weight path before a full seat license or bespoke study",
 ];
 
 const PACKAGE_ROWS = [
   {
     term: "3 months",
     hours: "8-16 hrs/mo",
-    access: "Light data access",
+    access: "Quick-start support",
     fit: "Pilot a working rhythm fast",
-    accent: "from-[#0f766e] to-[#14b8a6]",
+    pricing: "Total pricing available on request",
+    accent: "bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]",
+    ring: "ring-teal-800/20",
+    text: "text-white",
+    body: "text-white/95",
+    divider: "bg-white/35",
     badge: "Quick start",
   },
   {
     term: "6 months",
     hours: "8-16 hrs/mo",
-    access: "Blended support + access",
+    access: "Balanced support",
     fit: "Support active pitches and delivery",
-    accent: "from-[#1d4ed8] to-[#38bdf8]",
+    pricing: "Total pricing available on request",
+    accent: "bg-[linear-gradient(155deg,#e7e1d5_0%,#e3dccf_55%,#ddd6ca_100%)]",
+    ring: "ring-stone-200",
+    text: "text-slate-900",
+    body: "text-slate-900/95",
+    divider: "bg-slate-400/35",
     badge: "Most balanced",
   },
   {
     term: "12 months",
     hours: "8-16 hrs/mo",
-    access: "Best value structure",
+    access: "Embedded partner",
     fit: "Operate with embedded insight support",
-    accent: "from-[#5b21b6] to-[#a855f7]",
+    pricing: "Total pricing available on request",
+    accent: "bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]",
+    ring: "ring-slate-200",
+    text: "text-slate-900",
+    body: "text-slate-900/95",
+    divider: "bg-slate-400/35",
     badge: "Best value",
   },
 ];
@@ -66,11 +81,12 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                   id="retainer-title"
                   className="mt-4 font-bold leading-tight text-gray-900 text-[clamp(1.65rem,4.8vw,2.35rem)]"
                 >
-                  Monthly EcoFocus support for teams that need more than access.
+                  Ongoing EcoFocus support for teams that need more than a dashboard.
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-700 sm:text-base">
-                  A flexible retainer that pairs EcoFocus data access with analyst support, strategic framing, and
-                  presentation-ready guidance for teams that need faster answers without commissioning a full custom study.
+                  We understand that you want access to strong sustainability data, but do not always have the internal
+                  resources to dig into it, interpret it, and turn it into something usable for current clients or new
+                  pitches. We have the solution.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-3 sm:flex-nowrap">
                   <Link
@@ -89,31 +105,39 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
               </div>
 
               <div className="shrink-0 whitespace-nowrap rounded-full border border-emerald-200 bg-white px-3 py-1 text-[10px] font-medium text-emerald-800">
-                Access + strategy support
+                Let us be your go-to research team
               </div>
             </div>
 
             <div className="mt-8 grid gap-4 lg:grid-cols-3">
               {PACKAGE_ROWS.map((row) => (
-                <article key={row.term} className="relative overflow-hidden rounded-[1.4rem] border border-gray-200 bg-white p-5 shadow-sm">
-                  <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${row.accent}`} />
-                  <div className="flex items-start justify-between gap-3 pt-2">
-                    <div>
-                      <p className="text-lg font-semibold text-gray-900">{row.term}</p>
-                      <p className="mt-2 whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] text-slate-500">
-                        {row.hours}
-                      </p>
+                <article
+                  key={row.term}
+                  className={`relative overflow-hidden rounded-xl px-7 py-8 text-center ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${row.ring} ${row.text}`}
+                >
+                  <div className={`absolute inset-0 ${row.accent}`} />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
+                  <div className="relative flex min-h-[22rem] flex-col">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-left text-2xl font-semibold leading-tight">{row.term}</p>
+                        <p className={`mt-3 text-left text-sm leading-relaxed ${row.body}`}>{row.fit}</p>
+                      </div>
+                      <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm">
+                        {row.badge}
+                      </span>
                     </div>
-                    <span className="shrink-0 whitespace-nowrap rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                      {row.badge}
-                    </span>
+                    <div className="mt-5 flex flex-wrap gap-2 text-left text-xs">
+                      <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">
+                        {row.hours}
+                      </span>
+                      <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">
+                        {row.access}
+                      </span>
+                    </div>
+                    <div className={`mx-auto mt-auto mb-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
+                    <p className="text-xl font-extrabold leading-tight">{row.pricing}</p>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-700">
-                    <span className="whitespace-nowrap rounded-full bg-amber-50 px-2.5 py-1 font-medium text-amber-800">
-                      {row.access}
-                    </span>
-                  </div>
-                  <p className="mt-4 text-sm leading-relaxed text-slate-600">{row.fit}</p>
                 </article>
               ))}
             </div>
@@ -142,11 +166,12 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
               id="retainer-title"
               className="mt-4 font-bold leading-tight text-gray-900 text-[clamp(1.7rem,5vw,2.3rem)]"
             >
-              Monthly EcoFocus support for teams that need more than access.
+              Ongoing EcoFocus support for teams that need more than a dashboard.
             </h2>
             <p className="mt-4 text-sm text-gray-700 sm:text-base">
-              Our retainer model pairs EcoFocus data access with analyst support, strategic framing, and presentation-ready
-              guidance so your team can move faster without commissioning a full custom study.
+              We understand that you want access to strong sustainability data, but do not always have the internal
+              resources to dig into it, interpret it, and turn it into something usable for current clients or new
+              pitches. We have the solution.
             </p>
 
             <ul className="mt-5 space-y-3 text-sm text-gray-700">
@@ -200,7 +225,7 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                           <li>Monthly insight mining tailored to active briefs</li>
                           <li>Strategic framing for decks, pitches, and presentations</li>
                           <li>Support for proposals, messaging, and stakeholder storytelling</li>
-                          <li>A practical bridge before a full seat license or custom study</li>
+                          <li>A lighter-weight path before a full seat license or custom study</li>
                         </ul>
                       </div>
                     </div>
@@ -217,7 +242,7 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                     <h3 className="mt-2 text-xl font-semibold text-gray-900">Retainer options by term and support level</h3>
                   </div>
                   <span className="shrink-0 whitespace-nowrap rounded-full border border-emerald-200 bg-white px-3 py-1 text-[10px] font-medium text-emerald-800">
-                    Access + strategy support
+                    Let us be your go-to research team
                   </span>
                 </div>
 
@@ -228,24 +253,29 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
 
                 <div className="mt-5 space-y-3">
                   {PACKAGE_ROWS.map((row) => (
-                    <div key={row.term} className="relative overflow-hidden rounded-[1.4rem] border border-gray-200 bg-white p-4 shadow-sm">
-                      <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${row.accent}`} />
-                      <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div
+                      key={row.term}
+                      className={`relative overflow-hidden rounded-xl px-6 py-6 ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${row.ring} ${row.text}`}
+                    >
+                      <div className={`absolute inset-0 ${row.accent}`} />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
+                      <div className="relative flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <p className="pt-2 text-base font-semibold text-gray-900">{row.term}</p>
-                          <p className="mt-1 text-xs text-gray-500">{row.fit}</p>
+                          <p className="pt-2 text-base font-semibold">{row.term}</p>
+                          <p className={`mt-1 text-xs ${row.body}`}>{row.fit}</p>
                         </div>
-                        <span className="shrink-0 whitespace-nowrap rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
+                        <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm">
                           {row.badge}
                         </span>
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-700">
-                        <span className="whitespace-nowrap rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-800">{row.hours}</span>
-                        <span className="whitespace-nowrap rounded-full bg-amber-50 px-2.5 py-1 font-medium text-amber-800">{row.access}</span>
+                      <div className="relative mt-3 flex flex-wrap gap-2 text-xs">
+                        <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">{row.hours}</span>
+                        <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">{row.access}</span>
                       </div>
-                      <div className="mt-4 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                      <p className="mt-4 text-xs leading-relaxed text-slate-500">
-                        Start with the cadence that fits now, then expand support as your team’s needs evolve.
+                      <div className={`relative mx-auto mt-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
+                      <p className="relative mt-4 text-sm font-extrabold leading-tight">{row.pricing}</p>
+                      <p className={`relative mt-3 text-xs leading-relaxed ${row.body}`}>
+                        Start with the cadence that fits now, then expand support as your team&apos;s needs evolve.
                       </p>
                     </div>
                   ))}

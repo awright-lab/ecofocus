@@ -59,8 +59,8 @@ const SECTION_ITEMS = [
   { id: 'data-breadth', label: 'Data Breadth' },
   { id: 'instant-access', label: 'Instant Access' },
   { id: 'modules', label: 'Modules' },
+  { id: 'pricing', label: 'Seat Pricing' },
   { id: 'retainer', label: 'Retainer' },
-  { id: 'pricing', label: 'Pricing' },
   { id: 'guarantee', label: 'Guarantee' },
   { id: 'faq', label: 'FAQ' },
   { id: 'contact', label: 'Contact' },
@@ -71,21 +71,36 @@ const RETAINER_PACKAGES = [
     term: '3 months',
     hours: '8, 12, or 16 hrs/mo',
     value: 'Ideal for near-term pitches, proposals, and fast-moving strategy work.',
-    accent: 'from-[#0f766e] to-[#14b8a6]',
+    pricing: 'Total pricing available on request',
+    accent: 'bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]',
+    ring: 'ring-teal-800/20',
+    text: 'text-white',
+    divider: 'bg-white/35',
+    body: 'text-white/95',
     badge: 'Quick start',
   },
   {
     term: '6 months',
     hours: '8, 12, or 16 hrs/mo',
     value: 'Built for teams balancing new business work with active client delivery.',
-    accent: 'from-[#1d4ed8] to-[#38bdf8]',
+    pricing: 'Total pricing available on request',
+    accent: 'bg-[linear-gradient(155deg,#e7e1d5_0%,#e3dccf_55%,#ddd6ca_100%)]',
+    ring: 'ring-stone-200',
+    text: 'text-slate-900',
+    divider: 'bg-slate-400/35',
+    body: 'text-slate-900/95',
     badge: 'Most balanced',
   },
   {
     term: '12 months',
     hours: '8, 12, or 16 hrs/mo',
     value: 'Best for agencies that want EcoFocus acting like an embedded insight partner.',
-    accent: 'from-[#5b21b6] to-[#a855f7]',
+    pricing: 'Total pricing available on request',
+    accent: 'bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]',
+    ring: 'ring-slate-200',
+    text: 'text-slate-900',
+    divider: 'bg-slate-400/35',
+    body: 'text-slate-900/95',
     badge: 'Best value',
   },
 ] as const;
@@ -932,6 +947,94 @@ export default function AgenciesPage() {
           </FadeUp>
         </section>
 
+        <section id="pricing" className={sectionClassName()}>
+          <FadeUp className="mx-auto max-w-7xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+              <span className="text-black/60">Seat License Pricing</span>
+            </div>
+            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
+              Seat License{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                Pricing
+              </span>
+            </h2>
+            <p className="mt-4 max-w-4xl text-base md:text-lg text-slate-600">
+              Choose the seat license that fits your agency size and give your team full access to every portal module,
+              onboarding support, and consulting time to get value quickly.
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+              <article className="relative overflow-hidden rounded-xl px-7 py-8 text-center text-white ring-1 ring-teal-800/20 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.45)]">
+                <div className="absolute inset-0 bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.35),transparent_40%),radial-gradient(circle_at_85%_80%,rgba(255,255,255,0.2),transparent_42%)] opacity-20" />
+                <div className="relative flex min-h-[31rem] flex-col">
+                  <h3 className="text-[2rem] font-semibold leading-tight">Under $2M in annual revenue</h3>
+                  <ul className="mt-8 space-y-3 text-[1.15rem] leading-[1.4] text-white/95">
+                    <li>All dashboard modules</li>
+                    <li>Two onboarding sessions</li>
+                    <li>Up to two hours of consultations per quarter</li>
+                    <li>Includes 2 seat licenses</li>
+                  </ul>
+                  <div className="mt-auto pt-7">
+                    <div className="mx-auto mb-4 h-px w-full max-w-[12.5rem] bg-white/35" />
+                    <p className="text-[2.25rem] font-extrabold">$2,600</p>
+                    <p className="text-[1.15rem] leading-tight text-white/95">Per Month</p>
+                    <p className="text-[1.1rem] leading-tight text-white/90">OR</p>
+                    <p className="text-[2.25rem] font-extrabold">$29,500</p>
+                    <p className="text-[1.15rem] leading-tight text-white/95">If Paid Annually</p>
+                  </div>
+                </div>
+              </article>
+
+              <article className="relative overflow-hidden rounded-xl px-7 py-8 text-center text-slate-900 ring-1 ring-stone-200 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.28)]">
+                <div className="absolute inset-0 bg-[linear-gradient(155deg,#e7e1d5_0%,#e3dccf_55%,#ddd6ca_100%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.55),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.35),transparent_44%)] opacity-35" />
+                <div className="relative flex min-h-[31rem] flex-col">
+                  <h3 className="text-[2rem] font-semibold leading-tight">Between $2M & $10M in annual revenue</h3>
+                  <ul className="mt-8 space-y-3 text-[1.15rem] leading-[1.4] text-slate-900/95">
+                    <li>All dashboard modules</li>
+                    <li>Two onboarding sessions</li>
+                    <li>Up to two hours of consultations per quarter</li>
+                    <li>Includes 3 seat licenses</li>
+                  </ul>
+                  <div className="mt-auto pt-7">
+                    <div className="mx-auto mb-4 h-px w-full max-w-[12.5rem] bg-slate-400/35" />
+                    <p className="text-[2.25rem] font-extrabold">$4,150</p>
+                    <p className="text-[1.15rem] leading-tight">Per Month</p>
+                    <p className="text-[1.1rem] leading-tight text-slate-700">OR</p>
+                    <p className="text-[2.25rem] font-extrabold">$47,500</p>
+                    <p className="text-[1.15rem] leading-tight">If Paid Annually</p>
+                  </div>
+                </div>
+              </article>
+
+              <article className="relative overflow-hidden rounded-xl px-7 py-8 text-center text-slate-900 ring-1 ring-slate-200 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)]">
+                <div className="absolute inset-0 bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.55),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.35),transparent_44%)] opacity-35" />
+                <div className="relative flex min-h-[31rem] flex-col">
+                  <h3 className="text-[2rem] font-semibold leading-tight">Over $10M in annual revenue</h3>
+                  <ul className="mt-8 space-y-3 text-[1.15rem] leading-[1.4] text-slate-900/95">
+                    <li>All dashboard modules</li>
+                    <li>Two onboarding sessions</li>
+                    <li>Up to two hours of consultations per quarter</li>
+                    <li>Includes 5 seat licenses</li>
+                  </ul>
+                  <div className="mt-auto pt-7">
+                    <div className="mx-auto mb-4 h-px w-full max-w-[12.5rem] bg-slate-400/35" />
+                    <p className="text-[2.25rem] font-extrabold">$6,200</p>
+                    <p className="text-[1.15rem] leading-tight">Per Month</p>
+                    <p className="text-[1.1rem] leading-tight text-slate-700">OR</p>
+                    <p className="text-[2.25rem] font-extrabold">$71,000</p>
+                    <p className="text-[1.15rem] leading-tight">If Paid Annually</p>
+                  </div>
+                </div>
+              </article>
+            </div>
+            <p className="mt-4 text-sm text-slate-600">Qualified Not-for-Profit: 20% Discount</p>
+          </FadeUp>
+        </section>
+
         <section id="retainer" className={sectionClassName()}>
           <FadeUp className="mx-auto max-w-7xl">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
@@ -939,15 +1042,16 @@ export default function AgenciesPage() {
               <span className="text-black/60">Strategic Retainer</span>
             </div>
             <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
-              Ongoing EcoFocus support for agencies
-              <br className="hidden lg:block" /> that need{' '}
-              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                more than a dashboard.
+              Ongoing EcoFocus support for agencies that need more than a dashboard.
+              <br className="hidden lg:block" />{' '}
+              <span className="bg-gradient-to-r from-[#ef9601] via-[#f3c94d] to-[#d5a01a] bg-clip-text text-transparent">
+                Let us be your go-to research team.
               </span>
             </h2>
             <p className="mt-4 max-w-4xl text-base md:text-lg text-slate-600">
-              The new retainer option gives agencies a lighter-weight path than custom research: recurring access to
-              EcoFocus data paired with expert help shaping insights, pitches, presentations, and sustainability messaging.
+              We understand that you want access to strong sustainability data, but don&apos;t always have the internal
+              resources to dig into it, interpret it, and turn it into something usable for current clients or new
+              pitches. We have the solution.
             </p>
 
             <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -969,7 +1073,7 @@ export default function AgenciesPage() {
                           <li>Monthly data mining and insight pulls</li>
                           <li>Strategic framing for pitches and executive decks</li>
                           <li>Proposal, RFP, and messaging support</li>
-                          <li>A natural bridge before a full seat license or custom study</li>
+                          <li>A lighter-weight path before a full seat license or custom study</li>
                         </ul>
                       </div>
                     </div>
@@ -997,22 +1101,31 @@ export default function AgenciesPage() {
 
                   <div className="mt-6 grid gap-4 md:grid-cols-3">
                     {RETAINER_PACKAGES.map((pkg) => (
-                      <article key={pkg.term} className="relative overflow-hidden rounded-[1.4rem] border border-gray-200 bg-white p-4 shadow-sm">
-                        <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${pkg.accent}`} />
-                        <div className="flex items-start justify-between gap-3 pt-2">
-                          <div>
-                            <p className="text-lg font-semibold text-slate-900">{pkg.term}</p>
+                      <article
+                        key={pkg.term}
+                        className={`relative overflow-hidden rounded-xl px-7 py-8 text-center ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${pkg.ring} ${pkg.text}`}
+                      >
+                        <div className={`absolute inset-0 ${pkg.accent}`} />
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
+                        <div className="relative flex min-h-[24rem] flex-col">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-left text-2xl font-semibold leading-tight">{pkg.term}</p>
+                              <p className={`mt-3 text-left text-sm leading-relaxed ${pkg.body}`}>{pkg.value}</p>
+                            </div>
+                            <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm">
+                              {pkg.badge}
+                            </span>
                           </div>
-                          <span className="shrink-0 whitespace-nowrap rounded-full border border-gray-200 bg-slate-50 px-2.5 py-1 text-[11px] font-semibold text-slate-700">
-                            {pkg.badge}
-                          </span>
+                          <p className={`mt-6 text-left text-xs font-semibold uppercase tracking-[0.18em] ${pkg.body}`}>
+                            {pkg.hours}
+                          </p>
+                          <div className={`mx-auto mt-auto mb-4 h-px w-full max-w-[12.5rem] ${pkg.divider}`} />
+                          <p className="text-xl font-extrabold leading-tight">{pkg.pricing}</p>
+                          <p className={`mt-3 text-sm leading-relaxed ${pkg.body}`}>
+                            Choose the support level that fits your workflow, then scale as opportunities and client needs grow.
+                          </p>
                         </div>
-                        <p className="mt-2 whitespace-nowrap text-xs font-medium uppercase tracking-[0.16em] text-slate-500">{pkg.hours}</p>
-                        <p className="mt-4 text-sm leading-relaxed text-slate-600">{pkg.value}</p>
-                        <div className="mt-5 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-                        <p className="mt-4 text-xs leading-relaxed text-slate-500">
-                          Choose the support level that fits your workflow, then scale as opportunities and client needs grow.
-                        </p>
                       </article>
                     ))}
                   </div>
@@ -1043,90 +1156,6 @@ export default function AgenciesPage() {
                 </div>
               </div>
             </div>
-          </FadeUp>
-        </section>
-
-        <section id="pricing" className={sectionClassName()}>
-          <FadeUp className="mx-auto max-w-7xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/10 bg-gray-100 px-3 py-1 text-[10px] tracking-wide">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
-              <span className="text-black/60">Pricing</span>
-            </div>
-            <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
-              Seat License{' '}
-              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
-                Rate Card
-              </span>
-            </h2>
-
-            <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
-              <article className="relative overflow-hidden rounded-xl px-7 py-8 text-center text-white ring-1 ring-teal-800/20 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.45)]">
-                <div className="absolute inset-0 bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]" />
-                <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.35),transparent_40%),radial-gradient(circle_at_85%_80%,rgba(255,255,255,0.2),transparent_42%)]" />
-                <div className="relative flex min-h-[31rem] flex-col">
-                  <h3 className="text-[2rem] font-semibold leading-tight">Under $2M in annual revenue</h3>
-                  <ul className="mt-8 space-y-3 text-[1.15rem] leading-[1.4] text-white/95">
-                    <li>All dashboard modules</li>
-                    <li>Two onboarding sessions</li>
-                    <li>Up to two hours of consultations per quarter</li>
-                    <li>Includes 2 seat licenses</li>
-                  </ul>
-                  <div className="mt-auto pt-7">
-                    <div className="mx-auto mb-4 h-px w-full max-w-[12.5rem] bg-white/35" />
-                    <p className="text-[2.25rem] font-extrabold">$2,600</p>
-                    <p className="text-[1.15rem] leading-tight text-white/95">Per Month</p>
-                    <p className="text-[1.1rem] leading-tight text-white/90">OR</p>
-                    <p className="text-[2.25rem] font-extrabold">$29,500</p>
-                    <p className="text-[1.15rem] leading-tight text-white/95">If Paid Annually</p>
-                  </div>
-                </div>
-              </article>
-
-              <article className="relative overflow-hidden rounded-xl px-7 py-8 text-center text-slate-900 ring-1 ring-stone-200 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.28)]">
-                <div className="absolute inset-0 bg-[linear-gradient(155deg,#e7e1d5_0%,#e3dccf_55%,#ddd6ca_100%)]" />
-                <div className="absolute inset-0 opacity-35 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.55),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.35),transparent_44%)]" />
-                <div className="relative flex min-h-[31rem] flex-col">
-                  <h3 className="text-[2rem] font-semibold leading-tight">Between $2M & $10M in annual revenue</h3>
-                  <ul className="mt-8 space-y-3 text-[1.15rem] leading-[1.4] text-slate-900/95">
-                    <li>All dashboard modules</li>
-                    <li>Two onboarding sessions</li>
-                    <li>Up to two hours of consultations per quarter</li>
-                    <li>Includes 3 seat licenses</li>
-                  </ul>
-                  <div className="mt-auto pt-7">
-                    <div className="mx-auto mb-4 h-px w-full max-w-[12.5rem] bg-slate-400/35" />
-                    <p className="text-[2.25rem] font-extrabold">$4,150</p>
-                    <p className="text-[1.15rem] leading-tight">Per Month</p>
-                    <p className="text-[1.1rem] leading-tight text-slate-700">OR</p>
-                    <p className="text-[2.25rem] font-extrabold">$47,500</p>
-                    <p className="text-[1.15rem] leading-tight">If Paid Annually</p>
-                  </div>
-                </div>
-              </article>
-
-              <article className="relative overflow-hidden rounded-xl px-7 py-8 text-center text-slate-900 ring-1 ring-slate-200 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)]">
-                <div className="absolute inset-0 bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]" />
-                <div className="absolute inset-0 opacity-35 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.55),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.35),transparent_44%)]" />
-                <div className="relative flex min-h-[31rem] flex-col">
-                  <h3 className="text-[2rem] font-semibold leading-tight">Over $10M in annual revenue</h3>
-                  <ul className="mt-8 space-y-3 text-[1.15rem] leading-[1.4] text-slate-900/95">
-                    <li>All dashboard modules</li>
-                    <li>Two onboarding sessions</li>
-                    <li>Up to two hours of consultations per quarter</li>
-                    <li>Includes 5 seat licenses</li>
-                  </ul>
-                  <div className="mt-auto pt-7">
-                    <div className="mx-auto mb-4 h-px w-full max-w-[12.5rem] bg-slate-400/35" />
-                    <p className="text-[2.25rem] font-extrabold">$6,200</p>
-                    <p className="text-[1.15rem] leading-tight">Per Month</p>
-                    <p className="text-[1.1rem] leading-tight text-slate-700">OR</p>
-                    <p className="text-[2.25rem] font-extrabold">$71,000</p>
-                    <p className="text-[1.15rem] leading-tight">If Paid Annually</p>
-                  </div>
-                </div>
-              </article>
-            </div>
-            <p className="mt-4 text-sm text-slate-600">Qualified Not-for-Profit: 20% Discount</p>
           </FadeUp>
         </section>
 
