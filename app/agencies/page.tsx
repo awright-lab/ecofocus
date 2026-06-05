@@ -1122,24 +1122,25 @@ export default function AgenciesPage() {
                         <div className="relative flex min-h-[19rem] flex-col">
                           <div className="flex items-start justify-between gap-3">
                             <p className="text-left text-2xl font-semibold leading-tight">{pkg.term}</p>
-                            <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm">
+                            <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2 py-1 text-[10px] font-semibold backdrop-blur-sm">
                               {pkg.badge}
                             </span>
                           </div>
-                          <p className={`mt-3 max-w-none text-left text-sm leading-relaxed ${pkg.body}`}>{pkg.value}</p>
-                          <p className={`mt-6 text-left text-xs font-semibold uppercase tracking-[0.18em] ${pkg.body}`}>
-                            {pkg.hours}
+                          <p className={`mt-3 min-h-[5.5rem] max-w-none text-left text-sm leading-relaxed ${pkg.body}`}>
+                            {pkg.value}
                           </p>
-                          <div className={`mt-4 mb-4 h-px w-full ${pkg.divider}`} />
-                          <div className="space-y-2 text-left">
+                          <div className={`mt-auto pt-4`}>
+                            <div className={`mb-4 h-px w-full ${pkg.divider}`} />
+                            <div className="space-y-3 text-left">
                             {pkg.pricing.map((price) => (
-                              <div key={price.hours} className="grid grid-cols-[1fr_auto] items-baseline gap-x-4">
-                                <span className={`text-xs font-semibold uppercase tracking-[0.14em] ${pkg.body}`}>
+                              <div key={price.hours} className="grid grid-cols-[auto_auto] items-baseline justify-between gap-x-4">
+                                <span className={`whitespace-nowrap text-xs font-semibold uppercase tracking-[0.14em] ${pkg.body}`}>
                                   {price.hours}
                                 </span>
-                                <span className="text-xl font-extrabold leading-tight">{price.total}</span>
+                                <span className="whitespace-nowrap text-right text-xl font-extrabold leading-tight">{price.total}</span>
                               </div>
                             ))}
+                          </div>
                           </div>
                         </div>
                       </article>

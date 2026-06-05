@@ -135,11 +135,11 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                   <div className="relative flex min-h-[18rem] flex-col">
                     <div className="flex items-start justify-between gap-3">
                       <p className="text-left text-2xl font-semibold leading-tight">{row.term}</p>
-                      <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm">
+                      <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2 py-1 text-[10px] font-semibold backdrop-blur-sm">
                         {row.badge}
                       </span>
                     </div>
-                    <p className={`mt-3 max-w-none text-left text-sm leading-relaxed ${row.body}`}>{row.fit}</p>
+                    <p className={`mt-3 min-h-[5.5rem] max-w-none text-left text-sm leading-relaxed ${row.body}`}>{row.fit}</p>
                     <div className="mt-5 flex flex-wrap gap-2 text-left text-xs">
                       <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">
                         {row.hours}
@@ -148,16 +148,18 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                         {row.access}
                       </span>
                     </div>
-                    <div className={`mt-4 mb-4 h-px w-full ${row.divider}`} />
-                    <div className="space-y-2 text-left">
-                      {row.pricing.map((price) => (
-                        <div key={price.hours} className="grid grid-cols-[1fr_auto] items-baseline gap-x-4">
-                          <span className={`text-xs font-semibold uppercase tracking-[0.14em] ${row.body}`}>
-                            {price.hours}
-                          </span>
-                          <span className="text-xl font-extrabold leading-tight">{price.total}</span>
-                        </div>
-                      ))}
+                    <div className="mt-auto pt-4">
+                      <div className={`mb-4 h-px w-full ${row.divider}`} />
+                      <div className="space-y-3 text-left">
+                        {row.pricing.map((price) => (
+                          <div key={price.hours} className="grid grid-cols-[auto_auto] items-baseline justify-between gap-x-4">
+                            <span className={`whitespace-nowrap text-xs font-semibold uppercase tracking-[0.14em] ${row.body}`}>
+                              {price.hours}
+                            </span>
+                            <span className="whitespace-nowrap text-right text-xl font-extrabold leading-tight">{price.total}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </article>
@@ -286,23 +288,23 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
                       <div className="relative flex flex-wrap items-center justify-between gap-3">
                         <p className="pt-2 text-base font-semibold">{row.term}</p>
-                        <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm">
+                        <span className="shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/15 px-2 py-1 text-[10px] font-semibold backdrop-blur-sm">
                           {row.badge}
                         </span>
                       </div>
-                      <p className={`relative mt-2 text-xs leading-relaxed ${row.body}`}>{row.fit}</p>
+                      <p className={`relative mt-2 min-h-[3.75rem] text-xs leading-relaxed ${row.body}`}>{row.fit}</p>
                       <div className="relative mt-3 flex flex-wrap gap-2 text-xs">
                         <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">{row.hours}</span>
                         <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">{row.access}</span>
                       </div>
                       <div className={`relative mt-4 h-px w-full ${row.divider}`} />
-                      <div className="relative mt-4 space-y-2">
+                      <div className="relative mt-4 space-y-3">
                         {row.pricing.map((price) => (
-                          <div key={price.hours} className="grid grid-cols-[1fr_auto] items-baseline gap-x-4">
-                            <span className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${row.body}`}>
+                          <div key={price.hours} className="grid grid-cols-[auto_auto] items-baseline justify-between gap-x-4">
+                            <span className={`whitespace-nowrap text-[11px] font-semibold uppercase tracking-[0.14em] ${row.body}`}>
                               {price.hours}
                             </span>
-                            <span className="text-base font-extrabold leading-tight">{price.total}</span>
+                            <span className="whitespace-nowrap text-right text-base font-extrabold leading-tight">{price.total}</span>
                           </div>
                         ))}
                       </div>
