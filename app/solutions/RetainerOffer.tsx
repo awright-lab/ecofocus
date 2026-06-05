@@ -17,7 +17,11 @@ const PACKAGE_ROWS = [
     hours: "8-16 hrs/mo",
     access: "Quick-start support",
     fit: "Ideal for fast-moving pitches, proposals, and near-term strategy work.",
-    pricing: "Total pricing available on request",
+    pricing: [
+      { hours: "8 hrs/mo", total: "$3,800" },
+      { hours: "12 hrs/mo", total: "$5,580" },
+      { hours: "16 hrs/mo", total: "$7,280" },
+    ],
     accent: "bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]",
     ring: "ring-teal-800/20",
     text: "text-white",
@@ -30,7 +34,11 @@ const PACKAGE_ROWS = [
     hours: "8-16 hrs/mo",
     access: "Balanced support",
     fit: "Built for teams balancing new business work with active client delivery.",
-    pricing: "Total pricing available on request",
+    pricing: [
+      { hours: "8 hrs/mo", total: "$3,620" },
+      { hours: "12 hrs/mo", total: "$5,310" },
+      { hours: "16 hrs/mo", total: "$6,920" },
+    ],
     accent: "bg-[linear-gradient(155deg,#e7e1d5_0%,#e3dccf_55%,#ddd6ca_100%)]",
     ring: "ring-stone-200",
     text: "text-slate-900",
@@ -43,7 +51,11 @@ const PACKAGE_ROWS = [
     hours: "8-16 hrs/mo",
     access: "Embedded partner",
     fit: "Best for teams that want EcoFocus as an embedded insight partner.",
-    pricing: "Total pricing available on request",
+    pricing: [
+      { hours: "8 hrs/mo", total: "$3,440" },
+      { hours: "12 hrs/mo", total: "$5,040" },
+      { hours: "16 hrs/mo", total: "$6,560" },
+    ],
     accent: "bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]",
     ring: "ring-slate-200",
     text: "text-slate-900",
@@ -136,8 +148,17 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                         {row.access}
                       </span>
                     </div>
-                    <div className={`mx-auto mt-auto mb-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
-                    <p className="text-xl font-extrabold leading-tight">{row.pricing}</p>
+                    <div className={`mx-auto mt-4 mb-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
+                    <div className="space-y-2 text-left">
+                      {row.pricing.map((price) => (
+                        <div key={price.hours} className="flex items-baseline justify-between gap-3">
+                          <span className={`text-xs font-semibold uppercase tracking-[0.14em] ${row.body}`}>
+                            {price.hours}
+                          </span>
+                          <span className="text-xl font-extrabold leading-tight">{price.total}</span>
+                        </div>
+                      ))}
+                    </div>
                     <p className={`mt-3 text-sm leading-relaxed ${row.body}`}>
                       Choose the support level that fits your workflow and scale as needs grow.
                     </p>
@@ -278,7 +299,16 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                         <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">{row.access}</span>
                       </div>
                       <div className={`relative mx-auto mt-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
-                      <p className="relative mt-4 text-sm font-extrabold leading-tight">{row.pricing}</p>
+                      <div className="relative mt-4 space-y-2">
+                        {row.pricing.map((price) => (
+                          <div key={price.hours} className="flex items-baseline justify-between gap-3">
+                            <span className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${row.body}`}>
+                              {price.hours}
+                            </span>
+                            <span className="text-base font-extrabold leading-tight">{price.total}</span>
+                          </div>
+                        ))}
+                      </div>
                       <p className={`relative mt-3 text-xs leading-relaxed ${row.body}`}>
                         Choose the support level that fits your workflow and scale as needs grow.
                       </p>

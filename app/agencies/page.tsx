@@ -71,7 +71,11 @@ const RETAINER_PACKAGES = [
     term: '3 months',
     hours: '8, 12, or 16 hrs/mo',
     value: 'Ideal for fast-moving pitches, proposals, and near-term strategy work.',
-    pricing: 'Total pricing available on request',
+    pricing: [
+      { hours: '8 hrs/mo', total: '$3,800' },
+      { hours: '12 hrs/mo', total: '$5,580' },
+      { hours: '16 hrs/mo', total: '$7,280' },
+    ],
     accent: 'bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]',
     ring: 'ring-teal-800/20',
     text: 'text-white',
@@ -83,7 +87,11 @@ const RETAINER_PACKAGES = [
     term: '6 months',
     hours: '8, 12, or 16 hrs/mo',
     value: 'Built for teams balancing new business work with active client delivery.',
-    pricing: 'Total pricing available on request',
+    pricing: [
+      { hours: '8 hrs/mo', total: '$3,620' },
+      { hours: '12 hrs/mo', total: '$5,310' },
+      { hours: '16 hrs/mo', total: '$6,920' },
+    ],
     accent: 'bg-[linear-gradient(155deg,#e7e1d5_0%,#e3dccf_55%,#ddd6ca_100%)]',
     ring: 'ring-stone-200',
     text: 'text-slate-900',
@@ -95,7 +103,11 @@ const RETAINER_PACKAGES = [
     term: '12 months',
     hours: '8, 12, or 16 hrs/mo',
     value: 'Best for agencies that want EcoFocus as an embedded insight partner.',
-    pricing: 'Total pricing available on request',
+    pricing: [
+      { hours: '8 hrs/mo', total: '$3,440' },
+      { hours: '12 hrs/mo', total: '$5,040' },
+      { hours: '16 hrs/mo', total: '$6,560' },
+    ],
     accent: 'bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]',
     ring: 'ring-slate-200',
     text: 'text-slate-900',
@@ -1118,8 +1130,17 @@ export default function AgenciesPage() {
                           <p className={`mt-6 text-left text-xs font-semibold uppercase tracking-[0.18em] ${pkg.body}`}>
                             {pkg.hours}
                           </p>
-                          <div className={`mx-auto mt-auto mb-4 h-px w-full max-w-[12.5rem] ${pkg.divider}`} />
-                          <p className="text-xl font-extrabold leading-tight">{pkg.pricing}</p>
+                          <div className={`mx-auto mt-4 mb-4 h-px w-full max-w-[12.5rem] ${pkg.divider}`} />
+                          <div className="space-y-2 text-left">
+                            {pkg.pricing.map((price) => (
+                              <div key={price.hours} className="flex items-baseline justify-between gap-3">
+                                <span className={`text-xs font-semibold uppercase tracking-[0.14em] ${pkg.body}`}>
+                                  {price.hours}
+                                </span>
+                                <span className="text-xl font-extrabold leading-tight">{price.total}</span>
+                              </div>
+                            ))}
+                          </div>
                           <p className={`mt-3 text-sm leading-relaxed ${pkg.body}`}>
                             Choose the support level that fits your workflow and scale as needs grow.
                           </p>
