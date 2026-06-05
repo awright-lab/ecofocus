@@ -1095,8 +1095,8 @@ export default function AgenciesPage() {
 
                   <p className="mt-4 max-w-3xl text-sm leading-relaxed text-slate-600 md:text-base">
                     Whether you need help sharpening a pitch, building a more credible sustainability story, or pulling
-                    the right proof points for client work, our retainer gives your team recurring access to both EcoFocus
-                    data and EcoFocus thinking.
+                    the right proof points for client work, our retainer option gives your team recurring access to both
+                    EcoFocus data and EcoFocus thinking.
                   </p>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
