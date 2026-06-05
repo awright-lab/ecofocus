@@ -16,7 +16,7 @@ const PACKAGE_ROWS = [
     term: "3 months",
     hours: "8-16 hrs/mo",
     access: "Quick-start support",
-    fit: "Pilot a working rhythm fast",
+    fit: "Ideal for fast-moving pitches, proposals, and near-term strategy work.",
     pricing: "Total pricing available on request",
     accent: "bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]",
     ring: "ring-teal-800/20",
@@ -29,7 +29,7 @@ const PACKAGE_ROWS = [
     term: "6 months",
     hours: "8-16 hrs/mo",
     access: "Balanced support",
-    fit: "Support active pitches and delivery",
+    fit: "Built for teams balancing new business work with active client delivery.",
     pricing: "Total pricing available on request",
     accent: "bg-[linear-gradient(155deg,#e7e1d5_0%,#e3dccf_55%,#ddd6ca_100%)]",
     ring: "ring-stone-200",
@@ -42,7 +42,7 @@ const PACKAGE_ROWS = [
     term: "12 months",
     hours: "8-16 hrs/mo",
     access: "Embedded partner",
-    fit: "Operate with embedded insight support",
+    fit: "Best for teams that want EcoFocus as an embedded insight partner.",
     pricing: "Total pricing available on request",
     accent: "bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]",
     ring: "ring-slate-200",
@@ -81,7 +81,10 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                   id="retainer-title"
                   className="mt-4 font-bold leading-tight text-gray-900 text-[clamp(1.65rem,4.8vw,2.35rem)]"
                 >
-                  Ongoing EcoFocus support for teams that need more than a dashboard.
+                  Not ready for a full license? Let us be your go-to research{" "}
+                  <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                    team.
+                  </span>
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-700 sm:text-base">
                   We understand that you want access to strong sustainability data, but do not always have the internal
@@ -109,15 +112,15 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
               </div>
             </div>
 
-            <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {PACKAGE_ROWS.map((row) => (
                 <article
                   key={row.term}
-                  className={`relative overflow-hidden rounded-xl px-7 py-8 text-center ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${row.ring} ${row.text}`}
+                  className={`relative overflow-hidden rounded-xl px-6 py-6 text-center ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${row.ring} ${row.text}`}
                 >
                   <div className={`absolute inset-0 ${row.accent}`} />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
-                  <div className="relative flex min-h-[22rem] flex-col">
+                  <div className="relative flex min-h-[18rem] flex-col">
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="text-left text-2xl font-semibold leading-tight">{row.term}</p>
@@ -137,6 +140,9 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                     </div>
                     <div className={`mx-auto mt-auto mb-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
                     <p className="text-xl font-extrabold leading-tight">{row.pricing}</p>
+                    <p className={`mt-3 text-sm leading-relaxed ${row.body}`}>
+                      Choose the support level that fits your workflow and scale as needs grow.
+                    </p>
                   </div>
                 </article>
               ))}
@@ -166,7 +172,10 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
               id="retainer-title"
               className="mt-4 font-bold leading-tight text-gray-900 text-[clamp(1.7rem,5vw,2.3rem)]"
             >
-              Ongoing EcoFocus support for teams that need more than a dashboard.
+              Not ready for a full license? Let us be your go-to research{" "}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                team.
+              </span>
             </h2>
             <p className="mt-4 text-sm text-gray-700 sm:text-base">
               We understand that you want access to strong sustainability data, but do not always have the internal
@@ -255,7 +264,7 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                   {PACKAGE_ROWS.map((row) => (
                     <div
                       key={row.term}
-                      className={`relative overflow-hidden rounded-xl px-6 py-6 ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${row.ring} ${row.text}`}
+                      className={`relative overflow-hidden rounded-xl px-5 py-5 ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${row.ring} ${row.text}`}
                     >
                       <div className={`absolute inset-0 ${row.accent}`} />
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
@@ -275,7 +284,7 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                       <div className={`relative mx-auto mt-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
                       <p className="relative mt-4 text-sm font-extrabold leading-tight">{row.pricing}</p>
                       <p className={`relative mt-3 text-xs leading-relaxed ${row.body}`}>
-                        Start with the cadence that fits now, then expand support as your team&apos;s needs evolve.
+                        Choose the support level that fits your workflow and scale as needs grow.
                       </p>
                     </div>
                   ))}

@@ -70,7 +70,7 @@ const RETAINER_PACKAGES = [
   {
     term: '3 months',
     hours: '8, 12, or 16 hrs/mo',
-    value: 'Ideal for near-term pitches, proposals, and fast-moving strategy work.',
+    value: 'Ideal for fast-moving pitches, proposals, and near-term strategy work.',
     pricing: 'Total pricing available on request',
     accent: 'bg-[linear-gradient(155deg,#5b8c86_0%,#4d7973_45%,#426b66_100%)]',
     ring: 'ring-teal-800/20',
@@ -94,7 +94,7 @@ const RETAINER_PACKAGES = [
   {
     term: '12 months',
     hours: '8, 12, or 16 hrs/mo',
-    value: 'Best for agencies that want EcoFocus acting like an embedded insight partner.',
+    value: 'Best for agencies that want EcoFocus as an embedded insight partner.',
     pricing: 'Total pricing available on request',
     accent: 'bg-[linear-gradient(155deg,#e4e8ee_0%,#dde2ea_52%,#d7dde6_100%)]',
     ring: 'ring-slate-200',
@@ -1042,10 +1042,10 @@ export default function AgenciesPage() {
               <span className="text-black/60">Strategic Retainer</span>
             </div>
             <h2 className="font-bold leading-tight text-slate-900 text-[clamp(1.8rem,4.5vw,2.5rem)] md:text-[clamp(2rem,3.6vw,2.75rem)] tracking-tight">
-              Ongoing EcoFocus support for agencies that need more than a dashboard.
-              <br className="hidden lg:block" />{' '}
-              <span className="bg-gradient-to-r from-[#ef9601] via-[#f3c94d] to-[#d5a01a] bg-clip-text text-transparent">
-                Let us be your go-to research team.
+              Not ready for a full license?
+              <br className="hidden lg:block" /> Let us be your go-to research{' '}
+              <span className="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent animate-gradient">
+                team.
               </span>
             </h2>
             <p className="mt-4 max-w-4xl text-base md:text-lg text-slate-600">
@@ -1099,15 +1099,15 @@ export default function AgenciesPage() {
                     data and EcoFocus thinking.
                   </p>
 
-                  <div className="mt-6 grid gap-4 md:grid-cols-3">
+                  <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                     {RETAINER_PACKAGES.map((pkg) => (
                       <article
                         key={pkg.term}
-                        className={`relative overflow-hidden rounded-xl px-7 py-8 text-center ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${pkg.ring} ${pkg.text}`}
+                        className={`relative overflow-hidden rounded-xl px-6 py-6 text-center ring-1 shadow-[0_16px_40px_-18px_rgba(15,23,42,0.3)] ${pkg.ring} ${pkg.text}`}
                       >
                         <div className={`absolute inset-0 ${pkg.accent}`} />
                         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_85%,rgba(255,255,255,0.22),transparent_44%)] opacity-30" />
-                        <div className="relative flex min-h-[24rem] flex-col">
+                        <div className="relative flex min-h-[19rem] flex-col">
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <p className="text-left text-2xl font-semibold leading-tight">{pkg.term}</p>
@@ -1123,7 +1123,7 @@ export default function AgenciesPage() {
                           <div className={`mx-auto mt-auto mb-4 h-px w-full max-w-[12.5rem] ${pkg.divider}`} />
                           <p className="text-xl font-extrabold leading-tight">{pkg.pricing}</p>
                           <p className={`mt-3 text-sm leading-relaxed ${pkg.body}`}>
-                            Choose the support level that fits your workflow, then scale as opportunities and client needs grow.
+                            Choose the support level that fits your workflow and scale as needs grow.
                           </p>
                         </div>
                       </article>
