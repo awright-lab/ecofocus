@@ -148,10 +148,10 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                         {row.access}
                       </span>
                     </div>
-                    <div className={`mx-auto mt-4 mb-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
+                    <div className={`mt-4 mb-4 h-px w-full ${row.divider}`} />
                     <div className="space-y-2 text-left">
                       {row.pricing.map((price) => (
-                        <div key={price.hours} className="flex items-baseline justify-between gap-3">
+                        <div key={price.hours} className="grid grid-cols-[1fr_auto] items-baseline gap-x-4">
                           <span className={`text-xs font-semibold uppercase tracking-[0.14em] ${row.body}`}>
                             {price.hours}
                           </span>
@@ -159,9 +159,6 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                         </div>
                       ))}
                     </div>
-                    <p className={`mt-3 text-sm leading-relaxed ${row.body}`}>
-                      Choose the support level that fits your workflow and scale as needs grow.
-                    </p>
                   </div>
                 </article>
               ))}
@@ -298,10 +295,10 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                         <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">{row.hours}</span>
                         <span className="whitespace-nowrap rounded-full border border-white/25 bg-white/15 px-2.5 py-1 font-medium backdrop-blur-sm">{row.access}</span>
                       </div>
-                      <div className={`relative mx-auto mt-4 h-px w-full max-w-[12.5rem] ${row.divider}`} />
+                      <div className={`relative mt-4 h-px w-full ${row.divider}`} />
                       <div className="relative mt-4 space-y-2">
                         {row.pricing.map((price) => (
-                          <div key={price.hours} className="flex items-baseline justify-between gap-3">
+                          <div key={price.hours} className="grid grid-cols-[1fr_auto] items-baseline gap-x-4">
                             <span className={`text-[11px] font-semibold uppercase tracking-[0.14em] ${row.body}`}>
                               {price.hours}
                             </span>
@@ -309,9 +306,6 @@ export default function RetainerOffer({ compact = false }: RetainerOfferProps) {
                           </div>
                         ))}
                       </div>
-                      <p className={`relative mt-3 text-xs leading-relaxed ${row.body}`}>
-                        Choose the support level that fits your workflow and scale as needs grow.
-                      </p>
                     </div>
                   ))}
                 </div>

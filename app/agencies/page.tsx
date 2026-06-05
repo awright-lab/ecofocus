@@ -1130,10 +1130,10 @@ export default function AgenciesPage() {
                           <p className={`mt-6 text-left text-xs font-semibold uppercase tracking-[0.18em] ${pkg.body}`}>
                             {pkg.hours}
                           </p>
-                          <div className={`mx-auto mt-4 mb-4 h-px w-full max-w-[12.5rem] ${pkg.divider}`} />
+                          <div className={`mt-4 mb-4 h-px w-full ${pkg.divider}`} />
                           <div className="space-y-2 text-left">
                             {pkg.pricing.map((price) => (
-                              <div key={price.hours} className="flex items-baseline justify-between gap-3">
+                              <div key={price.hours} className="grid grid-cols-[1fr_auto] items-baseline gap-x-4">
                                 <span className={`text-xs font-semibold uppercase tracking-[0.14em] ${pkg.body}`}>
                                   {price.hours}
                                 </span>
@@ -1141,9 +1141,6 @@ export default function AgenciesPage() {
                               </div>
                             ))}
                           </div>
-                          <p className={`mt-3 text-sm leading-relaxed ${pkg.body}`}>
-                            Choose the support level that fits your workflow and scale as needs grow.
-                          </p>
                         </div>
                       </article>
                     ))}
