@@ -10,6 +10,7 @@
     privacyUrl: '/legal#privacy-policy',
     delayMs: 7000,
     frequencyDays: 7,
+    turnstileSiteKey: '',
     zIndex: 2147483000,
     heading: 'Get EcoNuggets Weekly',
     subheading:
@@ -36,6 +37,8 @@
     shown: false,
     submitting: false,
     startedAt: Date.now(),
+    turnstileToken: '',
+    turnstileWidgetId: null,
     timeoutId: null,
     cleanup: []
   };
@@ -118,6 +121,7 @@
       '.efnp-consent input{margin-top:2px}' +
       '.efnp-consent a{color:#0f766e;text-decoration:underline}' +
       '.efnp-error{font-size:12px;color:#dc2626;margin:8px 0 0}' +
+      '.efnp-turnstile{min-height:65px;margin-top:10px}' +
       '.efnp-submit{margin-top:12px;width:100%;border:0;border-radius:999px;padding:12px 18px;background:#059669;color:#fff;font-weight:600;cursor:pointer;transition:background-color .2s ease}' +
       '.efnp-submit:hover{background:#047857}' +
       '.efnp-submit:focus-visible{outline:2px solid rgba(16,185,129,.35);outline-offset:2px}' +
@@ -164,6 +168,7 @@
       config.privacyUrl +
       '" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span></label>' +
       '        <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;height:0;width:0">' +
+      (config.turnstileSiteKey ? '        <div class="efnp-turnstile"></div>' : '') +
       '        <p class="efnp-error" hidden></p>' +
       '        <button class="efnp-submit" type="submit">' +
       config.ctaText +
@@ -184,6 +189,59 @@
 
     document.body.appendChild(root);
     return root;
+  }
+
+  function ensureTurnstileScript() {
+    if (window.turnstile) return Promise.resolve();
+
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[data-ef-turnstile="1"]');
+      if (existing) {
+        existing.addEventListener('load', resolve, { once: true });
+        existing.addEventListener('error', function () {
+          reject(new Error('Failed to load verification.'));
+        }, { once: true });
+        return;
+      }
+
+      var script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.dataset.efTurnstile = '1';
+      script.onload = resolve;
+      script.onerror = function () {
+        reject(new Error('Failed to load verification.'));
+      };
+      document.head.appendChild(script);
+    });
+  }
+
+  function setupTurnstile(root, config) {
+    if (!config.turnstileSiteKey) return;
+
+    ensureTurnstileScript()
+      .then(function () {
+        var container = root.querySelector('.efnp-turnstile');
+        if (!container || !window.turnstile || state.turnstileWidgetId !== null) return;
+        state.turnstileWidgetId = window.turnstile.render(container, {
+          sitekey: config.turnstileSiteKey,
+          size: 'flexible',
+          callback: function (token) {
+            state.turnstileToken = token || '';
+            renderError(root, '');
+          },
+          'expired-callback': function () {
+            state.turnstileToken = '';
+          },
+          'error-callback': function () {
+            state.turnstileToken = '';
+          }
+        });
+      })
+      .catch(function () {
+        renderError(root, 'Verification failed to load. Please refresh and try again.');
+      });
   }
 
   function renderError(root, message) {
@@ -251,6 +309,11 @@
       state.submitting = false;
       return;
     }
+    if (state.config.turnstileSiteKey && !state.turnstileToken) {
+      renderError(root, 'Please verify that you are human.');
+      state.submitting = false;
+      return;
+    }
 
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -271,7 +334,8 @@
           pageName: document.title,
           utm: getUTM(),
           hp: hp,
-          elapsedMs: Date.now() - state.startedAt
+          elapsedMs: Date.now() - state.startedAt,
+          turnstileToken: state.turnstileToken
         })
       });
 
@@ -294,6 +358,10 @@
         closePopup(false);
       }, 1800);
     } catch (err) {
+      state.turnstileToken = '';
+      if (state.turnstileWidgetId !== null && window.turnstile && window.turnstile.reset) {
+        window.turnstile.reset(state.turnstileWidgetId);
+      }
       renderError(root, err && err.message ? err.message : 'Something went wrong. Please try again.');
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -383,6 +451,7 @@
 
     addStyle(state.config);
     state.root = buildMarkup(state.config);
+    setupTurnstile(state.root, state.config);
     wireEvents(state.root, state.config);
 
     state.timeoutId = window.setTimeout(openPopup, Math.max(0, state.config.delayMs));
@@ -402,6 +471,8 @@
     }
     state.root = null;
     state.shown = false;
+    state.turnstileToken = '';
+    state.turnstileWidgetId = null;
     document.body.style.removeProperty('overflow');
   }
 
@@ -412,7 +483,7 @@
       closePopup(true);
     },
     destroy: destroy,
-    version: '1.0.0'
+    version: '1.1.0'
   };
 
   if (document.readyState === 'loading') {

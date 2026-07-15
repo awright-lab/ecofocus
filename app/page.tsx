@@ -91,6 +91,11 @@ export default async function HomePage({
       itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE_URL }],
     },
   };
+  const newsletterPopupConfig = {
+    delayMs: 1200,
+    showOnScrollPercent: 25,
+    turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+  };
 
   return (
     <>
@@ -105,8 +110,7 @@ export default async function HomePage({
         id="home-newsletter-popup-config"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
-          __html:
-            'window.EcoFocusNewsletterPopupConfig = { delayMs: 1200, showOnScrollPercent: 25 };',
+          __html: `window.EcoFocusNewsletterPopupConfig = ${JSON.stringify(newsletterPopupConfig)};`,
         }}
       />
       <Script
