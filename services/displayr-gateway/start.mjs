@@ -28,14 +28,25 @@ const service = createPilotService({
   gatewayOrigin, portalOrigin, controlSecret: process.env.DISPLAYR_CONTROL_SECRET, broker,
   assetOrigins: ['https://static-assets.prod.displayr.com', 'https://displayrcors.displayr.com', 'https://displayr-app-image.displayr.com', 'https://widget-cdn.displayr.com'],
   authorizeScope: async scope => {
-    const response = await fetch(callback, {
+    let response;
+    try { response = await fetch(callback, {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(5000),
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${callbackSecret}` },
       body: JSON.stringify(scope),
-    });
-    if (!response.ok) return null;
+    }); } catch {
+      console.error('[displayr-gateway] portal callback request failed');
+      return null;
+    }
+    if (!response.ok) {
+      console.warn('[displayr-gateway] portal callback rejected', { status: response.status });
+      return null;
+    }
     const decision = await response.json();
-    return viewers.has(decision?.userId) ? decision : null;
+    if (!viewers.has(decision?.userId)) {
+      console.warn('[displayr-gateway] viewer mapping missing');
+      return null;
+    }
+    return decision;
   },
 });
 const gatewayPort = Number(process.env.DISPLAYR_GATEWAY_PORT || 4351);
