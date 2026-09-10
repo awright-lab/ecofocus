@@ -6,7 +6,10 @@ const headers = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', 'Refer
 const denied = (status: number) => NextResponse.json({ error: 'Gateway access unavailable' }, { status, headers });
 
 export async function POST(req: NextRequest) {
-  if (req.headers.has('origin') || !hasDisplayrAuthorizationSecret(req.headers.get('authorization'))) return denied(401);
+  if (req.headers.has('origin') || !hasDisplayrAuthorizationSecret(req.headers.get('authorization'))) {
+    console.warn('[displayr-gateway] callback authentication rejected');
+    return denied(401);
+  }
   if (!/^application\/json(?:;|$)/i.test(req.headers.get('content-type') || '')) return denied(415);
   try {
     const reader = req.body?.getReader();
@@ -24,5 +27,8 @@ export async function POST(req: NextRequest) {
     if (!scope || !['accessToken', 'companyId', 'dashboardSlug'].every(key => typeof scope[key] === 'string' && scope[key].length > 0) || Object.keys(scope).some(key => !['accessToken', 'companyId', 'dashboardSlug'].includes(key))) return denied(400);
     const decision = await authorizeDisplayrGateway(scope);
     return decision ? NextResponse.json(decision, { headers }) : denied(403);
-  } catch { return denied(503); }
+  } catch {
+    console.error('[displayr-gateway] callback authorization unavailable');
+    return denied(503);
+  }
 }

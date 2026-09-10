@@ -9,6 +9,7 @@ import { getPortalDashboardForUser } from "@/lib/portal/data";
 import { getSession } from "@/lib/supabase/server";
 import { isDisplayrGatewayPilotUser } from "@/lib/portal/displayr-gateway-config";
 import { launchDisplayrGateway } from "@/lib/portal/displayr-gateway";
+import { displayrGatewayFailureCode } from "@/lib/portal/displayr-gateway-diagnostics";
 
 const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
@@ -42,8 +43,10 @@ export async function GET(req: NextRequest) {
       if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: NOINDEX_HEADERS });
       const launch = await launchDisplayrGateway({ accessToken: session.access_token, companyId: access.company.id, dashboardSlug: payload.dashboardSlug }, access.user.id);
       return NextResponse.redirect(launch, { status: 303, headers: NOINDEX_HEADERS });
-    } catch {
-      return NextResponse.json({ error: "Dashboard pilot unavailable. Please try again later." }, { status: 503, headers: NOINDEX_HEADERS });
+    } catch (error) {
+      const code = displayrGatewayFailureCode(error);
+      console.error('[displayr-gateway] launch failed', { code });
+      return NextResponse.json({ error: "Dashboard pilot unavailable. Please try again later.", code }, { status: 503, headers: NOINDEX_HEADERS });
     }
   }
 
