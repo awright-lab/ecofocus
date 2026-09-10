@@ -5,6 +5,22 @@ import { callbackAuthenticationFailure } from '../../../lib/portal/displayr-call
 const secret = 'test-only-callback-credential-00000000';
 const headers = () => new Headers({ Authorization: `Bearer ${secret}` });
 
+test('dedicated callback header authenticates when Authorization is removed in transit', () => {
+  const forwarded = new Headers({ 'X-Ecofocus-Gateway-Authorization': `Bearer ${secret}` });
+  assert.equal(forwarded.has('Authorization'), false);
+  assert.equal(callbackAuthenticationFailure(forwarded, secret), null);
+  forwarded.set('Origin', 'https://example.com');
+  assert.equal(callbackAuthenticationFailure(forwarded, secret), 'CALLBACK_ORIGIN_PRESENT');
+});
+
+test('an invalid dedicated credential cannot fall back to a valid legacy credential', () => {
+  const both = headers();
+  both.set('X-Ecofocus-Gateway-Authorization', 'Bearer invalid');
+  assert.equal(callbackAuthenticationFailure(both, secret), 'CALLBACK_CREDENTIAL_MISMATCH');
+  both.set('X-Ecofocus-Gateway-Authorization', '');
+  assert.equal(callbackAuthenticationFailure(both, secret), 'CALLBACK_AUTHORIZATION_MISSING');
+});
+
 test('callback accepts only an exact valid server credential', () => {
   assert.equal(callbackAuthenticationFailure(headers(), secret), null);
   assert.equal(callbackAuthenticationFailure(headers(), secret + 'x'), 'CALLBACK_CREDENTIAL_MISMATCH');

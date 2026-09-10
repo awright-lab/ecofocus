@@ -31,7 +31,11 @@ const service = createPilotService({
     let response;
     try { response = await fetch(callback, {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(5000),
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${callbackSecret}` },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Ecofocus-Gateway-Authorization': `Bearer ${callbackSecret}`,
+        Authorization: `Bearer ${callbackSecret}`,
+      },
       body: JSON.stringify(scope),
     }); } catch {
       console.error('[displayr-gateway] portal callback request failed');
