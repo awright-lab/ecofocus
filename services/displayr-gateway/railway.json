@@ -1,0 +1,15 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "services/displayr-gateway/Dockerfile",
+    "watchPatterns": ["/services/displayr-gateway/**", "/experiments/displayr-gateway/gateway.mjs"]
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "healthcheckPath": "/healthz",
+    "healthcheckTimeout": 60,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  }
+}

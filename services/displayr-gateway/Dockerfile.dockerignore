@@ -1,0 +1,9 @@
+**
+!services/
+!services/displayr-gateway/
+!services/displayr-gateway/package.json
+!services/displayr-gateway/package-lock.json
+!services/displayr-gateway/*.mjs
+!experiments/
+!experiments/displayr-gateway/
+!experiments/displayr-gateway/gateway.mjs
