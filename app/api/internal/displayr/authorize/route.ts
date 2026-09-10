@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authorizeDisplayrGateway, hasDisplayrAuthorizationSecret } from '@/lib/portal/displayr-gateway';
+import { authorizeDisplayrGateway } from '@/lib/portal/displayr-gateway';
+import { callbackAuthenticationFailure } from '@/lib/portal/displayr-callback-auth';
 
 export const runtime = 'nodejs';
 const headers = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex', 'Referrer-Policy': 'no-referrer' };
 const denied = (status: number) => NextResponse.json({ error: 'Gateway access unavailable' }, { status, headers });
 
 export async function POST(req: NextRequest) {
-  if (req.headers.has('origin') || !hasDisplayrAuthorizationSecret(req.headers.get('authorization'))) {
-    console.warn('[displayr-gateway] callback authentication rejected');
-    return denied(401);
+  const reason = callbackAuthenticationFailure(req.headers, process.env.DISPLAYR_AUTHORIZATION_SECRET);
+  if (reason) {
+    console.warn('[displayr-gateway] callback authentication rejected', { reason });
+    const response = denied(401);
+    response.headers.set('X-Ecofocus-Callback-Error', reason);
+    return response;
   }
   if (!/^application\/json(?:;|$)/i.test(req.headers.get('content-type') || '')) return denied(415);
   try {
