@@ -5,6 +5,16 @@ import { callbackAuthenticationFailure } from '../../../lib/portal/displayr-call
 const secret = 'test-only-callback-credential-00000000';
 const headers = () => new Headers({ Authorization: `Bearer ${secret}` });
 
+test('body credential authenticates without transport headers and still requires an exact secret', () => {
+  const empty = new Headers();
+  assert.equal(callbackAuthenticationFailure(empty, secret, secret), null);
+  for (const invalid of ['', secret + 'x', `"${secret}"`, null, {}, [secret]]) {
+    assert.equal(callbackAuthenticationFailure(empty, secret, invalid), 'CALLBACK_CREDENTIAL_MISMATCH');
+  }
+  assert.equal(callbackAuthenticationFailure(headers(), secret, 'wrong'), 'CALLBACK_CREDENTIAL_MISMATCH');
+  assert.equal(callbackAuthenticationFailure(new Headers({ Origin: 'https://example.com' }), secret, secret), 'CALLBACK_ORIGIN_PRESENT');
+});
+
 test('dedicated callback header authenticates when Authorization is removed in transit', () => {
   const forwarded = new Headers({ 'X-Ecofocus-Gateway-Authorization': `Bearer ${secret}` });
   assert.equal(forwarded.has('Authorization'), false);

@@ -36,7 +36,7 @@ const service = createPilotService({
         'X-Ecofocus-Gateway-Authorization': `Bearer ${callbackSecret}`,
         Authorization: `Bearer ${callbackSecret}`,
       },
-      body: JSON.stringify(scope),
+      body: JSON.stringify({ ...scope, callbackSecret }),
     }); } catch {
       console.error('[displayr-gateway] portal callback request failed');
       return null;
