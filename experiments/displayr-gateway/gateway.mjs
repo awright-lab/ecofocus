@@ -439,6 +439,14 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
         if (/^text\/html/i.test(type) && /<input\b[^>]*\btype\s*=\s*(?:["']password["']|password(?:\s|>))/i.test(original)) { send(res, 409, 'Displayr returned a login form; this prototype cannot silently establish that session'); return; }
         let text = rewriteText(original, upstream, gateway, assets);
         if (assetOrigin) text = rewriteAssetReferences(text, type, assetMatch[1]);
+        // Displayr's native download attribute leaves Chromium's partitioned
+        // iframe session behind. Navigate this specific export anchor in-place;
+        // upstream Content-Disposition still supplies the filename and download.
+        // Keep this pinned to the observed viewer handler, not arbitrary links.
+        if (/javascript/i.test(type) && text.includes('/Dashboard/DownloadExport/{0}/{1}')) {
+          text = text.replace('p.href=a,p.download=c,document.body.appendChild(p)',
+            'p.href=a,p.target="_self",document.body.appendChild(p)');
+        }
         res.writeHead(response.status, responseHeaders);
         res.end(text);
       } else {

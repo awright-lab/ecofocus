@@ -14,7 +14,24 @@ const dir = await mkdtemp(join(tmpdir(), 'ecofocus-cookie-test-'));
 let browser, gateway, ingress, upstream;
 try {
   execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', join(dir, 'key.pem'), '-out', join(dir, 'cert.pem'), '-days', '1', '-subj', '/CN=gateway.test'], { stdio: 'ignore' });
-  upstream = http.createServer((_req, res) => { res.setHeader('Content-Type', 'text/html'); res.end('<h1>Private pilot report</h1>'); });
+  const exportBytes = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0xff, 0x80]);
+  upstream = http.createServer((req, res) => {
+    if (req.url === '/viewer.js') {
+      res.setHeader('Content-Type', 'text/javascript');
+      // Preserve the observed Displayr handler shape so the browser exercises
+      // the real gateway rewrite, including a programmatic download click.
+      res.end(`// /Dashboard/DownloadExport/{0}/{1}
+        document.querySelector('button').onclick=()=>{let a='/Dashboard/DownloadExport/101/test/result.xlsx',c='result.xlsx',p=document.createElement('a');p.style.display='none',p.href=a,p.download=c,document.body.appendChild(p),p.onclick=l=>l.stopPropagation(),p.click()}`);
+      return;
+    }
+    if (req.url.startsWith('/Dashboard/DownloadExport/')) {
+      res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Content-Disposition': 'attachment; filename="result.xlsx"' });
+      res.end(exportBytes);
+      return;
+    }
+    res.setHeader('Content-Type', 'text/html');
+    res.end('<h1>Private pilot report</h1><button>Export Excel</button><script src="/viewer.js"></script>');
+  });
   const upstreamPort = await listen(upstream);
   ingress = https.createServer({ key: await readFile(join(dir, 'key.pem')), cert: await readFile(join(dir, 'cert.pem')) }, (req, res) => {
     const url = new URL(req.url, `https://${req.headers.host}`);
@@ -43,10 +60,20 @@ try {
   assert.ok(cookie.partitionKey);
   await page.goto(portalOrigin);
   await page.frameLocator('iframe').getByRole('heading', { name: 'Private pilot report' }).waitFor();
+  const downloadEvent = page.waitForEvent('download');
+  await page.frameLocator('iframe').getByRole('button', { name: 'Export Excel' }).click();
+  const download = await downloadEvent;
+  assert.equal(await download.failure(), null);
+  assert.equal(download.suggestedFilename(), 'result.xlsx');
+  assert.deepEqual(await readFile(await download.path()), exportBytes);
+  await page.frameLocator('iframe').getByRole('heading', { name: 'Private pilot report' }).waitFor();
+  const anonymous = await context.newPage();
+  assert.equal((await anonymous.goto(gatewayOrigin + '/Dashboard/DownloadExport/101/test/result.xlsx')).status(), 401);
+  await anonymous.close();
   const denied = page.waitForResponse(r => r.url().startsWith(gatewayOrigin + '/Dashboard'));
   await page.goto(`https://other.test:${port}`);
   assert.equal((await denied).status(), 401);
-  console.log('PASS: iframe launch and portal reload work; another top-level site cannot reuse the partitioned session.');
+  console.log('PASS: iframe launch, reload and exact-byte export work; anonymous exports and other embedding sites remain denied.');
 } finally {
   await browser?.close();
   await gateway?.close();
