@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node start.mjs",
     "test": "node --test test/*.test.mjs ../../experiments/displayr-gateway/gateway.test.mjs",
-    "test:database": "node test/database.mjs"
+    "test:database": "node test/database.mjs",
+    "test:browser": "node test/iframe-cookies.mjs"
   },
   "dependencies": {
     "playwright": "1.63.0"

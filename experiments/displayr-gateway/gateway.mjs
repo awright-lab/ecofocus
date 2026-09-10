@@ -321,7 +321,11 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
         const sessionToken = opaque();
         sessions.set(sessionToken, { userId: ticket.userId, dashboardId: ticket.dashboardId, path: selected.pathname + selected.search, expires: now() + sessionTtlMs, documentIds, jar });
         counts.launches++;
-        res.writeHead(303, { location: selected.pathname + selected.search, 'set-cookie': `${COOKIE_NAME}=${sessionToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${Math.floor(sessionTtlMs / 1000)}${gateway.protocol === 'https:' ? '; Secure' : ''}`, 'cache-control': 'no-store', 'referrer-policy': 'no-referrer' });
+        // The portal embeds the HTTPS gateway on a different site. Partition
+        // its cookie by the top-level site so it works inside that iframe
+        // without sharing the browser session with other embedding sites.
+        const cookiePolicy = gateway.protocol === 'https:' ? 'SameSite=None; Secure; Partitioned' : 'SameSite=Lax';
+        res.writeHead(303, { location: selected.pathname + selected.search, 'set-cookie': `${COOKIE_NAME}=${sessionToken}; Path=/; HttpOnly; ${cookiePolicy}; Max-Age=${Math.floor(sessionTtlMs / 1000)}`, 'cache-control': 'no-store', 'referrer-policy': 'no-referrer' });
         res.end();
         return;
       }
