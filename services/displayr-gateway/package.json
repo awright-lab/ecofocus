@@ -1,0 +1,16 @@
+{
+  "name": "ecofocus-displayr-gateway-pilot",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node start.mjs",
+    "test": "node --test test/*.test.mjs ../../experiments/displayr-gateway/gateway.test.mjs",
+    "test:database": "node test/database.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.63.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}

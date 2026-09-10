@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import type { PortalDashboard } from "@/lib/portal/types";
 import { getPortalAnyActiveDashboardConfigBySlug } from "@/lib/portal/data";
 import { getServiceSupabase } from "@/lib/supabase/server";
+import { isDisplayrGatewayPilotUser } from "./displayr-gateway-config";
 
 type DisplayrEmbedState = {
   iframeSrc: string | null;
@@ -206,7 +207,7 @@ export async function getDisplayrEmbedState(
     iframeSrc,
     isConfigured: Boolean(resolvedUrl),
     accessMode: dashboard.embedAccess,
-    requiresDisplayrLogin: dashboard.embedAccess === "displayr_login_required",
+    requiresDisplayrLogin: !isDisplayrGatewayPilotUser(userId) && dashboard.embedAccess === "displayr_login_required",
     configSource,
   };
 }

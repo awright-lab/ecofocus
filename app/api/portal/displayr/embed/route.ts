@@ -6,6 +6,9 @@ import {
   verifyDisplayrEmbedToken,
 } from "@/lib/portal/displayr";
 import { getPortalDashboardForUser } from "@/lib/portal/data";
+import { getSession } from "@/lib/supabase/server";
+import { isDisplayrGatewayPilotUser } from "@/lib/portal/displayr-gateway-config";
+import { launchDisplayrGateway } from "@/lib/portal/displayr-gateway";
 
 const NOINDEX_HEADERS = {
   "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
@@ -30,12 +33,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Embed token does not match this portal session." }, { status: 403, headers: NOINDEX_HEADERS });
   }
 
+  if (isDisplayrGatewayPilotUser(access.user.id)) {
+    if (!access.session || access.isPreviewMode || payload.targetCompanyId !== access.company.id) {
+      return NextResponse.json({ error: "Pilot requires your own authenticated workspace session." }, { status: 403, headers: NOINDEX_HEADERS });
+    }
+    try {
+      const session = await getSession();
+      if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: NOINDEX_HEADERS });
+      const launch = await launchDisplayrGateway({ accessToken: session.access_token, companyId: access.company.id, dashboardSlug: payload.dashboardSlug }, access.user.id);
+      return NextResponse.redirect(launch, { status: 303, headers: NOINDEX_HEADERS });
+    } catch {
+      return NextResponse.json({ error: "Dashboard pilot unavailable. Please try again later." }, { status: 503, headers: NOINDEX_HEADERS });
+    }
+  }
+
   const displayrUrl = await resolveDisplayrEmbedUrl(payload.targetCompanyId, payload.dashboardSlug);
   if (!displayrUrl) {
     return NextResponse.json({ error: "Dashboard mapping not available." }, { status: 404, headers: NOINDEX_HEADERS });
   }
 
   const dashboard = await getPortalDashboardForUser(access.user, payload.dashboardSlug, access.company.id);
+  if (!dashboard || (payload.targetCompanyId !== access.company.id && access.effectiveRole !== "support_admin")) {
+    return NextResponse.json({ error: "Dashboard access denied." }, { status: 403, headers: NOINDEX_HEADERS });
+  }
   if (dashboard) {
     await logDisplayrEmbedRedirectEvent({
       userId: access.user.id,

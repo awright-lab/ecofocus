@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { getDisplayrGatewayOrigin } from '@/lib/portal/displayr-gateway-config';
 import { getRequestHost, isPortalHost, toExternalPortalPath, toInternalPortalPath } from '@/lib/portal/host';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
@@ -51,9 +52,14 @@ export async function middleware(req: NextRequest) {
     );
     res.headers.set(
       'Content-Security-Policy',
-      "frame-src 'self' https://app.displayr.com; child-src 'self' https://app.displayr.com; frame-ancestors 'self';",
+      `frame-src 'self' https://app.displayr.com${process.env.DISPLAYR_GATEWAY_ENABLED === 'true' && getDisplayrGatewayOrigin() ? ` ${getDisplayrGatewayOrigin()}` : ''}; child-src 'self' https://app.displayr.com${process.env.DISPLAYR_GATEWAY_ENABLED === 'true' && getDisplayrGatewayOrigin() ? ` ${getDisplayrGatewayOrigin()}` : ''}; frame-ancestors 'self';`,
     );
   }
+
+  // This server-to-server route authenticates its own shared secret and live
+  // viewer token. A browser-cookie login redirect would prevent the gateway
+  // from ever reaching it on the portal hostname.
+  if (pathname === '/api/internal/displayr/authorize') return res;
 
   if (portalHost && pathname === '/login') {
     const rewriteUrl = req.nextUrl.clone();
