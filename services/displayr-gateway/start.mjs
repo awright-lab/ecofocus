@@ -38,7 +38,10 @@ const service = createPilotService({
       return null;
     }
     if (!response.ok) {
-      console.warn('[displayr-gateway] portal callback rejected', { status: response.status });
+      const reportedReason = response.headers.get('x-ecofocus-callback-error');
+      const knownReasons = ['CALLBACK_ORIGIN_PRESENT', 'CALLBACK_SECRET_MISSING', 'CALLBACK_SECRET_TOO_SHORT', 'CALLBACK_AUTHORIZATION_MISSING', 'CALLBACK_CREDENTIAL_MISMATCH'];
+      const reason = knownReasons.includes(reportedReason) ? reportedReason : 'CALLBACK_REASON_UNAVAILABLE';
+      console.warn('[displayr-gateway] portal callback rejected', { status: response.status, reason });
       return null;
     }
     const decision = await response.json();

@@ -1,4 +1,3 @@
-import { timingSafeEqual } from 'node:crypto';
 import { getServiceSupabase } from '@/lib/supabase/server';
 import { getDisplayrGatewayOrigin, isDisplayrGatewayPilotUser } from './displayr-gateway-config';
 import { DisplayrGatewayError, controlFailureCode } from './displayr-gateway-diagnostics';
@@ -6,14 +5,6 @@ import { DisplayrGatewayError, controlFailureCode } from './displayr-gateway-dia
 function denyAuthorization(stage: string) {
   console.warn('[displayr-gateway] authorization denied', { stage });
   return null;
-}
-
-export function hasDisplayrAuthorizationSecret(header: string | null) {
-  const secret = process.env.DISPLAYR_AUTHORIZATION_SECRET;
-  if (!secret || secret.length < 32 || !header) return false;
-  const expected = Buffer.from(`Bearer ${secret}`);
-  const actual = Buffer.from(header);
-  return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
 export type GatewayScope = { accessToken: string; companyId: string; dashboardSlug: string };
