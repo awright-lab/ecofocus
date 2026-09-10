@@ -284,6 +284,7 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
     sweep();
     let controller;
     let timeout;
+    let stage = 'request_validation';
     try {
       const gateway = gatewayUrl();
       if (req.headers.host !== gateway.host) { counts.denied++; send(res, 400, 'Invalid gateway host'); return; }
@@ -310,7 +311,9 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
           ...aliases.map(String),
         ]);
         const jar = new Map();
+        stage = 'viewer_session';
         const initial = await getInitialCookies({ userId: ticket.userId, dashboardId: ticket.dashboardId });
+        stage = 'session_setup';
         if (!Array.isArray(initial)) throw new Error('Initial cookies must be an array');
         for (const cookie of initial) storeCookie(jar, cookie, upstream);
         if (!(await allowed(ticket))) { counts.denied++; send(res, 403, 'Dashboard access denied'); return; }
@@ -370,7 +373,9 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
       const body = req.method === 'POST' ? await readLimited(req, MAX_BODY_BYTES) : undefined;
       if (!permittedBody(body, req.headers['content-type'], session)) { counts.denied++; send(res, 403, 'Dashboard request body is not permitted'); return; }
       counts.upstreamRequests++;
+      stage = 'upstream_request';
       const response = await fetch(target, { method: req.method, headers, body, redirect: 'manual', signal: controller.signal });
+      stage = 'upstream_response';
       if (!assetOrigin) for (const cookie of response.headers.getSetCookie()) receiveCookie(session.jar, cookie, target, now());
       if (!(await allowed(session)) || session.expires <= now()) {
         await response.body?.cancel();
@@ -447,7 +452,8 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
       }
     } catch (error) {
       counts.upstreamErrors++;
-      send(res, error.status === 413 ? 413 : 502, error.status === 413 ? 'Request or response exceeds prototype size limit' : 'Gateway request failed; inspect authenticated diagnostic counts');
+      console.error('[displayr-gateway] request failed', { stage });
+      send(res, error.status === 413 ? 413 : 502, error.status === 413 ? 'Request or response exceeds prototype size limit' : `Gateway request failed (${stage}). Please retry or contact support.`);
     } finally {
       clearTimeout(timeout);
       if (controller) { pending.delete(controller); controller.abort(); }
