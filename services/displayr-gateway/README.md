@@ -17,7 +17,7 @@ This draft adds a per-user session broker, a normal Displayr browser sign-in ada
 
 ## Configuration and validation
 
-For the Railway deployment, follow [RAILWAY.md](RAILWAY.md). The Dockerfile, Railway config, public ingress and runtime JSON secret provider are included. `PORT` enables the Railway ingress; without it, only the original loopback listeners start. Railway uses a server-authenticated HTTPS control route on the gateway origin, as documented there; the internal control listener itself is never exposed.
+For the Railway deployment, follow [RAILWAY.md](RAILWAY.md). The Dockerfile, public ingress and runtime JSON secret provider are included. For new Railway services, use the Dockerfile variable and manual settings in that guide; legacy Config-as-code is no longer available to new services. `PORT` enables the Railway ingress; without it, only the original loopback listeners start. Railway uses a server-authenticated HTTPS control route on the gateway origin, as documented there; the internal control listener itself is never exposed.
 
 The user selected private test project `1208434` for the isolated pilot. Set `DISPLAYR_GATEWAY_USE_PRIVATE_TEST_COPY=true` as shown in `portal.env.example`. This override only applies to verified `user-arif` in `company-ecofocus` opening entitled `interactive-dashboard-2024`; other scopes fail closed. It does not update `portal_dashboard_configs`. The existing live report remains as published. Do not present this as securing that existing public report.
 

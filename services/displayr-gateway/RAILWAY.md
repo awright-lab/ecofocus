@@ -1,16 +1,18 @@
 # Railway isolated pilot
 
-Build configuration is ready locally. No Railway deployment, GitHub push, database setup, or live portal activation is performed by these files.
+The pilot code is published on `codex/displayr-gateway-pilot`. No Railway deployment, database setup, or live portal activation is performed by these files.
+
+Railway now blocks new services from opting into legacy Config-as-code (the console notice gives August 28, 2026 as the cutoff). Do not set Railway Config File for this new pilot service. The checked-in `railway.json` is a legacy reference; schema validation alone does not establish that a new service can use it. Use the supported Dockerfile variable and service settings below.
 
 ## Service settings
 
 Use the existing `displayr-gateway` service. After these files are available on the selected GitHub branch:
 
 1. Keep **Root Directory** `/`.
-2. Set **Settings → Config-as-code → Railway Config File** to `/services/displayr-gateway/railway.json`.
+2. Clear **Settings → Config-as-code → Railway Config File**. Add service variable `RAILWAY_DOCKERFILE_PATH=services/displayr-gateway/Dockerfile`.
 3. Connect the repository and select the branch containing the pilot code. Disable automatic deployment until variables are set.
-4. Generate a Railway domain, targeting port `8080`. Use its HTTPS origin for `DISPLAYR_GATEWAY_PUBLIC_ORIGIN`.
-5. Configure the variables below before deploying. Keep one replica and disable Serverless/sleep: sessions are currently held in process memory.
+4. Save the pending service creation and domain change. Railway documents Alt-clicking the top Deploy button to commit staged changes without triggering a redeploy. Then reopen Networking to obtain the generated domain (click Generate Domain if needed), targeting port `8080`. Use its HTTPS origin for `DISPLAYR_GATEWAY_PUBLIC_ORIGIN`.
+5. Configure the variables below before deploying. In service settings, set healthcheck path `/healthz`, healthcheck timeout `60` seconds, one replica, restart policy On Failure (3 retries), and disable Serverless/sleep. Leave custom build/start commands empty so Docker builds the image and runs its CMD.
 
 The Dockerfile installs pinned Node/Playwright and Chromium, copies only gateway code, and runs as the non-root `node` user. Its adjacent Docker ignore file excludes portal code, git history, environment files and local secrets. `/healthz` checks that both internal listeners have started; it does not claim that Displayr or portal authorization is healthy.
 
@@ -19,6 +21,7 @@ The Dockerfile installs pinned Node/Playwright and Chromium, copies only gateway
 | Name | Value |
 | --- | --- |
 | `PORT` | `8080` |
+| `RAILWAY_DOCKERFILE_PATH` | `services/displayr-gateway/Dockerfile` |
 | `DISPLAYR_GATEWAY_PUBLIC_ORIGIN` | Exact HTTPS Railway domain origin, no path |
 | `DISPLAYR_PORTAL_ORIGIN` | Exact HTTPS origin hosting the EcoFocus portal |
 | `DISPLAYR_AUTHORIZATION_URL` | Portal origin + `/api/internal/displayr/authorize` |
