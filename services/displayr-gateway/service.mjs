@@ -28,21 +28,31 @@ function validDecision(value) {
 export function createPilotService({ gatewayOrigin, portalOrigin, controlSecret, broker, authorizeScope, now = Date.now, upstreamOrigin = 'https://app.displayr.com', assetOrigins = [] }) {
   if (typeof controlSecret !== 'string' || controlSecret.length < 32) throw new Error('Strong control secret required');
   const leases = new Map();
+  const checks = new Map();
   const reap = () => { for (const [id, lease] of leases) if (lease.expiresAt <= now()) leases.delete(id); };
   async function check({ userId, dashboardId }) {
     reap();
     const lease = leases.get(dashboardId);
     if (!lease || lease.userId !== userId) return false;
-    try {
-      const decision = await authorizeScope(lease.scope);
-      if (!validDecision(decision) || decision.userId !== lease.userId || decision.expiresAt <= now() ||
-          decision.dashboardPath !== lease.dashboardPath || JSON.stringify(decision.documentIds) !== JSON.stringify(lease.documentIds)) {
-        leases.delete(dashboardId);
-        return false;
-      }
-      lease.expiresAt = Math.min(lease.expiresAt, decision.expiresAt);
-      return lease.expiresAt > now();
-    } catch { leases.delete(dashboardId); return false; }
+    // A module graph starts many parallel requests for the same lease. Share
+    // only an in-flight check, never a cached authorization result.
+    if (checks.has(dashboardId)) return checks.get(dashboardId);
+    const checking = (async () => {
+      try {
+        const decision = await authorizeScope(lease.scope);
+        if (leases.get(dashboardId) !== lease) return false;
+        if (!validDecision(decision) || decision.userId !== lease.userId || decision.expiresAt <= now() ||
+            decision.dashboardPath !== lease.dashboardPath || JSON.stringify(decision.documentIds) !== JSON.stringify(lease.documentIds)) {
+          leases.delete(dashboardId);
+          return false;
+        }
+        lease.expiresAt = Math.min(lease.expiresAt, decision.expiresAt);
+        return lease.expiresAt > now();
+      } catch { leases.delete(dashboardId); return false; }
+    })();
+    checks.set(dashboardId, checking);
+    try { return await checking; }
+    finally { if (checks.get(dashboardId) === checking) checks.delete(dashboardId); }
   }
   const gateway = createGateway({
     upstreamOrigin, gatewayOrigin, portalOrigin, assetOrigins, now,
