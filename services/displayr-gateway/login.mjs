@@ -31,6 +31,14 @@ export function parseViewerSecrets(raw) {
   return viewers;
 }
 
+export function classifyLoginPage(text) {
+  return {
+    credentialsRejected: /(?:invalid|incorrect|wrong)\s+(?:email|password|credentials)|(?:log\s*in|sign\s*in)\s+failed|check\s+(?:your\s+)?email\s+(?:address\s+)?and\s+password/i.test(text),
+    verificationRequested: /verify\s+(?:that\s+)?you\s+are\s+(?:a\s+)?human|verification\s+code|two.factor\s+authentication|unusual\s+(?:traffic|activity)/i.test(text),
+    rateLimited: /too\s+many\s+(?:attempts|requests)|temporarily\s+locked/i.test(text),
+  };
+}
+
 export function createBrowserAuthenticator({ chromium, viewers, executablePath }) {
   return async userId => {
     const credentials = viewers.get(userId);
@@ -38,12 +46,18 @@ export function createBrowserAuthenticator({ chromium, viewers, executablePath }
     // A new browser/context prevents credentials, storage and saved work from
     // leaking across different viewer identities. No screenshots/tracing/state.
     let browser;
+    let page;
+    let loginPostStatus = null;
     let stage = 'browser_start';
     try {
       browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
       stage = 'browser_context';
       const context = await browser.newContext();
-      const page = await context.newPage();
+      page = await context.newPage();
+      page.on('response', response => {
+        const url = new URL(response.url());
+        if (url.origin === 'https://app.displayr.com' && /^\/Login\/?$/i.test(url.pathname) && response.request().method() === 'POST') loginPostStatus = response.status();
+      });
       page.setDefaultTimeout(15_000);
       stage = 'login_page';
       await page.goto('https://app.displayr.com/Login', { waitUntil: 'domcontentloaded' });
@@ -68,6 +82,12 @@ export function createBrowserAuthenticator({ chromium, viewers, executablePath }
       // Playwright exceptions can include filled field values. Only fixed
       // stages and a timeout flag are safe to emit; never log the exception.
       console.error('[displayr-gateway] viewer sign-in failed', { stage, timeout: error?.name === 'TimeoutError' });
+      if (stage === 'login_completion' && page && !page.isClosed()) {
+        try {
+          const signals = classifyLoginPage(await page.locator('body').innerText({ timeout: 2000 }));
+          console.error('[displayr-gateway] login result', { loginPostStatus, ...signals });
+        } catch { console.warn('[displayr-gateway] login result unavailable'); }
+      }
       throw new Error('Displayr viewer sign-in could not be completed');
     } finally {
       if (browser) {
