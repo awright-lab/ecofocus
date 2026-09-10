@@ -9,7 +9,8 @@ async function listen(server) {
   await once(server, 'listening');
   return `http://127.0.0.1:${server.address().port}`;
 }
-async function fixture(t) {
+async function fixture(t, { authorizationDelayMs = 0, authorizationCapacity = Infinity } = {}) {
+  let activeChecks = 0;
   let decision = { userId: 'alice', expiresAt: Date.now() + 60_000, dashboardPath: '/Dashboard?project_id=123', documentIds: ['123'] };
   let logins = 0;
   const upstream = http.createServer((req, res) => { res.setHeader('Content-Type', 'text/plain'); res.end(req.headers.cookie || 'missing'); });
@@ -17,7 +18,14 @@ async function fixture(t) {
   const secret = 'test-control-secret-of-at-least-32-characters';
   const service = createPilotService({ gatewayOrigin: 'http://127.0.0.1:0', portalOrigin: 'http://127.0.0.1:4300', upstreamOrigin, controlSecret: secret,
     broker: { getCookies: async id => { logins++; return [{ name: 'viewer', value: id, path: '/' }]; }, clear() {} },
-    authorizeScope: async scope => scope.accessToken === 'verified-test-token' ? decision : null,
+    authorizeScope: async scope => {
+      activeChecks++;
+      try {
+        if (activeChecks > authorizationCapacity) return null;
+        if (authorizationDelayMs) await new Promise(resolve => setTimeout(resolve, authorizationDelayMs));
+        return scope.accessToken === 'verified-test-token' ? decision : null;
+      } finally { activeChecks--; }
+    },
   });
   const control = await listen(service.control);
   const gateway = await listen(service.gateway.server);
@@ -60,4 +68,19 @@ test('expired and external dashboard decisions fail closed', async t => {
   f.setDecision({ userId: 'alice', expiresAt: Date.now() + 60_000, dashboardPath: 'https://example.org/Dashboard?project_id=123', documentIds: [] });
   assert.equal((await f.launch()).status, 403);
   assert.equal(f.getLogins(), 0);
+});
+
+test('parallel resource loads do not overwhelm authorization and revocation still applies to the next request', async t => {
+  const f = await fixture(t, { authorizationDelayMs: 20, authorizationCapacity: 4 });
+  const launch = await (await f.launch()).json();
+  const started = await fetch(f.gateway + launch.launchPath, { redirect: 'manual' });
+  const cookie = started.headers.get('set-cookie').split(';')[0];
+  const statuses = await Promise.all(Array.from({ length: 67 }, async () => {
+    const response = await fetch(f.gateway + '/Dashboard?project_id=123', { headers: { Cookie: cookie } });
+    await response.text();
+    return response.status;
+  }));
+  assert.ok(statuses.every(status => status === 200), JSON.stringify(statuses));
+  f.setDecision(null);
+  assert.equal((await fetch(f.gateway + '/Dashboard?project_id=123', { headers: { Cookie: cookie } })).status, 403);
 });

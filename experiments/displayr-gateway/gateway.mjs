@@ -216,6 +216,19 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
 
   function send(res, status, message) {
     if (res.headersSent) { res.destroy(); return; }
+    if (status === 403) {
+      const reason = new Map([
+        ['Gateway origin required', 'ORIGIN_REQUIRED'],
+        ['Dashboard access denied', 'LAUNCH_AUTHORIZATION_DENIED'],
+        ['Dashboard access revoked', 'SESSION_AUTHORIZATION_DENIED'],
+        ['Dashboard target is not permitted', 'TARGET_DENIED'],
+        ['Dashboard request body is not permitted', 'BODY_DENIED'],
+        ['Upstream dashboard redirect is not permitted', 'REDIRECT_DENIED'],
+        ['Service workers are disabled for this prototype', 'SERVICE_WORKER_DENIED'],
+      ]).get(message) || 'REQUEST_DENIED';
+      res.setHeader('x-ecofocus-gateway-error', reason);
+      console.error('[displayr-gateway] request denied', { reason });
+    }
     res.writeHead(status, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' });
     res.end(message);
   }
@@ -389,6 +402,10 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
         send(res, 403, 'Dashboard access revoked');
         return;
       }
+      if (response.status === 403) {
+        res.setHeader('x-ecofocus-gateway-error', 'UPSTREAM_DENIED');
+        console.error('[displayr-gateway] upstream request denied', { status: 403 });
+      }
       const location = response.headers.get('location');
       if (location && response.status >= 300 && response.status < 400) {
         const destination = new URL(location, target);
@@ -439,6 +456,14 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
         if (/^text\/html/i.test(type) && /<input\b[^>]*\btype\s*=\s*(?:["']password["']|password(?:\s|>))/i.test(original)) { send(res, 409, 'Displayr returned a login form; this prototype cannot silently establish that session'); return; }
         let text = rewriteText(original, upstream, gateway, assets);
         if (assetOrigin) text = rewriteAssetReferences(text, type, assetMatch[1]);
+        // Displayr's native download attribute leaves Chromium's partitioned
+        // iframe session behind. Navigate this specific export anchor in-place;
+        // upstream Content-Disposition still supplies the filename and download.
+        // Keep this pinned to the observed viewer handler, not arbitrary links.
+        if (/javascript/i.test(type) && text.includes('/Dashboard/DownloadExport/{0}/{1}')) {
+          text = text.replace('p.href=a,p.download=c,document.body.appendChild(p)',
+            'p.href=a,p.target="_self",document.body.appendChild(p)');
+        }
         res.writeHead(response.status, responseHeaders);
         res.end(text);
       } else {
