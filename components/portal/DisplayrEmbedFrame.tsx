@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DisplayrSessionRenewal } from "./DisplayrSessionRenewal";
 import { Expand, MonitorPlay, X } from "lucide-react";
 import type { PortalDashboard } from "@/lib/portal/types";
 
@@ -9,12 +10,15 @@ export function DisplayrEmbedFrame({
   iframeSrc,
   isConfigured,
   isSupportAdmin = false,
+  renewalOrigin = null,
 }: {
   dashboard: PortalDashboard;
   iframeSrc: string | null;
   isConfigured: boolean;
   isSupportAdmin?: boolean;
+  renewalOrigin?: string | null;
 }) {
+  const [viewerReady, setViewerReady] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -53,6 +57,7 @@ export function DisplayrEmbedFrame({
 
   return (
     <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_16px_50px_-40px_rgba(15,23,42,0.45)]">
+      {renewalOrigin ? <DisplayrSessionRenewal origin={renewalOrigin} dashboardSlug={dashboard.slug} ready={viewerReady} /> : null}
       {isSupportAdmin ? (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-slate-950 px-4 py-3 text-sm text-white">
           <div className="flex items-center gap-3">
@@ -120,6 +125,7 @@ export function DisplayrEmbedFrame({
         ) : null}
 
         <iframe
+          onLoad={() => setViewerReady(true)}
           title={dashboard.name}
           src={iframeSrc}
           className="h-full w-full"

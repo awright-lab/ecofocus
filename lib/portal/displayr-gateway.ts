@@ -30,7 +30,7 @@ export async function authorizeDisplayrGateway(scope: GatewayScope) {
   // dashboard entitlement above; never changes the live dashboard mapping.
   if (process.env.DISPLAYR_GATEWAY_USE_PRIVATE_TEST_COPY === 'true') {
     if (data.user_id !== 'user-arif' || scope.companyId !== 'company-ecofocus' || scope.dashboardSlug !== 'interactive-dashboard-2024') return denyAuthorization('private_copy_scope');
-    return { userId: data.user_id, expiresAt: claims.exp * 1000,
+    return { userId: data.user_id, sessionId: claims.session_id, expiresAt: claims.exp * 1000,
       dashboardPath: '/Dashboard?project_id=1208434', documentIds: ['1208434'] };
   }
   const url = new URL(data.displayr_embed_url);
@@ -42,11 +42,11 @@ export async function authorizeDisplayrGateway(scope: GatewayScope) {
   // Other UUID reports need their own reviewed mapping before this pilot.
   const aliases: Record<string, string[]> = { '2e65a2ac-7e32-418f-83c1-1c3b541985ae': ['1189662'] };
   if (url.searchParams.has('id') && !aliases[selector]) return null;
-  return { userId: data.user_id, expiresAt: claims.exp * 1000,
+  return { userId: data.user_id, sessionId: claims.session_id, expiresAt: claims.exp * 1000,
     dashboardPath: url.pathname + url.search, documentIds: aliases[selector] || [selector] };
 }
 
-export async function launchDisplayrGateway(scope: GatewayScope, expectedUserId: string) {
+export async function launchDisplayrGateway(scope: GatewayScope, expectedUserId: string, renewal = false) {
   let decision;
   try { decision = await authorizeDisplayrGateway(scope); }
   catch { throw new DisplayrGatewayError('AUTHORIZATION_UNAVAILABLE'); }
@@ -61,7 +61,8 @@ export async function launchDisplayrGateway(scope: GatewayScope, expectedUserId:
   const local = ['localhost', '127.0.0.1'].includes(control.hostname);
   if ((control.protocol !== 'https:' && !(local && control.protocol === 'http:')) ||
       control.username || control.password || control.pathname !== '/' || control.search || control.hash) throw new DisplayrGatewayError('CONTROL_ORIGIN_INVALID');
-  const controlPath = control.origin === publicOrigin ? '/__control/launch' : '/launch';
+  const operation = renewal ? 'renew' : 'launch';
+  const controlPath = control.origin === publicOrigin ? `/__control/${operation}` : `/${operation}`;
   let response;
   try { response = await fetch(new URL(controlPath, control), {
     method: 'POST', redirect: 'error', cache: 'no-store', signal: AbortSignal.timeout(10_000),
@@ -71,6 +72,6 @@ export async function launchDisplayrGateway(scope: GatewayScope, expectedUserId:
   let result;
   try { result = await response.json(); }
   catch { throw new DisplayrGatewayError('CONTROL_RESPONSE_INVALID'); }
-  if (!result || typeof result.launchPath !== 'string' || !/^\/__gateway\/launch\?ticket=[A-Za-z0-9_-]{43}$/.test(result.launchPath)) throw new DisplayrGatewayError('CONTROL_RESPONSE_INVALID');
+  if (!result || typeof result.launchPath !== 'string' || !new RegExp(`^/__gateway/${operation}\\?ticket=[A-Za-z0-9_-]{43}$`).test(result.launchPath)) throw new DisplayrGatewayError('CONTROL_RESPONSE_INVALID');
   return new URL(result.launchPath, publicOrigin);
 }

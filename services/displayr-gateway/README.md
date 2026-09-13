@@ -1,6 +1,10 @@
 # Displayr session pilot — work in progress
 
-Not deployed or enabled. Portal launch routing and a server authorization callback are now implemented behind `DISPLAYR_GATEWAY_ENABLED=true` and an explicit user allowlist. The service has local HTTP fixture tests; automatic browser login with the dedicated viewer succeeded on September 10, 2026. This does not yet prove a full portal-to-Displayr production session or renewal.
+Current access decisions and future permission requirements are recorded in [Portal dashboard access model](../../docs/portal-dashboard-access-model.md).
+
+The isolated Railway pilot is deployed behind `DISPLAYR_GATEWAY_ENABLED=true` and an explicit user allowlist. The user has confirmed dashboard loading, Explore filtering, and Excel, PowerPoint, and PDF exports inside EcoFocus. Background renewal is implemented and locally browser-tested; live long-session verification is pending. This is not a general production rollout.
+
+Renewal uses `POST /api/portal/displayr/renew` on the portal, the server-authenticated gateway control route `/__control/renew`, and a one-use `/__gateway/renew` ticket exchanged in a hidden iframe. Every renewal checks the live authorization and is bound to the original portal login session and workspace. Deploy both portal and gateway changes, then start a fresh dashboard session. No new environment variables or database migration are required. Long browser suspension, revoked access, and upstream Displayr authentication expiry still require recovery; exports and saves are never automatically replayed.
 
 The verified EcoFocus pilot account is `lquidsilver@gmail.com`, portal user ID `user-arif`, an active support administrator in `company-ecofocus` with an Auth account and active subscription. Read-only checks after reconnecting Supabase confirmed the main project is `ftkrywzaecgcpcuizcso` (EcoFocus). Its entitled active visible dashboard is `interactive-dashboard-2024`, published UUID `2e65a2ac-7e32-418f-83c1-1c3b541985ae`. Anonymous retrieval identifies this report as **2024 Dashboard 01**, numeric project **1189662**. It is different from private test project **1208434**. No live records or publishing settings were changed.
 

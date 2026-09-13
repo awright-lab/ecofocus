@@ -14,8 +14,8 @@ export function createIngress({ service, gatewayOrigin }) {
       return reject(res, service.gateway.server.listening && service.control.listening ? 200 : 503);
     }
     if (req.headers.host !== expectedHost) return reject(res, 400);
-    if (req.url === '/__control/launch') {
-      req.url = '/launch';
+    if (req.url === '/__control/launch' || req.url === '/__control/renew') {
+      req.url = req.url.slice('/__control'.length);
       service.control.emit('request', req, res);
     } else if (req.url?.startsWith('/__control') || req.url?.startsWith('/__gateway/status')) {
       reject(res, 404);

@@ -11,7 +11,7 @@ async function listen(server) {
 }
 async function fixture(t, { authorizationDelayMs = 0, authorizationCapacity = Infinity } = {}) {
   let activeChecks = 0;
-  let decision = { userId: 'alice', expiresAt: Date.now() + 60_000, dashboardPath: '/Dashboard?project_id=123', documentIds: ['123'] };
+  let decision = { userId: 'alice', sessionId: 'auth-session-one', expiresAt: Date.now() + 60_000, dashboardPath: '/Dashboard?project_id=123', documentIds: ['123'] };
   let logins = 0;
   const upstream = http.createServer((req, res) => { res.setHeader('Content-Type', 'text/plain'); res.end(req.headers.cookie || 'missing'); });
   const upstreamOrigin = await listen(upstream);
@@ -30,7 +30,7 @@ async function fixture(t, { authorizationDelayMs = 0, authorizationCapacity = In
   const control = await listen(service.control);
   const gateway = await listen(service.gateway.server);
   t.after(async () => { await service.close(); upstream.closeAllConnections(); await new Promise(resolve => upstream.close(resolve)); });
-  const launch = (overrides = {}, headers = {}) => fetch(`${control}/launch`, { method: 'POST', headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify({ accessToken: 'verified-test-token', companyId: 'company', dashboardSlug: 'report', ...overrides }) });
+  const launch = (overrides = {}, headers = {}, operation = 'launch') => fetch(`${control}/${operation}`, { method: 'POST', headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify({ accessToken: 'verified-test-token', companyId: 'company', dashboardSlug: 'report', ...overrides }) });
   return { gateway, launch, setDecision: value => { decision = value; }, getLogins: () => logins };
 }
 
@@ -83,4 +83,19 @@ test('parallel resource loads do not overwhelm authorization and revocation stil
   assert.ok(statuses.every(status => status === 200), JSON.stringify(statuses));
   f.setDecision(null);
   assert.equal((await fetch(f.gateway + '/Dashboard?project_id=123', { headers: { Cookie: cookie } })).status, 403);
+});
+
+
+test('renewal control requires authorization and cannot cross portal auth sessions', async t => {
+  const f = await fixture(t);
+  const launch = await (await f.launch()).json();
+  const started = await fetch(f.gateway + launch.launchPath, { redirect: 'manual' });
+  const cookie = started.headers.get('set-cookie').split(';')[0];
+  assert.equal((await f.launch({}, { Authorization: 'Bearer wrong' }, 'renew')).status, 401);
+  const renewal = await (await f.launch({}, {}, 'renew')).json();
+  assert.equal((await fetch(f.gateway + renewal.launchPath, { headers: { Cookie: cookie } })).status, 200);
+  assert.equal(f.getLogins(), 1);
+  f.setDecision({ userId: 'alice', sessionId: 'different-auth-session', expiresAt: Date.now() + 60_000, dashboardPath: '/Dashboard?project_id=123', documentIds: ['123'] });
+  const other = await (await f.launch({}, {}, 'renew')).json();
+  assert.equal((await fetch(f.gateway + other.launchPath, { headers: { Cookie: cookie } })).status, 403);
 });

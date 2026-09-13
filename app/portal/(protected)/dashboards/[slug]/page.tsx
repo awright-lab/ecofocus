@@ -1,3 +1,4 @@
+import { getDisplayrGatewayOrigin, isDisplayrGatewayPilotUser } from "@/lib/portal/displayr-gateway-config";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Clock3, ExternalLink, FileWarning, LifeBuoy } from "lucide-react";
@@ -133,6 +134,7 @@ export default async function PortalDashboardDetailPage({
             <DisplayrEmbedFrame
               dashboard={dashboard}
               iframeSrc={embedState.iframeSrc}
+              renewalOrigin={!access.isPreviewMode && selectedCompany.id === access.company.id && isDisplayrGatewayPilotUser(access.user.id) ? getDisplayrGatewayOrigin() : null}
               isConfigured={embedState.isConfigured}
               isSupportAdmin={isSupportAdmin}
             />
