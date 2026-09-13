@@ -9,20 +9,28 @@ async function listen(server) {
   await once(server, 'listening');
   return `http://127.0.0.1:${server.address().port}`;
 }
-async function fixture(t) {
-  let decision = { userId: 'alice', expiresAt: Date.now() + 60_000, dashboardPath: '/Dashboard?project_id=123', documentIds: ['123'] };
+async function fixture(t, { authorizationDelayMs = 0, authorizationCapacity = Infinity } = {}) {
+  let activeChecks = 0;
+  let decision = { userId: 'alice', sessionId: 'auth-session-one', expiresAt: Date.now() + 60_000, dashboardPath: '/Dashboard?project_id=123', documentIds: ['123'] };
   let logins = 0;
   const upstream = http.createServer((req, res) => { res.setHeader('Content-Type', 'text/plain'); res.end(req.headers.cookie || 'missing'); });
   const upstreamOrigin = await listen(upstream);
   const secret = 'test-control-secret-of-at-least-32-characters';
   const service = createPilotService({ gatewayOrigin: 'http://127.0.0.1:0', portalOrigin: 'http://127.0.0.1:4300', upstreamOrigin, controlSecret: secret,
     broker: { getCookies: async id => { logins++; return [{ name: 'viewer', value: id, path: '/' }]; }, clear() {} },
-    authorizeScope: async scope => scope.accessToken === 'verified-test-token' ? decision : null,
+    authorizeScope: async scope => {
+      activeChecks++;
+      try {
+        if (activeChecks > authorizationCapacity) return null;
+        if (authorizationDelayMs) await new Promise(resolve => setTimeout(resolve, authorizationDelayMs));
+        return scope.accessToken === 'verified-test-token' ? decision : null;
+      } finally { activeChecks--; }
+    },
   });
   const control = await listen(service.control);
   const gateway = await listen(service.gateway.server);
   t.after(async () => { await service.close(); upstream.closeAllConnections(); await new Promise(resolve => upstream.close(resolve)); });
-  const launch = (overrides = {}, headers = {}) => fetch(`${control}/launch`, { method: 'POST', headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify({ accessToken: 'verified-test-token', companyId: 'company', dashboardSlug: 'report', ...overrides }) });
+  const launch = (overrides = {}, headers = {}, operation = 'launch') => fetch(`${control}/${operation}`, { method: 'POST', headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json', ...headers }, body: JSON.stringify({ accessToken: 'verified-test-token', companyId: 'company', dashboardSlug: 'report', ...overrides }) });
   return { gateway, launch, setDecision: value => { decision = value; }, getLogins: () => logins };
 }
 
@@ -60,4 +68,34 @@ test('expired and external dashboard decisions fail closed', async t => {
   f.setDecision({ userId: 'alice', expiresAt: Date.now() + 60_000, dashboardPath: 'https://example.org/Dashboard?project_id=123', documentIds: [] });
   assert.equal((await f.launch()).status, 403);
   assert.equal(f.getLogins(), 0);
+});
+
+test('parallel resource loads do not overwhelm authorization and revocation still applies to the next request', async t => {
+  const f = await fixture(t, { authorizationDelayMs: 20, authorizationCapacity: 4 });
+  const launch = await (await f.launch()).json();
+  const started = await fetch(f.gateway + launch.launchPath, { redirect: 'manual' });
+  const cookie = started.headers.get('set-cookie').split(';')[0];
+  const statuses = await Promise.all(Array.from({ length: 67 }, async () => {
+    const response = await fetch(f.gateway + '/Dashboard?project_id=123', { headers: { Cookie: cookie } });
+    await response.text();
+    return response.status;
+  }));
+  assert.ok(statuses.every(status => status === 200), JSON.stringify(statuses));
+  f.setDecision(null);
+  assert.equal((await fetch(f.gateway + '/Dashboard?project_id=123', { headers: { Cookie: cookie } })).status, 403);
+});
+
+
+test('renewal control requires authorization and cannot cross portal auth sessions', async t => {
+  const f = await fixture(t);
+  const launch = await (await f.launch()).json();
+  const started = await fetch(f.gateway + launch.launchPath, { redirect: 'manual' });
+  const cookie = started.headers.get('set-cookie').split(';')[0];
+  assert.equal((await f.launch({}, { Authorization: 'Bearer wrong' }, 'renew')).status, 401);
+  const renewal = await (await f.launch({}, {}, 'renew')).json();
+  assert.equal((await fetch(f.gateway + renewal.launchPath, { headers: { Cookie: cookie } })).status, 200);
+  assert.equal(f.getLogins(), 1);
+  f.setDecision({ userId: 'alice', sessionId: 'different-auth-session', expiresAt: Date.now() + 60_000, dashboardPath: '/Dashboard?project_id=123', documentIds: ['123'] });
+  const other = await (await f.launch({}, {}, 'renew')).json();
+  assert.equal((await fetch(f.gateway + other.launchPath, { headers: { Cookie: cookie } })).status, 403);
 });

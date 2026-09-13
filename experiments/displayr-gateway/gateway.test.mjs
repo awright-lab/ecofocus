@@ -648,3 +648,48 @@ test('absolute-form URLs, protocol-relative targets, spoofed Host, and unsupport
   }
   assert.equal(f.requests.length, 0);
 });
+
+test('renewal extends the existing session without replacing viewer cookies or reloading the report', async t => {
+  const f = await fixture(t);
+  const { cookie } = await f.launch();
+  await f.get('/api/set-state?value=kept', cookie);
+  f.advance(8_000);
+  const ticket = f.gateway.issueLaunch({ userId: 'alice', dashboardId: '101', renewal: true });
+  const renewed = await f.get('/__gateway/renew?ticket=' + ticket, cookie);
+  assert.equal(renewed.status, 200);
+  assert.equal(renewed.headers.get('set-cookie').split(';')[0], cookie);
+  assert.match(await renewed.text(), /ecofocus-dashboard-renewed/);
+  assert.equal((await f.get('/__gateway/renew?ticket=' + ticket, cookie)).status, 401);
+  f.advance(5_000);
+  const response = await f.get('/api/query', cookie);
+  assert.equal(response.status, 200);
+  assert.match((await response.json()).headers.cookie, /upstream_state=kept/);
+  f.revoke();
+  const denied = f.gateway.issueLaunch({ userId: 'alice', dashboardId: '101', renewal: true });
+  assert.equal((await f.get('/__gateway/renew?ticket=' + denied, cookie)).status, 403);
+});
+
+test('renewal cannot switch identity or workspace, replace launch tickets, or revive expired/revoked sessions', async t => {
+  const f = await fixture(t, { gatewayOptions: {
+    resolveDashboard: () => '/Dashboard?project_id=101',
+    resolveRenewalBinding: ({ dashboardId }) => dashboardId,
+  } });
+  const { cookie } = await f.launch();
+  for (const identity of [{ userId: 'bob', dashboardId: '101' }, { userId: 'alice', dashboardId: 'other-workspace' }]) {
+    const ticket = f.gateway.issueLaunch({ ...identity, renewal: true });
+    assert.equal((await f.get('/__gateway/renew?ticket=' + ticket, cookie)).status, 403);
+  }
+  const launchTicket = f.gateway.issueLaunch({ userId: 'alice', dashboardId: '101' });
+  assert.equal((await f.get('/__gateway/renew?ticket=' + launchTicket, cookie)).status, 401);
+  const renewalTicket = f.gateway.issueLaunch({ userId: 'alice', dashboardId: '101', renewal: true });
+  assert.equal((await f.get('/__gateway/launch?ticket=' + renewalTicket, cookie)).status, 401);
+  f.revoke();
+  assert.equal((await f.get('/api/query', cookie)).status, 403);
+  f.restoreAccess();
+  const revoked = f.gateway.issueLaunch({ userId: 'alice', dashboardId: '101', renewal: true });
+  assert.equal((await f.get('/__gateway/renew?ticket=' + revoked, cookie)).status, 403);
+  const fresh = await f.launch();
+  f.advance(11_000);
+  const expired = f.gateway.issueLaunch({ userId: 'alice', dashboardId: '101', renewal: true });
+  assert.equal((await f.get('/__gateway/renew?ticket=' + expired, fresh.cookie)).status, 403);
+});

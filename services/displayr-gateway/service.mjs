@@ -28,34 +28,48 @@ function validDecision(value) {
 export function createPilotService({ gatewayOrigin, portalOrigin, controlSecret, broker, authorizeScope, now = Date.now, upstreamOrigin = 'https://app.displayr.com', assetOrigins = [] }) {
   if (typeof controlSecret !== 'string' || controlSecret.length < 32) throw new Error('Strong control secret required');
   const leases = new Map();
+  const checks = new Map();
   const reap = () => { for (const [id, lease] of leases) if (lease.expiresAt <= now()) leases.delete(id); };
   async function check({ userId, dashboardId }) {
     reap();
     const lease = leases.get(dashboardId);
     if (!lease || lease.userId !== userId) return false;
-    try {
-      const decision = await authorizeScope(lease.scope);
-      if (!validDecision(decision) || decision.userId !== lease.userId || decision.expiresAt <= now() ||
-          decision.dashboardPath !== lease.dashboardPath || JSON.stringify(decision.documentIds) !== JSON.stringify(lease.documentIds)) {
-        leases.delete(dashboardId);
-        return false;
-      }
-      lease.expiresAt = Math.min(lease.expiresAt, decision.expiresAt);
-      return lease.expiresAt > now();
-    } catch { leases.delete(dashboardId); return false; }
+    // A module graph starts many parallel requests for the same lease. Share
+    // only an in-flight check, never a cached authorization result.
+    if (checks.has(dashboardId)) return checks.get(dashboardId);
+    const checking = (async () => {
+      try {
+        const decision = await authorizeScope(lease.scope);
+        if (leases.get(dashboardId) !== lease) return false;
+        if (!validDecision(decision) || decision.userId !== lease.userId || decision.sessionId !== lease.sessionId || decision.expiresAt <= now() ||
+            decision.dashboardPath !== lease.dashboardPath || JSON.stringify(decision.documentIds) !== JSON.stringify(lease.documentIds)) {
+          leases.delete(dashboardId);
+          return false;
+        }
+        lease.expiresAt = Math.min(lease.expiresAt, decision.expiresAt);
+        return lease.expiresAt > now();
+      } catch { leases.delete(dashboardId); return false; }
+    })();
+    checks.set(dashboardId, checking);
+    try { return await checking; }
+    finally { if (checks.get(dashboardId) === checking) checks.delete(dashboardId); }
   }
   const gateway = createGateway({
     upstreamOrigin, gatewayOrigin, portalOrigin, assetOrigins, now,
     authorize: check,
     resolveDashboard: ({ dashboardId }) => leases.get(dashboardId)?.dashboardPath,
     resolveDocumentIds: ({ dashboardId }) => leases.get(dashboardId)?.documentIds || [],
+    resolveRenewalBinding: ({ dashboardId }) => {
+      const lease = leases.get(dashboardId);
+      return lease && JSON.stringify([lease.userId, lease.scope.companyId, lease.scope.dashboardSlug, lease.sessionId]);
+    },
     getInitialCookies: ({ userId }) => broker.getCookies(userId),
   });
   const control = http.createServer(async (req, res) => {
     // This listener belongs on loopback/private networking, separate from the
     // public gateway listener. No CORS and no browser-origin control requests.
     if (req.headers.origin || !matchesSecret(req.headers.authorization, controlSecret)) return send(res, 401, { error: 'Unauthorized' });
-    if (req.method !== 'POST' || req.url !== '/launch') return send(res, 404, { error: 'Not found' });
+    if (req.method !== 'POST' || !['/launch', '/renew'].includes(req.url)) return send(res, 404, { error: 'Not found' });
     if (!/^application\/json(?:;|$)/i.test(req.headers['content-type'] || '')) return send(res, 415, { error: 'JSON required' });
     try {
       const chunks = []; let size = 0;
@@ -69,14 +83,15 @@ export function createPilotService({ gatewayOrigin, portalOrigin, controlSecret,
       reap();
       if (leases.size >= 1000) return send(res, 503, { error: 'Pilot capacity reached' });
       const decision = await authorizeScope(scope);
-      if (!validDecision(decision) || decision.expiresAt <= now()) return send(res, 403, { error: 'Access denied' });
+      if (!validDecision(decision) || decision.expiresAt <= now() || (req.url === '/renew' && (typeof decision.sessionId !== 'string' || !decision.sessionId))) return send(res, 403, { error: 'Access denied' });
       // Identity and upstream route come solely from the verified decision.
       const leaseId = opaque();
       const lease = { ...decision, scope, expiresAt: Math.min(decision.expiresAt, now() + 15 * 60_000) };
       leases.set(leaseId, lease);
       try {
-        const ticket = await gateway.issueLaunch({ userId: decision.userId, dashboardId: leaseId });
-        return send(res, 200, { launchPath: `/__gateway/launch?ticket=${encodeURIComponent(ticket)}`, expiresAt: lease.expiresAt });
+        const renewal = req.url === '/renew';
+        const ticket = await gateway.issueLaunch({ userId: decision.userId, dashboardId: leaseId, renewal });
+        return send(res, 200, { launchPath: `/__gateway/${renewal ? 'renew' : 'launch'}?ticket=${encodeURIComponent(ticket)}`, expiresAt: lease.expiresAt });
       } catch { leases.delete(leaseId); throw new Error('Launch unavailable'); }
     } catch { return send(res, 503, { error: 'Launch unavailable' }); }
   });

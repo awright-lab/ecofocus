@@ -184,7 +184,7 @@ function contentPolicy(upstreamPolicy, portalOrigin, upstream, gateway, assets) 
 }
 
 /** Create an isolated HTTP server. Binding and trusted launch issuance are the caller's responsibility. */
-export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, assetOrigins = [], authorize, resolveDashboard, resolveDocumentIds = () => [], getInitialCookies = async () => [], sessionTtlMs = 15 * 60_000, ticketTtlMs = 30_000, now = Date.now }) {
+export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, assetOrigins = [], authorize, resolveDashboard, resolveDocumentIds = () => [], resolveRenewalBinding = ({ dashboardId }) => dashboardId, getInitialCookies = async () => [], sessionTtlMs = 15 * 60_000, ticketTtlMs = 30_000, now = Date.now }) {
   const upstream = originOnly(upstreamOrigin, 'upstreamOrigin');
   const configuredGateway = originOnly(gatewayOrigin, 'gatewayOrigin');
   const portal = originOnly(portalOrigin, 'portalOrigin');
@@ -216,6 +216,20 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
 
   function send(res, status, message) {
     if (res.headersSent) { res.destroy(); return; }
+    if (status === 403) {
+      const reason = new Map([
+        ['Gateway origin required', 'ORIGIN_REQUIRED'],
+        ['Dashboard renewal denied', 'RENEWAL_DENIED'],
+        ['Dashboard access denied', 'LAUNCH_AUTHORIZATION_DENIED'],
+        ['Dashboard access revoked', 'SESSION_AUTHORIZATION_DENIED'],
+        ['Dashboard target is not permitted', 'TARGET_DENIED'],
+        ['Dashboard request body is not permitted', 'BODY_DENIED'],
+        ['Upstream dashboard redirect is not permitted', 'REDIRECT_DENIED'],
+        ['Service workers are disabled for this prototype', 'SERVICE_WORKER_DENIED'],
+      ]).get(message) || 'REQUEST_DENIED';
+      res.setHeader('x-ecofocus-gateway-error', reason);
+      console.error('[displayr-gateway] request denied', { reason });
+    }
     res.writeHead(status, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store', 'x-content-type-options': 'nosniff', 'referrer-policy': 'no-referrer' });
     res.end(message);
   }
@@ -293,12 +307,12 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
       if (requestUrl.origin !== gateway.origin || requestUrl.username || requestUrl.password) { send(res, 400, 'Invalid request target'); return; }
       if (!['GET', 'HEAD', 'POST'].includes(req.method)) { res.setHeader('allow', 'GET, HEAD, POST'); send(res, 405, 'Unsupported prototype method'); return; }
       if (req.method === 'POST' && req.headers.origin !== gateway.origin) { counts.denied++; send(res, 403, 'Gateway origin required'); return; }
-      if (requestUrl.pathname === '/__gateway/launch') {
+      if (requestUrl.pathname === '/__gateway/launch' || requestUrl.pathname === '/__gateway/renew') {
         if (req.method !== 'GET') { send(res, 405, 'Launch requires GET'); return; }
         const token = requestUrl.searchParams.get('ticket');
         const ticket = tickets.get(token);
         tickets.delete(token); // Burn before any async work: concurrent replay fails.
-        if (!ticket || ticket.expires <= now()) { counts.denied++; send(res, 401, 'Launch ticket is invalid or expired'); return; }
+        if (!ticket || ticket.expires <= now() || ticket.renewal !== (requestUrl.pathname === '/__gateway/renew')) { counts.denied++; send(res, 401, 'Launch ticket is invalid or expired'); return; }
         if (!(await allowed(ticket))) { counts.denied++; send(res, 403, 'Dashboard access denied'); return; }
         const selected = dashboardUrl(ticket.dashboardId);
         // A published UUID and internal numeric project ID can identify the
@@ -310,6 +324,31 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
           ...[...selected.searchParams].filter(([key]) => key.toLowerCase() === 'id' || DOCUMENT_KEYS.has(key.toLowerCase())).map(([, value]) => value),
           ...aliases.map(String),
         ]);
+        if (ticket.renewal) {
+          const sessionToken = parseRequestCookies(req.headers.cookie).get(COOKIE_NAME);
+          const session = sessions.get(sessionToken);
+          const binding = await resolveRenewalBinding({ dashboardId: ticket.dashboardId });
+          if (!session || session.revoked || session.expires <= now() || session.userId !== ticket.userId ||
+              session.renewalBinding !== binding || session.path !== selected.pathname + selected.search ||
+              JSON.stringify([...session.documentIds]) !== JSON.stringify([...documentIds])) {
+            send(res, 403, 'Dashboard renewal denied'); return;
+          }
+          // Recheck after awaited authorization; never replace or reload the viewer.
+          if (!(await allowed(ticket)) || session.revoked || session.expires <= now()) {
+            send(res, 403, 'Dashboard renewal denied'); return;
+          }
+          session.dashboardId = ticket.dashboardId;
+          session.expires = now() + sessionTtlMs;
+          const cookiePolicy = gateway.protocol === 'https:' ? 'SameSite=None; Secure; Partitioned' : 'SameSite=Lax';
+          const nonce = opaque();
+          res.writeHead(200, {
+            'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'referrer-policy': 'no-referrer',
+            'set-cookie': `${COOKIE_NAME}=${sessionToken}; Path=/; HttpOnly; ${cookiePolicy}; Max-Age=${Math.floor(sessionTtlMs / 1000)}`,
+            'content-security-policy': `default-src 'none'; script-src 'nonce-${nonce}'; frame-ancestors ${portal.origin}; base-uri 'none'`,
+          });
+          res.end(`<script nonce="${nonce}">parent.postMessage({type:"ecofocus-dashboard-renewed"},${JSON.stringify(portal.origin)})</script>`);
+          return;
+        }
         const jar = new Map();
         stage = 'viewer_session';
         const initial = await getInitialCookies({ userId: ticket.userId, dashboardId: ticket.dashboardId });
@@ -319,7 +358,7 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
         if (!(await allowed(ticket))) { counts.denied++; send(res, 403, 'Dashboard access denied'); return; }
         if (sessions.size >= MAX_SESSIONS) { send(res, 503, 'Prototype session capacity reached'); return; }
         const sessionToken = opaque();
-        sessions.set(sessionToken, { userId: ticket.userId, dashboardId: ticket.dashboardId, path: selected.pathname + selected.search, expires: now() + sessionTtlMs, documentIds, jar });
+        sessions.set(sessionToken, { userId: ticket.userId, dashboardId: ticket.dashboardId, path: selected.pathname + selected.search, renewalBinding: await resolveRenewalBinding({ dashboardId: ticket.dashboardId }), expires: now() + sessionTtlMs, documentIds, jar });
         counts.launches++;
         // The portal embeds the HTTPS gateway on a different site. Partition
         // its cookie by the top-level site so it works inside that iframe
@@ -389,6 +428,10 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
         send(res, 403, 'Dashboard access revoked');
         return;
       }
+      if (response.status === 403) {
+        res.setHeader('x-ecofocus-gateway-error', 'UPSTREAM_DENIED');
+        console.error('[displayr-gateway] upstream request denied', { status: 403 });
+      }
       const location = response.headers.get('location');
       if (location && response.status >= 300 && response.status < 400) {
         const destination = new URL(location, target);
@@ -439,6 +482,14 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
         if (/^text\/html/i.test(type) && /<input\b[^>]*\btype\s*=\s*(?:["']password["']|password(?:\s|>))/i.test(original)) { send(res, 409, 'Displayr returned a login form; this prototype cannot silently establish that session'); return; }
         let text = rewriteText(original, upstream, gateway, assets);
         if (assetOrigin) text = rewriteAssetReferences(text, type, assetMatch[1]);
+        // Displayr's native download attribute leaves Chromium's partitioned
+        // iframe session behind. Navigate this specific export anchor in-place;
+        // upstream Content-Disposition still supplies the filename and download.
+        // Keep this pinned to the observed viewer handler, not arbitrary links.
+        if (/javascript/i.test(type) && text.includes('/Dashboard/DownloadExport/{0}/{1}')) {
+          text = text.replace('p.href=a,p.download=c,document.body.appendChild(p)',
+            'p.href=a,p.target="_self",document.body.appendChild(p)');
+        }
         res.writeHead(response.status, responseHeaders);
         res.end(text);
       } else {
@@ -473,13 +524,13 @@ export function createGateway({ upstreamOrigin, gatewayOrigin, portalOrigin, ass
 
   return {
     server,
-    issueLaunch({ userId, dashboardId }) {
+    issueLaunch({ userId, dashboardId, renewal = false }) {
       if (typeof userId !== 'string' || !userId || typeof dashboardId !== 'string' || !dashboardId) throw new TypeError('userId and dashboardId are required');
       sweep();
       if (tickets.size >= MAX_SESSIONS) throw new Error('Prototype ticket capacity reached');
       dashboardUrl(dashboardId);
       const token = opaque();
-      tickets.set(token, { userId, dashboardId, expires: now() + ticketTtlMs });
+      tickets.set(token, { userId, dashboardId, renewal, expires: now() + ticketTtlMs });
       return token;
     },
     async close() {
