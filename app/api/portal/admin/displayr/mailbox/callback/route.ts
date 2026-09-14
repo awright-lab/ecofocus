@@ -1,3 +1,4 @@
+import { getRequestHost } from '@/lib/portal/host';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceSupabase } from '@/lib/supabase/server';
 import { mailboxAdministrator, mailboxConfig, googleJSON } from '@/lib/portal/displayr-mailbox';
@@ -14,7 +15,7 @@ function finish(result: string, reason?: DenialReason) {
   return response;
 }
 export async function GET(req: NextRequest) {
-  if (req.nextUrl.origin !== new URL(MAILBOX_CALLBACK).origin) return finish('denied', 'callback-origin');
+  if (getRequestHost(req.headers).toLowerCase() !== new URL(MAILBOX_CALLBACK).host) return finish('denied', 'callback-origin');
   try {
     const admin = await mailboxAdministrator();
     if (!admin) return finish('denied', 'admin-session');

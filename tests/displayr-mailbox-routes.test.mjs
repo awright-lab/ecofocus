@@ -40,12 +40,12 @@ test('callback binds admin, cookie and database state before exchanging credenti
       b.onLoad({ filter: /.*/, namespace: 'fixture' }, args => ({ contents: args.path.includes('supabase') ? 'export const getServiceSupabase = () => globalThis.__mailboxTest.db;' : 'export const mailboxAdministrator = async () => globalThis.__mailboxTest.admin; export const mailboxConfig = () => globalThis.__mailboxTest.config; export const googleJSON = (...args) => globalThis.__mailboxTest.google(...args);' }));
     } }] });
     const { GET } = await import(pathToFileURL(join(dir, 'callback.mjs')));
-    const request = (cookie = state) => new NextRequest(MAILBOX_CALLBACK + '?state=' + state + '&code=example', { headers: { cookie: MAILBOX_COOKIE + '=' + cookie } });
+    const request = (cookie = state) => new NextRequest(MAILBOX_CALLBACK + '?state=' + state + '&code=example', { headers: { host: 'portal.ecofocusresearch.com', cookie: MAILBOX_COOKIE + '=' + cookie } });
     const result = async req => new URL((await GET(req)).headers.get('location')).searchParams.get('result');
     const reason = async req => new URL((await GET(req)).headers.get('location')).searchParams.get('reason');
     fresh();
-    assert.equal(await reason(new NextRequest(MAILBOX_CALLBACK + '?state=' + state + '&code=example')), 'cookie-missing');
-    assert.equal(await reason(new NextRequest(MAILBOX_CALLBACK)), 'state-missing');
+    assert.equal(await reason(new NextRequest(MAILBOX_CALLBACK + '?state=' + state + '&code=example', { headers: { host: 'portal.ecofocusresearch.com' } })), 'cookie-missing');
+    assert.equal(await reason(new NextRequest(MAILBOX_CALLBACK, { headers: { host: 'portal.ecofocusresearch.com' } })), 'state-missing');
     assert.equal(await reason(new NextRequest('https://other.example/api/callback')), 'callback-origin');
     assert.equal(calls, 0);
     fixture.storageError = true;
