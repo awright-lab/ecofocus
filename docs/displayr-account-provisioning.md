@@ -69,3 +69,33 @@ The administrator page now offers **Check mailbox access**. This exchanges the s
 Remaining prerequisites for viewer creation: identify the Displayr administrator account, configure its credentials privately for an isolated worker, inspect the live user-management interface, and record the view-only groups associated with each workspace/dashboard. No administrative Displayr credential has been requested in chat or committed. The invitation reader is not wired to customer signup yet.
 
 Reader tests: `node --test tests/displayr-gmail.test.mjs tests/displayr-mailbox-check.test.mjs`. Google API references: [messages.list](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list) and [messages.get](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/get). No database changes or new environment variables are needed for this step.
+
+## Administrator inspection
+
+A password-based administrator account has been identified. Supply its email locally using `DISPLAYR_INSPECTION_EMAIL`; the utility does not embed the address. Run `node tools/displayr-admin-inspect.mjs` from an interactive terminal in the checkout. It uses the gateway's installed Playwright dependency and asks for the password without echo. Set `DISPLAYR_INSPECTION_CHROME_PATH` if a custom Chromium executable is needed.
+
+The inspection uses an isolated browser, permits one login POST, and blocks other write requests and external top-level navigation. It reports only same-origin management paths, omitting query strings, page contents, cookies and credentials. It does not click management links or create users. Successful login alone does not verify user-management permissions; inspect the reported management page before implementing mutations.
+
+Cancel with Ctrl+C. Never put the administrator password in a shell command, chat, screenshot or repository file. No browser session is saved. A future provisioning worker still needs its own private credential configuration.
+
+Validation: `node --test tests/displayr-admin-inspect.test.mjs`. Tests cover the request restrictions, target identity, browser cleanup, output shape and sanitized failures. The hidden terminal prompt and cancellation were checked without attempting a real administrator login.
+
+If administrator login does not reach a recognized report library, the inspection returns a diagnostic report with login response status, a restricted landing path, login-form visibility, credential/challenge/rate-limit flags, and blocked-request counts. It does not claim an unknown landing page is authenticated. Raw text and URL queries are excluded. The hidden password prompt uses standard readline editing to handle paste and cursor keys without echo.
+
+The administrator successfully completed the initial login probe; its only management link was `/MyAccount`. The probe now opens that discovered page with GET and reports management-related paths plus a fixed allowlist of control labels such as Users and User groups. It does not report profile values or submit account forms. The account page being available is not yet proof of viewer-creation permission.
+
+The New User page was confirmed manually at `/User?company_id=...`. Supply `DISPLAYR_INSPECTION_COMPANY_ID` to inspect that form directly after login. The probe reports form action paths, query parameter names, input names/types, and group option labels/IDs. It waits for the Save control to be visible but never clicks it. It omits all entered and hidden field values, including anti-forgery tokens. Group labels are discovery data, not proof of permissions; the provisioning worker must use explicitly verified view-only groups. A Chromium fixture test checks extraction, hidden-value exclusion and absence of form submissions.
+
+## Verified dashboard groups and invitation preparation
+
+On September 14, 2026, the EcoFocus administrator confirmed that Displayr company `984256` group `2954016` (2024 Dashboard) grants view-only access to the 2024 dashboard. `tools/displayr-dashboard-groups.mjs` records this mapping for portal dashboard `interactive-dashboard-2024`. Discovered 2025 and 2026 groups remain unverified and are not enabled by their names alone.
+
+Group membership is a list: a viewer may belong to multiple dashboard groups. Resolve the union of server-authorized dashboard assignments across the user's active workspaces and deduplicate the corresponding verified groups. Every authorized member of a workspace receives its dashboard assignments through their own Displayr viewer identity. Individual user overrides remain a future release requirement. Unknown mappings stop preparation rather than silently omitting requested access. This resolver is not yet wired into signup.
+
+`tools/displayr-invitation-form.mjs` prepares the inspected `/User/AjaxNewUser` form without submitting it. It validates company, fields and exact group choices, replaces the selected groups with the complete requested list, preserves hidden fields, and returns a sanitized draft. Browser fixture tests verify multiple groups can be selected together and removed from a subsequent prepared selection. The fixture's additional group is synthetic, not a production permission approval. No invitation has been sent by this adapter.
+
+## Controlled invitation lookup
+
+The administrator verified live mailbox refresh/read access and reports sending the controlled test invitation. The admin mailbox page now includes Find test invitation, backed by an administrator-only POST route with the same public-host and Origin checks as the mailbox health check. It searches only the stable alias for `displayr-provisioning-test-2024-v1`, starting September 14, 2026. It returns a count and search-completeness flag, never message IDs, contents, or activation URLs. Zero, one, multiple, and incomplete results have distinct UI messages. This is candidate discovery only; it does not authenticate an invitation or activate the account.
+
+Validation: the route/client browser fixture, TypeScript checking, and focused ESLint pass. Live invitation discovery still needs the administrator to click the new button after deployment.
