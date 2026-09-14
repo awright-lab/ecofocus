@@ -79,3 +79,5 @@ The inspection uses an isolated browser, permits one login POST, and blocks othe
 Cancel with Ctrl+C. Never put the administrator password in a shell command, chat, screenshot or repository file. No browser session is saved. A future provisioning worker still needs its own private credential configuration.
 
 Validation: `node --test tests/displayr-admin-inspect.test.mjs`. Tests cover the request restrictions, target identity, browser cleanup, output shape and sanitized failures. The hidden terminal prompt and cancellation were checked without attempting a real administrator login.
+
+If administrator login does not reach a recognized report library, the inspection returns a diagnostic report with login response status, a restricted landing path, login-form visibility, credential/challenge/rate-limit flags, and blocked-request counts. It does not claim an unknown landing page is authenticated. Raw text and URL queries are excluded. The hidden password prompt uses standard readline editing to handle paste and cursor keys without echo.

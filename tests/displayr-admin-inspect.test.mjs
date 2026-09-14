@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { inspectionRequestGuard, inspectDisplayrAdministrator } from '../tools/displayr-admin-inspect.mjs';
+import { inspectionRequestGuard, inspectDisplayrAdministrator, classifyAdministratorLogin } from '../tools/displayr-admin-inspect.mjs';
 
 test('inspection permits one login POST and denies all other mutations and external navigation',()=>{
  const allowed=inspectionRequestGuard();
@@ -14,11 +14,20 @@ test('inspection permits one login POST and denies all other mutations and exter
 
 test('inspection targets the administrator and closes its isolated browser without returning cookies',async()=>{
  let closed=false;const fills=[];
- const page={setDefaultTimeout(){},async goto(){},getByRole(role,{name}){return{async fill(value){fills.push([name,value]);},async click(){}};},async waitForURL(){},locator(){return{async evaluateAll(){return ['/Account/Settings'];}};}};
+ const page={on(){},url(){return 'https://app.displayr.com/Login?private=secret';},setDefaultTimeout(){},async goto(){},getByRole(role,{name}){return{async fill(value){fills.push([name,value]);},async click(){},async isVisible(){return true;}};},async waitForURL(){},locator(){return{async innerText(){return 'The email or password is incorrect. Please try again. private-test';},async evaluateAll(){return ['/Account/Settings'];}};}};
  const chromium={async launch(){return{async newContext(){return{async route(){},async newPage(){return page;}};},async close(){closed=true;}};}};
  assert.deepEqual(await inspectDisplayrAdministrator({chromium,email:'admin@example.com',password:'private-test'}),{signedIn:true,managementPaths:['/Account/Settings'],userCreationTested:false});
  assert.deepEqual(fills,[['Email','admin@example.com'],['Password','private-test']]);assert.equal(closed,true);
  page.waitForURL=async()=>{throw new Error('sensitive private-test');};closed=false;
- await assert.rejects(inspectDisplayrAdministrator({chromium,email:'admin@example.com',password:'private-test'}),error=>error.message.includes('login-completion')&&!error.message.includes('private-test'));
+ const report=await inspectDisplayrAdministrator({chromium,email:'admin@example.com',password:'private-test'});
+ assert.equal(report.signedIn,false);assert.equal(report.signals.credentialsRejected,true);assert.equal(report.landingPath,'/Login');assert.equal(report.loginFormStillVisible,true);
+ assert.ok(!JSON.stringify(report).includes('private-test'));assert.ok(!JSON.stringify(report).includes('private=secret'));
  assert.equal(closed,true);
+});
+
+test('login signals distinguish a password rejection, challenge and rate limit',()=>{
+ assert.equal(classifyAdministratorLogin('The email or password is incorrect.').credentialsRejected,true);
+ assert.equal(classifyAdministratorLogin('Enter your verification code').verificationRequested,true);
+ assert.equal(classifyAdministratorLogin('Too many attempts').rateLimited,true);
+ assert.deepEqual(classifyAdministratorLogin('Welcome'),{credentialsRejected:false,verificationRequested:false,rateLimited:false});
 });

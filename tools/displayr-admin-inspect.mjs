@@ -1,3 +1,5 @@
+import { createInterface } from 'node:readline';
+import { Writable } from 'node:stream';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
@@ -17,17 +19,39 @@ export function inspectionRequestGuard() {
   };
 }
 
+export function classifyAdministratorLogin(text) {
+  return {
+    credentialsRejected: /(?:email\s+or\s+password\s+is\s+incorrect)|(?:invalid|incorrect|wrong)\s+(?:email|password|credentials)|(?:log\s*in|sign\s*in)\s+failed/i.test(text),
+    verificationRequested: /verification\s+code|two.factor|multi.factor|verify\s+(?:your|that|you)|captcha|unusual\s+(?:traffic|activity)/i.test(text),
+    rateLimited: /too\s+many\s+(?:attempts|requests)|temporarily\s+locked|try\s+again\s+later/i.test(text),
+  };
+}
+
 export async function inspectDisplayrAdministrator({ chromium, email, password, executablePath }) {
   if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Administrator email is required');
   if (!password) throw new Error('Administrator password is required');
   let browser;
+  let page;
+  let loginPostStatus = null;
+  let blockedWrites = 0;
+  let blockedNavigations = 0;
   let stage = 'browser-start';
   try {
     browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}) });
     const context = await browser.newContext({ serviceWorkers: 'block' });
     const allowed = inspectionRequestGuard();
-    await context.route('**/*', route => allowed(route.request()) ? route.continue() : route.abort());
-    const page = await context.newPage();
+    await context.route('**/*', route => {
+      const request = route.request();
+      if (allowed(request)) return route.continue();
+      if (!['GET', 'HEAD'].includes(request.method())) blockedWrites++;
+      if (request.isNavigationRequest()) blockedNavigations++;
+      return route.abort();
+    });
+    page = await context.newPage();
+    page.on('response', response => {
+      const url = new URL(response.url());
+      if (url.origin === DISPLAYR && /^\/Login\/?$/i.test(url.pathname) && response.request().method() === 'POST') loginPostStatus = response.status();
+    });
     page.setDefaultTimeout(15_000);
     stage = 'login-page';
     await page.goto(DISPLAYR + '/Login', { waitUntil: 'domcontentloaded' });
@@ -37,7 +61,20 @@ export async function inspectDisplayrAdministrator({ chromium, email, password, 
     stage = 'login-submit';
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
     stage = 'login-completion';
-    await page.waitForURL(url => url.origin === DISPLAYR && /^\/(MyReports|Dashboard)\/?$/i.test(url.pathname), { timeout: 20_000 });
+    try {
+      await page.waitForURL(url => url.origin === DISPLAYR && /^\/(MyReports|Dashboard)\/?$/i.test(url.pathname), { timeout: 20_000 });
+    } catch {
+      // Read text only to derive booleans. Neither text nor query strings leave
+      // the isolated browser. Keep unknown destinations unconfirmed.
+      let signals = null;
+      try { signals = classifyAdministratorLogin(await page.locator('body').innerText({ timeout: 2000 })); } catch {}
+      const url = new URL(page.url());
+      const safePath = url.origin === DISPLAYR && /^\/(?:[A-Za-z]{1,30}\/?){0,4}$/.test(url.pathname);
+      return { signedIn: false, stage, loginPostStatus,
+        landingPath: safePath ? url.pathname : '[unrecognized destination]',
+        loginFormStillVisible: await page.getByRole('textbox', { name: 'Password', exact: true }).isVisible().catch(() => false),
+        signals, blockedWrites, blockedNavigations, userCreationTested: false };
+    }
     stage = 'management-links';
     const paths = await page.locator('a[href]').evaluateAll(links => [...new Set(links.map(link => {
       try {
@@ -55,29 +92,23 @@ export async function inspectDisplayrAdministrator({ chromium, email, password, 
 
 async function promptPassword(email) {
   if (!process.stdin.isTTY || !process.stdout.isTTY) throw new Error('Run in an interactive terminal; the password prompt does not accept pipes.');
+  // readline handles paste, backspace, cursor keys and UTF-8. Its output is
+  // discarded so neither the password nor editing operations are echoed.
+  const hidden = new Writable({ write(_chunk, _encoding, done) { done(); } });
+  const terminal = createInterface({ input: process.stdin, output: hidden, terminal: true });
   process.stdout.write(`Displayr password for ${email} (hidden): `);
-  const wasRaw = process.stdin.isRaw;
-  process.stdin.setRawMode(true);
-  process.stdin.resume();
   return new Promise((resolve, reject) => {
-    let password = '';
-    const finish = cancelled => {
-      process.stdin.off('data', onData);
-      process.stdin.setRawMode(Boolean(wasRaw));
-      process.stdin.pause();
+    let settled = false;
+    terminal.once('SIGINT', () => terminal.close());
+    terminal.once('close', () => {
       process.stdout.write('\n');
-      if (cancelled) reject(new Error('Inspection cancelled.')); else resolve(password);
-      password = '';
-    };
-    const onData = chunk => {
-      for (const char of chunk.toString('utf8')) {
-        if (char === '\u0003' || char === '\u0004') { finish(true); return; }
-        if (char === '\r' || char === '\n') { finish(false); return; }
-        if (char === '\u007f' || char === '\b') password = password.slice(0, -1);
-        else if (char >= ' ') password += char;
-      }
-    };
-    process.stdin.on('data', onData);
+      if (!settled) reject(new Error('Inspection cancelled.'));
+    });
+    terminal.question('', password => {
+      settled = true;
+      terminal.close();
+      resolve(password);
+    });
   });
 }
 
