@@ -1,3 +1,4 @@
+import { DisplayrMailboxCheck } from '@/components/portal/DisplayrMailboxCheck';
 import { DisplayrMailboxConnect } from '@/components/portal/DisplayrMailboxConnect';
 import { redirect } from 'next/navigation';
 import { mailboxAdministrator, mailboxStatus } from '@/lib/portal/displayr-mailbox';
@@ -35,6 +36,7 @@ export default async function DisplayrMailboxPage({ searchParams }: { searchPara
     {!status.configured ? <p>The Google client ID, client secret, and mailbox encryption key must be configured on the portal server.</p> : null}
     {!status.storageReady ? <p>Mailbox connection storage needs to be initialized.</p> : null}
     <DisplayrMailboxConnect disabled={!status.configured || !status.storageReady} connected={Boolean(status.connectedAt)} />
+    <DisplayrMailboxCheck disabled={!status.configured || !status.storageReady || !status.connectedAt} />
     <p className="text-sm text-slate-600">This connects the mailbox only. Automatic Displayr account creation and activation are not enabled yet.</p>
   </section>;
 }
