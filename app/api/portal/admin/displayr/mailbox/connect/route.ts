@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceSupabase } from '@/lib/supabase/server';
 import { mailboxAdministrator, mailboxConfig } from '@/lib/portal/displayr-mailbox';
-import { MAILBOX_ADMIN_URL, MAILBOX_CALLBACK, MAILBOX_COOKIE, encryptMailboxSecret, hashOAuthValue, mailboxAuthorizationUrl, randomOAuthValue } from '@/lib/portal/displayr-mailbox-crypto';
+import { MAILBOX_CALLBACK, MAILBOX_COOKIE, encryptMailboxSecret, hashOAuthValue, mailboxAuthorizationUrl, randomOAuthValue } from '@/lib/portal/displayr-mailbox-crypto';
+
+function denied(reason: string, status: number) {
+  console.warn('[displayr-mailbox] connect denied', { reason });
+  return NextResponse.json({ reason }, { status, headers: { 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' } });
+}
 
 export async function POST(req: NextRequest) {
   const origin = new URL(MAILBOX_CALLBACK).origin;
-  if (req.nextUrl.origin !== origin || req.headers.get('origin') !== origin) return new NextResponse('Request denied', { status: 403 });
+  if (req.nextUrl.origin !== origin) return denied('request-host', 403);
+  if (req.headers.get('origin') !== origin) return denied('request-origin', 403);
+  if (!/^application\/json(?:;|$)/i.test(req.headers.get('content-type') || '')) return denied('request-format', 415);
   try {
     const admin = await mailboxAdministrator();
-    if (!admin) return new NextResponse('Unauthorized', { status: 403 });
+    if (!admin) return denied('admin-session', 403);
     const { clientId, key } = mailboxConfig();
     const state = randomOAuthValue(), verifier = randomOAuthValue();
     const db = getServiceSupabase();
@@ -20,11 +27,11 @@ export async function POST(req: NextRequest) {
       verifier_ciphertext: encryptMailboxSecret(verifier, key, 'verifier'), expires_at: new Date(Date.now() + 10 * 60_000).toISOString(),
     }, { onConflict: 'auth_user_id' });
     if (error) throw new Error('State storage unavailable');
-    const response = NextResponse.redirect(mailboxAuthorizationUrl(clientId, state, verifier), 303);
+    const response = NextResponse.json({ url: mailboxAuthorizationUrl(clientId, state, verifier).href });
     response.headers.set('Cache-Control', 'no-store'); response.headers.set('Referrer-Policy', 'no-referrer');
     response.cookies.set(MAILBOX_COOKIE, state, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 600 });
     return response;
   } catch {
-    return NextResponse.redirect(MAILBOX_ADMIN_URL + '?result=unavailable', 303);
+    return denied('unavailable', 503);
   }
 }
