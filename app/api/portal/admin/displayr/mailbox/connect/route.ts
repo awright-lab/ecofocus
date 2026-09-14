@@ -1,3 +1,4 @@
+import { getRequestHost } from '@/lib/portal/host';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceSupabase } from '@/lib/supabase/server';
 import { mailboxAdministrator, mailboxConfig } from '@/lib/portal/displayr-mailbox';
@@ -10,7 +11,7 @@ function denied(reason: string, status: number) {
 
 export async function POST(req: NextRequest) {
   const origin = new URL(MAILBOX_CALLBACK).origin;
-  if (req.nextUrl.origin !== origin) return denied('request-host', 403);
+  if (getRequestHost(req.headers).toLowerCase() !== new URL(MAILBOX_CALLBACK).host) return denied('request-host', 403);
   if (req.headers.get('origin') !== origin) return denied('request-origin', 403);
   if (!/^application\/json(?:;|$)/i.test(req.headers.get('content-type') || '')) return denied('request-format', 415);
   try {

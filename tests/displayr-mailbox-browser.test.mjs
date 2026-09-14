@@ -37,9 +37,12 @@ test('real Connect component and routes preserve origin and cookie through Googl
     const { GET } = await import(pathToFileURL(join(dir, 'callback.mjs')));
     // The actual endpoint must still reject cross-site, null-origin and native-form requests.
     for (const headers of [{ origin: 'https://attacker.example', 'content-type': 'application/json' }, { origin: 'null', 'content-type': 'application/json' }, { origin: canonical, 'content-type': 'application/x-www-form-urlencoded' }]) {
-      assert.ok((await POST(new NextRequest(canonical + '/api/portal/admin/displayr/mailbox/connect', { method: 'POST', headers }))).status >= 400);
+      assert.ok((await POST(new NextRequest(canonical + '/api/portal/admin/displayr/mailbox/connect', { method: 'POST', headers: { host: 'portal.ecofocusresearch.com', ...headers } }))).status >= 400);
       assert.equal(attempt, undefined);
     }
+    const wrongHost = await POST(new NextRequest(canonical + '/api/portal/admin/displayr/mailbox/connect', { method:'POST', headers:{host:'portal.ecofocusresearch.com','x-forwarded-host':'attacker.example',origin:canonical,'content-type':'application/json'} }));
+    assert.equal((await wrongHost.json()).reason, 'request-host');
+    assert.equal(attempt, undefined);
     await build({ stdin: { contents: 'import React from "react"; import {createRoot} from "react-dom/client"; import {DisplayrMailboxConnect} from "./components/portal/DisplayrMailboxConnect"; createRoot(document.getElementById("root")).render(<DisplayrMailboxConnect disabled={false} connected={false}/>);', resolveDir: process.cwd(), loader: 'tsx' }, outfile: join(dir, 'client.js'), bundle: true, platform: 'browser', jsx: 'automatic' });
     const js = await readFile(join(dir, 'client.js'));
     execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', join(dir,'key.pem'), '-out', join(dir,'cert.pem'), '-days', '1', '-subj', '/CN=127.0.0.1', '-addext', 'subjectAltName=IP:127.0.0.1'], { stdio:'ignore' });
@@ -49,7 +52,9 @@ test('real Connect component and routes preserve origin and cookie through Googl
         if (req.url.startsWith('/api/')) {
           const headers = new Headers(); for (const [k,v] of Object.entries(req.headers)) if (typeof v === 'string') headers.set(k,v);
           if (req.method === 'POST') { postedOrigin = headers.get('origin'); if (postedOrigin === origin) headers.set('origin',canonical); }
-          const request = new NextRequest(canonical + req.url, { method:req.method, headers });
+          // Reproduce the hosting adapter: internal URL, public forwarded host.
+          headers.set('x-forwarded-host', 'portal.ecofocusresearch.com');
+          const request = new NextRequest('http://internal.netlify:3000' + req.url, { method:req.method, headers });
           const response = req.method === 'POST' ? await POST(request) : await GET(request);
           res.statusCode = response.status;
           response.headers.forEach((v,k) => { if (k !== 'set-cookie') res.setHeader(k,k === 'location' ? v.replace(canonical,origin) : v); });
