@@ -27,7 +27,39 @@ export function classifyAdministratorLogin(text) {
   };
 }
 
-export async function inspectDisplayrAdministrator({ chromium, email, password, executablePath }) {
+export async function inspectNewUserForm(page, companyId) {
+  if (!/^[1-9][0-9]{0,15}$/.test(companyId || '')) throw new Error('Valid inspection company ID is required');
+  const target = new URL('/User', DISPLAYR);
+  target.searchParams.set('company_id', companyId);
+  const response = await page.goto(target.href, { waitUntil: 'domcontentloaded' });
+  const landed = new URL(page.url());
+  if (landed.origin !== DISPLAYR || landed.pathname !== '/User' || landed.searchParams.get('company_id') !== companyId || (response && !response.ok())) {
+    return { newUserFormAvailable: false, status: response?.status() ?? null };
+  }
+  await page.getByRole('button', { name: 'Save', exact: true }).waitFor({ state: 'visible', timeout: 15_000 });
+  const forms = await page.locator('form').evaluateAll(forms => forms.map(form => {
+    let actionPath = '[unrecognized action]';
+    let actionParameterNames = [];
+    try {
+      const action = new URL(form.action);
+      if (action.origin === 'https://app.displayr.com' && /^\/[a-zA-Z0-9/_-]{0,100}$/.test(action.pathname)) {
+        actionPath = action.pathname;
+        actionParameterNames = [...new Set(action.searchParams.keys())];
+      }
+    } catch {}
+    return { method: form.method.toUpperCase(), actionPath, actionParameterNames,
+      fields: [...form.querySelectorAll('input, textarea, select')].map(field => ({
+        tag: field.tagName.toLowerCase(), type: field.type || null,
+        name: field.getAttribute('name'), id: field.getAttribute('id'),
+        ...(field.tagName === 'SELECT' ? { multiple: field.multiple, options: [...field.options].map(option => ({ value: option.value, label: option.textContent.trim() })) } : {}),
+      })),
+    };
+  }));
+  // Field values (including hidden anti-forgery tokens) are never returned.
+  return { newUserFormAvailable: true, forms };
+}
+
+export async function inspectDisplayrAdministrator({ chromium, email, password, executablePath, companyId }) {
   if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Administrator email is required');
   if (!password) throw new Error('Administrator password is required');
   let browser;
@@ -74,6 +106,10 @@ export async function inspectDisplayrAdministrator({ chromium, email, password, 
         landingPath: safePath ? url.pathname : '[unrecognized destination]',
         loginFormStillVisible: await page.getByRole('textbox', { name: 'Password', exact: true }).isVisible().catch(() => false),
         signals, blockedWrites, blockedNavigations, userCreationTested: false };
+    }
+    if (companyId) {
+      stage = 'new-user-form';
+      return { signedIn: true, ...(await inspectNewUserForm(page, companyId)), blockedWrites, blockedNavigations, userCreationTested: false };
     }
     stage = 'account-page';
     // This read-only destination was discovered by the authenticated probe.
@@ -130,7 +166,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const email = process.env.DISPLAYR_INSPECTION_EMAIL;
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Administrator email is required');
     const password = await promptPassword(email);
-    console.log(JSON.stringify(await inspectDisplayrAdministrator({ chromium, email, password, executablePath: process.env.DISPLAYR_INSPECTION_CHROME_PATH }), null, 2));
+    console.log(JSON.stringify(await inspectDisplayrAdministrator({ chromium, email, password, executablePath: process.env.DISPLAYR_INSPECTION_CHROME_PATH, companyId: process.env.DISPLAYR_INSPECTION_COMPANY_ID }), null, 2));
   } catch (error) {
     // Only this tool's sanitized errors are printed; dependency errors stay generic.
     const safe = error instanceof Error && /^(Administrator inspection stopped at|Inspection cancelled\.|Run in an interactive terminal|Administrator (?:password|email) is required)/.test(error.message);
