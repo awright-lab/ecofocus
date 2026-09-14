@@ -1,6 +1,6 @@
 # Displayr viewer provisioning investigation
 
-Status: September 13, 2026. No account-creation automation has been implemented or enabled.
+Status: September 14, 2026. The dedicated mailbox is connected. No account-creation automation has been enabled.
 
 ## Required outcome
 
@@ -23,7 +23,7 @@ Sources checked September 13, 2026:
 
 ## Next verification
 
-The New User form and standard email activation have now been tested manually: creating a viewer sends an invitation, and its activation page accepts a new password. Next, connect the dedicated mailbox and verify the administrator automation interface and workspace group assignment before building the provisioning worker. Activation must follow the invitation flow; it is not skipped.
+The New User form and standard email activation have now been tested manually: creating a viewer sends an invitation, and its activation page accepts a new password. The dedicated mailbox is now connected. Next, verify the administrator automation interface and workspace group assignment before building the provisioning worker. Activation must follow the invitation flow; it is not skipped.
 
 Questions for Displayr support, if required (draft only; not sent):
 
@@ -56,3 +56,16 @@ Deployment setup:
 5. Verify the connection confirmation. A saved connection is not a continuous token-health check. Account creation, invitation processing, credential delivery to the gateway, and workspace group assignment remain separate implementation steps.
 
 Validation: `node --test tests/displayr-mailbox*.test.mjs`, `node --test services/displayr-gateway/test/mailbox-database.test.mjs`, TypeScript checking, and focused ESLint checks. Live consent requires the administrator's private Google credentials and mailbox selection.
+
+
+## Mailbox reader and access check
+
+The administrator page now offers **Check mailbox access**. This exchanges the saved, encrypted refresh token for a short-lived access token, verifies the dedicated Gmail profile, and tests read access with a narrowly filtered messages list. It returns only a success flag and timestamp. A revoked grant asks the administrator to reconnect. This action sends, deletes and activates nothing.
+
+`lib/portal/displayr-gmail.ts` also provides bounded invitation candidate discovery for a stable per-user plus address. It queries mail from `support@displayr.com` to that exact alias after the requested time and checks metadata for sender, recipient, invitation subject and receipt time. It caps pagination and reports incomplete discovery explicitly. These are **candidates**, not authenticated activation instructions: no message body or link is followed. Before implementing activation, inspect an actual invitation's link format and validate its destination, recipient binding and trustworthy message provenance. Do not automatically visit arbitrary email URLs or treat a From header as proof of authenticity.
+
+`displayrViewerAlias(userId)` derives a stable alias from the portal user ID, so changing company membership does not create a new Displayr identity. Existing pilot credentials and activated test addresses are unchanged; reconciliation must precede any future invitation to avoid duplicates.
+
+Remaining prerequisites for viewer creation: identify the Displayr administrator account, configure its credentials privately for an isolated worker, inspect the live user-management interface, and record the view-only groups associated with each workspace/dashboard. No administrative Displayr credential has been requested in chat or committed. The invitation reader is not wired to customer signup yet.
+
+Reader tests: `node --test tests/displayr-gmail.test.mjs tests/displayr-mailbox-check.test.mjs`. Google API references: [messages.list](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list) and [messages.get](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/get). No database changes or new environment variables are needed for this step.
