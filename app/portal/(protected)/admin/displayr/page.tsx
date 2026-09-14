@@ -1,3 +1,4 @@
+import { DisplayrMailboxConnect } from '@/components/portal/DisplayrMailboxConnect';
 import { redirect } from 'next/navigation';
 import { mailboxAdministrator, mailboxStatus } from '@/lib/portal/displayr-mailbox';
 import { MAILBOX_EMAIL } from '@/lib/portal/displayr-mailbox-crypto';
@@ -33,9 +34,7 @@ export default async function DisplayrMailboxPage({ searchParams }: { searchPara
     <p>{status.connectedAt ? 'A mailbox connection is saved.' : 'No mailbox connection is saved yet.'}</p>
     {!status.configured ? <p>The Google client ID, client secret, and mailbox encryption key must be configured on the portal server.</p> : null}
     {!status.storageReady ? <p>Mailbox connection storage needs to be initialized.</p> : null}
-    <form action="/api/portal/admin/displayr/mailbox/connect" method="post">
-      <button disabled={!status.configured || !status.storageReady} className="rounded-xl bg-emerald-700 px-5 py-3 font-semibold text-white disabled:opacity-50">{status.connectedAt ? 'Reconnect provisioning mailbox' : 'Connect provisioning mailbox'}</button>
-    </form>
+    <DisplayrMailboxConnect disabled={!status.configured || !status.storageReady} connected={Boolean(status.connectedAt)} />
     <p className="text-sm text-slate-600">This connects the mailbox only. Automatic Displayr account creation and activation are not enabled yet.</p>
   </section>;
 }
