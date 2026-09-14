@@ -3,29 +3,37 @@ import { getServiceSupabase } from '@/lib/supabase/server';
 import { mailboxAdministrator, mailboxConfig, googleJSON } from '@/lib/portal/displayr-mailbox';
 import { MAILBOX_ADMIN_URL, MAILBOX_CALLBACK, MAILBOX_COOKIE, MAILBOX_EMAIL, MAILBOX_SCOPE, decryptMailboxSecret, encryptMailboxSecret, hashOAuthValue, validateMailboxGrant } from '@/lib/portal/displayr-mailbox-crypto';
 
-function finish(result: string) {
-  const response = NextResponse.redirect(MAILBOX_ADMIN_URL + '?result=' + result, 303);
+type DenialReason = 'callback-origin' | 'admin-session' | 'state-missing' | 'cookie-missing' | 'cookie-mismatch' | 'state-storage' | 'state-unmatched' | 'code-missing';
+
+function finish(result: string, reason?: DenialReason) {
+  // Fixed reason codes only: never log callback URLs, codes, cookies or tokens.
+  if (reason) console.warn('[displayr-mailbox] callback denied', { reason });
+  const response = NextResponse.redirect(MAILBOX_ADMIN_URL + '?result=' + result + (reason ? '&reason=' + reason : ''), 303);
   response.headers.set('Cache-Control', 'no-store'); response.headers.set('Referrer-Policy', 'no-referrer');
   response.cookies.set(MAILBOX_COOKIE, '', { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 0 });
   return response;
 }
 export async function GET(req: NextRequest) {
-  if (req.nextUrl.origin !== new URL(MAILBOX_CALLBACK).origin) return finish('denied');
+  if (req.nextUrl.origin !== new URL(MAILBOX_CALLBACK).origin) return finish('denied', 'callback-origin');
   try {
     const admin = await mailboxAdministrator();
-    if (!admin) return finish('denied');
+    if (!admin) return finish('denied', 'admin-session');
     const state = req.nextUrl.searchParams.get('state') || '';
-    if (!/^[A-Za-z0-9_-]{43}$/.test(state) || state !== req.cookies.get(MAILBOX_COOKIE)?.value) return finish('denied');
+    if (!/^[A-Za-z0-9_-]{43}$/.test(state)) return finish('denied', 'state-missing');
+    const cookie = req.cookies.get(MAILBOX_COOKIE)?.value;
+    if (!cookie) return finish('denied', 'cookie-missing');
+    if (state !== cookie) return finish('denied', 'cookie-mismatch');
     const db = getServiceSupabase();
     // DELETE RETURNING consumes the attempt atomically before exchanging a code.
     const { data: attempt, error } = await db.from('portal_displayr_mailbox_oauth_states').delete()
       .eq('auth_user_id', admin.authId).eq('portal_session_id', admin.sessionId)
       .eq('state_hash', hashOAuthValue(state)).gt('expires_at', new Date().toISOString())
       .select('verifier_ciphertext').maybeSingle();
-    if (error || !attempt) return finish('denied');
+    if (error) return finish('denied', 'state-storage');
+    if (!attempt) return finish('denied', 'state-unmatched');
     if (req.nextUrl.searchParams.has('error')) return finish('cancelled');
     const code = req.nextUrl.searchParams.get('code');
-    if (!code || code.length > 4096) return finish('denied');
+    if (!code || code.length > 4096) return finish('denied', 'code-missing');
     const { clientId, clientSecret, key } = mailboxConfig();
     const tokens = await googleJSON('https://oauth2.googleapis.com/token', { method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({

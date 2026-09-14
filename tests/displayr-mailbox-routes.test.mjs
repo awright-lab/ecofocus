@@ -24,6 +24,7 @@ test('callback binds admin, cookie and database state before exchanging credenti
       const query = {
         delete() { return query; }, eq(k, v) { filters[k] = v; return query; }, gt(k, v) { filters[k] = v; return query; }, select() { return query; },
         async maybeSingle() {
+          if (fixture.storageError) return { error: { code: 'test' } };
           if (!attempt || attempt.auth_user_id !== filters.auth_user_id || attempt.portal_session_id !== filters.portal_session_id || attempt.state_hash !== filters.state_hash || attempt.expires_at <= filters.expires_at) return { data: null };
           const data = attempt; attempt = null; return { data };
         },
@@ -41,6 +42,16 @@ test('callback binds admin, cookie and database state before exchanging credenti
     const { GET } = await import(pathToFileURL(join(dir, 'callback.mjs')));
     const request = (cookie = state) => new NextRequest(MAILBOX_CALLBACK + '?state=' + state + '&code=example', { headers: { cookie: MAILBOX_COOKIE + '=' + cookie } });
     const result = async req => new URL((await GET(req)).headers.get('location')).searchParams.get('result');
+    const reason = async req => new URL((await GET(req)).headers.get('location')).searchParams.get('reason');
+    fresh();
+    assert.equal(await reason(new NextRequest(MAILBOX_CALLBACK + '?state=' + state + '&code=example')), 'cookie-missing');
+    assert.equal(await reason(new NextRequest(MAILBOX_CALLBACK)), 'state-missing');
+    assert.equal(await reason(new NextRequest('https://other.example/api/callback')), 'callback-origin');
+    assert.equal(calls, 0);
+    fixture.storageError = true;
+    assert.equal(await reason(request()), 'state-storage');
+    assert.equal(calls, 0);
+    fixture.storageError = false;
     fresh(); fixture.admin = null;
     assert.equal(await result(request()), 'denied'); assert.equal(calls, 0);
     fixture.admin = { authId: 'admin', sessionId: 'session' };
