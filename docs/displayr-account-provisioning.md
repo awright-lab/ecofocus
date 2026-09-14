@@ -85,3 +85,17 @@ If administrator login does not reach a recognized report library, the inspectio
 The administrator successfully completed the initial login probe; its only management link was `/MyAccount`. The probe now opens that discovered page with GET and reports management-related paths plus a fixed allowlist of control labels such as Users and User groups. It does not report profile values or submit account forms. The account page being available is not yet proof of viewer-creation permission.
 
 The New User page was confirmed manually at `/User?company_id=...`. Supply `DISPLAYR_INSPECTION_COMPANY_ID` to inspect that form directly after login. The probe reports form action paths, query parameter names, input names/types, and group option labels/IDs. It waits for the Save control to be visible but never clicks it. It omits all entered and hidden field values, including anti-forgery tokens. Group labels are discovery data, not proof of permissions; the provisioning worker must use explicitly verified view-only groups. A Chromium fixture test checks extraction, hidden-value exclusion and absence of form submissions.
+
+## Verified dashboard groups and invitation preparation
+
+On September 14, 2026, the EcoFocus administrator confirmed that Displayr company `984256` group `2954016` (2024 Dashboard) grants view-only access to the 2024 dashboard. `tools/displayr-dashboard-groups.mjs` records this mapping for portal dashboard `interactive-dashboard-2024`. Discovered 2025 and 2026 groups remain unverified and are not enabled by their names alone.
+
+Group membership is a list: a viewer may belong to multiple dashboard groups. Resolve the union of server-authorized dashboard assignments across the user's active workspaces and deduplicate the corresponding verified groups. Every authorized member of a workspace receives its dashboard assignments through their own Displayr viewer identity. Individual user overrides remain a future release requirement. Unknown mappings stop preparation rather than silently omitting requested access. This resolver is not yet wired into signup.
+
+`tools/displayr-invitation-form.mjs` prepares the inspected `/User/AjaxNewUser` form without submitting it. It validates company, fields and exact group choices, replaces the selected groups with the complete requested list, preserves hidden fields, and returns a sanitized draft. Browser fixture tests verify multiple groups can be selected together and removed from a subsequent prepared selection. The fixture's additional group is synthetic, not a production permission approval. No invitation has been sent by this adapter.
+
+## Controlled invitation lookup
+
+The administrator verified live mailbox refresh/read access and reports sending the controlled test invitation. The admin mailbox page now includes Find test invitation, backed by an administrator-only POST route with the same public-host and Origin checks as the mailbox health check. It searches only the stable alias for `displayr-provisioning-test-2024-v1`, starting September 14, 2026. It returns a count and search-completeness flag, never message IDs, contents, or activation URLs. Zero, one, multiple, and incomplete results have distinct UI messages. This is candidate discovery only; it does not authenticate an invitation or activate the account.
+
+Validation: the route/client browser fixture, TypeScript checking, and focused ESLint pass. Live invitation discovery still needs the administrator to click the new button after deployment.

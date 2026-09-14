@@ -1,3 +1,4 @@
+import { DisplayrTestInvitation } from '@/components/portal/DisplayrTestInvitation';
 import { DisplayrMailboxCheck } from '@/components/portal/DisplayrMailboxCheck';
 import { DisplayrMailboxConnect } from '@/components/portal/DisplayrMailboxConnect';
 import { redirect } from 'next/navigation';
@@ -37,6 +38,7 @@ export default async function DisplayrMailboxPage({ searchParams }: { searchPara
     {!status.storageReady ? <p>Mailbox connection storage needs to be initialized.</p> : null}
     <DisplayrMailboxConnect disabled={!status.configured || !status.storageReady} connected={Boolean(status.connectedAt)} />
     <DisplayrMailboxCheck disabled={!status.configured || !status.storageReady || !status.connectedAt} />
+    <DisplayrTestInvitation disabled={!status.configured || !status.storageReady || !status.connectedAt} />
     <p className="text-sm text-slate-600">This connects the mailbox only. Automatic Displayr account creation and activation are not enabled yet.</p>
   </section>;
 }
