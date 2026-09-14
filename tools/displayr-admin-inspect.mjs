@@ -75,15 +75,26 @@ export async function inspectDisplayrAdministrator({ chromium, email, password, 
         loginFormStillVisible: await page.getByRole('textbox', { name: 'Password', exact: true }).isVisible().catch(() => false),
         signals, blockedWrites, blockedNavigations, userCreationTested: false };
     }
+    stage = 'account-page';
+    // This read-only destination was discovered by the authenticated probe.
+    const accountResponse = await page.goto(DISPLAYR + '/MyAccount', { waitUntil: 'domcontentloaded' });
+    const accountUrl = new URL(page.url());
+    if (accountUrl.origin !== DISPLAYR || !/^\/MyAccount\/?$/i.test(accountUrl.pathname) || (accountResponse && !accountResponse.ok())) {
+      return { signedIn: true, accountPageAvailable: false, accountStatus: accountResponse?.status() ?? null, userCreationTested: false };
+    }
     stage = 'management-links';
     const paths = await page.locator('a[href]').evaluateAll(links => [...new Set(links.map(link => {
       try {
         const url = new URL(link.href);
-        return url.origin === 'https://app.displayr.com' && /^\/[a-zA-Z0-9/_-]{1,100}$/.test(url.pathname) && /(?:user|group|account|setting)/i.test(url.pathname) ? url.pathname : null;
+        return url.origin === 'https://app.displayr.com' && /^\/[a-zA-Z0-9/_-]{1,100}$/.test(url.pathname) && /(?:user|group|account|setting|company|organisation|organization)/i.test(url.pathname) ? url.pathname : null;
       } catch { return null; }
     }).filter(Boolean))].sort());
     // No page body, user list, query strings, cookies, tokens or screenshots.
-    return { signedIn: true, managementPaths: paths, userCreationTested: false };
+    const controls = await page.locator('a, button, [role="tab"], input[type="submit"]').evaluateAll(elements => {
+      const recognized = new Set(['users', 'user groups', 'groups', 'user management', 'manage users', 'manage groups', 'add user', 'new user', 'company settings', 'account settings']);
+      return [...new Set(elements.map(element => (element.textContent || element.getAttribute('aria-label') || element.getAttribute('value') || '').trim().toLowerCase()).filter(label => recognized.has(label)))].sort();
+    });
+    return { signedIn: true, accountPageAvailable: true, managementPaths: paths, managementControls: controls, blockedWrites, blockedNavigations, userCreationTested: false };
   } catch {
     // Browser exceptions can contain filled values; never print the original.
     throw new Error(`Administrator inspection stopped at ${stage}. No users were created.`);
