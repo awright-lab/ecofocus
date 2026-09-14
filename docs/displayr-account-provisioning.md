@@ -69,3 +69,13 @@ The administrator page now offers **Check mailbox access**. This exchanges the s
 Remaining prerequisites for viewer creation: identify the Displayr administrator account, configure its credentials privately for an isolated worker, inspect the live user-management interface, and record the view-only groups associated with each workspace/dashboard. No administrative Displayr credential has been requested in chat or committed. The invitation reader is not wired to customer signup yet.
 
 Reader tests: `node --test tests/displayr-gmail.test.mjs tests/displayr-mailbox-check.test.mjs`. Google API references: [messages.list](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list) and [messages.get](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/get). No database changes or new environment variables are needed for this step.
+
+## Administrator inspection
+
+A password-based administrator account has been identified. Supply its email locally using `DISPLAYR_INSPECTION_EMAIL`; the utility does not embed the address. Run `node tools/displayr-admin-inspect.mjs` from an interactive terminal in the checkout. It uses the gateway's installed Playwright dependency and asks for the password without echo. Set `DISPLAYR_INSPECTION_CHROME_PATH` if a custom Chromium executable is needed.
+
+The inspection uses an isolated browser, permits one login POST, and blocks other write requests and external top-level navigation. It reports only same-origin management paths, omitting query strings, page contents, cookies and credentials. It does not click management links or create users. Successful login alone does not verify user-management permissions; inspect the reported management page before implementing mutations.
+
+Cancel with Ctrl+C. Never put the administrator password in a shell command, chat, screenshot or repository file. No browser session is saved. A future provisioning worker still needs its own private credential configuration.
+
+Validation: `node --test tests/displayr-admin-inspect.test.mjs`. Tests cover the request restrictions, target identity, browser cleanup, output shape and sanitized failures. The hidden terminal prompt and cancellation were checked without attempting a real administrator login.
