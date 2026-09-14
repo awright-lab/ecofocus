@@ -45,7 +45,9 @@ export async function middleware(req: NextRequest) {
     res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
     res.headers.set('Cache-Control', 'no-store, max-age=0');
     res.headers.set('Pragma', 'no-cache');
-    res.headers.set('Referrer-Policy', 'no-referrer');
+    // Native form POSTs under no-referrer send Origin: null. Preserve the
+    // mailbox form's same-origin identity without sending referrers to Google.
+    res.headers.set('Referrer-Policy', internalPathname === '/portal/admin/displayr' ? 'same-origin' : 'no-referrer');
     res.headers.set(
       'Permissions-Policy',
       'camera=(), microphone=(), geolocation=(), browsing-topics=()',
