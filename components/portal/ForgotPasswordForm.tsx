@@ -10,15 +10,11 @@ export function ForgotPasswordForm({
   const [email, setEmail] = useState(initialEmail);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
-  const [resetUrl, setResetUrl] = useState<string | null>(null);
-  const [emailWarning, setEmailWarning] = useState<string | null>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("sending");
     setError(null);
-    setResetUrl(null);
-    setEmailWarning(null);
 
     try {
       const response = await fetch("/api/portal/password-reset/request", {
@@ -35,8 +31,6 @@ export function ForgotPasswordForm({
         throw new Error(data.error || "We couldn't send a password reset email.");
       }
       setStatus("sent");
-      setResetUrl(data.resetUrl || null);
-      setEmailWarning(data.emailWarning || null);
     } catch (error) {
       setError(error instanceof Error ? error.message : "We couldn't send a password reset email.");
       setStatus("error");
@@ -74,13 +68,7 @@ export function ForgotPasswordForm({
           <p className="text-sm text-emerald-700">
             If this work email is set up for the EcoFocus Portal, you&apos;ll receive a password reset link shortly.
           </p>
-          {emailWarning ? <p className="text-sm text-amber-700">{emailWarning}</p> : null}
-          {resetUrl ? (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              <p className="font-semibold">Manual reset link</p>
-              <p className="mt-2 break-all">{resetUrl}</p>
-            </div>
-          ) : null}
+
         </div>
       ) : null}
 

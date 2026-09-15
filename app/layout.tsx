@@ -1,5 +1,6 @@
 // app/layout.tsx
 import "./globals.css";
+import { recoveryRedirectScript } from "@/lib/portal/recovery-redirect";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
@@ -120,6 +121,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
     >
       <head>
+        <Script id="portal-recovery-redirect" strategy="beforeInteractive">{recoveryRedirectScript}</Script>
         {/* JSON-LD */}
         <Script
           id="org-jsonld"
@@ -171,7 +173,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${GA_TRACKING_ID}');
+            if (!window.__portalRecovery) gtag('config', '${GA_TRACKING_ID}');
           `}
         </Script>
 

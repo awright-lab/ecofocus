@@ -1,94 +1,32 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getBrowserSupabase } from "@/lib/supabase/client";
-
-export function ResetPasswordHandler({
-  code,
-  tokenHash,
-  type,
-}: {
-  code?: string;
-  tokenHash?: string;
-  type?: string;
-}) {
-  const router = useRouter();
-  const [status, setStatus] = useState<"idle" | "verifying" | "ready" | "error">(
-    code || tokenHash ? "verifying" : "idle",
-  );
-
+'use client';
+import { useEffect, useRef, useState } from 'react';
+import { getBrowserSupabase } from '@/lib/supabase/client';
+import { ResetPasswordForm } from './ResetPasswordForm';
+export function ResetPasswordHandler({ code, tokenHash, type }: { code?: string; tokenHash?: string; type?: string }) {
+  const attempt = useRef<Promise<void> | null>(null);
+  const [status, setStatus] = useState<'verifying' | 'ready' | 'error'>('verifying');
   useEffect(() => {
     let cancelled = false;
-
-    async function completeRecoverySession() {
-      try {
-        const supabase = getBrowserSupabase();
-        if (code) {
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) throw error;
-        } else if (tokenHash) {
-          const { error } = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: (type as "recovery" | undefined) || "recovery",
-          });
-          if (error) throw error;
-        } else {
-          const hash = typeof window !== "undefined" ? window.location.hash.replace(/^#/, "") : "";
-          if (!hash) {
-            if (!cancelled) setStatus("idle");
-            return;
-          }
-
-          const params = new URLSearchParams(hash);
-          const accessToken = params.get("access_token");
-          const refreshToken = params.get("refresh_token");
-          if (!accessToken || !refreshToken) {
-            if (!cancelled) setStatus("idle");
-            return;
-          }
-
-          const { error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          if (error) throw error;
-        }
-
-        if (!cancelled) {
-          setStatus("ready");
-          const cleanUrl = new URL(window.location.href);
-          cleanUrl.hash = "";
-          cleanUrl.searchParams.delete("code");
-          cleanUrl.searchParams.delete("token_hash");
-          cleanUrl.searchParams.delete("type");
-          router.replace(cleanUrl.toString());
-        }
-      } catch {
-        if (!cancelled) {
-          setStatus("error");
-          const forgotPasswordPath = window.location.pathname.startsWith("/portal")
-            ? "/portal/forgot-password"
-            : "/forgot-password";
-          const fallbackUrl = new URL(forgotPasswordPath, window.location.origin);
-          fallbackUrl.searchParams.set("error", "reset_callback_failed");
-          router.replace(fallbackUrl.toString());
-        }
-      }
-    }
-
-    void completeRecoverySession();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [code, tokenHash, type, router]);
-
-  if (status === "idle" || status === "ready") return null;
-
-  return (
-    <div className="text-sm text-slate-600">
-      Verifying your reset link…
-    </div>
-  );
+    if (!attempt.current) attempt.current = (async () => {
+      const hash = new URLSearchParams(window.location.hash.slice(1));
+      const accessToken = hash.get('access_token');
+      const refreshToken = hash.get('refresh_token');
+      const clean = new URL(window.location.href);
+      clean.hash = '';
+      for (const key of ['code', 'token_hash', 'type']) clean.searchParams.delete(key);
+      window.history.replaceState(null, '', clean.pathname + clean.search);
+      const supabase = getBrowserSupabase();
+      let error;
+      if (code) ({ error } = await supabase.auth.exchangeCodeForSession(code));
+      else if (tokenHash && (!type || type === 'recovery')) ({ error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' }));
+      else if (hash.get('type') === 'recovery' && accessToken && refreshToken) ({ error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }));
+      else throw new Error('Missing recovery credentials');
+      if (error) throw new Error('Recovery failed');
+    })();
+    attempt.current.then(() => { if (!cancelled) setStatus('ready'); }, () => { if (!cancelled) setStatus('error'); });
+    return () => { cancelled = true; };
+  }, [code, tokenHash, type]);
+  if (status === 'verifying') return <p role="status">Verifying your reset link…</p>;
+  if (status === 'error') return <p role="alert">This reset link is invalid or expired. <a href="/forgot-password">Request a new reset link</a>.</p>;
+  return <ResetPasswordForm recoveryReady />;
 }

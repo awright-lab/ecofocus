@@ -43,8 +43,7 @@ export default async function PortalResetPasswordPage({
               <h2 className="text-2xl font-semibold text-slate-900">Set your new password</h2>
             </div>
 
-            <ResetPasswordHandler code={code} tokenHash={tokenHash} type={type} />
-            <ResetPasswordForm token={token} />
+            {token ? <ResetPasswordForm token={token} /> : <ResetPasswordHandler code={code} tokenHash={tokenHash} type={type} />}
 
             <Link href="/login" className="text-sm font-semibold text-emerald-700 transition hover:text-emerald-800">
               Back to portal login

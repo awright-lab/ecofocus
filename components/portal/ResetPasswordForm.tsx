@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { getBrowserSupabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
-export function ResetPasswordForm({ token = "" }: { token?: string }) {
+export function ResetPasswordForm({ token = "", recoveryReady = false }: { token?: string; recoveryReady?: boolean }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const hasValidToken = Boolean(token);
+  const hasValidToken = Boolean(token) || recoveryReady;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,6 +30,14 @@ export function ResetPasswordForm({ token = "" }: { token?: string }) {
     }
 
     try {
+      if (!token && recoveryReady) {
+        const supabase = getBrowserSupabase();
+        const { error: updateError } = await supabase.auth.updateUser({ password });
+        if (updateError) throw new Error('Could not save your password. Request a fresh reset link and try again.');
+        await supabase.auth.signOut();
+        router.push('/login?password_reset=1');
+        return;
+      }
       const response = await fetch("/api/portal/password-reset/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
