@@ -1,49 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
-import { sendPortalPasswordResetEmail } from "@/lib/portal/email";
-import { buildPortalPasswordResetUrl, getPortalResettableUser } from "@/lib/portal/password-reset";
-
-const NOINDEX_HEADERS = {
-  "X-Robots-Tag": "noindex, nofollow, noarchive, nosnippet",
-};
-
-function asJson(body: Record<string, unknown>, status = 200) {
-  return NextResponse.json(body, { status, headers: NOINDEX_HEADERS });
-}
-
+import { NextRequest, NextResponse } from 'next/server';
+import { getInviteSupabase } from '@/lib/supabase/server';
+import { getPortalOrigin } from '@/lib/portal/host';
+const headers = { 'Cache-Control': 'no-store', 'X-Robots-Tag': 'noindex, nofollow, noarchive, nosnippet' };
 export async function POST(req: NextRequest) {
-  let body: { email?: string };
-
+  let email: string;
   try {
-    body = (await req.json()) as { email?: string };
-  } catch {
-    return asJson({ error: "Invalid request body." }, 400);
-  }
-
-  const email = String(body.email || "").trim().toLowerCase();
-  if (!email) {
-    return asJson({ error: "Email is required." }, 400);
-  }
-
-  const portalUser = await getPortalResettableUser(email);
-  if (!portalUser) {
-    return asJson({
-      ok: true,
-      emailSent: true,
-      emailWarning: null,
+    const body = await req.json();
+    email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) throw new Error();
+  } catch { return NextResponse.json({ error: 'Enter a valid email address.' }, { status: 400, headers }); }
+  try {
+    const { error } = await getInviteSupabase().auth.resetPasswordForEmail(email, {
+      redirectTo: new URL('/reset-password', getPortalOrigin()).href,
     });
-  }
-
-  const resetUrl = buildPortalPasswordResetUrl(portalUser.email, req.url);
-  const delivery = await sendPortalPasswordResetEmail({
-    to: portalUser.email,
-    recipientName: portalUser.name,
-    resetUrl,
-  });
-
-  return asJson({
-    ok: true,
-    emailSent: delivery.emailSent,
-    emailWarning: delivery.emailWarning,
-    resetUrl: delivery.emailSent ? null : resetUrl,
-  });
+    if (error) {
+      console.warn('[portal/password-reset] recovery delivery failed', { status: error.status, code: error.code });
+      return NextResponse.json({ error: 'We could not send the reset email. Please wait a few minutes and try again.' }, { status: 503, headers });
+    }
+    return NextResponse.json({ ok: true }, { headers });
+  } catch { return NextResponse.json({ error: 'Password reset is temporarily unavailable. Please try again shortly.' }, { status: 503, headers }); }
 }
