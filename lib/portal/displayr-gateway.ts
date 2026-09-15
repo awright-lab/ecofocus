@@ -1,5 +1,5 @@
 import { getServiceSupabase } from '@/lib/supabase/server';
-import { getDisplayrGatewayOrigin, isDisplayrGatewayPilotUser } from './displayr-gateway-config';
+import { getDisplayrGatewayOrigin, isDisplayrGatewayPilotUser, isDisplayrPrivateTestScope } from './displayr-gateway-config';
 import { DisplayrGatewayError, controlFailureCode } from './displayr-gateway-diagnostics';
 
 function denyAuthorization(stage: string) {
@@ -29,7 +29,7 @@ export async function authorizeDisplayrGateway(scope: GatewayScope) {
   // Explicitly selected isolated copy. Still requires the real source
   // dashboard entitlement above; never changes the live dashboard mapping.
   if (process.env.DISPLAYR_GATEWAY_USE_PRIVATE_TEST_COPY === 'true') {
-    if (data.user_id !== 'user-arif' || scope.companyId !== 'company-ecofocus' || scope.dashboardSlug !== 'interactive-dashboard-2024') return denyAuthorization('private_copy_scope');
+    if (!isDisplayrPrivateTestScope(data.user_id, scope.companyId, scope.dashboardSlug)) return denyAuthorization('private_copy_scope');
     return { userId: data.user_id, sessionId: claims.session_id, expiresAt: claims.exp * 1000,
       dashboardPath: '/Dashboard?project_id=1208434', documentIds: ['1208434'] };
   }

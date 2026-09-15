@@ -12,3 +12,19 @@ export function getDisplayrGatewayOrigin() {
     return url.origin;
   } catch { return null; }
 }
+
+// Separate opt-in for the isolated private copy; ordinary entitlements still apply.
+export function isDisplayrPrivateTestUser(userId: string) {
+  const ids = process.env.DISPLAYR_GATEWAY_PRIVATE_TEST_USER_IDS ?? 'user-arif';
+  return isDisplayrGatewayPilotUser(userId) && ids.split(',').map(value => value.trim()).includes(userId);
+}
+
+export function isDisplayrPrivateTestScope(userId: string, companyId: string, dashboardSlug: string) {
+  if (!isDisplayrPrivateTestUser(userId)) return false;
+  if (userId === 'user-arif' && companyId === 'company-ecofocus' && dashboardSlug === 'interactive-dashboard-2024') return true;
+  try {
+    const scopes: unknown = JSON.parse(process.env.DISPLAYR_GATEWAY_PRIVATE_TEST_SCOPES_JSON || '[]');
+    return Array.isArray(scopes) && scopes.some(scope => scope &&
+      scope.userId === userId && scope.companyId === companyId && scope.dashboardSlug === dashboardSlug);
+  } catch { return false; }
+}
