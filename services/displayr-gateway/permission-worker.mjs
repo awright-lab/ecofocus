@@ -22,8 +22,24 @@ export async function synchronizePermissions(job, { viewers, updateGroups }) {
     return job.blocked
       ? { verified: false, reason: "mapping_required" }
       : { verified: true };
-  } catch {
-    return { verified: false, reason: "group_update_failed" };
+  } catch (error) {
+    const stages = [
+      "administrator_login",
+      "browser_setup",
+      "account_page",
+      "viewer_lookup",
+      "edit_page",
+      "edit_form",
+      "group_submission",
+      "group_readback",
+    ];
+    return {
+      verified: false,
+      reason: "group_update_failed",
+      ...(stages.includes(error?.permissionStage)
+        ? { stage: error.permissionStage }
+        : {}),
+    };
   }
 }
 export function createPermissionWorker({

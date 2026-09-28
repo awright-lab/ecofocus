@@ -8,6 +8,22 @@ type Viewer = {
   checkedAt: string | null;
 };
 const reasonLabels: Record<string, string> = {
+  "group_update_failed:administrator_login":
+    "Displayr administrator sign-in failed.",
+  "group_update_failed:browser_setup":
+    "The permission worker could not start its browser session.",
+  "group_update_failed:account_page":
+    "The worker could not open Displayr account settings.",
+  "group_update_failed:viewer_lookup":
+    "The worker could not uniquely locate this viewer in Displayr account settings.",
+  "group_update_failed:edit_page":
+    "The worker could not open the viewer’s settings.",
+  "group_update_failed:edit_form":
+    "The viewer’s group-edit form did not match the expected account and controls.",
+  "group_update_failed:group_submission":
+    "The viewer’s group update could not be submitted successfully.",
+  "group_update_failed:group_readback":
+    "The worker could not reload the saved group membership.",
   viewer_not_enrolled:
     "This viewer is not yet enrolled in managed permission synchronization.",
   mapping_required: "A dashboard needs a verified report/group mapping.",

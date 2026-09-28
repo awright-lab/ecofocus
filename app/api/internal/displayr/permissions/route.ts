@@ -107,6 +107,16 @@ export async function POST(req: NextRequest) {
         "group_readback_failed",
         "mapping_required",
       ]);
+      const stages = new Set([
+        "administrator_login",
+        "browser_setup",
+        "account_page",
+        "viewer_lookup",
+        "edit_page",
+        "edit_form",
+        "group_submission",
+        "group_readback",
+      ]);
       const stale = plan.revision !== body.revision;
       const verified = !stale && !plan.blocked && body.verified === true;
       const result = await db.rpc("portal_displayr_finish_permissions", {
@@ -121,7 +131,10 @@ export async function POST(req: NextRequest) {
             : verified
               ? null
               : reasons.has(body.reason)
-                ? body.reason
+                ? body.reason === "group_update_failed" &&
+                  stages.has(body.stage)
+                  ? `${body.reason}:${body.stage}`
+                  : body.reason
                 : "group_update_failed",
       });
       if (result.error) throw new Error();
