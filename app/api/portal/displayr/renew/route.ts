@@ -1,3 +1,4 @@
+import { getPortalOrigin } from '@/lib/portal/host';
 import { NextRequest, NextResponse } from 'next/server';
 import { getPortalAccessContext } from '@/lib/portal/auth';
 import { getServerSupabase } from '@/lib/supabase/server';
@@ -6,7 +7,7 @@ import { launchDisplayrGateway } from '@/lib/portal/displayr-gateway';
 
 const headers = { 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
 export async function POST(req: NextRequest) {
-  if (req.headers.get('origin') !== req.nextUrl.origin || !/^application\/json(?:;|$)/i.test(req.headers.get('content-type') || '')) {
+  if (req.headers.get('origin') !== getPortalOrigin() || !/^application\/json(?:;|$)/i.test(req.headers.get('content-type') || '')) {
     return NextResponse.json({ error: 'Request denied' }, { status: 403, headers });
   }
   try {
