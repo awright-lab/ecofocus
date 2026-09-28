@@ -1,3 +1,4 @@
+import { createAuthFetch } from './auth-fetch';
 import { createBrowserClient, type CookieOptions } from '@supabase/ssr';
 import { PORTAL_REMEMBER_COOKIE, PORTAL_REMEMBER_MAX_AGE, getPortalCookieDomain } from '@/lib/portal/session';
 
@@ -49,7 +50,10 @@ export function getBrowserSupabase() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     throw new Error('Missing Supabase client env vars (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY).');
   }
+  let storage: Storage | undefined;
+  try { if (typeof window !== 'undefined') storage = window.localStorage; } catch { /* Private browser storage may be unavailable. */ }
   return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    global: { fetch: createAuthFetch({ origin: new URL(SUPABASE_URL).origin, storage }) },
     cookies: {
       get: (name: string) => readCookie(name),
       set: (name: string, value: string, options: CookieOptions) => writeCookie(name, value, options),
