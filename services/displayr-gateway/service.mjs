@@ -42,7 +42,7 @@ export function createPilotService({ gatewayOrigin, portalOrigin, controlSecret,
         const decision = await authorizeScope(lease.scope);
         if (leases.get(dashboardId) !== lease) return false;
         if (!validDecision(decision) || decision.userId !== lease.userId || decision.sessionId !== lease.sessionId || decision.expiresAt <= now() ||
-            decision.dashboardPath !== lease.dashboardPath || JSON.stringify(decision.documentIds) !== JSON.stringify(lease.documentIds)) {
+            decision.viewerKey !== lease.viewerKey || decision.dashboardPath !== lease.dashboardPath || JSON.stringify(decision.documentIds) !== JSON.stringify(lease.documentIds)) {
           leases.delete(dashboardId);
           return false;
         }
