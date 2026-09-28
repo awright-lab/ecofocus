@@ -61,7 +61,7 @@ export async function middleware(req: NextRequest) {
   // This server-to-server route authenticates its own shared secret and live
   // viewer token. A browser-cookie login redirect would prevent the gateway
   // from ever reaching it on the portal hostname.
-  if (pathname === '/api/internal/displayr/authorize') return res;
+  if (pathname === '/api/internal/displayr/authorize' || pathname === '/api/internal/displayr/permissions') return res;
 
   if (portalHost && pathname === '/login') {
     const rewriteUrl = req.nextUrl.clone();

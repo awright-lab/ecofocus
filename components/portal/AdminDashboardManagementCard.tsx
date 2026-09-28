@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Search, Trash2, X } from "lucide-react";
 
+import { DisplayrPermissionPanel } from "./DisplayrPermissionPanel";
+
 const DASHBOARDS_PER_PAGE = 6;
 
 type DashboardEditorItem = {
@@ -614,9 +616,11 @@ export function AdminDashboardManagementCard({
                       className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                     />
                     <p className="mt-2 text-xs text-slate-500">
-                      Use a company-specific Displayr publish URL. Treat this like a bearer link and rotate it if exposure is suspected.
+                      Use the published URL for this workspace’s report. Private reports also need a verified Displayr permission mapping below.
                     </p>
                   </label>
+
+                  {selectedSlug && !isLoadingAssignment ? <DisplayrPermissionPanel key={`${assignedCompanyId}:${selectedSlug}`} companyId={assignedCompanyId} dashboardSlug={selectedSlug} sourceUrl={formState.displayrEmbedUrl} /> : null}
 
                   <label className="block">
                     <span className="mb-2 block text-sm font-medium text-slate-800">Internal note</span>

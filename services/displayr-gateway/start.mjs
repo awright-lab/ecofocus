@@ -3,6 +3,8 @@ import { createBrowserAuthenticator, readViewerSecrets, parseViewerSecrets } fro
 import { createSessionBroker } from './session-broker.mjs';
 import { createPilotService } from './service.mjs';
 import { createIngress } from './ingress.mjs';
+import { createPermissionWorker, viewerKey } from './permission-worker.mjs';
+import { createGroupUpdater } from './group-updater.mjs';
 
 function origin(name) {
   const url = new URL(process.env[name]);
@@ -49,7 +51,7 @@ const service = createPilotService({
       return null;
     }
     const decision = await response.json();
-    if (!viewers.has(decision?.userId)) {
+    if (!viewers.has(decision?.userId) || (decision.viewerKey && decision.viewerKey !== viewerKey(viewers.get(decision.userId).email))) {
       console.warn('[displayr-gateway] viewer mapping missing');
       return null;
     }
@@ -63,7 +65,9 @@ const ports = [gatewayPort, controlPort, ...(ingressPort === null ? [] : [ingres
 if (!ports.every(port => Number.isInteger(port) && port > 1024 && port < 65536) || new Set(ports).size !== ports.length) throw new Error('Distinct unprivileged ports required');
 const ingress = ingressPort === null ? null : createIngress({ service, gatewayOrigin });
 const listen = (server, port, host = '127.0.0.1') => new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, host, resolve); });
+let permissionTimer;
 async function close() {
+  clearInterval(permissionTimer);
   if (ingress?.listening) { ingress.closeAllConnections(); await new Promise(resolve => ingress.close(resolve)); }
   await service.close();
 }
@@ -72,6 +76,24 @@ try {
   await listen(service.gateway.server, gatewayPort);
   if (ingress) await listen(ingress, ingressPort, '0.0.0.0');
   console.log('Displayr pilot ready. Portal authorization is required.');
+  if (process.env.DISPLAYR_PERMISSION_SYNC_ENABLED === 'true') {
+    const email = process.env.DISPLAYR_SYNC_ADMIN_EMAIL;
+    const password = process.env.DISPLAYR_SYNC_ADMIN_PASSWORD;
+    let updateGroups;
+    if (email && password) {
+      if ([...viewers.values()].some(viewer => viewer.email === email.toLowerCase())) throw new Error('Administrator must not be a managed viewer');
+      const adminAuthenticate = createBrowserAuthenticator({chromium, viewers: new Map([['administrator', {email,password}]]), executablePath: process.env.DISPLAYR_CHROMIUM_PATH});
+      const adminBroker = createSessionBroker({authenticate: adminAuthenticate});
+      updateGroups = createGroupUpdater({chromium, authenticateAdmin: () => adminBroker.getCookies('administrator'), companyId: process.env.DISPLAYR_SYNC_COMPANY_ID, executablePath: process.env.DISPLAYR_CHROMIUM_PATH});
+    }
+    delete process.env.DISPLAYR_SYNC_ADMIN_PASSWORD;
+    const worker = createPermissionWorker({endpoint: new URL('/api/internal/displayr/permissions',portalOrigin).href, secret:process.env.DISPLAYR_PERMISSION_SYNC_SECRET, viewers, updateGroups});
+    const tick = () => worker.tick().catch(() => console.warn('[displayr-permissions] synchronization unavailable'));
+    permissionTimer = setInterval(tick, 30_000);
+    permissionTimer.unref();
+    void tick();
+  }
+
 } catch {
   await close();
   throw new Error('Pilot listeners could not start');

@@ -1,5 +1,6 @@
+import { managedDisplayrTarget } from './displayr-permission-store';
 import { getServiceSupabase } from '@/lib/supabase/server';
-import { getDisplayrGatewayOrigin, isDisplayrGatewayPilotUser, isDisplayrPrivateTestScope } from './displayr-gateway-config';
+import { getDisplayrGatewayOrigin, isDisplayrGatewayPilotUser, isDisplayrPrivateTestScope, isDisplayrManagedUser } from './displayr-gateway-config';
 import { DisplayrGatewayError, controlFailureCode } from './displayr-gateway-diagnostics';
 
 function denyAuthorization(stage: string) {
@@ -26,6 +27,11 @@ export async function authorizeDisplayrGateway(scope: GatewayScope) {
   if (error) return denyAuthorization('database_rpc');
   if (!data) return denyAuthorization('database_entitlement_or_session');
   if (!isDisplayrGatewayPilotUser(data.user_id)) return denyAuthorization('pilot_user');
+  if (isDisplayrManagedUser(data.user_id)) {
+    const target = await managedDisplayrTarget(data.user_id, scope.companyId, scope.dashboardSlug);
+    if (!target) return denyAuthorization('permissions_not_synchronized');
+    return { userId: data.user_id, sessionId: claims.session_id, expiresAt: claims.exp * 1000, ...target };
+  }
   // Explicitly selected isolated copy. Still requires the real source
   // dashboard entitlement above; never changes the live dashboard mapping.
   if (process.env.DISPLAYR_GATEWAY_USE_PRIVATE_TEST_COPY === 'true') {
