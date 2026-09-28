@@ -24,6 +24,8 @@ async function fixture(options = {}) {
               continue: async () => {
                 const request = route.request();
                 const url = new URL(request.url());
+                if (url.pathname === "/MyAccount" && options.noAccountList)
+                  throw new Error("Account list must not be used");
                 if (url.pathname === "/MyAccount")
                   return route.fulfill({
                     contentType: "text/html",
@@ -109,4 +111,22 @@ test("readback exposes failed upstream persistence rather than reporting submitt
     ["7"],
   );
   assert.equal(f.writes, 1);
+});
+
+test("explicit viewer ID bypasses account lookup but still rejects a different identity", async () => {
+  for (const wrongEmail of [false, true]) {
+    const f = await fixture({ noAccountList: true, wrongEmail });
+    const result = f.update({
+      email: "viewer@example.org",
+      displayrUserId: "9",
+      groupIds: ["8"],
+    });
+    if (wrongEmail) {
+      await assert.rejects(result);
+      assert.equal(f.writes, 0);
+    } else {
+      assert.deepEqual(await result, ["8"]);
+      assert.equal(f.writes, 1);
+    }
+  }
 });

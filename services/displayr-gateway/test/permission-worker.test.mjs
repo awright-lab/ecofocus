@@ -81,12 +81,47 @@ test("worker excludes passwords from requests and completes using its lease", as
   assert(!JSON.stringify(calls).includes("do-not-send"));
 });
 
-test('failure diagnostics expose only known stages, never raw errors', async () => {
-  const viewers = new Map([['u', {email:'viewer@example.org',password:'private'}]]);
-  for (const stage of ['edit_form', 'private-password-value']) {
-    const result=await synchronizePermissions({userId:'u',groupIds:[]},{viewers,updateGroups:async()=>{const error=new Error('private-password-value');error.permissionStage=stage;throw error;}});
-    assert.equal(result.reason,'group_update_failed');
-    assert.equal(result.stage,stage==='edit_form'?'edit_form':undefined);
-    assert(!JSON.stringify(result).includes('private-password-value'));
+test("failure diagnostics expose only known stages, never raw errors", async () => {
+  const viewers = new Map([
+    ["u", { email: "viewer@example.org", password: "private" }],
+  ]);
+  for (const stage of ["edit_form", "private-password-value"]) {
+    const result = await synchronizePermissions(
+      { userId: "u", groupIds: [] },
+      {
+        viewers,
+        updateGroups: async () => {
+          const error = new Error("private-password-value");
+          error.permissionStage = stage;
+          throw error;
+        },
+      },
+    );
+    assert.equal(result.reason, "group_update_failed");
+    assert.equal(result.stage, stage === "edit_form" ? "edit_form" : undefined);
+    assert(!JSON.stringify(result).includes("private-password-value"));
   }
+});
+
+test("explicit identity mapping reaches updater without replacing email verification", async () => {
+  let actual;
+  const result = await synchronizePermissions(
+    { userId: "u", groupIds: ["8"] },
+    {
+      viewers: new Map([
+        ["u", { email: "viewer@example.org", password: "private" }],
+      ]),
+      viewerIds: { u: "1098646" },
+      updateGroups: async (job) => {
+        actual = job;
+        return ["8"];
+      },
+    },
+  );
+  assert.deepEqual(result, { verified: true });
+  assert.deepEqual(actual, {
+    email: "viewer@example.org",
+    displayrUserId: "1098646",
+    groupIds: ["8"],
+  });
 });

@@ -51,7 +51,13 @@ export function createGroupUpdater({
 }) {
   if (!/^[1-9][0-9]{0,15}$/.test(companyId))
     throw new Error("Displayr company ID required");
-  return async ({ email, groupIds }) => {
+  return async ({ email, groupIds, displayrUserId }) => {
+    if (
+      displayrUserId !== undefined &&
+      (typeof displayrUserId !== "string" ||
+        !/^[1-9][0-9]{0,15}$/.test(displayrUserId))
+    )
+      throw new Error("Invalid Displayr viewer ID");
     if (
       !Array.isArray(groupIds) ||
       groupIds.some(
@@ -99,34 +105,42 @@ export function createGroupUpdater({
       });
       const page = await context.newPage();
       page.setDefaultTimeout(12_000);
-      stage = "account_page";
-      await page.goto(`${origin}/MyAccount?company_id=${companyId}`, {
-        waitUntil: "domcontentloaded",
-      });
-      stage = "viewer_lookup";
-      const editUrl = await page.evaluate(
-        ({ email, origin }) => {
-          const rows = [...document.querySelectorAll("tr")].filter((row) =>
-            [...row.querySelectorAll("td")].some(
-              (cell) =>
-                cell.textContent.trim().toLowerCase() === email.toLowerCase(),
-            ),
-          );
-          if (rows.length !== 1) return null;
-          const urls = [...rows[0].querySelectorAll("a[href]")]
-            .map((a) => new URL(a.href))
-            .filter(
-              (url) =>
-                url.origin === origin &&
-                /^\/User\/?$/.test(url.pathname) &&
-                url.search &&
-                !url.hash,
+      let editUrl;
+      if (displayrUserId) {
+        const target = new URL("/User", origin);
+        target.searchParams.set("user_id", displayrUserId);
+        target.searchParams.set("company_id", companyId);
+        editUrl = target.href;
+      } else {
+        stage = "account_page";
+        await page.goto(`${origin}/MyAccount?company_id=${companyId}`, {
+          waitUntil: "domcontentloaded",
+        });
+        stage = "viewer_lookup";
+        editUrl = await page.evaluate(
+          ({ email, origin }) => {
+            const rows = [...document.querySelectorAll("tr")].filter((row) =>
+              [...row.querySelectorAll("td")].some(
+                (cell) =>
+                  cell.textContent.trim().toLowerCase() === email.toLowerCase(),
+              ),
             );
-          return urls.length === 1 ? urls[0].href : null;
-        },
-        { email, origin },
-      );
-      if (!editUrl) throw new Error("Unique existing viewer required");
+            if (rows.length !== 1) return null;
+            const urls = [...rows[0].querySelectorAll("a[href]")]
+              .map((a) => new URL(a.href))
+              .filter(
+                (url) =>
+                  url.origin === origin &&
+                  /^\/User\/?$/.test(url.pathname) &&
+                  url.search &&
+                  !url.hash,
+              );
+            return urls.length === 1 ? urls[0].href : null;
+          },
+          { email, origin },
+        );
+        if (!editUrl) throw new Error("Unique existing viewer required");
+      }
       stage = "edit_page";
       await page.goto(editUrl, { waitUntil: "domcontentloaded" });
       stage = "edit_form";

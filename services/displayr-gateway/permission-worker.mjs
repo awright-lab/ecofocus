@@ -2,7 +2,10 @@ import { createHash } from "node:crypto";
 export const viewerKey = (email) =>
   createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
 // Reconcile one leased identity at a time. No secret or raw upstream error is logged.
-export async function synchronizePermissions(job, { viewers, updateGroups }) {
+export async function synchronizePermissions(
+  job,
+  { viewers, updateGroups, viewerIds = {} },
+) {
   const credentials = viewers.get(job.userId);
   if (!credentials) return { verified: false, reason: "viewer_missing" };
   if (!updateGroups)
@@ -11,6 +14,9 @@ export async function synchronizePermissions(job, { viewers, updateGroups }) {
     // The complete union is used even when empty: removals are part of the job.
     const actual = await updateGroups({
       email: credentials.email,
+      ...(viewerIds[job.userId]
+        ? { displayrUserId: viewerIds[job.userId] }
+        : {}),
       groupIds: job.groupIds,
     });
     if (
@@ -48,7 +54,20 @@ export function createPermissionWorker({
   viewers,
   updateGroups,
   send = fetch,
+  viewerIds = {},
 }) {
+  if (
+    !viewerIds ||
+    typeof viewerIds !== "object" ||
+    Array.isArray(viewerIds) ||
+    Object.entries(viewerIds).some(
+      ([id, value]) =>
+        !viewers.has(id) ||
+        typeof value !== "string" ||
+        !/^[1-9][0-9]{0,15}$/.test(value),
+    )
+  )
+    throw new Error("Invalid Displayr viewer ID mapping");
   const url = new URL(endpoint);
   if (
     url.protocol !== "https:" ||
@@ -104,6 +123,7 @@ export function createPermissionWorker({
         const result = await synchronizePermissions(job, {
           viewers,
           updateGroups,
+          viewerIds,
         });
         return await request({
           operation: "complete",

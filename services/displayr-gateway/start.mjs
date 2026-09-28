@@ -87,7 +87,7 @@ try {
       updateGroups = createGroupUpdater({chromium, authenticateAdmin: () => adminBroker.getCookies('administrator'), companyId: process.env.DISPLAYR_SYNC_COMPANY_ID, executablePath: process.env.DISPLAYR_CHROMIUM_PATH});
     }
     delete process.env.DISPLAYR_SYNC_ADMIN_PASSWORD;
-    const worker = createPermissionWorker({endpoint: new URL('/api/internal/displayr/permissions',portalOrigin).href, secret:process.env.DISPLAYR_PERMISSION_SYNC_SECRET, viewers, updateGroups});
+    const worker = createPermissionWorker({endpoint: new URL('/api/internal/displayr/permissions',portalOrigin).href, secret:process.env.DISPLAYR_PERMISSION_SYNC_SECRET, viewers, updateGroups, viewerIds: JSON.parse(process.env.DISPLAYR_SYNC_VIEWER_IDS_JSON || "{}")});
     const tick = () => worker.tick().catch(() => console.warn('[displayr-permissions] synchronization unavailable'));
     permissionTimer = setInterval(tick, 30_000);
     permissionTimer.unref();
