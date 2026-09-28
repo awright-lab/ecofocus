@@ -1,7 +1,7 @@
 // Edge-safe configuration; never import server credentials into middleware.
 export function isDisplayrGatewayPilotUser(userId: string) {
   return Boolean(userId) && process.env.DISPLAYR_GATEWAY_ENABLED === 'true' &&
-    (process.env.DISPLAYR_GATEWAY_PILOT_USER_IDS || '').split(',').map(value => value.trim()).includes(userId);
+    [process.env.DISPLAYR_GATEWAY_PILOT_USER_IDS, process.env.DISPLAYR_GATEWAY_MANAGED_USER_IDS].filter(Boolean).join(',').split(',').map(value => value.trim()).some(id => id === userId || id === '*');
 }
 
 export function getDisplayrGatewayOrigin() {
@@ -27,4 +27,8 @@ export function isDisplayrPrivateTestScope(userId: string, companyId: string, da
     return Array.isArray(scopes) && scopes.some(scope => scope &&
       scope.userId === userId && scope.companyId === companyId && scope.dashboardSlug === dashboardSlug);
   } catch { return false; }
+}
+
+export function isDisplayrManagedUser(userId: string) {
+  return isDisplayrGatewayPilotUser(userId) && (process.env.DISPLAYR_GATEWAY_MANAGED_USER_IDS || '').split(',').map(id => id.trim()).some(id => id === userId || id === '*');
 }

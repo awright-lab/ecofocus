@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPortalAccessContext } from "@/lib/portal/auth";
+import { getPortalOrigin } from "@/lib/portal/host";
 import { logPortalAdminAuditEvent } from "@/lib/portal/admin-audit";
 import {
   getPortalCompanies,
@@ -39,6 +40,7 @@ function normalizeUrl(rawUrl?: string | null) {
 }
 
 export async function POST(req: NextRequest) {
+  if (req.headers.get("origin") !== getPortalOrigin()) return asJson({ error: "Request denied." }, 403);
   const access = await getPortalAccessContext();
   if (!access || access.user.role !== "support_admin") {
     return asJson({ error: "Unauthorized" }, 401);
@@ -97,20 +99,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const admin = getServiceSupabase();
-    const { error } = await admin.from("portal_dashboard_configs").upsert(
-      {
-        company_id: companyId,
-        dashboard_slug: dashboardSlug,
-        displayr_embed_url: persistedUrl,
-        is_active: isActive,
-        is_hidden: isHidden,
-        notes,
-        updated_at: new Date().toISOString(),
-      },
-      {
-        onConflict: "company_id,dashboard_slug",
-      },
-    );
+    const { error } = await admin.rpc("portal_save_dashboard_assignment", {
+      p_company_id: companyId, p_dashboard_slug: dashboardSlug,
+      p_url: persistedUrl, p_active: isActive, p_hidden: isHidden,
+      p_notes: notes, p_actor: access.user.id,
+    });
 
     if (error) {
       return asJson({ error: error.message }, 500);
