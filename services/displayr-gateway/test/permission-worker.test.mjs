@@ -80,3 +80,13 @@ test("worker excludes passwords from requests and completes using its lease", as
   assert.equal(calls[1].leaseId, job.leaseId);
   assert(!JSON.stringify(calls).includes("do-not-send"));
 });
+
+test('failure diagnostics expose only known stages, never raw errors', async () => {
+  const viewers = new Map([['u', {email:'viewer@example.org',password:'private'}]]);
+  for (const stage of ['edit_form', 'private-password-value']) {
+    const result=await synchronizePermissions({userId:'u',groupIds:[]},{viewers,updateGroups:async()=>{const error=new Error('private-password-value');error.permissionStage=stage;throw error;}});
+    assert.equal(result.reason,'group_update_failed');
+    assert.equal(result.stage,stage==='edit_form'?'edit_form':undefined);
+    assert(!JSON.stringify(result).includes('private-password-value'));
+  }
+});

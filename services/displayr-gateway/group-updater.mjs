@@ -60,8 +60,10 @@ export function createGroupUpdater({
     )
       throw new Error("Invalid viewing groups");
     let browser;
+    let stage = "administrator_login";
     try {
       const cookies = await authenticateAdmin();
+      stage = "browser_setup";
       browser = await chromium.launch({
         headless: true,
         ...(executablePath ? { executablePath } : {}),
@@ -97,9 +99,11 @@ export function createGroupUpdater({
       });
       const page = await context.newPage();
       page.setDefaultTimeout(12_000);
+      stage = "account_page";
       await page.goto(`${origin}/MyAccount?company_id=${companyId}`, {
         waitUntil: "domcontentloaded",
       });
+      stage = "viewer_lookup";
       const editUrl = await page.evaluate(
         ({ email, origin }) => {
           const rows = [...document.querySelectorAll("tr")].filter((row) =>
@@ -123,7 +127,9 @@ export function createGroupUpdater({
         { email, origin },
       );
       if (!editUrl) throw new Error("Unique existing viewer required");
+      stage = "edit_page";
       await page.goto(editUrl, { waitUntil: "domcontentloaded" });
+      stage = "edit_form";
       const before = await readViewerGroupForm(page, { companyId, email });
       if (
         !before ||
@@ -144,6 +150,7 @@ export function createGroupUpdater({
         JSON.stringify([...before.selected].sort()) !==
         JSON.stringify([...groupIds].sort())
       ) {
+        stage = "group_submission";
         // Native selection avoids invoking change handlers before the write guard.
         await page
           .locator("#cboGroupMembershipSelect")
@@ -163,12 +170,16 @@ export function createGroupUpdater({
         if (!submitted || response.status() >= 400)
           throw new Error("Group update failed");
       }
+      stage = "group_readback";
       await page.goto(editUrl, { waitUntil: "domcontentloaded" });
       const after = await readViewerGroupForm(page, { companyId, email });
       if (!after) throw new Error("Readback unavailable");
       return after.selected;
     } catch {
-      throw new Error("Displayr group synchronization failed");
+      const failure = new Error("Displayr group synchronization failed");
+      failure.permissionStage = stage;
+      console.warn("[displayr-permissions] group update failed", { stage });
+      throw failure;
     } finally {
       if (browser) await browser.close().catch(() => {});
     }
