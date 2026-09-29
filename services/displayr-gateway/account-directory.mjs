@@ -11,11 +11,33 @@ export async function inspectCompanyDirectory(page, { companyId, email }) {
     waitUntil: "domcontentloaded",
   });
   if (!response?.ok()) return { status: "unknown", diagnostic: "http" };
+  const landed = new URL(page.url());
+  if (
+    landed.origin !== origin ||
+    landed.pathname !== "/MyAccount" ||
+    landed.searchParams.get("company_id") !== companyId ||
+    landed.searchParams.get("tab") !== "company"
+  )
+    return { status: "unknown", diagnostic: "location" };
   try {
-    await page
-      .locator('a[href*="/User?"]')
-      .first()
-      .waitFor({ state: "attached", timeout: 12000 });
+    // Resolve hrefs before matching: Displayr may emit User?... without a slash.
+    await page.waitForFunction(
+      ({ origin, companyId }) =>
+        [...document.querySelectorAll("a[href]")].some((a) => {
+          try {
+            const url = new URL(a.href);
+            return (
+              url.origin === origin &&
+              url.pathname === "/User" &&
+              url.searchParams.get("company_id") === companyId
+            );
+          } catch {
+            return false;
+          }
+        }),
+      { origin, companyId },
+      { timeout: 12000 },
+    );
   } catch {
     return { status: "unknown", diagnostic: "controls" };
   }
