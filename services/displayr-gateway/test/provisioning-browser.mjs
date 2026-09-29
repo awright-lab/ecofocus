@@ -77,6 +77,10 @@ test("directory distinguishes existing users, invitations, duplicates and incomp
     const f = await fixture(html),
       result = await f.adapter.inspect(email);
     assert.equal(result.status, expected);
+    if (expected === "unknown") {
+      assert.match(result.diagnostic, /^shape_[0-9]+_[0-9]+_[0-9]+_[01]$/);
+      assert(!JSON.stringify(result).includes(email));
+    }
     assert.equal(f.writes(), 0);
   }
 });
