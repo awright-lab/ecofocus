@@ -6,6 +6,27 @@ type Viewer = {
   status: string;
   reason: string | null;
   checkedAt: string | null;
+  provisioning?: { stage: string; reason: string | null } | null;
+};
+const onboardingLabels: Record<string, string> = {
+  queued: "Viewer setup queued",
+  invitation_pending: "Waiting for the Displayr invitation",
+  activation_pending: "Activating the viewer",
+  credentials_verified: "Viewer activated; checking dashboard permissions",
+  ready: "Viewer setup complete",
+  needs_attention: "Viewer setup needs attention",
+};
+const onboardingReasons: Record<string, string> = {
+  account_lookup_ambiguous:
+    "The Displayr account could not be identified safely. Check the company’s user list before retrying setup.",
+  existing_account_credentials:
+    "An existing viewer could not sign in with its saved credentials. Review the account before retrying.",
+  invitation_not_verified:
+    "The invitation could not be verified. Review the provisioning mailbox.",
+  activation_requires_review:
+    "Activation could not be confirmed. Check the viewer account before retrying.",
+  provisioning_timeout:
+    "Setup did not finish within one day. Review the worker and mailbox connection.",
 };
 const reasonLabels: Record<string, string> = {
   "group_update_failed:administrator_login":
@@ -218,6 +239,14 @@ export function DisplayrPermissionPanel({
                       ? "Synchronizing"
                       : "Pending"}
               </span>
+              {viewer.provisioning && (
+                <p className="mt-1 text-slate-600">
+                  {onboardingLabels[viewer.provisioning.stage] ||
+                    "Viewer setup pending"}
+                  {viewer.provisioning.reason &&
+                    ` — ${onboardingReasons[viewer.provisioning.reason] || "Review the provisioning service."}`}
+                </p>
+              )}
               {viewer.reason && (
                 <p className="mt-1 text-slate-600">
                   {reasonLabels[viewer.reason] ||

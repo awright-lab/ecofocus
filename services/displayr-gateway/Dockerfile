@@ -8,6 +8,7 @@ RUN npm ci --omit=dev --ignore-scripts \
     && rm -rf /var/lib/apt/lists/*
 COPY services/displayr-gateway/*.mjs ./
 COPY experiments/displayr-gateway/gateway.mjs /app/experiments/displayr-gateway/gateway.mjs
+COPY lib/portal/displayr-invitation-link.ts /app/lib/portal/displayr-invitation-link.ts
 USER node
 EXPOSE 8080
 CMD ["node", "start.mjs"]
