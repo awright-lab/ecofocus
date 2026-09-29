@@ -10,18 +10,18 @@ export async function inspectCompanyDirectory(page, { companyId, email }) {
   const response = await page.goto(companyDirectoryUrl(companyId), {
     waitUntil: "domcontentloaded",
   });
-  if (!response?.ok()) return { status: "unknown" };
+  if (!response?.ok()) return { status: "unknown", diagnostic: "http" };
   try {
     await page
       .locator('a[href*="/User?"]')
       .first()
       .waitFor({ state: "attached", timeout: 12000 });
   } catch {
-    return { status: "unknown" };
+    return { status: "unknown", diagnostic: "controls" };
   }
   return page.evaluate(
     ({ companyId, email, origin }) => {
-      const unknown = { status: "unknown" },
+      const unknown = { status: "unknown", diagnostic: "row" },
         current = new URL(location.href);
       if (
         current.origin !== origin ||
@@ -29,7 +29,7 @@ export async function inspectCompanyDirectory(page, { companyId, email }) {
         current.searchParams.get("company_id") !== companyId ||
         current.searchParams.get("tab") !== "company"
       )
-        return unknown;
+        return { status: "unknown", diagnostic: "location" };
       const parse = (a) => {
         try {
           return new URL(a.href);
@@ -91,15 +91,21 @@ export async function inspectCompanyDirectory(page, { companyId, email }) {
         (t) =>
           /invited by/i.test(t.textContent) && /last sent/i.test(t.textContent),
       );
+      const filtered = Boolean(
+        document.querySelector(
+          '.dataTables_paginate,.dt-paging,[aria-label*="pagination" i],input[type="search"],.pagination',
+        ),
+      );
       if (
         add.length !== 1 ||
         users.length !== 1 ||
         invitations.length !== 1 ||
-        document.querySelector(
-          '.dataTables_paginate,.dt-paging,[aria-label*="pagination" i],input[type="search"],.pagination',
-        )
+        filtered
       )
-        return unknown;
+        return {
+          status: "unknown",
+          diagnostic: `shape_${Math.min(add.length, 99)}_${Math.min(users.length, 99)}_${Math.min(invitations.length, 99)}_${Number(filtered)}`,
+        };
       return { status: "absent" };
     },
     { companyId, email, origin },

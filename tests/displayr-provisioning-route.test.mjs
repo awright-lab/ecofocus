@@ -117,6 +117,22 @@ test("provisioning requires a private worker, current lease, eligibility and per
     f.state.viewer_key = createHash("sha256").update(f.row.email).digest("hex");
     assert.deepEqual(await (await call(body)).json(), { accepted: true });
     assert.equal(f.calls.length, 1);
+    await call({
+      ...body,
+      stage: "needs_attention",
+      reason: "account_lookup_ambiguous:shape_1_2_1_0",
+    });
+    assert.equal(
+      f.calls.at(-1).args.p_reason,
+      "account_lookup_ambiguous:shape_1_2_1_0",
+    );
+    await call({
+      ...body,
+      stage: "needs_attention",
+      reason: "account_lookup_ambiguous:private@example.org",
+    });
+    assert.equal(f.calls.at(-1).args.p_reason, null);
+    f.calls.splice(1);
     f.state.revision = "old";
     assert.deepEqual(await (await call(body)).json(), { accepted: false });
     assert.equal(f.calls.length, 1);
