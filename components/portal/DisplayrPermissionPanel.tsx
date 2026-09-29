@@ -244,7 +244,7 @@ export function DisplayrPermissionPanel({
                   {onboardingLabels[viewer.provisioning.stage] ||
                     "Viewer setup pending"}
                   {viewer.provisioning.reason &&
-                    ` — ${onboardingReasons[viewer.provisioning.reason] || "Review the provisioning service."}`}
+                    ` — ${onboardingReasons[viewer.provisioning.reason] || onboardingReasons[viewer.provisioning.reason.split(":")[0]] || "Review the provisioning service."}`}
                 </p>
               )}
               {viewer.reason && (

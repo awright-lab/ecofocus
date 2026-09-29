@@ -192,7 +192,14 @@ export async function POST(req: NextRequest) {
       return rpc("portal_displayr_advance_provisioning", {
         p_expected_stage: row.stage,
         p_stage: body.stage,
-        p_reason: reasons.has(body.reason) ? body.reason : null,
+        p_reason:
+          reasons.has(body.reason) ||
+          (typeof body.reason === "string" &&
+            /^account_lookup_ambiguous:(http|controls|location|row|shape_[0-9]{1,2}_[0-9]{1,2}_[0-9]{1,2}_[01])$/.test(
+              body.reason,
+            ))
+            ? body.reason
+            : null,
       });
     }
     return json({ error: "Invalid operation" }, 400);
