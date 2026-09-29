@@ -71,6 +71,11 @@ test("directory distinguishes existing users, invitations, duplicates and incomp
     ],
     [directory(member(email) + member(email, "10")), "ambiguous"],
     [directory(), "absent"],
+    [directory().replaceAll('href="/User?', 'href="User?'), "absent"],
+    [
+      directory(member(email)).replaceAll('href="/User?', 'href="User?'),
+      "active",
+    ],
     [directory("", "", '<input type="search">'), "unknown"],
     ["<table>" + member("existing@example.org") + "</table>", "unknown"],
   ]) {
