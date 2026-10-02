@@ -71,12 +71,12 @@ export default function Header() {
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
-  // ✅ Added “Brands” link
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Brands', href: '/brands' },
     { name: 'Agencies', href: '/agencies' },
+    { name: 'Case Study', href: '/case-studies/glass-packaging-institute' },
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -128,7 +128,7 @@ export default function Header() {
             </div>
 
             {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Primary">
+            <nav className="hidden lg:flex items-center gap-4 xl:gap-6" aria-label="Primary">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
@@ -136,7 +136,7 @@ export default function Header() {
                     <Link
                       href={link.href}
                       aria-current={active ? 'page' : undefined}
-                      className={`relative font-medium transition-colors group ${
+                      className={`relative whitespace-nowrap font-medium transition-colors group ${
                         active ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-600'
                       } text-[15px]`}
                     >

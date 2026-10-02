@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export default function TrustedBy() {
   const reduceMotion = useReducedMotion();
@@ -94,15 +93,6 @@ export default function TrustedBy() {
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="mt-10 sm:mt-12 text-center">
-          <Link
-            href="/case-studies/glass-packaging-institute"
-            className="btn-primary-emerald"
-          >
-            See our work with Glass Packaging Institute →
-          </Link>
-        </div>
       </div>
 
       {/* Local marquee keyframes (reduced-motion safe) */}
