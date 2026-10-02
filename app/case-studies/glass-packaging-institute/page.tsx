@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, Download, FileText } from "lucide-react";
+import { ArrowRight, Download, FileText } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
 
 const pdf = "/EcoFocus_GPI_Case_Study_Final.pdf";
 const title = "Glass Packaging Institute Case Study";
@@ -48,40 +49,41 @@ export default function GlassPackagingCaseStudy() {
     <>
       <Header />
       <main id="main" className="bg-white pt-14 text-slate-900 md:pt-20">
-        <section aria-labelledby="case-study-title" className="section-slab-deep relative overflow-hidden">
-          <div aria-hidden="true" className="pointer-events-none absolute -right-32 top-0 h-96 w-96 rounded-full bg-emerald-500/15 blur-3xl" />
-          <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20">
-            <nav aria-label="Breadcrumb" className="mb-10 text-sm text-slate-300">
-              <Link href="/" className="hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-400">Home</Link>
+        <Hero
+          variant="solutions"
+          size="normal"
+          badge="Research in action · Case study"
+          headline={
+            <>
+              Turning consumer evidence into a{" "}
+              <span className="brand-gradient-text animate-gradient motion-reduce:!animate-none">
+                stronger business case for glass.
+              </span>
+            </>
+          }
+          subhead="Consumer intelligence the Glass Packaging Institute can use to influence packaging decisions, protect demand and strengthen the business case for glass."
+          videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
+          overlay="dense"
+          ctaPrimary={{ label: "Explore the findings", href: "#findings" }}
+          ctaSecondary={{ label: "Get the 6-page case study", href: "#download" }}
+        />
+
+        <section aria-label="Study at a glance" className="border-b border-slate-200 bg-slate-50">
+          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+            <nav aria-label="Breadcrumb" className="mb-8 text-sm text-slate-500">
+              <Link href="/" className="hover:text-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-600">Home</Link>
               <span aria-hidden="true" className="mx-3">/</span>
               <span aria-current="page">GPI case study</span>
             </nav>
-            <div className="grid items-center gap-12 lg:grid-cols-[1.5fr_1fr]">
-              <div>
-                <p className="mb-5 inline-flex rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-emerald-200">Research in action · Case study</p>
-                <h1 id="case-study-title" className="text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-                  Turning consumer evidence into a <span className="brand-gradient-text">stronger business case for glass.</span>
-                </h1>
-                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate-300">Consumer intelligence the Glass Packaging Institute can use to influence packaging decisions, protect demand and strengthen the business case for glass.</p>
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <a href="#findings" className="btn-primary-emerald gap-2">Explore the findings <ArrowDown size={17} aria-hidden="true" /></a>
-                  <a href={pdf} download className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/30 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-400"><Download size={17} aria-hidden="true" /> Download case study</a>
-                </div>
-              </div>
-              <aside aria-label="Study at a glance" className="overflow-hidden rounded-2xl bg-white text-slate-900 shadow-2xl">
-                <div className="border-b border-slate-100 p-8">
-                  <p className="mb-6 text-xs font-semibold uppercase tracking-widest text-emerald-700">Glass Packaging Institute + EcoFocus</p>
-                  <Image src="/images/logos/Site_GPI Logo 2_0.png" alt="Glass Packaging Institute" width={300} height={120} className="h-24 w-full object-contain" priority />
-                </div>
-                <dl className="grid grid-cols-2 gap-x-5 gap-y-7 p-8">
-                  <div><dt className="text-xs uppercase tracking-wider text-slate-500">Research base</dt><dd className="mt-2 text-3xl font-semibold">4,046<span className="mt-1 block text-sm font-normal text-slate-600">U.S. adults, age 18+</span></dd></div>
-                  <div><dt className="text-xs uppercase tracking-wider text-slate-500">Deliverable</dt><dd className="mt-2 text-3xl font-semibold">73<span className="mt-1 block text-sm font-normal text-slate-600">pages of strategic insight</span></dd></div>
-                  <div className="col-span-2 border-t border-slate-100 pt-5"><dt className="text-xs uppercase tracking-wider text-slate-500">Fieldwork</dt><dd className="mt-2 font-medium">May 28–June 14, 2026</dd></div>
-                </dl>
-              </aside>
+            <div className="grid items-center gap-8 lg:grid-cols-[1fr_3fr]">
+              <Image src="/images/logos/Site_GPI Logo 2_0.png" alt="Glass Packaging Institute" width={300} height={120} className="h-20 w-full object-contain lg:object-left" />
+              <dl className="grid gap-6 sm:grid-cols-3">
+                <div><dt className="text-xs uppercase tracking-wider text-slate-500">Research base</dt><dd className="mt-2 text-2xl font-semibold">4,046<span className="mt-1 block text-sm font-normal text-slate-600">U.S. adults, age 18+</span></dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-slate-500">Client deliverable</dt><dd className="mt-2 text-xl font-semibold">Strategic research report</dd></div>
+                <div><dt className="text-xs uppercase tracking-wider text-slate-500">Fieldwork</dt><dd className="mt-2 text-xl font-semibold">May 28–June 14, 2026</dd></div>
+              </dl>
             </div>
           </div>
-          <div aria-hidden="true" className="h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
         </section>
 
         <section aria-labelledby="challenge-title" className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-24">
@@ -139,8 +141,8 @@ export default function GlassPackagingCaseStudy() {
           <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-20">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">Built for activation</p>
-              <h2 id="deliverable-title" className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">A 73-page report built to be used.</h2>
-              <p className="mt-5 leading-relaxed text-slate-600">The final report combined consumer data, trend and subgroup analysis, category implications, communications guidance and ready-to-use business language for researchers and non-research stakeholders alike.</p>
+              <h2 id="deliverable-title" className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">A research report built to be used.</h2>
+              <p className="mt-5 leading-relaxed text-slate-600">GPI received a 73-page strategic research report. The six-page case study available here summarizes the approach, findings and value. The client report combined consumer data, trend and subgroup analysis, category implications, communications guidance and ready-to-use business language for researchers and non-research stakeholders alike.</p>
               <ul className="mt-6 space-y-3 text-sm text-slate-700">
                 {["Nine themed chapters, from chemical safety to strategic recommendations", "Trend and generational views", "Behavior-based audience analysis", "Talking points for marketing, procurement, packaging, R&D and executives", "A full data appendix with question wording and significance testing"].map((text) => <li key={text} className="flex gap-3"><ArrowRight size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-emerald-600" />{text}</li>)}
               </ul>
@@ -166,16 +168,16 @@ export default function GlassPackagingCaseStudy() {
           </figure>
         </section>
 
-        <section aria-labelledby="download-title" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20">
+        <section id="download" aria-labelledby="download-title" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20">
           <div className="grid gap-8 rounded-2xl border border-slate-200 bg-slate-50 p-7 sm:p-10 md:grid-cols-[1fr_auto] md:items-center">
             <div><FileText size={28} aria-hidden="true" className="mb-4 text-emerald-600" /><h2 id="download-title" className="text-2xl font-semibold">Take the full case study with you.</h2><p className="mt-3 max-w-xl leading-relaxed text-slate-600">Explore the research approach, findings and business value in the original six-page PDF.</p></div>
             <div className="flex flex-col gap-3">
-              <a href={pdf} download className="btn-primary-emerald gap-2"><Download size={17} aria-hidden="true" /> Download case study (PDF)</a>
+              <a href={pdf} download className="btn-primary-emerald gap-2"><Download size={17} aria-hidden="true" /> Download the 6-page case study (PDF)</a>
               <a href={pdf} target="_blank" rel="noopener noreferrer" className="btn-secondary-light">View PDF in a new tab</a>
             </div>
           </div>
           <div className="mt-16 max-w-3xl">
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Turn sustainability intelligence into <span className="brand-gradient-text">market advantage.</span></h2>
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Turn sustainability intelligence into <span className="brand-gradient-text animate-gradient motion-reduce:!animate-none">market advantage.</span></h2>
             <p className="mt-5 leading-relaxed text-slate-600">Talk with EcoFocus about the business questions you need to answer. We combine nationally representative consumer research with deep sustainability and packaging expertise to turn evidence into clear action.</p>
             <Link href="/contact" className="btn-primary-emerald mt-7 gap-2">Book a discovery call <ArrowRight size={17} aria-hidden="true" /></Link>
           </div>
