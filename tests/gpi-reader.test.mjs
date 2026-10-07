@@ -266,3 +266,20 @@ test("hiding the document cancels any unfinished turn", async () => {
   assert.equal(r.turns().length, 0);
   assert.equal(r.timers.size, 0);
 });
+
+test("reusable case-study layout puts the reader immediately after methodology", () => {
+  const layout = fs.readFileSync(new URL("../components/CaseStudyLayout.tsx", import.meta.url), "utf8");
+  const page = fs.readFileSync(new URL("../app/case-studies/glass-packaging-institute/page.tsx", import.meta.url), "utf8");
+  assert.match(layout, /id="methodology"[\s\S]*?<\/section>\s*<section id="case-study"/);
+  assert.match(layout, /src=\{study\.document\.readerSrc\}/);
+  assert.match(page, /<CaseStudyLayout study=\{study\} \/>/);
+  assert.doesNotMatch(page, /value: "(?:59|64|49|42)%"/);
+  assert.match(page, /4,046 U\.S\. adults, age 18\+/);
+  assert.match(page, /May 28–June 14, 2026/);
+});
+
+test("reader download button matches the site's emerald color and rounded corners", () => {
+  const css = fs.readFileSync(new URL("viewer.css", readerRoot), "utf8");
+  assert.match(css, /\.tools \.download\{[^}]*background:#059669;[^}]*border-radius:12px;/);
+  assert.match(css, /\.tools \.download:hover\{background:#047857;/);
+});
