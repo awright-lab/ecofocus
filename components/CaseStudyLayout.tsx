@@ -69,14 +69,15 @@ export default function CaseStudyLayout({ study }: { study: CaseStudyContent }) 
           <noscript><p className="mt-3 text-sm"><a href={study.document.href} className="underline">Read the original case study PDF</a></p></noscript>
         </section>
 
-        <section aria-label="Case study overview" className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-20">
-          <div>
-            <h2 className="text-3xl font-semibold tracking-tight">Research in context</h2>
+        <section id="overview" aria-label="Case study overview" className="scroll-mt-24 mx-auto grid max-w-7xl gap-6 px-4 py-16 sm:px-6 lg:grid-cols-2 md:py-20">
+          <div className="rounded-2xl border border-blue-100 bg-brand-tint-blue p-7 sm:p-9">
+            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">The research need</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight lg:min-h-[4.5rem]">Research in context</h2>
             <p className="mt-5 leading-relaxed text-slate-600">{study.overview}</p>
           </div>
           <div className="rounded-2xl border border-emerald-100 bg-brand-tint-emerald p-7 sm:p-9">
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">The EcoFocus approach</p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight">{study.approach.title}</h2>
+            <h2 className="mt-4 text-3xl font-semibold tracking-tight lg:min-h-[4.5rem]">{study.approach.title}</h2>
             <p className="mt-5 leading-relaxed text-slate-600">{study.approach.text}</p>
           </div>
         </section>
@@ -103,12 +104,12 @@ export default function CaseStudyLayout({ study }: { study: CaseStudyContent }) 
           </section>
         ) : null}
 
-        <section aria-labelledby="contact-title" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20">
+        <section aria-labelledby="contact-title" className="mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-16">
           <div className="max-w-3xl">
             <h2 id="contact-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">Turn sustainability intelligence into <span className="brand-gradient-text animate-gradient motion-reduce:!animate-none">market advantage.</span></h2>
             <p className="mt-5 leading-relaxed text-slate-600">Talk with EcoFocus about the business questions you need to answer. We combine nationally representative consumer research with deep sustainability and packaging expertise to turn evidence into clear action.</p>
-            <Link href="/contact" className="btn-primary-emerald mt-7 gap-2">Book a discovery call <ArrowRight size={17} aria-hidden="true" /></Link>
           </div>
+          <Link href="/contact" className="btn-primary-emerald justify-self-start gap-2 lg:justify-self-end">Book a discovery call <ArrowRight size={17} aria-hidden="true" /></Link>
         </section>
       </main>
       <Footer />

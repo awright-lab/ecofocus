@@ -299,3 +299,19 @@ test("original bottom call to action copy is restored", () => {
   assert.match(layout, /Talk with EcoFocus about the business questions you need to answer\. We combine nationally representative consumer research with deep sustainability and packaging expertise to turn evidence into clear action\./);
   assert.match(layout, /Book a discovery call/);
 });
+
+
+test("overview uses balanced cards with aligned desktop headings", () => {
+  const layout = fs.readFileSync(new URL("../components/CaseStudyLayout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /id="overview"[^>]*lg:grid-cols-2/);
+  assert.match(layout, /border-blue-100 bg-brand-tint-blue p-7 sm:p-9/);
+  assert.match(layout, /border-emerald-100 bg-brand-tint-emerald p-7 sm:p-9/);
+  assert.equal((layout.match(/lg:min-h-\[4\.5rem\]/g) ?? []).length, 2);
+  assert.match(layout, /The research need/);
+});
+
+test("bottom CTA places the button beside the copy only on desktop", () => {
+  const layout = fs.readFileSync(new URL("../components/CaseStudyLayout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /aria-labelledby="contact-title"[^>]*lg:grid-cols-\[minmax\(0,1fr\)_auto\][^>]*lg:items-center/);
+  assert.match(layout, /<\/div>\s*<Link href="\/contact" className="btn-primary-emerald justify-self-start gap-2 lg:justify-self-end">Book a discovery call/);
+});
