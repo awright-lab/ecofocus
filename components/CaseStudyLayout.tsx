@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Download, FileText } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
@@ -13,7 +13,7 @@ export type CaseStudyContent = {
   summary: string;
   logo: { src: string; alt: string };
   facts: { label: string; value: string }[];
-  challenge: { title: string; text: string };
+  overview: string;
   approach: { title: string; text: string };
   methodology: { description: string; facts: { label: string; value: string }[]; note: string };
   document: { href: string; pages: number; readerSrc: string };
@@ -34,7 +34,6 @@ export default function CaseStudyLayout({ study }: { study: CaseStudyContent }) 
           videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
           overlay="dense"
           ctaPrimary={{ label: "Read the case study", href: "#case-study" }}
-          ctaSecondary={{ label: "Get the PDF", href: "#download" }}
         />
 
         <section aria-label="Study at a glance" className="border-b border-slate-200 bg-slate-50">
@@ -53,11 +52,27 @@ export default function CaseStudyLayout({ study }: { study: CaseStudyContent }) 
           </div>
         </section>
 
+        <section id="case-study" aria-label={`${study.client} case study reader`} className="scroll-mt-24 mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-12">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+            <iframe
+              src={study.document.readerSrc}
+              title={`Read the ${study.document.pages}-page ${study.client} case study`}
+              width="100%"
+              height="760"
+              className="block h-[720px] w-full border-0 sm:h-[760px]"
+              loading="lazy"
+              allow="fullscreen"
+              allowFullScreen
+            />
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">Use the arrows or swipe to turn pages. Page text is displayed as images and is not selectable or screen-reader readable. Open or download the original PDF from the reader toolbar.</p>
+          <noscript><p className="mt-3 text-sm"><a href={study.document.href} className="underline">Read the original case study PDF</a></p></noscript>
+        </section>
+
         <section aria-label="Case study overview" className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:py-20">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">The challenge</p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight">{study.challenge.title}</h2>
-            <p className="mt-5 leading-relaxed text-slate-600">{study.challenge.text}</p>
+            <h2 className="text-3xl font-semibold tracking-tight">Research in context</h2>
+            <p className="mt-5 leading-relaxed text-slate-600">{study.overview}</p>
           </div>
           <div className="rounded-2xl border border-emerald-100 bg-brand-tint-emerald p-7 sm:p-9">
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-700">The EcoFocus approach</p>
@@ -78,32 +93,6 @@ export default function CaseStudyLayout({ study }: { study: CaseStudyContent }) 
           </div>
         </section>
 
-        <section id="case-study" aria-labelledby="case-study-title" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20">
-          <div id="download" className="scroll-mt-24 grid gap-8 rounded-2xl border border-slate-200 bg-slate-50 p-7 sm:p-10 md:grid-cols-[1fr_auto] md:items-center">
-            <div>
-              <FileText size={28} aria-hidden="true" className="mb-4 text-emerald-600" />
-              <h2 id="case-study-title" className="text-2xl font-semibold">Explore the full case study.</h2>
-              <p className="mt-3 max-w-xl leading-relaxed text-slate-600">Read the {study.document.pages}-page case study for the research approach, findings and business value.</p>
-            </div>
-            <div className="flex flex-col gap-3">
-              <a href={study.document.href} download className="btn-primary-emerald gap-2"><Download size={17} aria-hidden="true" /> Download the case study (PDF)</a>
-              <a href={study.document.href} target="_blank" rel="noopener noreferrer" className="btn-secondary-light">View PDF in a new tab</a>
-            </div>
-          </div>
-          <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
-            <iframe
-              src={study.document.readerSrc}
-              title={`Read the ${study.document.pages}-page ${study.client} case study`}
-              width="100%"
-              height="760"
-              className="block h-[720px] w-full border-0 sm:h-[760px]"
-              loading="lazy"
-              allow="fullscreen"
-              allowFullScreen
-            />
-          </div>
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">Use the arrows or swipe to turn pages. Page text is displayed as images and is not selectable or screen-reader readable. The original PDF is available above.</p>
-        </section>
 
         {study.testimonial ? (
           <section aria-label="Client testimonial" className="section-slab-emerald">
@@ -116,9 +105,9 @@ export default function CaseStudyLayout({ study }: { study: CaseStudyContent }) 
 
         <section aria-labelledby="contact-title" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20">
           <div className="max-w-3xl">
-            <h2 id="contact-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">Start with the questions that matter to your business.</h2>
-            <p className="mt-5 leading-relaxed text-slate-600">Talk with EcoFocus about how consumer research can help inform your next decision.</p>
-            <Link href="/contact" className="btn-primary-emerald mt-7 gap-2">Let’s talk <ArrowRight size={17} aria-hidden="true" /></Link>
+            <h2 id="contact-title" className="text-3xl font-semibold tracking-tight sm:text-4xl">Turn sustainability intelligence into <span className="brand-gradient-text animate-gradient motion-reduce:!animate-none">market advantage.</span></h2>
+            <p className="mt-5 leading-relaxed text-slate-600">Talk with EcoFocus about the business questions you need to answer. We combine nationally representative consumer research with deep sustainability and packaging expertise to turn evidence into clear action.</p>
+            <Link href="/contact" className="btn-primary-emerald mt-7 gap-2">Book a discovery call <ArrowRight size={17} aria-hidden="true" /></Link>
           </div>
         </section>
       </main>

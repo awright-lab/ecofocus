@@ -267,10 +267,10 @@ test("hiding the document cancels any unfinished turn", async () => {
   assert.equal(r.timers.size, 0);
 });
 
-test("reusable case-study layout puts the reader immediately after methodology", () => {
+test("reusable case-study layout puts the reader immediately after the client strip", () => {
   const layout = fs.readFileSync(new URL("../components/CaseStudyLayout.tsx", import.meta.url), "utf8");
   const page = fs.readFileSync(new URL("../app/case-studies/glass-packaging-institute/page.tsx", import.meta.url), "utf8");
-  assert.match(layout, /id="methodology"[\s\S]*?<\/section>\s*<section id="case-study"/);
+  assert.match(layout, /aria-label="Study at a glance"[\s\S]*?<\/section>\s*<section id="case-study"/);
   assert.match(layout, /src=\{study\.document\.readerSrc\}/);
   assert.match(page, /<CaseStudyLayout study=\{study\} \/>/);
   assert.doesNotMatch(page, /value: "(?:59|64|49|42)%"/);
@@ -282,4 +282,20 @@ test("reader download button matches the site's emerald color and rounded corner
   const css = fs.readFileSync(new URL("viewer.css", readerRoot), "utf8");
   assert.match(css, /\.tools \.download\{[^}]*background:#059669;[^}]*border-radius:12px;/);
   assert.match(css, /\.tools \.download:hover\{background:#047857;/);
+});
+
+
+test("reader uses the original FileText icon without duplicate download section", () => {
+  const layout = fs.readFileSync(new URL("../components/CaseStudyLayout.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(layout, /Explore the full case study|The challenge|id="download"/);
+  assert.match(html, /class="book-symbol" viewBox="0 0 24 24"/);
+  for (const path of ["M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", "M14 2v4a2 2 0 0 0 2 2h4", "M10 9H8", "M16 13H8", "M16 17H8"]) assert.ok(html.includes(`d="${path}"`));
+});
+
+test("original bottom call to action copy is restored", () => {
+  const layout = fs.readFileSync(new URL("../components/CaseStudyLayout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /Turn sustainability intelligence into /);
+  assert.match(layout, /market advantage\./);
+  assert.match(layout, /Talk with EcoFocus about the business questions you need to answer\. We combine nationally representative consumer research with deep sustainability and packaging expertise to turn evidence into clear action\./);
+  assert.match(layout, /Book a discovery call/);
 });

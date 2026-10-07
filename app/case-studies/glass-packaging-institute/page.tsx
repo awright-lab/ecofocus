@@ -30,10 +30,7 @@ const study: CaseStudyContent = {
     { label: "Research focus", value: "Consumer attitudes & packaging" },
     { label: "Deliverable", value: "Strategic research report" },
   ],
-  challenge: {
-    title: "Understanding what matters to consumers",
-    text: "GPI needed a clearer picture of how consumers view glass packaging and how packaging shapes their choices. The research would provide a foundation for member conversations and communications.",
-  },
+  overview: "GPI needed a clearer picture of how consumers view glass packaging to inform member conversations and communications.",
   approach: {
     title: "Research built around the right questions",
     text: "EcoFocus combined consumer tracking dating back to 2010 with custom questions for GPI. The results were brought together in a strategic research report to help the organization interpret consumer perspectives and plan its next steps.",
