@@ -176,6 +176,22 @@ export default function GlassPackagingCaseStudy() {
               <a href={pdf} target="_blank" rel="noopener noreferrer" className="btn-secondary-light">View PDF in a new tab</a>
             </div>
           </div>
+          <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+            <iframe
+              src="/gpi-reader/index.html?embed=1"
+              title="Read the six-page Glass Packaging Institute case study"
+              width="100%"
+              height="760"
+              className="block h-[720px] w-full border-0 sm:h-[760px]"
+              loading="lazy"
+              allow="fullscreen"
+              allowFullScreen
+            />
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">
+            Turn pages with the arrows or swipe, zoom in for a closer look, or use the PDF links above.
+            The reader displays page images; text within them is not selectable or screen-reader readable.
+          </p>
           <div className="mt-16 max-w-3xl">
             <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Turn sustainability intelligence into <span className="brand-gradient-text animate-gradient motion-reduce:!animate-none">market advantage.</span></h2>
             <p className="mt-5 leading-relaxed text-slate-600">Talk with EcoFocus about the business questions you need to answer. We combine nationally representative consumer research with deep sustainability and packaging expertise to turn evidence into clear action.</p>
