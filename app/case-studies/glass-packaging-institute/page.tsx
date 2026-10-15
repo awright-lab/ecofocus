@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Download } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
@@ -51,23 +51,21 @@ export default function GlassPackagingCaseStudy() {
           </figure>
         </section>
 
-        <section aria-label="Read the case study" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4">
-              <h2 className="text-base font-semibold">Glass Packaging Institute · Case Study 2026</h2>
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                <a href={pdf} target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-700 underline underline-offset-4 hover:text-emerald-900">Open PDF in a new tab</a>
-                <a href={pdf} download className="btn-primary-emerald gap-2"><Download size={16} aria-hidden="true" /> Download PDF</a>
-              </div>
-            </div>
+        <section id="case-study" aria-label="Read the case study" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
             <iframe
-              src={`${pdf}#view=FitH`}
-              title="Glass Packaging Institute Case Study 2026 PDF"
-              className="h-[70vh] min-h-[480px] w-full border-0 md:h-[850px]"
+              src="/gpi-reader/index.html?embed=1"
+              title="Read the six-page Glass Packaging Institute case study"
+              width="100%"
+              height="760"
+              className="block h-[720px] w-full border-0 sm:h-[760px]"
               loading="lazy"
+              allow="fullscreen"
+              allowFullScreen
             />
           </div>
-          <p className="mt-3 text-sm text-slate-500">If the document does not display in your browser, use the link above to open or download the PDF.</p>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">Use the arrows or swipe to turn pages. Page text is displayed as images and is not selectable or screen-reader readable. Open or download the original PDF from the reader toolbar.</p>
+          <noscript><p className="mt-3 text-sm"><a href={pdf} className="underline">Read the original case study PDF</a></p></noscript>
         </section>
 
         <section aria-label="Research context and approach" className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 sm:px-6 md:grid-cols-2 md:pb-16">
