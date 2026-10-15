@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -45,10 +46,22 @@ export default function GlassPackagingCaseStudy() {
         />
 
         <section aria-label="Client testimonial" className="section-slab-emerald">
-          <figure className="mx-auto max-w-4xl px-4 py-16 sm:px-6 md:py-20">
-            <blockquote className="text-2xl font-medium leading-relaxed sm:text-3xl">“EcoFocus gave us more than data. They gave us a credible, consumer-backed story that we and our members can use in conversations with brands, policymakers and the marketplace.”</blockquote>
-            <figcaption className="mt-7 text-sm text-emerald-100"><span className="font-semibold text-white">Scott DeFife</span><br />President, Glass Packaging Institute</figcaption>
-          </figure>
+          <div className="mx-auto grid max-w-7xl items-center gap-6 px-4 py-8 sm:px-6 md:grid-cols-[220px_minmax(0,1fr)] md:gap-10 md:py-10">
+            <div className="w-44 rounded-xl bg-white px-5 py-4 md:w-full">
+              <Image
+                src="/images/logos/Site_GPI Logo 2_0.png"
+                alt="Glass Packaging Institute"
+                width={699}
+                height={389}
+                sizes="(min-width: 768px) 180px, 136px"
+                className="h-auto w-full object-contain"
+              />
+            </div>
+            <figure>
+              <blockquote className="text-lg font-medium leading-relaxed sm:text-xl">“EcoFocus gave us more than data. They gave us a credible, consumer-backed story that we and our members can use in conversations with brands, policymakers and the marketplace.”</blockquote>
+              <figcaption className="mt-4 text-sm text-emerald-100"><span className="font-semibold text-white">Scott DeFife</span><br />President, Glass Packaging Institute</figcaption>
+            </figure>
+          </div>
         </section>
 
         <section id="case-study" aria-label="Read the case study" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
