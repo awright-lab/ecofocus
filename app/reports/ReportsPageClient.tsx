@@ -7,7 +7,6 @@ import { LeftFilterRail } from "./LeftFilterRail";
 import { MobileFilterDrawer } from "./MobileFilterDrawer";
 import { useReportSearchParams } from "./useReportSearchParams";
 import ReportsBundles from "./ReportsBundles";
-import ReportsCTA from "./ReportsCTA";
 
 export default function ReportsPageClient() {
   const { values, setParam } = useReportSearchParams();
@@ -17,7 +16,7 @@ export default function ReportsPageClient() {
   return (
     <>
       {/* Centered container: filters + grid */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <div id="report-catalog" className="mx-auto max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <aside className="lg:col-span-3">
             <button
@@ -44,14 +43,9 @@ export default function ReportsPageClient() {
       </div>
 
       {/* Full-width brand slabs below the list */}
-      <section className="section-slab-emerald py-12 sm:py-14">
+      <section className="bg-[#213F97]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <ReportsBundles />
-        </div>
-      </section>
-      <section className="section-slab-deep py-12 sm:py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <ReportsCTA />
         </div>
       </section>
 

@@ -17,7 +17,7 @@ export function LeftFilterRail({
   setParam: (k: string, v?: string | number | null) => void;
 }) {
   return (
-    <div className="rounded-2xl section-slab-emerald p-5 sm:p-6 text-white border border-emerald-700/40">
+    <div className="rounded-2xl bg-[#213F97] p-5 sm:p-6 text-white border border-emerald-700/40">
       <h3 className="text-sm font-semibold tracking-wide">Refine</h3>
       <div className="h-px w-full my-3 bg-white/20" />
 
@@ -54,7 +54,7 @@ export function LeftFilterRail({
           All Years
         </button>
         <div className="mt-2 grid grid-cols-2 gap-1">
-          {["2025", "2024", "2023", "2022", "2021", "2020", "2019", "2018"].map((y) => {
+          {Array.from({ length: 9 }, (_, index) => String(new Date().getFullYear() - index)).map((y) => {
             const active = year === y;
             return (
               <button
@@ -97,11 +97,9 @@ export function LeftFilterRail({
         <div className="flex flex-wrap gap-1">
           <Chip label="All" active={type === "All"} onClick={() => setParam("type", undefined)} />
           {[
-            ["Syndicated", "syndicated"],
-            ["Data Integration", "data-integration"],
-            ["Custom", "custom"],
+            ["Report", "report"],
             ["Brief", "brief"],
-            ["White Paper", "white-paper"],
+            ["Dataset", "dataset"],
           ].map(([label, slug]) => (
             <Chip key={slug} label={label} active={type === slug} onClick={() => setParam("type", slug)} />
           ))}
@@ -111,14 +109,7 @@ export function LeftFilterRail({
       {/* Reset */}
       <div className="mt-6">
         <button
-          onClick={() => {
-            setParam("access", undefined);
-            setParam("year", undefined);
-            setParam("topic", undefined);
-            setParam("type", undefined);
-            setParam("q", undefined);
-            setParam("sort", "Newest");
-          }}
+          onClick={() => setParam("reset")}
           className="w-full rounded-lg border border-white/25 px-3 py-2 hover:bg-white/10"
         >
           Reset Filters

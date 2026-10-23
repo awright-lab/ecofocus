@@ -88,11 +88,14 @@ function normText(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]/g, "");
 }
 
-const RAW_BACKEND = (process.env.REPORTS_BACKEND || "mock").toLowerCase(); // "payload" | "mock"
-const PAYLOAD_BASE_URL = process.env.PAYLOAD_BASE_URL || "";
+const PAYLOAD_BASE_URL = (process.env.PAYLOAD_BASE_URL || process.env.NEXT_PUBLIC_CMS_URL || "").replace(/\/$/, "");
 const PAYLOAD_TOKEN = process.env.PAYLOAD_API_TOKEN || "";
+const RAW_BACKEND = process.env.REPORTS_BACKEND || "payload";
 const WANT_PAYLOAD = RAW_BACKEND === "payload" && !!PAYLOAD_BASE_URL;
-const DISABLE_FALLBACK = process.env.REPORTS_DISABLE_FALLBACK === "1";
+const MOCK_ENABLED = RAW_BACKEND === "mock" && process.env.NODE_ENV !== "production";
+const payloadHeaders = () => process.env.REPORTS_API_KEY
+  ? { Authorization: `users API-Key ${process.env.REPORTS_API_KEY}` }
+  : PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined;
 
 /* =========================
    MOCK DATA (no cloning)
@@ -272,16 +275,11 @@ async function getMockDetailBy(key: "id" | "slug", val: string) {
    PAYLOAD BACKEND
    ========================= */
 function payloadWhereFromInput(input: ListReportsInput) {
-  const where: any = { and: [] as any[] };
+  const where: any = { and: [{ _status: { equals: "published" } }] };
   const acc = normalizeAccess(input.access as any);
 
   if (acc === "Free" || acc === "Premium") {
-    where.and.push({
-      or: [
-        { access: { equals: acc } },
-        { access: { equals: acc.toLowerCase() } }, // tolerate lowercase in CMS
-      ],
-    });
+    where.and.push({ access: { equals: acc } });
   }
   if (input.year && input.year !== "All") {
     const y = parseInt(input.year, 10);
@@ -291,7 +289,6 @@ function payloadWhereFromInput(input: ListReportsInput) {
     const t = input.topic.replace(/-/g, " ");
     where.and.push({
       or: [
-        { topics: { contains: input.topic } }, // slug array
         { tags: { contains: t } },
         { topic: { like: t } },
       ],
@@ -311,11 +308,12 @@ function payloadWhereFromInput(input: ListReportsInput) {
 }
 
 function payloadSortFromInput(sort?: Sort) {
-  return sort === "AtoZ" ? "title" : "-year, title";
+  return sort === "AtoZ" ? "title" : "-year,title";
 }
 
 function mapPayloadListDoc(d: any): ReportListItem {
-  const thumb = d.thumbnail?.url ?? d.cover?.url ?? null;
+  const rawThumb = d.thumbnail?.url ?? d.cover?.url ?? null;
+  const thumb = rawThumb ? new URL(rawThumb, PAYLOAD_BASE_URL).toString() : null;
   return {
     id: String(d.id),
     slug: d.slug,
@@ -339,7 +337,8 @@ function mapPayloadListDoc(d: any): ReportListItem {
 }
 
 function normalizePayloadDetail(d: any): ReportDetail {
-  const thumb = d.thumbnail?.url ?? d.cover?.url ?? null;
+  const rawThumb = d.thumbnail?.url ?? d.cover?.url ?? null;
+  const thumb = rawThumb ? new URL(rawThumb, PAYLOAD_BASE_URL).toString() : null;
   return {
     id: String(d.id),
     slug: d.slug,
@@ -378,7 +377,7 @@ async function listReportsPayload(input: ListReportsInput): Promise<ListReportsR
   if (where) url.searchParams.set("where", JSON.stringify(where));
 
   const res = await fetch(url.toString(), {
-    headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
+    headers: payloadHeaders(),
     cache: "no-store",
   });
   if (!res.ok) {
@@ -399,19 +398,19 @@ async function listReportsPayload(input: ListReportsInput): Promise<ListReportsR
 
 async function getPayloadDetailById(id: string): Promise<ReportDetail | null> {
   const res = await fetch(`${PAYLOAD_BASE_URL}/api/reports/${id}`, {
-    headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
+    headers: payloadHeaders(),
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`Payload detail error: ${res.status}`);
   const doc = await res.json();
-  return normalizePayloadDetail(doc);
+  return doc._status === "published" ? normalizePayloadDetail(doc) : null;
 }
 
 async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null> {
   const url = new URL(`${PAYLOAD_BASE_URL}/api/reports`);
-  url.searchParams.set("where", JSON.stringify({ slug: { equals: slug } }));
+  url.searchParams.set("where", JSON.stringify({ and: [{ slug: { equals: slug } }, { _status: { equals: "published" } }] }));
   const res = await fetch(url.toString(), {
-    headers: PAYLOAD_TOKEN ? { Authorization: `JWT ${PAYLOAD_TOKEN}` } : undefined,
+    headers: payloadHeaders(),
     cache: "no-store",
   });
   if (!res.ok) throw new Error(`Payload detail error: ${res.status}`);
@@ -424,58 +423,32 @@ async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null
    Public API with post-filter & fallback
    ========================= */
 export async function listReports(input: ListReportsInput): Promise<ListReportsResult> {
-  const withNorm: ListReportsInput = { ...input, access: normalizeAccess(input.access as any) };
-
-  if (WANT_PAYLOAD) {
-    try {
-      const res = await listReportsPayload(withNorm);
-      const cleaned = applyPostFilter(res.items, withNorm);
-
-      if (DISABLE_FALLBACK || cleaned.length > 0) {
-        const pageSize = Math.max(1, Math.min(60, withNorm.limit || 12));
-        return {
-          items: cleaned,
-          nextCursor: cleaned.length >= pageSize ? res.nextCursor ?? null : null,
-          total: res.total ?? cleaned.length,
-        };
-      }
-      console.warn("[reports] CMS returned empty/misaligned after post-filter — falling back to mock.");
-    } catch (e) {
-      console.warn("[reports] CMS error — falling back to mock.", e);
-      if (DISABLE_FALLBACK) throw e;
-    }
-  }
-
-  return listReportsMock(withNorm);
+  const normalized = { ...input, access: normalizeAccess(input.access) };
+  if (WANT_PAYLOAD) return listReportsPayload(normalized);
+  if (MOCK_ENABLED) return listReportsMock(normalized);
+  return { items: [], total: 0, nextCursor: null };
 }
 
 export async function getReportById(id: string): Promise<ReportDetail | null> {
   if (WANT_PAYLOAD) {
-    try {
-      const d = await getPayloadDetailById(id);
-      if (DISABLE_FALLBACK || d) return d;
-    } catch {}
+    const report = await getPayloadDetailById(id);
+    return report;
   }
-  return getMockDetailBy("id", id);
+  return MOCK_ENABLED ? getMockDetailBy("id", id) : null;
 }
 
 export async function getReportBySlug(slug: string): Promise<ReportDetail | null> {
-  if (WANT_PAYLOAD) {
-    try {
-      const d = await getPayloadDetailBySlug(slug);
-      if (DISABLE_FALLBACK || d) return d;
-    } catch {}
-  }
-  return getMockDetailBy("slug", slug);
+  if (WANT_PAYLOAD) return getPayloadDetailBySlug(slug);
+  return MOCK_ENABLED ? getMockDetailBy("slug", slug) : null;
 }
 
-
-
-
-  
-  
-
-
-
-
-  
+export async function getReportByPriceId(priceId: string): Promise<ReportDetail | null> {
+  if (!WANT_PAYLOAD) return null;
+  const url = new URL(`${PAYLOAD_BASE_URL}/api/reports`);
+  url.searchParams.set("where", JSON.stringify({ and: [{ priceId: { equals: priceId } }, { _status: { equals: "published" } }, { access: { equals: "Premium" } }] }));
+  url.searchParams.set("limit", "1");
+  const response = await fetch(url, { headers: payloadHeaders(), cache: "no-store" });
+  if (!response.ok) throw new Error("The report catalog is unavailable.");
+  const data = await response.json();
+  return data.docs?.[0] ? normalizePayloadDetail(data.docs[0]) : null;
+}

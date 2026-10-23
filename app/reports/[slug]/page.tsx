@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -73,20 +74,7 @@ export default async function ReportDetailPage({
   const { slug } = await params;     // <-- await it
   const report = await getReportBySlug(slug);
 
-  if (!report) {
-    return (
-      <>
-        <Header />
-        <main className="bg-white">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 py-16">
-            <h1 className="text-2xl font-bold text-gray-900">Report not found</h1>
-            <p className="mt-2 text-gray-700">Please go back and try again.</p>
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+  if (!report) notFound();
 
   return (
     <>
@@ -108,16 +96,12 @@ export default async function ReportDetailPage({
             <div className="md:col-span-8">
               <h2 className="text-lg font-semibold text-gray-900">Overview</h2>
               <p className="mt-2 text-sm text-gray-700">
-                {report.subtitle || "A focused EcoFocus analysis with segmentable reads and agency-ready outputs."}
+                {report.subtitle || "Sustainability research from EcoFocus."}
               </p>
 
               <div className="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                 <h3 className="text-base font-semibold text-gray-900">What’s inside</h3>
-                <ul className="mt-3 space-y-2.5 text-sm text-gray-700">
-                  <li className="flex gap-3"><span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" /> Methods, sample, and key segments</li>
-                  <li className="flex gap-3"><span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" /> Findings with trend context (where applicable)</li>
-                  <li className="flex gap-3"><span className="mt-1.5 h-2 w-2 rounded-full bg-emerald-500" /> White-label charts for decks and POVs</li>
-                </ul>
+                <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-gray-700">{report.body || report.description}</p>
               </div>
             </div>
 
@@ -134,7 +118,7 @@ export default async function ReportDetailPage({
                 {report.access === "Premium" ? (
                   <div className="mt-4">
                     <div className="text-2xl font-bold text-gray-900">{report.priceDisplay ?? ""}</div>
-                    <PurchaseButtons priceId={report.priceId} title={report.title} />
+                    {report.priceId ? <PurchaseButtons priceId={report.priceId} title={report.title} /> : <a className="mt-4 inline-block text-emerald-800 underline" href="/contact">Contact us for availability</a>}
                   </div>
                 ) : (
                   <div className="mt-4">

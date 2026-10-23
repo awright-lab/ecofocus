@@ -1,10 +1,12 @@
 // store/cart.tsx
 "use client";
 
+import { checkoutPrices } from "@/lib/checkout";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type Item = { priceId: string; title: string; qty: number };
 type Ctx = {
+  ready: boolean;
   items: Item[];
   add: (i: Item) => void;
   remove: (priceId: string) => void;
@@ -17,20 +19,28 @@ const CartContext = createContext<Ctx | null>(null);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<Item[]>([]);
 
+  const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
-    const raw = localStorage.getItem("ef_cart");
-    if (raw) setItems(JSON.parse(raw));
+    try {
+      const parsed: unknown = JSON.parse(localStorage.getItem("ef_cart") || "[]");
+      if (Array.isArray(parsed)) setItems(parsed.filter((item): item is Item =>
+        item && typeof item.priceId === "string" && typeof item.title === "string" && Number.isInteger(item.qty) && item.qty > 0 && item.qty <= 100
+      ));
+    } catch { /* An unreadable cart starts empty. */ }
+    setHydrated(true);
   }, []);
   useEffect(() => {
-    localStorage.setItem("ef_cart", JSON.stringify(items));
-  }, [items]);
+    if (hydrated) {
+      try { localStorage.setItem("ef_cart", JSON.stringify(items)); } catch { /* The cart still works for this visit. */ }
+    }
+  }, [items, hydrated]);
 
   function add(i: Item) {
     setItems((prev) => {
       const idx = prev.findIndex((p) => p.priceId === i.priceId);
       if (idx >= 0) {
         const next = [...prev];
-        next[idx] = { ...next[idx], qty: next[idx].qty + i.qty };
+        next[idx] = { ...next[idx], qty: Math.min(100, next[idx].qty + i.qty) };
         return next;
       }
       return [...prev, i];
@@ -43,20 +53,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   }
   async function checkout() {
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: items.map((i) => ({ price: i.priceId, quantity: i.qty })),
-        successUrl: `${location.origin}/reports?order=success`,
-        cancelUrl: `${location.href}`,
-      }),
-    });
-    const data = await res.json();
-    if (data.url) location.href = data.url;
+    if (!items.length) throw new Error("Add a report before checking out.");
+    await checkoutPrices(items.map(i => ({ price: i.priceId, quantity: i.qty })));
   }
 
-  const value: Ctx = { items, add, remove, clear, checkout };
+  const value: Ctx = { ready: hydrated, items, add, remove, clear, checkout };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { LeftFilterRail } from "./LeftFilterRail";
 import type { Access } from "./useReportSearchParams";
 
@@ -22,15 +23,15 @@ export function MobileFilterDrawer({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
+    <Dialog open={open} onClose={onClose} className="fixed inset-0 z-[110] lg:hidden">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="absolute right-0 top-0 h-full w-80 bg-white shadow-xl p-4 overflow-y-auto">
+      <DialogPanel className="absolute right-0 top-0 h-full w-80 max-w-full bg-white shadow-xl p-4 overflow-y-auto">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-emerald-900">Filters</h3>
+          <DialogTitle className="font-semibold text-emerald-900">Filters</DialogTitle>
           <button onClick={onClose} className="text-emerald-800">Close</button>
         </div>
         <LeftFilterRail access={access} year={year} topic={topic} type={type} setParam={setParam} />
-      </div>
-    </div>
+      </DialogPanel>
+    </Dialog>
   );
 }

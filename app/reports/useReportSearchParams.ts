@@ -32,6 +32,7 @@ export function useReportSearchParams() {
 
   function setParam(key: string, val?: string | number | null) {
     const next = new URLSearchParams(sp.toString());
+    if (key === "reset") { router.replace(pathname, { scroll: false }); return; }
 
     const set = (k: string, v?: string | number | null) => {
       if (v === undefined || v === null || v === "" || v === "All") next.delete(k);
@@ -49,6 +50,8 @@ export function useReportSearchParams() {
       // any non-page change resets to page 1
       next.delete("page");
     }
+
+    if (key !== "page") next.delete("page");
 
     // always keep limit & sort if present; otherwise default is fine
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });

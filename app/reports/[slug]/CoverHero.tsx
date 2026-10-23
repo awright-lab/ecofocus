@@ -1,58 +1,15 @@
-// app/reports/[id]/sections/CoverHero.tsx
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import type { ReportDetail } from "@/lib/reports-repo";
 
 export default function CoverHero({ report }: { report: ReportDetail }) {
-  const r = useReducedMotion();
-  return (
-    <section className="relative overflow-hidden section-hero-deep">
-      <video
-        className="absolute inset-0 h-full w-full object-cover"
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/images/hero-6-poster.jpg"
-      >
-        <source src="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4" />
-      </video>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/35" />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-14 sm:py-18 md:py-20 text-white">
-        <motion.p
-          initial={r ? false : { opacity: 0, y: -6 }}
-          whileInView={r ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          className="text-xs font-semibold uppercase tracking-wider text-white/90"
-        >
-          {report.access === "Free" ? "Free Report" : "Premium Report"}
-        </motion.p>
-
-        <motion.h1
-          initial={r ? false : { opacity: 0, y: -10 }}
-          whileInView={r ? undefined : { opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-          className="mt-2 max-w-3xl font-bold leading-tight text-[clamp(1.8rem,5.2vw,2.6rem)]"
-        >
-          {report.title}
-        </motion.h1>
-
-        {report.subtitle && (
-          <motion.p
-            initial={r ? false : { opacity: 0 }}
-            whileInView={r ? undefined : { opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.08 }}
-            className="mt-3 max-w-2xl text-sm sm:text-base text-white/90"
-          >
-            {report.subtitle}
-          </motion.p>
-        )}
+  return <section className="overflow-hidden bg-[#0B1116] text-white">
+    <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 sm:py-20 md:grid-cols-[1fr_240px]">
+      <div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">EcoFocus Research · {report.access === "Free" ? "Free report" : "Research report"}</p>
+        <h1 className="mt-5 max-w-3xl text-3xl font-bold leading-tight sm:text-5xl">{report.title}</h1>
+        {(report.subtitle || report.description) && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-300">{report.subtitle || report.description}</p>}
+        <p className="mt-6 text-sm text-emerald-300">{[report.year, report.format, report.pages ? `${report.pages} pages` : null].filter(Boolean).join(" · ")}</p>
       </div>
-    </section>
-  );
+      {report.cover && <div className="relative mx-auto w-48 overflow-hidden rounded-xl border border-white/20 shadow-2xl md:w-60"><Image src={report.cover} alt={`${report.title} cover`} width={480} height={640} className="h-auto w-full" priority /></div>}
+    </div>
+  </section>;
 }
-
