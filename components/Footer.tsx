@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useReducedMotion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import PscMembership from '@/components/PscMembership';
 import NewsletterForm from '@/components/newsletter/NewsletterForm'; // ← import it
 
 export default function Footer() {
@@ -46,6 +47,8 @@ export default function Footer() {
           <p className="text-sm leading-relaxed text-gray-400">
             Turning sustainability data into actionable strategies for over a decade.
           </p>
+
+          <PscMembership />
 
           {/* Social */}
           <div className="mt-6 flex space-x-4">

@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
+import { PSC_CLIENT_LOGO_APPROVED, pscLogo } from '@/lib/psc';
 
 export default function TrustedBy() {
   const reduceMotion = useReducedMotion();
@@ -13,6 +14,8 @@ export default function TrustedBy() {
     { src: '/images/logos/duraflame-logo.png', alt: 'Duraflame' },
     { src: '/images/logos/Site_GPI Logo 2_0.png', alt: 'Glass Packaging Institute' },
     { src: '/images/logos/thinkPARALLAX_Logos_RBW-01-bug.png', alt: 'thinkPARALLAX' },
+    // PSC client-logo permission confirmed; membership is recognized separately.
+    ...(PSC_CLIENT_LOGO_APPROVED ? [pscLogo] : []),
   ];
 
   const loop = [...logos, ...logos]; // for a seamless marquee
@@ -52,7 +55,7 @@ export default function TrustedBy() {
 
         {/* Mobile ticker (md:hidden). Desktop grid remains unchanged below. */}
         <div className="md:hidden relative overflow-hidden py-3" role="region" aria-label="Partner logos">
-          <div className={`flex items-center gap-10 opacity-80 ${reduceMotion ? '' : 'efw-marquee'}`}>
+          <div className={`flex items-center gap-10 ${reduceMotion ? '' : 'efw-marquee'}`}>
             {loop.map((logo, i) => (
               <Image
                 key={`${logo.alt}-${i}`}
@@ -60,7 +63,7 @@ export default function TrustedBy() {
                 alt={logo.alt}
                 width={120}
                 height={40}
-                className="h-8 w-auto object-contain"
+                className={`h-8 w-auto shrink-0 object-contain ${logo.src === pscLogo.src ? '' : 'opacity-80'}`}
                 loading="lazy"
               />
             ))}
@@ -68,7 +71,7 @@ export default function TrustedBy() {
         </div>
 
         {/* Logos Grid (desktop) */}
-        <div className="hidden md:grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 md:grid-cols-6">
+        <div className={`hidden md:grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 ${PSC_CLIENT_LOGO_APPROVED ? 'md:grid-cols-7' : 'md:grid-cols-6'}`}>
           {logos.map((logo, i) => (
             <motion.div
               key={logo.alt}
@@ -85,7 +88,7 @@ export default function TrustedBy() {
                   alt={logo.alt}
                   fill
                   sizes="(min-width: 1024px) 14vw, (min-width: 640px) 28vw, 44vw"
-                  className="object-contain p-2 grayscale transition duration-500 group-hover:grayscale-0"
+                  className={`object-contain p-2 transition duration-500 ${logo.src === pscLogo.src ? '' : 'grayscale group-hover:grayscale-0'}`}
                   priority={false}
                 />
               </div>
