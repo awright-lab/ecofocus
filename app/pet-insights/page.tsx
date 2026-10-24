@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
-import Link from 'next/link'
-import { ArrowRight, PawPrint } from 'lucide-react'
+import { PawPrint, Search } from 'lucide-react'
+import Hero from '@/components/Hero'
+import BlogCard from '@/components/blog/BlogCard'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { getPetNewsletters } from '@/lib/payload'
@@ -21,7 +21,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function PetInsightsPage() {
+export default async function PetInsightsPage({ searchParams }: {
+  searchParams: Promise<{ q?: string | string[] }>
+}) {
+  const params = await searchParams
+  const query = (Array.isArray(params.q) ? params.q[0] : params.q)?.trim() || ''
   let posts: Post[] = []
   let unavailable = false
   try {
@@ -30,61 +34,54 @@ export default async function PetInsightsPage() {
     unavailable = true
   }
 
+  const filtered = posts.filter(post => !query ||
+    `${post.title} ${post.excerpt || ''}`.toLowerCase().includes(query.toLowerCase()))
+
   return (
     <>
       <Header />
-      <main id="main" className="min-h-screen bg-white pt-14 md:pt-20">
-        <section className="relative overflow-hidden text-white bg-[linear-gradient(180deg,#0F1A22_0%,#11222C_55%,#142A35_100%)]">
-          <div aria-hidden="true" className="pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-emerald-300/30 blur-3xl" />
-          <div aria-hidden="true" className="pointer-events-none absolute -bottom-28 -right-32 h-80 w-80 rounded-full bg-sky-300/30 blur-3xl" />
-          <figure className="absolute inset-y-6 right-0 hidden md:block">
-            <div className="relative h-full w-[50vw] lg:w-[52vw] xl:w-[54vw]">
-              <div className="absolute inset-0 overflow-hidden rounded-l-3xl bg-black/10 ring-1 ring-white/5 shadow-[0_30px_60px_rgba(0,0,0,.45)]">
-                <Image src="/images/newsletter-bg.png" alt="Macro tech-leaf texture representing sustainable innovation" fill priority sizes="54vw" className="select-none object-cover object-[60%_50%]" />
-                <div aria-hidden="true" className="absolute inset-y-0 left-0 w-44 bg-gradient-to-r from-[#0F1A22]/80 via-[#0F1A22]/35 to-transparent lg:w-48" />
-              </div>
-            </div>
-          </figure>
-          <div className="relative mx-auto flex min-h-[70vh] max-w-7xl items-center px-4 py-16 sm:px-6 md:mr-[50vw] md:min-h-[78vh] lg:mr-[52vw] lg:py-24 xl:mr-[54vw]">
-            <div className="w-full max-w-xl md:ml-auto md:translate-x-[1vw] lg:translate-x-[1.5vw]">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-200 ring-1 ring-white/15">
-                <PawPrint aria-hidden="true" className="h-4 w-4 shrink-0" /> EcoFocus Insights
-              </span>
-              <h1 className="mt-4 text-4xl font-semibold leading-tight sm:text-5xl md:text-6xl">
-                Big insights.{' '}
-                <span className="animate-gradient bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent">For the world of pets.</span>
-              </h1>
-              <p className="mt-4 text-lg text-white/85">Explore our pet industry newsletters for research on pet owners, sustainability, and what builds trust in pet brands.</p>
-              <a href="#newsletters" className="mt-8 inline-flex items-center gap-2 rounded-full bg-emerald-300 px-6 py-3 font-semibold text-slate-950 hover:bg-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-300">Explore the newsletters <ArrowRight aria-hidden="true" className="h-4 w-4" /></a>
-            </div>
+      <main id="main" className="min-h-screen bg-neutral-50">
+        <Hero
+          variant="solutions"
+          size="normal"
+          headline="Pet industry insights"
+          videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
+          posterSrc="/images/hero-6-poster.jpg"
+          overlay="dense"
+        >
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-4 py-2 text-sm text-emerald-200 backdrop-blur">
+              <PawPrint aria-hidden="true" className="h-4 w-4 shrink-0" /> EcoFocus Insights
+            </span>
+            <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl">
+              Fresh Pet Industry Insights That Move{' '}
+              <span className="animate-gradient bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent">Decisions</span>
+            </h1>
+            <p className="mt-4 text-lg text-gray-200/90">Bite-size reads from our consumer research on pet owners, sustainability, and what builds trust in pet brands.</p>
           </div>
-          <figure className="mt-8 md:hidden">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/20">
-              <Image src="/images/newsletter-bg.png" alt="Macro tech-leaf texture representing sustainable innovation" fill sizes="100vw" className="object-cover object-center" />
+        </Hero>
+        <div className="relative z-10 mx-auto -mt-10 max-w-7xl px-4 sm:px-6">
+          <form action="/pet-insights" method="get" role="search" className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-black/5">
+            <div className="relative flex-1">
+              <label htmlFor="pet-search" className="sr-only">Search pet newsletters</label>
+              <Search aria-hidden="true" className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+              <input id="pet-search" name="q" type="search" defaultValue={query} placeholder="Search pet newsletters" className="w-full rounded-lg border border-gray-300 py-1.5 pl-8 pr-3 text-sm text-gray-900" />
             </div>
-          </figure>
-          <div aria-hidden="true" className="absolute bottom-0 left-0 h-1 w-full animate-gradient bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
-        </section>
-        <section id="newsletters" aria-labelledby="newsletters-title" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-12 sm:px-6 sm:py-16">
-          <h2 id="newsletters-title" className="text-3xl font-semibold text-slate-900">Pet industry newsletters</h2>
-          <p className="mt-3 text-slate-600">Fresh perspectives, grounded in consumer research.</p>
-          {posts.length > 0 ? (
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {posts.map(post => (
-                <Link key={post.id} href={`/blog/${post.slug}`} className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700">
-                  {post.coverImage?.url && <div className="relative aspect-[16/10]"><Image src={post.coverImage.url} alt={post.coverImage.alt || ''} fill sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" className="object-cover" /></div>}
-                  <div className="flex flex-1 flex-col p-6">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Pet Industry</span>
-                    <h3 className="mt-3 text-xl font-semibold leading-snug text-slate-900 group-hover:underline">{post.title}</h3>
-                    {post.excerpt && <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate-600">{post.excerpt}</p>}
-                    <span className="mt-auto flex items-center gap-2 pt-6 text-sm font-semibold text-emerald-800">Read newsletter <ArrowRight aria-hidden="true" className="h-4 w-4" /></span>
-                  </div>
-                </Link>
-              ))}
+            <button type="submit" className="rounded-full border border-gray-300 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50">Search</button>
+          </form>
+        </div>
+        <section aria-label="Pet industry newsletters" className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <p className="text-sm text-gray-600">{unavailable ? 'Newsletters unavailable.' : `Showing ${filtered.length} of ${posts.length} result${posts.length === 1 ? '' : 's'}`}</p>
+            {query && <a href="/pet-insights" className="text-sm font-medium text-emerald-700 hover:underline">Clear search</a>}
+          </div>
+          {filtered.length > 0 ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map(post => <BlogCard key={post.id} post={post} />)}
             </div>
           ) : (
-            <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-8 text-slate-600">
-              <p>{unavailable ? 'Our newsletters are temporarily unavailable. Please try again shortly.' : 'Our pet industry newsletters will be available here soon.'}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-8 text-slate-600">
+              <p>{unavailable ? 'Our newsletters are temporarily unavailable. Please try again shortly.' : query ? 'No pet newsletters match your search. Try another term.' : 'Our pet industry newsletters will be available here soon.'}</p>
               {unavailable && <a href="/pet-insights" className="mt-4 inline-block font-semibold text-emerald-800 underline">Try again</a>}
             </div>
           )}
