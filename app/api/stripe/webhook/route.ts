@@ -5,12 +5,17 @@ import { syncPortalInvoiceStatusFromStripeInvoice, syncPortalSubscriptionStatusF
 import { getPortalCompanies } from "@/lib/portal/data";
 import { sendPortalInvoicePaidNotificationEmail } from "@/lib/portal/email";
 import { getPortalProvisioningMetadata, upsertPortalAccountRecords, upsertPortalDashboardConfig } from "@/lib/portal/provisioning";
+import { sendReportOrderEmail } from "@/lib/report-email";
 import { getStripeServer } from "@/lib/stripe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 async function handleCheckoutCompleted(s: Stripe.Checkout.Session) {
+  if (s.metadata?.source === "report-store") {
+    if (s.payment_status === "paid") await sendReportOrderEmail(s.id);
+    return;
+  }
   const provisioning = getPortalProvisioningMetadata(s);
   if (!provisioning) {
     return;
@@ -90,6 +95,7 @@ export async function POST(req: Request) {
   try {
     switch (event.type) {
       case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded":
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
       case "payment_intent.succeeded":

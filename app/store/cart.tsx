@@ -21,13 +21,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
-    try {
-      const parsed: unknown = JSON.parse(localStorage.getItem("ef_cart") || "[]");
-      if (Array.isArray(parsed)) setItems(parsed.filter((item): item is Item =>
-        item && typeof item.priceId === "string" && typeof item.title === "string" && Number.isInteger(item.qty) && item.qty > 0 && item.qty <= 100
-      ));
-    } catch { /* An unreadable cart starts empty. */ }
-    setHydrated(true);
+    const syncCart = () => {
+      try {
+        const parsed: unknown = JSON.parse(localStorage.getItem("ef_cart") || "[]");
+        if (Array.isArray(parsed)) setItems(parsed.filter((item): item is Item =>
+          item && typeof item.priceId === "string" && typeof item.title === "string" && Number.isInteger(item.qty) && item.qty > 0 && item.qty <= 100
+        ));
+      } catch { /* An unreadable cart starts empty. */ }
+      setHydrated(true);
+    };
+    syncCart();
+    window.addEventListener("ef:cart-updated", syncCart);
+    window.addEventListener("storage", syncCart);
+    return () => {
+      window.removeEventListener("ef:cart-updated", syncCart);
+      window.removeEventListener("storage", syncCart);
+    };
   }, []);
   useEffect(() => {
     if (hydrated) {

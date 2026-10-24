@@ -1,27 +1,48 @@
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getPaidReportOrder, getPurchasedReport } from "@/lib/report-orders";
+import { getReportOrderDetails, getPurchasedReport } from "@/lib/report-orders";
+import OrderActions from "./OrderActions";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Your report order | EcoFocus Research", robots: { index: false, follow: false }, referrer: "no-referrer" };
 
+type Download = Awaited<ReturnType<typeof getPurchasedReport>> & { id: string };
+
 export default async function Success({ searchParams }: { searchParams: Promise<{ session_id?: string }> }) {
   const { session_id: sessionId } = await searchParams;
-  let downloads: { id: string; title: string }[] = [];
+  let order: Awaited<ReturnType<typeof getReportOrderDetails>> | null = null;
+  let downloads: Download[] = [];
   let error = "";
   try {
-    const ids = await getPaidReportOrder(sessionId || "");
-    downloads = await Promise.all(ids.map(async id => ({ id, title: (await getPurchasedReport(id)).title })));
+    order = await getReportOrderDetails(sessionId || "");
+    downloads = await Promise.all(order.ids.map(async id => ({ id, ...await getPurchasedReport(id) })));
   } catch (cause) {
-    error = cause instanceof Error ? cause.message : "We couldn’t verify your order. Please contact us with your receipt.";
+    console.error("Report order page failed", cause instanceof Error ? cause.message : "Unknown error");
+    error = order ? "Your payment is confirmed, but we couldn’t prepare your downloads. Please contact us with your order reference below." : "We couldn’t confirm this order yet. If you used a bank account, payment may still be processing. Return to this link once payment is confirmed, or contact us for help.";
   }
-  return <><Header /><main className="bg-slate-50 px-6 py-20"><div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 sm:p-12">
-    <p className="text-sm font-semibold uppercase tracking-widest text-emerald-700">EcoFocus Research</p>
-    <h1 className="mt-4 text-3xl font-bold text-emerald-900">{error ? "Your report order" : "Your reports are ready"}</h1>
-    {error ? <p className="mt-4 text-slate-700" role="status">{error}</p> : <><p className="mt-4 text-slate-600">Thank you for your purchase. Save this private order link to return to your downloads.</p>
-      <ul className="mt-8 space-y-4">{downloads.map(report => <li key={report.id}><a className="inline-flex rounded-full bg-emerald-700 px-6 py-3 font-semibold text-white hover:bg-emerald-800" href={`/api/reports/download?session_id=${encodeURIComponent(sessionId!)}&report_id=${encodeURIComponent(report.id)}`}>Download {report.title}</a></li>)}</ul></>}
-    <Link className="mt-8 inline-block text-sm font-semibold text-emerald-900 underline" href={error ? "/contact" : "/reports"}>{error ? "Contact us" : "Explore more reports"}</Link>
-  </div></main><Footer /></>;
+  const singular = downloads.length === 1;
+  const amount = order ? new Intl.NumberFormat("en-US", { style: "currency", currency: order.currency }).format(order.amountTotal / 100) : "";
+  return <><Header /><main className="bg-slate-50 px-4 pb-16 pt-28 sm:px-6 sm:pb-20 md:pt-32">
+    <section className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm" aria-labelledby="order-heading">
+      <div className="p-6 sm:p-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">EcoFocus Research</p>
+        {order && <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800"><svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 10 4 4 8-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>Payment confirmed</div>}
+        <h1 id="order-heading" className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{error ? "Your report order" : singular ? "Your report is ready" : "Your reports are ready"}</h1>
+        <p className="mt-4 leading-relaxed text-slate-600" role={error ? "status" : undefined}>{error || "Thank you for your purchase. Download your report below and keep your private order link for future access."}</p>
+        {order && <dl className="mt-6 grid grid-cols-2 gap-4 border-y border-slate-100 py-5 text-sm"><div><dt className="text-slate-500">Order reference</dt><dd className="mt-1 font-semibold text-slate-900">{order.reference}</dd></div><div className="text-right"><dt className="text-slate-500">Amount paid</dt><dd className="mt-1 font-semibold text-slate-900">{amount} <span className="font-normal uppercase text-slate-500">{order.currency}</span></dd></div></dl>}
+        {!error && <ul className="mt-7 space-y-4" aria-label="Purchased reports">{downloads.map(report => <li key={report.id} className="flex flex-col gap-5 rounded-2xl border border-slate-200 p-5 sm:flex-row sm:items-center">
+          <div className="flex min-w-0 flex-1 items-start gap-4">
+            {report.cover ? <Image src={report.cover} alt={`${report.title} cover`} width={72} height={96} className="h-24 w-[72px] shrink-0 rounded-md border border-slate-200 object-contain bg-slate-50" /> : <div className="flex h-24 w-[72px] shrink-0 items-center justify-center rounded-md bg-emerald-50 text-xs font-semibold text-emerald-800">{report.format}</div>}
+            <div className="min-w-0"><h2 className="font-semibold leading-snug text-slate-900">{report.title}</h2><p className="mt-2 text-sm text-slate-500">{report.format}{report.filesize ? ` · ${(report.filesize / 1024 / 1024).toFixed(1)} MB` : ""}</p></div>
+          </div>
+          <a className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800 sm:self-center" aria-label={`Download ${report.title}`} href={`/api/reports/download?session_id=${encodeURIComponent(sessionId!)}&report_id=${encodeURIComponent(report.id)}`}><svg className="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3v9m-4-4 4 4 4-4M4 13v4h12v-4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>Download {report.format}</a>
+        </li>)}</ul>}
+        {order && <OrderActions sessionId={sessionId!} reference={order.reference} purchased={order.items.map(item => ({ priceId: item.priceId, qty: item.qty }))} emailSent={order.emailSent} />}
+        <div className="mt-7 flex flex-wrap justify-between gap-4 text-sm"><Link className="font-semibold text-emerald-800 underline underline-offset-4" href="/reports">Explore more reports</Link><Link className="text-slate-600 underline underline-offset-4" href="/contact">Need help with your order?</Link></div>
+      </div>
+    </section>
+  </main><Footer /></>;
 }
