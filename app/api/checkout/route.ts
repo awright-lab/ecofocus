@@ -15,6 +15,11 @@ export async function POST(req: Request) {
   try {
     const reports = await Promise.all(body.items.map((item: { price: string }) => getReportByPriceId(item.price)));
     if (reports.some((report) => !report)) return NextResponse.json({ error: "A report is no longer available at this price. Refresh the catalog and try again." }, { status: 400 });
+    const totalCents = reports.reduce((total, report, index) => {
+      const price = report?.price;
+      return total + (typeof price === "number" && Number.isFinite(price) ? Math.round(price * 100) * body.items[index].quantity : 0);
+    }, 0);
+    if (totalCents < 50) return NextResponse.json({ error: "Card checkout requires a minimum order total of $0.50 USD. Please contact us for help.", code: "minimum_order_amount" }, { status: 400 });
     const stripe = getStripeServer();
     const origin = new URL(req.url).origin;
     const session = await stripe.checkout.sessions.create({
@@ -27,6 +32,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: session.url });
   } catch (error) {
     console.error("Report checkout failed", error);
+    if (error && typeof error === "object" && "code" in error && error.code === "amount_too_small") {
+      return NextResponse.json({ error: "Card checkout requires a minimum order total of $0.50 USD. Please contact us for help.", code: "minimum_order_amount" }, { status: 400 });
+    }
     return NextResponse.json({ error: "Checkout is temporarily unavailable. Please try again or contact us." }, { status: 503 });
   }
 }

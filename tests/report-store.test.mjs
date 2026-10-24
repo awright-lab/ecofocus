@@ -11,7 +11,7 @@ function load(path, modules, globals = {}) {
   vm.runInNewContext(code, { exports, require: name => { if (!(name in modules)) throw new Error(name); return modules[name]; }, Request, Response, URL, console: { error() {} }, process: { env: {} }, ...globals });
   return exports;
 }
-function checkout({ report = { id: '42' }, fail = false } = {}) {
+function checkout({ report = { id: '42', price: 10 }, fail = false } = {}) {
   const calls = [];
   const route = load('app/api/checkout/route.ts', {
     'next/server': { NextResponse: { json: (data, options) => Response.json(data, options) } },
@@ -81,4 +81,21 @@ test('CMS failures never replace production products with demo products', async 
     fetch: async () => ({ ok: false, status: 503, text: async () => 'Unavailable' }),
   });
   await assert.rejects(repo.listReports({}), /Payload list error/);
+});
+
+
+test('checkout rejects totals below the USD minimum before calling Stripe', async () => {
+  const route = checkout({ report: { id: '42', price: 0.01 } });
+  const response = await route.post({ items: [{ price: 'price_test', quantity: 1 }] });
+  assert.equal(response.status, 400);
+  assert.equal((await response.json()).code, 'minimum_order_amount');
+  assert.equal(route.calls.length, 0);
+});
+
+test('checkout accepts the minimum and calculates totals using quantities', async () => {
+  for (const [price, quantity] of [[0.50, 1], [0.01, 50], [10, 1]]) {
+    const route = checkout({ report: { id: '42', price } });
+    assert.equal((await route.post({ items: [{ price: 'price_test', quantity }] })).status, 200);
+    assert.equal(route.calls.length, 1);
+  }
 });

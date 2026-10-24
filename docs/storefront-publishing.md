@@ -7,7 +7,7 @@ Implementation spans this website and the local checkout of `awright-lab/ecofocu
 1. Open Payload → Store → Reports → Create (also available as Add a Report on the dashboard).
 2. Enter title, unique lowercase slug, description, year, report type, and optional detailed overview, topic, tags, page count and sample URL.
 3. Upload a cover to public Media.
-4. For a paid report, choose Premium, enter the USD price (at most two decimals), and upload its PDF or ZIP to private Report Files. For a free report, choose Free and supply its public download URL.
+4. For a paid report, choose Premium, enter a USD price of at least $0.50 (at most two decimals), and upload its PDF or ZIP to private Report Files. For a free report, choose Free and supply its public download URL.
 5. Save Draft while preparing. Publish to synchronize the product with Stripe and make it appear at `/reports`. Stripe IDs and last sync time appear in the sidebar automatically. Stripe errors prevent publication and display an explanation.
 6. Later price changes create/reuse a matching Stripe Price; previous prices remain available for existing orders. The website rejects carts containing prices that are no longer current. Saving a draft does not change the published Stripe price.
 
