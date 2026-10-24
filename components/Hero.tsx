@@ -17,6 +17,7 @@ interface HeroProps {
   ctaPrimary?: CTA;
   ctaSecondary?: CTA;
   rightVisual?: ReactNode;
+  children?: ReactNode;
   videoSrc?: string;
   posterSrc?: string;
   overlay?: "none" | "light" | "dense";
@@ -30,6 +31,7 @@ export default function Hero({
   ctaPrimary,
   ctaSecondary,
   rightVisual,
+  children,
   videoSrc,
   posterSrc,
   overlay = "light",
@@ -83,7 +85,7 @@ export default function Hero({
       </div>
 
       <div className="mx-auto max-w-7xl px-6">
-        <div className={clsx(
+        {children ?? <div className={clsx(
           "grid items-center gap-10",
           rightVisual ? "md:grid-cols-12" : "place-items-center text-center"
         )}>
@@ -155,7 +157,7 @@ export default function Hero({
               {rightVisual}
             </motion.div>
           )}
-        </div>
+        </div>}
       </div>
       <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500 animate-gradient" />
       {/* at the end of the Hero section/container */}
