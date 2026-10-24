@@ -17,14 +17,14 @@ export function LeftFilterRail({
   setParam: (k: string, v?: string | number | null) => void;
 }) {
   return (
-    <div className="rounded-2xl bg-[#213F97] p-5 sm:p-6 text-white border border-emerald-700/40">
+    <div className="rounded-2xl bg-white p-5 sm:p-6 text-slate-700 border border-slate-200">
       <h3 className="text-sm font-semibold tracking-wide">Refine</h3>
-      <div className="h-px w-full my-3 bg-white/20" />
+      <div className="h-px w-full my-3 bg-slate-200" />
 
       {/* Access */}
       <div>
         <div className="text-xs font-medium mb-2">Access</div>
-        <div className="inline-grid grid-cols-3 gap-1 rounded-lg p-1 border border-white/25 bg-white/10">
+        <div className="inline-grid grid-cols-3 gap-1 rounded-lg p-1 border border-slate-200 bg-slate-50">
           {(["All", "Free", "Premium"] as Access[]).map((v) => {
             const active = access === v;
             return (
@@ -33,7 +33,7 @@ export function LeftFilterRail({
                 onClick={() => setParam("access", v === "All" ? undefined : v.toLowerCase())}
                 className={[
                   "px-3 py-1.5 rounded-md text-sm transition font-medium",
-                  active ? "bg-white text-emerald-900 shadow" : "text-white hover:bg-white/10",
+                  active ? "bg-emerald-700 text-white shadow" : "text-slate-700 hover:bg-slate-50",
                 ].join(" ")}
                 aria-pressed={active}
               >
@@ -62,7 +62,7 @@ export function LeftFilterRail({
                 onClick={() => setParam("year", y)}
                 className={[
                   "text-sm rounded-md px-2 py-1 text-left transition",
-                  active ? "bg-white/15" : "hover:bg-white/10",
+                  active ? "bg-emerald-50" : "hover:bg-slate-50",
                 ].join(" ")}
                 aria-pressed={active}
               >
@@ -110,7 +110,7 @@ export function LeftFilterRail({
       <div className="mt-6">
         <button
           onClick={() => setParam("reset")}
-          className="w-full rounded-lg border border-white/25 px-3 py-2 hover:bg-white/10"
+          className="w-full rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50"
         >
           Reset Filters
         </button>
@@ -134,8 +134,8 @@ function Chip({
       className={[
         "text-xs px-2 py-1 rounded-full border transition",
         active
-          ? "bg-amber-300 border-amber-300 text-emerald-900 font-semibold"
-          : "bg-white/10 border-white/20 text-white hover:bg-white/15",
+          ? "bg-emerald-700 border-emerald-700 text-white font-semibold"
+          : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-emerald-50",
       ].join(" ")}
       aria-pressed={!!active}
     >

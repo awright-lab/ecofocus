@@ -182,15 +182,15 @@ function ReportCard({ item }: { item: ReportListItem }) {
 
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-emerald-300 hover:shadow-md">
-      <div className="h-1 bg-gradient-to-r from-[#213F97] via-emerald-500 to-[#EF9601]" />
+      <div className="h-1 bg-gradient-to-r from-emerald-700 via-emerald-500 to-[#EF9601]" />
       <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:p-8">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap gap-2 text-xs font-semibold">
-            <span className="rounded-full bg-blue-50 px-3 py-1 text-[#213F97]">{item.year}</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-900">{item.year}</span>
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">{isFree ? "Free report" : "Research report"}</span>
             {item.format && <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">{item.format}</span>}
           </div>
-          <h3 className="mt-4 text-xl font-bold leading-snug text-[#213F97]">
+          <h3 className="mt-4 text-xl font-bold leading-snug text-emerald-900">
             <Link href={href} className="hover:underline underline-offset-4">{item.title}</Link>
           </h3>
           {item.description && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600">{item.description}</p>}

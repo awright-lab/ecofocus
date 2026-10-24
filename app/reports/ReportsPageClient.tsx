@@ -43,7 +43,7 @@ export default function ReportsPageClient() {
       </div>
 
       {/* Full-width brand slabs below the list */}
-      <section className="bg-[#213F97]">
+      <section className="bg-emerald-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <ReportsBundles />
         </div>
