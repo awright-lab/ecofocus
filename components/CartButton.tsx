@@ -29,7 +29,7 @@ export default function CartButton() {
       <button
         onClick={() => setOpen(true)}
         disabled={!ready}
-        className="fixed bottom-6 right-6 z-[55] inline-flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white shadow-lg"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-[55] inline-flex h-12 items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 text-sm font-semibold text-white shadow-lg"
       >
         <i aria-hidden="true" className="ri-shopping-cart-2-line text-base" />
         Cart {count ? `(${count})` : ""}
