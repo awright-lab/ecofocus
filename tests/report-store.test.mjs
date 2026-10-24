@@ -11,14 +11,15 @@ function load(path, modules, globals = {}) {
   vm.runInNewContext(code, { exports, require: name => { if (!(name in modules)) throw new Error(name); return modules[name]; }, Request, Response, URL, console: { error() {} }, process: { env: {} }, ...globals });
   return exports;
 }
-function checkout({ report = { id: '42', price: 10 }, fail = false } = {}) {
+function checkout({ report = { id: '42', price: 10 }, fail = false, production = false } = {}) {
   const calls = [];
   const route = load('app/api/checkout/route.ts', {
     'next/server': { NextResponse: { json: (data, options) => Response.json(data, options) } },
+    '@/lib/report-site': load('lib/report-site.ts', {}, { process: { env: { NODE_ENV: production ? 'production' : 'test' } } }),
     '@/lib/reports-repo': { getReportByPriceId: async () => report },
     '@/lib/stripe': { getStripeServer: () => ({ checkout: { sessions: { create: async args => { calls.push(args); if (fail) throw Error('Stripe failed'); return { url: 'https://checkout.stripe.com/test' }; } } } }) },
   });
-  return { calls, post: body => route.POST(new Request('https://ecofocusresearch.com/api/checkout', { method: 'POST', body: JSON.stringify(body) })) };
+  return { calls, post: (body, origin = 'https://ecofocusresearch.com') => route.POST(new Request(`${origin}/api/checkout`, { method: 'POST', body: JSON.stringify(body) })) };
 }
 test('checkout rejects malformed bodies, empty carts, invalid prices and quantities', async () => {
   const route = checkout();
@@ -98,4 +99,12 @@ test('checkout accepts the minimum and calculates totals using quantities', asyn
     assert.equal((await route.post({ items: [{ price: 'price_test', quantity }] })).status, 200);
     assert.equal(route.calls.length, 1);
   }
+});
+
+
+test('checkout initiated from a hosting alias returns customers to the primary site', async () => {
+  const route = checkout({ production: true });
+  assert.equal((await route.post({ items: [{ price: 'price_test', quantity: 1 }] }, 'https://main--ecofocusresearch.netlify.app')).status, 200);
+  assert.equal(route.calls[0].success_url, 'https://ecofocusresearch.com/checkout/success?session_id={CHECKOUT_SESSION_ID}');
+  assert.equal(route.calls[0].cancel_url, 'https://ecofocusresearch.com/reports');
 });

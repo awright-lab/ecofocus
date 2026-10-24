@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getReportSiteOrigin } from "@/lib/report-site";
 import { getStripeServer } from "@/lib/stripe";
 import { getReportByPriceId } from "@/lib/reports-repo";
 
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
     }, 0);
     if (totalCents < 50) return NextResponse.json({ error: "Card checkout requires a minimum order total of $0.50 USD. Please contact us for help.", code: "minimum_order_amount" }, { status: 400 });
     const stripe = getStripeServer();
-    const origin = new URL(req.url).origin;
+    const origin = getReportSiteOrigin(req.url);
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: body.items.map((item: { price: string; quantity: number }) => ({ price: item.price, quantity: item.quantity })),

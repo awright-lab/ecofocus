@@ -1,5 +1,6 @@
 import "server-only";
 import { getReportOrderDetails } from "@/lib/report-orders";
+import { getReportSiteOrigin } from "@/lib/report-site";
 import { getStripeServer } from "@/lib/stripe";
 
 const escapeHtml = (value: string) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
@@ -11,7 +12,7 @@ export async function sendReportOrderEmail(sessionId: string) {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.REPORTS_FROM_EMAIL || process.env.PORTAL_FROM_EMAIL;
   if (!key || !from) throw Object.assign(new Error("Report email requires RESEND_API_KEY and REPORTS_FROM_EMAIL (or PORTAL_FROM_EMAIL)."), { code: "email_not_configured" });
-  const origin = process.env.NEXT_PUBLIC_SITE_URL || "https://ecofocusresearch.com";
+  const origin = getReportSiteOrigin();
   const link = new URL("/checkout/success", origin);
   link.searchParams.set("session_id", sessionId);
   const total = new Intl.NumberFormat("en-US", { style: "currency", currency: order.currency }).format(order.amountTotal / 100);

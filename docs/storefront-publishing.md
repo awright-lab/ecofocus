@@ -74,3 +74,10 @@ The Stripe webhook sends the private order link to the email address recorded at
 The confirmation page also requests delivery through `/api/reports/order-email`, allowing delivery when a webhook is delayed or missed. This endpoint accepts only the order session token; a caller cannot choose an email recipient. Resend's idempotency key prevents duplicate requests during concurrent delivery, and Stripe session metadata records accepted sends for later visits. If the provider rejects a request, the page keeps its download buttons, explains the email failure, and offers a retry.
 
 Use the checkout email's inbox (including spam) to confirm final delivery. Provider acceptance is not a guarantee that the recipient's mail server accepted or displayed the message.
+
+
+## Pending payments and return URLs
+
+A completed checkout is not sufficient proof of payment. The website checks Stripe's payment status before allowing downloads, clearing purchased cart items, or sending the download email. Pending payments show a processing page with an order reference, automatic checks every five seconds for one visible minute, a manual check button, and a private-link copy button. Failed, expired, and incomplete checkouts show separate messages. API/verification errors are not treated as pending payments.
+
+Production checkout return URLs and email links default to `https://ecofocusresearch.com`, regardless of Netlify's internal request hostname. Existing order links on `*.netlify.app` redirect to the primary report origin with their session token preserved. Optional `REPORTS_SITE_URL` overrides the report origin for a deliberately configured HTTPS preview environment; it is separate from portal/site settings.

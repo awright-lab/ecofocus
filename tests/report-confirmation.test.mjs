@@ -49,6 +49,7 @@ function emailHarness({sent=false,valid=true,configured=true,providerOk=true}={}
   const order={reference:'EF-1234567890',currency:'usd',amountTotal:50,email:'buyer@example.com',emailSent:sent,items:[{title:'Report <script> & charts',priceId:'price_a',qty:1}]};
   const email=load('lib/report-email.ts',{
     'server-only':{},
+    '@/lib/report-site':{getReportSiteOrigin:()=> 'https://ecofocusresearch.com'},
     '@/lib/report-orders':{getReportOrderDetails:async()=>{if(!valid)throw Error('Payment not confirmed');return order;}},
     '@/lib/stripe':{getStripeServer:()=>({checkout:{sessions:{update:async(...args)=>updates.push(args)}}})},
   },{process:{env:configured?{RESEND_API_KEY:'test-provider-key',PORTAL_FROM_EMAIL:'reports@example.com'}:{}},fetch:async(url,options)=>{requests.push({url,options});return {ok:providerOk,status:providerOk?200:500,json:async()=>({id:'email_test'})};}});
@@ -106,4 +107,46 @@ test('webhook emails only paid report-store sessions, including delayed success'
     assert.equal((await POST(new Request('https://example.com/api/stripe/webhook',{method:'POST',headers:{'stripe-signature':'test-signature'},body:'{}'}))).status,200);
   }
   assert.equal(sent.length,2);
+});
+
+
+test('bank payments have distinct pending, paid, failed, incomplete and expired states', async()=>{
+  let session;
+  const {getReportOrderStatus,getPaidReportOrder}=load('lib/report-orders.ts',{'server-only':{},'@/lib/stripe':{getStripeServer:()=>({checkout:{sessions:{retrieve:async()=>session}}})}});
+  for(const [status,payment_status,intent,state] of [
+    ['complete','unpaid','processing','pending'],
+    ['complete','unpaid','succeeded','pending'],
+    ['complete','paid','succeeded','paid'],
+    ['complete','unpaid','requires_payment_method','failed'],
+    ['complete','unpaid','canceled','failed'],
+    ['open','unpaid','requires_payment_method','incomplete'],
+    ['expired','unpaid','requires_payment_method','expired'],
+  ]) {
+    session={id:'cs_test_status123',status,payment_status,payment_intent:{status:intent},metadata:{source:'report-store',report_ids:'["1"]'}};
+    assert.equal((await getReportOrderStatus(session.id)).state,state);
+    if(state!=='paid') await assert.rejects(getPaidReportOrder(session.id),/not been confirmed/);
+  }
+});
+
+test('production checkout and email origins ignore internal Netlify aliases',()=>{
+  const {getReportSiteOrigin}=load('lib/report-site.ts',{}, {process:{env:{NODE_ENV:'production',NEXT_PUBLIC_SITE_URL:'https://main--ecofocusresearch.netlify.app'}}});
+  assert.equal(getReportSiteOrigin('https://main--ecofocusresearch.netlify.app/api/checkout'),'https://ecofocusresearch.com');
+  assert.equal(getReportSiteOrigin(),'https://ecofocusresearch.com');
+  const configured=load('lib/report-site.ts',{}, {process:{env:{NODE_ENV:'production',REPORTS_SITE_URL:'https://preview.example.com/path'}}});
+  assert.equal(configured.getReportSiteOrigin(),'https://preview.example.com');
+  const local=load('lib/report-site.ts');
+  assert.equal(local.getReportSiteOrigin('http://localhost:3100/api/checkout'),'http://localhost:3100');
+});
+
+test('status endpoint returns payment state without unlocking files or exposing customer data',async()=>{
+  const {POST}=load('app/api/reports/order-status/route.ts',{'next/server':{NextResponse:{json:(data,options)=>Response.json(data,options)}},'@/lib/report-orders':{getReportOrderStatus:async()=>({state:'pending',email:'private@example.com'})}});
+  const response=await POST(new Request('https://example.com/api/reports/order-status',{method:'POST',body:JSON.stringify({sessionId:'cs_test_abc123'})}));
+  assert.equal(response.status,200);
+  assert.deepEqual(await response.json(),{state:'pending'});
+  assert.match(response.headers.get('cache-control'),/no-store/);
+});
+
+test('status API errors stay errors instead of being presented as pending payments',async()=>{
+  const {POST}=load('app/api/reports/order-status/route.ts',{'next/server':{NextResponse:{json:(data,options)=>Response.json(data,options)}},'@/lib/report-orders':{getReportOrderStatus:async()=>{throw Error('Stripe unavailable');}}});
+  assert.equal((await POST(new Request('https://example.com/api/reports/order-status',{method:'POST',body:JSON.stringify({sessionId:'cs_test_abc123'})}))).status,503);
 });

@@ -1,15 +1,39 @@
 import "server-only";
 import { getStripeServer } from "@/lib/stripe";
 
-export async function getVerifiedReportSession(sessionId: string) {
+export type ReportPaymentState = "paid" | "pending" | "failed" | "expired" | "incomplete";
+
+async function readReportSession(sessionId: string, expandPayment = false) {
   if (!/^cs_(test_|live_)?[a-zA-Z0-9]+$/.test(sessionId)) throw new Error("Invalid order link.");
-  const session = await getStripeServer().checkout.sessions.retrieve(sessionId);
-  if (session.status !== "complete" || session.payment_status !== "paid" || session.metadata?.source !== "report-store") {
-    throw new Error("Payment has not been confirmed for this order.");
-  }
+  const session = await getStripeServer().checkout.sessions.retrieve(sessionId, expandPayment ? { expand: ["payment_intent"] } : undefined);
+  if (session.metadata?.source !== "report-store") throw new Error("This is not a report-store order.");
   const ids: unknown = JSON.parse(session.metadata.report_ids || "[]");
   if (!Array.isArray(ids) || !ids.length || ids.some(id => typeof id !== "string")) throw new Error("This order has no reports.");
   return { session, ids: ids as string[] };
+}
+
+export async function getVerifiedReportSession(sessionId: string) {
+  const result = await readReportSession(sessionId);
+  if (result.session.status !== "complete" || result.session.payment_status !== "paid") throw new Error("Payment has not been confirmed for this order.");
+  return result;
+}
+
+export async function getReportOrderStatus(sessionId: string) {
+  const { session } = await readReportSession(sessionId, true);
+  const intent = typeof session.payment_intent === "object" ? session.payment_intent : null;
+  let state: ReportPaymentState;
+  if (session.status === "complete" && session.payment_status === "paid") state = "paid";
+  else if (session.status === "expired") state = "expired";
+  else if (intent?.status === "canceled" || (session.status === "complete" && intent?.status === "requires_payment_method")) state = "failed";
+  else if (session.status === "complete" || intent?.status === "processing") state = "pending";
+  else state = "incomplete";
+  return {
+    state,
+    reference: `EF-${session.id.slice(-10).toUpperCase()}`,
+    amountTotal: session.amount_total ?? 0,
+    currency: session.currency || "usd",
+    checkoutUrl: session.status === "open" ? session.url : null,
+  };
 }
 
 export async function getPaidReportOrder(sessionId: string) {
