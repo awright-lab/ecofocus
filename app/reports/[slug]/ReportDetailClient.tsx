@@ -192,7 +192,7 @@ export default function ReportDetailClient({
           <aside className="h-fit rounded-2xl border bg-white p-5 sticky top-6">
             <div className="text-sm text-gray-500">Small Report</div>
             <div className="mt-1 text-2xl font-bold text-emerald-700">
-              ${product.price.toLocaleString()}
+              ${product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
 
             <button

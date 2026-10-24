@@ -197,7 +197,7 @@ function ReportCard({ item }: { item: ReportListItem }) {
           {!!item.tags?.length && <p className="mt-4 text-xs text-slate-500">{item.tags.slice(0, 6).join(" · ")}</p>}
         </div>
         <div className="shrink-0 sm:w-40 sm:text-right">
-          <p className="text-xl font-bold text-slate-900">{isFree ? "Free" : item.price > 0 ? `$${item.price.toLocaleString()}` : "Contact us"}</p>
+          <p className="text-xl font-bold text-slate-900">{isFree ? "Free" : item.price > 0 ? `$${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Contact us"}</p>
           <Link href={href} className="mt-4 inline-flex justify-center rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">
             {isFree ? "View download" : "View report"}
           </Link>

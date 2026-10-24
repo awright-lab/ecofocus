@@ -178,7 +178,7 @@ export default function SmallReportsGrid({ pageSlice, addToCart }: Props) {
                   (p.category === 'Reports' ? 'direct' : 'contact')) === 'direct';
 
               const priceText =
-                typeof p.price === 'number' ? `$${p.price.toLocaleString()}` : undefined;
+                typeof p.price === 'number' ? `$${p.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined;
 
               return (
                 <article

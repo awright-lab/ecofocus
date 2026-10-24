@@ -79,10 +79,10 @@ export default function ReportCard({
             <Link
               href={r.href!}
               className="inline-flex items-center justify-center rounded-full border border-emerald-600 px-4 py-2 text-emerald-700 text-sm font-semibold hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
-              aria-label={`Buy ${r.title}${typeof r.price === 'number' ? ` for $${r.price.toLocaleString()}` : ''}`}
+              aria-label={`Buy ${r.title}${typeof r.price === 'number' ? ` for $${r.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}`}
             >
               Buy Report
-              {typeof r.price === 'number' ? ` · $${r.price.toLocaleString()}` : ''}
+              {typeof r.price === 'number' ? ` · $${r.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
             </Link>
           )}
 

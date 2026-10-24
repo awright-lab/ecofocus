@@ -71,7 +71,7 @@ export function ReportRow({ report }: { report: ReportListItem }) {
           <>
             <div className="text-sm text-emerald-700">Excl. tax</div>
             <div className="text-2xl font-bold text-emerald-950">
-              ${Number(report.price).toLocaleString()}
+              ${Number(report.price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </>
         )}
