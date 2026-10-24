@@ -139,6 +139,37 @@ export async function getTopics(): Promise<Topic[]> {
   return mapTopics(docs)
 }
 
+/** A dedicated collection for the printed pet-newsletter QR code. Never fall back to all posts. */
+export async function getPetNewsletters(): Promise<Post[]> {
+  if (!CMS_URL) throw new Error('Newsletter CMS is not configured')
+  const topicId = await getTopicIdBySlug('pet-industry', noStore())
+  if (!topicId) throw new Error('Pet Industry topic is unavailable')
+
+  const posts: Post[] = []
+  let page = 1
+  let totalPages = 1
+  do {
+    const url = new URL(`${CMS_URL}/api/posts`)
+    url.searchParams.set('depth', '2')
+    url.searchParams.set('limit', '100')
+    url.searchParams.set('page', String(page))
+    url.searchParams.set('sort', '-publishedAt')
+    url.searchParams.set('where[topics][in]', topicId)
+    url.searchParams.set('where[status][equals]', 'published')
+    const res = await fetch(url.toString(), noStore())
+    if (!res.ok) throw new Error('Pet newsletters are unavailable')
+    const data = await res.json()
+    // Verify membership as well: some CMS deployments ignore unsupported filters.
+    posts.push(...(data.docs ?? []).filter((post: any) =>
+      post.status === 'published' && Array.isArray(post.topics) &&
+      post.topics.some((topic: any) => String(topic?.id ?? topic) === topicId)
+    ).map(mapPost))
+    totalPages = data.totalPages ?? 1
+    page += 1
+  } while (page <= totalPages)
+  return posts
+}
+
 /** Resolve a topic ID by slug (robust way to filter relationships in Payload) */
 async function getTopicIdBySlug(slug?: string, init?: RequestInit): Promise<string | undefined> {
   if (!CMS_URL || !slug) return
