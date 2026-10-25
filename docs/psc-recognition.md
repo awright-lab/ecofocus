@@ -17,7 +17,7 @@ https://9191760.fs1.hubspotusercontent-na1.net/hubfs/9191760/Final%20PSC%20logo%
 
 Source: https://petsustainability.org/press/
 
-Public guidelines require clear space, original proportions, original colors, and sharp artwork. The supplied PNG retains its original proportions, with white padding in the membership placements. No accreditation artwork is used. PSC is exempt from the existing client grid's grayscale treatment and mobile opacity reduction so its approved colors remain intact.
+Public guidelines require clear space, original proportions, original colors, and sharp artwork. The supplied PNG retains its original proportions, with white padding in the membership placements. No accreditation artwork is used. At the user's request, PSC matches the existing desktop client grid treatment: grayscale by default and full color on hover. The source artwork remains unchanged. Membership placements retain full color.
 
 Brand colors reference reviewed:
 https://9191760.fs1.hubspotusercontent-na1.net/hubfs/9191760/Accreditation/PSC_Branding_Colors_2020.pdf

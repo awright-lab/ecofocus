@@ -88,7 +88,7 @@ export default function TrustedBy() {
                   alt={logo.alt}
                   fill
                   sizes="(min-width: 1024px) 14vw, (min-width: 640px) 28vw, 44vw"
-                  className={`object-contain p-2 transition duration-500 ${logo.src === pscLogo.src ? '' : 'grayscale group-hover:grayscale-0'}`}
+                  className="object-contain p-2 grayscale transition duration-500 group-hover:grayscale-0"
                   priority={false}
                 />
               </div>
