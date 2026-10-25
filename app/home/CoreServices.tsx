@@ -79,7 +79,7 @@ export default function CoreServices({ services }: Props) {
         'Seat licensing + onboarding',
       ],
       icon: 'ri-bar-chart-2-line',
-      statusNote: 'Fielding complete for 2025 · Seat licensing available',
+      statusNote: 'Fielding complete for 2026 · Seat licensing available',
     },
     {
       title: 'Data Integration',
