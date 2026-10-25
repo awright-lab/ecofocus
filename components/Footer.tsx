@@ -71,7 +71,10 @@ export default function Footer() {
             {[
               { label: 'Home', href: '/' },
               { label: 'About', href: '/about' },
-              { label: 'Blog', href: '/blog' },
+              { label: 'Brands', href: '/brands' },
+              { label: 'Agencies', href: '/agencies' },
+              { label: 'Case Study', href: '/case-studies/glass-packaging-institute' },
+              { label: 'EcoNugget Insights', href: '/blog' },
               { label: 'Contact', href: '/contact' },
             ].map((link) => (
               <li key={link.label}>
