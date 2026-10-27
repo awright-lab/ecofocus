@@ -58,6 +58,10 @@ export async function middleware(req: NextRequest) {
     );
   }
 
+  // Stripe authenticates this server-to-server endpoint with its signed body.
+  // It must reach the handler without a browser session on either hostname.
+  if (pathname === '/api/stripe/webhook') return res;
+
   // This server-to-server route authenticates its own shared secret and live
   // viewer token. A browser-cookie login redirect would prevent the gateway
   // from ever reaching it on the portal hostname.
