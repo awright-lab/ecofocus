@@ -3,7 +3,11 @@
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "services/displayr-gateway/Dockerfile",
-    "watchPatterns": ["/services/displayr-gateway/**", "/experiments/displayr-gateway/gateway.mjs"]
+    "watchPatterns": [
+      "/services/displayr-gateway/**",
+      "/experiments/displayr-gateway/gateway.mjs",
+      "/lib/portal/displayr-invitation-link.ts"
+    ]
   },
   "deploy": {
     "numReplicas": 1,

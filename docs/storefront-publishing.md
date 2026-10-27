@@ -11,7 +11,7 @@ Implementation spans this website and the local checkout of `awright-lab/ecofocu
 5. Save Draft while preparing. Publish to synchronize the product with Stripe and make it appear at `/reports`. Stripe IDs and last sync time appear in the sidebar automatically. Stripe errors prevent publication and display an explanation.
 6. Later price changes create/reuse a matching Stripe Price; previous prices remain available for existing orders. The website rejects carts containing prices that are no longer current. Saving a draft does not change the published Stripe price.
 
-USD and one-time payments are supported in this first implementation. Report licensing and tax treatment should be specified in the product copy before launch. Automatic tax is not configured here. Report download-link emails use Resend after confirmed payment. Verified buyers download from their private order confirmation link; sharing that link shares download access. Refund-based revocation and customer account libraries are future work.
+USD and one-time payments are supported in this first implementation. Report licensing and tax treatment should be specified in the product copy before launch. Automatic tax is not configured here. Verified buyers download from their private order confirmation link; sharing that link shares download access. Transactional report emails use Resend, send only after confirmed payment, and include this same private order link. The confirmation page reports email success only after the provider accepts the message. Refund-based revocation and customer account libraries are future work.
 
 ## Cloudflare storage provisioned
 
@@ -48,6 +48,8 @@ Website:
 - `PAYLOAD_BASE_URL`: deployed CMS origin (falls back to `NEXT_PUBLIC_CMS_URL`).
 - `REPORTS_API_KEY`: dedicated CMS user API key; required for paid file fulfillment. Never expose it as a NEXT_PUBLIC variable.
 - `STRIPE_SECRET_KEY`: same account and mode as the CMS.
+- `RESEND_API_KEY`: the existing Resend credential used for transactional mail.
+- `REPORTS_FROM_EMAIL`: a verified Resend sender for report orders; falls back to existing `PORTAL_FROM_EMAIL`. Set this only on the website server.
 - `REPORTS_BACKEND=payload` (default). Mock data requires explicit `REPORTS_BACKEND=mock` and is unavailable in production. CMS errors never substitute sample products.
 
 Deploy CMS and run its migration before deploying the website. Public cover images remain in Media. Paid report files must never be uploaded to the existing public media bucket.
@@ -72,6 +74,7 @@ The Stripe webhook sends the private order link to the email address recorded at
 The confirmation page also requests delivery through `/api/reports/order-email`, allowing delivery when a webhook is delayed or missed. This endpoint accepts only the order session token; a caller cannot choose an email recipient. Resend's idempotency key prevents duplicate requests during concurrent delivery, and Stripe session metadata records accepted sends for later visits. If the provider rejects a request, the page keeps its download buttons, explains the email failure, and offers a retry.
 
 Use the checkout email's inbox (including spam) to confirm final delivery. Provider acceptance is not a guarantee that the recipient's mail server accepted or displayed the message.
+
 
 ## Pending payments and return URLs
 

@@ -7,3 +7,6 @@
 !experiments/
 !experiments/displayr-gateway/
 !experiments/displayr-gateway/gateway.mjs
+!lib/
+!lib/portal/
+!lib/portal/displayr-invitation-link.ts

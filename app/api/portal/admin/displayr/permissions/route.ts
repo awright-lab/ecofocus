@@ -67,6 +67,20 @@ export async function GET(req: NextRequest) {
         ...memberships.data.map((m) => m.user_id),
       ]),
     ] as string[];
+    const onboarding = new Map<
+      string,
+      { stage: string; reason: string | null }
+    >();
+    if (process.env.DISPLAYR_PROVISIONING_ENABLED === "true" && ids.length) {
+      for (let offset = 0; offset < ids.length; offset += 100) {
+        const result = await db
+          .from("portal_displayr_provisioning")
+          .select("user_id,stage,reason")
+          .in("user_id", ids.slice(offset, offset + 100));
+        if (result.error) throw new Error();
+        for (const row of result.data || []) onboarding.set(row.user_id, row);
+      }
+    }
     const results = [];
     for (let offset = 0; offset < ids.length; offset += 10) {
       results.push(
@@ -83,6 +97,12 @@ export async function GET(req: NextRequest) {
                 ? permissionStatus(plan, state)
                 : { status: "needs_attention", reason: "viewer_not_enrolled" }),
               checkedAt: state?.checked_at || null,
+              provisioning: onboarding.get(userId)
+                ? {
+                    stage: onboarding.get(userId)!.stage,
+                    reason: onboarding.get(userId)!.reason,
+                  }
+                : null,
             };
           }),
         )),
@@ -154,20 +174,18 @@ export async function POST(req: NextRequest) {
       400,
     );
   }
-  const result = await db
-    .from("portal_displayr_bindings")
-    .upsert(
-      {
-        company_id: companyId,
-        dashboard_slug: dashboardSlug,
-        source_url: binding.sourceUrl,
-        project_id: binding.projectId,
-        group_ids: binding.groupIds,
-        verified_by: access.user.id,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "company_id,dashboard_slug" },
-    );
+  const result = await db.from("portal_displayr_bindings").upsert(
+    {
+      company_id: companyId,
+      dashboard_slug: dashboardSlug,
+      source_url: binding.sourceUrl,
+      project_id: binding.projectId,
+      group_ids: binding.groupIds,
+      verified_by: access.user.id,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "company_id,dashboard_slug" },
+  );
   if (result.error)
     return json(
       { error: "Displayr permission mapping could not be saved." },

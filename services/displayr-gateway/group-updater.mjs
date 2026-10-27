@@ -1,3 +1,4 @@
+import { inspectCompanyDirectory } from "./account-directory.mjs";
 const origin = "https://app.displayr.com";
 const privileged = new Set(["2886362", "2886363", "2886364"]);
 // Uses the account's actual edit form, not an invented administration API.
@@ -112,33 +113,12 @@ export function createGroupUpdater({
         target.searchParams.set("company_id", companyId);
         editUrl = target.href;
       } else {
-        stage = "account_page";
-        await page.goto(`${origin}/MyAccount?company_id=${companyId}`, {
-          waitUntil: "domcontentloaded",
-        });
         stage = "viewer_lookup";
-        editUrl = await page.evaluate(
-          ({ email, origin }) => {
-            const rows = [...document.querySelectorAll("tr")].filter((row) =>
-              [...row.querySelectorAll("td")].some(
-                (cell) =>
-                  cell.textContent.trim().toLowerCase() === email.toLowerCase(),
-              ),
-            );
-            if (rows.length !== 1) return null;
-            const urls = [...rows[0].querySelectorAll("a[href]")]
-              .map((a) => new URL(a.href))
-              .filter(
-                (url) =>
-                  url.origin === origin &&
-                  /^\/User\/?$/.test(url.pathname) &&
-                  url.search &&
-                  !url.hash,
-              );
-            return urls.length === 1 ? urls[0].href : null;
-          },
-          { email, origin },
-        );
+        const account = await inspectCompanyDirectory(page, {
+          companyId,
+          email,
+        });
+        editUrl = account.status === "active" ? account.editUrl : null;
         if (!editUrl) throw new Error("Unique existing viewer required");
       }
       stage = "edit_page";

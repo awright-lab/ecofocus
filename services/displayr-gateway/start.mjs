@@ -1,58 +1,133 @@
-import { chromium } from 'playwright';
-import { createBrowserAuthenticator, readViewerSecrets, parseViewerSecrets } from './login.mjs';
-import { createSessionBroker } from './session-broker.mjs';
-import { createPilotService } from './service.mjs';
-import { createIngress } from './ingress.mjs';
-import { createPermissionWorker, viewerKey } from './permission-worker.mjs';
-import { createGroupUpdater } from './group-updater.mjs';
+import { createProvisioningWorker } from "./provisioning-worker.mjs";
+import { createProvisioningBrowser } from "./provisioning-browser.mjs";
+import { activateViewer } from "./activate-viewer.mjs";
+import { chromium } from "playwright";
+import {
+  createBrowserAuthenticator,
+  readViewerSecrets,
+  parseViewerSecrets,
+} from "./login.mjs";
+import { createSessionBroker } from "./session-broker.mjs";
+import { createPilotService } from "./service.mjs";
+import { createIngress } from "./ingress.mjs";
+import { createPermissionWorker, viewerKey } from "./permission-worker.mjs";
+import { createGroupUpdater } from "./group-updater.mjs";
 
 function origin(name) {
   const url = new URL(process.env[name]);
-  const local = ['localhost', '127.0.0.1'].includes(url.hostname);
-  if ((url.protocol !== 'https:' && !(local && url.protocol === 'http:')) || url.username || url.password || url.pathname !== '/' || url.search || url.hash) throw new Error(`Invalid ${name}`);
+  const local = ["localhost", "127.0.0.1"].includes(url.hostname);
+  if (
+    (url.protocol !== "https:" && !(local && url.protocol === "http:")) ||
+    url.username ||
+    url.password ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash
+  )
+    throw new Error(`Invalid ${name}`);
   return url.origin;
 }
-const gatewayOrigin = origin('DISPLAYR_GATEWAY_PUBLIC_ORIGIN');
-const portalOrigin = origin('DISPLAYR_PORTAL_ORIGIN');
-if (gatewayOrigin === portalOrigin) throw new Error('A separate gateway origin is required');
+const gatewayOrigin = origin("DISPLAYR_GATEWAY_PUBLIC_ORIGIN");
+const portalOrigin = origin("DISPLAYR_PORTAL_ORIGIN");
+if (gatewayOrigin === portalOrigin)
+  throw new Error("A separate gateway origin is required");
 const callback = new URL(process.env.DISPLAYR_AUTHORIZATION_URL);
-if (callback.origin !== portalOrigin || callback.username || callback.password || callback.search || callback.hash) throw new Error('Authorization endpoint must belong to the portal');
+if (
+  callback.origin !== portalOrigin ||
+  callback.username ||
+  callback.password ||
+  callback.search ||
+  callback.hash
+)
+  throw new Error("Authorization endpoint must belong to the portal");
 const callbackSecret = process.env.DISPLAYR_AUTHORIZATION_SECRET;
-if (!callbackSecret || callbackSecret.length < 32) throw new Error('Strong authorization secret required');
-if (process.env.DISPLAYR_VIEWER_SECRETS_JSON && process.env.DISPLAYR_VIEWER_SECRET_FILE) throw new Error('Choose one viewer secret source');
+if (!callbackSecret || callbackSecret.length < 32)
+  throw new Error("Strong authorization secret required");
+if (
+  process.env.DISPLAYR_VIEWER_SECRETS_JSON &&
+  process.env.DISPLAYR_VIEWER_SECRET_FILE
+)
+  throw new Error("Choose one viewer secret source");
 const viewers = process.env.DISPLAYR_VIEWER_SECRETS_JSON
   ? parseViewerSecrets(process.env.DISPLAYR_VIEWER_SECRETS_JSON)
-  : await readViewerSecrets(process.env.DISPLAYR_VIEWER_SECRET_FILE);
+  : process.env.DISPLAYR_VIEWER_SECRET_FILE
+    ? await readViewerSecrets(process.env.DISPLAYR_VIEWER_SECRET_FILE)
+    : process.env.DISPLAYR_PROVISIONING_ENABLED === "true"
+      ? new Map()
+      : await readViewerSecrets(process.env.DISPLAYR_VIEWER_SECRET_FILE);
 delete process.env.DISPLAYR_VIEWER_SECRETS_JSON;
-if (!viewers.size) throw new Error('At least one viewer mapping required');
-const broker = createSessionBroker({ authenticate: createBrowserAuthenticator({ chromium, viewers, executablePath: process.env.DISPLAYR_CHROMIUM_PATH }) });
+if (!viewers.size && process.env.DISPLAYR_PROVISIONING_ENABLED !== "true")
+  throw new Error("At least one viewer mapping required");
+if (
+  process.env.DISPLAYR_PROVISIONING_ENABLED === "true" &&
+  (process.env.DISPLAYR_PERMISSION_SYNC_ENABLED !== "true" ||
+    !process.env.DISPLAYR_SYNC_ADMIN_EMAIL ||
+    !process.env.DISPLAYR_SYNC_ADMIN_PASSWORD)
+)
+  throw new Error(
+    "Automatic provisioning requires administrator permission synchronization",
+  );
+const broker = createSessionBroker({
+  authenticate: createBrowserAuthenticator({
+    chromium,
+    viewers,
+    executablePath: process.env.DISPLAYR_CHROMIUM_PATH,
+  }),
+});
 const service = createPilotService({
-  gatewayOrigin, portalOrigin, controlSecret: process.env.DISPLAYR_CONTROL_SECRET, broker,
-  assetOrigins: ['https://static-assets.prod.displayr.com', 'https://displayrcors.displayr.com', 'https://displayr-app-image.displayr.com', 'https://widget-cdn.displayr.com'],
-  authorizeScope: async scope => {
+  gatewayOrigin,
+  portalOrigin,
+  controlSecret: process.env.DISPLAYR_CONTROL_SECRET,
+  broker,
+  assetOrigins: [
+    "https://static-assets.prod.displayr.com",
+    "https://displayrcors.displayr.com",
+    "https://displayr-app-image.displayr.com",
+    "https://widget-cdn.displayr.com",
+  ],
+  authorizeScope: async (scope) => {
     let response;
-    try { response = await fetch(callback, {
-      method: 'POST', redirect: 'error', signal: AbortSignal.timeout(5000),
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Ecofocus-Gateway-Authorization': `Bearer ${callbackSecret}`,
-        Authorization: `Bearer ${callbackSecret}`,
-      },
-      body: JSON.stringify({ ...scope, callbackSecret }),
-    }); } catch {
-      console.error('[displayr-gateway] portal callback request failed');
+    try {
+      response = await fetch(callback, {
+        method: "POST",
+        redirect: "error",
+        signal: AbortSignal.timeout(5000),
+        headers: {
+          "Content-Type": "application/json",
+          "X-Ecofocus-Gateway-Authorization": `Bearer ${callbackSecret}`,
+          Authorization: `Bearer ${callbackSecret}`,
+        },
+        body: JSON.stringify({ ...scope, callbackSecret }),
+      });
+    } catch {
+      console.error("[displayr-gateway] portal callback request failed");
       return null;
     }
     if (!response.ok) {
-      const reportedReason = response.headers.get('x-ecofocus-callback-error');
-      const knownReasons = ['CALLBACK_ORIGIN_PRESENT', 'CALLBACK_SECRET_MISSING', 'CALLBACK_SECRET_TOO_SHORT', 'CALLBACK_AUTHORIZATION_MISSING', 'CALLBACK_CREDENTIAL_MISMATCH'];
-      const reason = knownReasons.includes(reportedReason) ? reportedReason : 'CALLBACK_REASON_UNAVAILABLE';
-      console.warn('[displayr-gateway] portal callback rejected', { status: response.status, reason });
+      const reportedReason = response.headers.get("x-ecofocus-callback-error");
+      const knownReasons = [
+        "CALLBACK_ORIGIN_PRESENT",
+        "CALLBACK_SECRET_MISSING",
+        "CALLBACK_SECRET_TOO_SHORT",
+        "CALLBACK_AUTHORIZATION_MISSING",
+        "CALLBACK_CREDENTIAL_MISMATCH",
+      ];
+      const reason = knownReasons.includes(reportedReason)
+        ? reportedReason
+        : "CALLBACK_REASON_UNAVAILABLE";
+      console.warn("[displayr-gateway] portal callback rejected", {
+        status: response.status,
+        reason,
+      });
       return null;
     }
     const decision = await response.json();
-    if (!viewers.has(decision?.userId) || (decision.viewerKey && decision.viewerKey !== viewerKey(viewers.get(decision.userId).email))) {
-      console.warn('[displayr-gateway] viewer mapping missing');
+    if (
+      !viewers.has(decision?.userId) ||
+      (decision.viewerKey &&
+        decision.viewerKey !== viewerKey(viewers.get(decision.userId).email))
+    ) {
+      console.warn("[displayr-gateway] viewer mapping missing");
       return null;
     }
     return decision;
@@ -61,41 +136,146 @@ const service = createPilotService({
 const gatewayPort = Number(process.env.DISPLAYR_GATEWAY_PORT || 4351);
 const controlPort = Number(process.env.DISPLAYR_CONTROL_PORT || 4352);
 const ingressPort = process.env.PORT ? Number(process.env.PORT) : null;
-const ports = [gatewayPort, controlPort, ...(ingressPort === null ? [] : [ingressPort])];
-if (!ports.every(port => Number.isInteger(port) && port > 1024 && port < 65536) || new Set(ports).size !== ports.length) throw new Error('Distinct unprivileged ports required');
-const ingress = ingressPort === null ? null : createIngress({ service, gatewayOrigin });
-const listen = (server, port, host = '127.0.0.1') => new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, host, resolve); });
+const ports = [
+  gatewayPort,
+  controlPort,
+  ...(ingressPort === null ? [] : [ingressPort]),
+];
+if (
+  !ports.every(
+    (port) => Number.isInteger(port) && port > 1024 && port < 65536,
+  ) ||
+  new Set(ports).size !== ports.length
+)
+  throw new Error("Distinct unprivileged ports required");
+const ingress =
+  ingressPort === null ? null : createIngress({ service, gatewayOrigin });
+const listen = (server, port, host = "127.0.0.1") =>
+  new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(port, host, resolve);
+  });
 let permissionTimer;
 async function close() {
   clearInterval(permissionTimer);
-  if (ingress?.listening) { ingress.closeAllConnections(); await new Promise(resolve => ingress.close(resolve)); }
+  if (ingress?.listening) {
+    ingress.closeAllConnections();
+    await new Promise((resolve) => ingress.close(resolve));
+  }
   await service.close();
 }
 try {
   await listen(service.control, controlPort);
   await listen(service.gateway.server, gatewayPort);
-  if (ingress) await listen(ingress, ingressPort, '0.0.0.0');
-  console.log('Displayr pilot ready. Portal authorization is required.');
-  if (process.env.DISPLAYR_PERMISSION_SYNC_ENABLED === 'true') {
+  if (ingress) await listen(ingress, ingressPort, "0.0.0.0");
+  console.log("Displayr pilot ready. Portal authorization is required.");
+  if (process.env.DISPLAYR_PERMISSION_SYNC_ENABLED === "true") {
     const email = process.env.DISPLAYR_SYNC_ADMIN_EMAIL;
     const password = process.env.DISPLAYR_SYNC_ADMIN_PASSWORD;
-    let updateGroups;
+    let updateGroups, provisioningBrowser;
     if (email && password) {
-      if ([...viewers.values()].some(viewer => viewer.email === email.toLowerCase())) throw new Error('Administrator must not be a managed viewer');
-      const adminAuthenticate = createBrowserAuthenticator({chromium, viewers: new Map([['administrator', {email,password}]]), executablePath: process.env.DISPLAYR_CHROMIUM_PATH});
-      const adminBroker = createSessionBroker({authenticate: adminAuthenticate});
-      updateGroups = createGroupUpdater({chromium, authenticateAdmin: () => adminBroker.getCookies('administrator'), companyId: process.env.DISPLAYR_SYNC_COMPANY_ID, executablePath: process.env.DISPLAYR_CHROMIUM_PATH});
+      if (
+        [...viewers.values()].some(
+          (viewer) => viewer.email === email.toLowerCase(),
+        )
+      )
+        throw new Error("Administrator must not be a managed viewer");
+      const adminAuthenticate = createBrowserAuthenticator({
+        chromium,
+        viewers: new Map([["administrator", { email, password }]]),
+        executablePath: process.env.DISPLAYR_CHROMIUM_PATH,
+      });
+      const adminBroker = createSessionBroker({
+        authenticate: adminAuthenticate,
+      });
+      provisioningBrowser = createProvisioningBrowser({
+        chromium,
+        authenticateAdmin: () => adminBroker.getCookies("administrator"),
+        companyId: process.env.DISPLAYR_SYNC_COMPANY_ID,
+        executablePath: process.env.DISPLAYR_CHROMIUM_PATH,
+      });
+      updateGroups = createGroupUpdater({
+        chromium,
+        authenticateAdmin: () => adminBroker.getCookies("administrator"),
+        companyId: process.env.DISPLAYR_SYNC_COMPANY_ID,
+        executablePath: process.env.DISPLAYR_CHROMIUM_PATH,
+      });
     }
     delete process.env.DISPLAYR_SYNC_ADMIN_PASSWORD;
-    const worker = createPermissionWorker({endpoint: new URL('/api/internal/displayr/permissions',portalOrigin).href, secret:process.env.DISPLAYR_PERMISSION_SYNC_SECRET, viewers, updateGroups, viewerIds: JSON.parse(process.env.DISPLAYR_SYNC_VIEWER_IDS_JSON || "{}")});
-    const tick = () => worker.tick().catch(() => console.warn('[displayr-permissions] synchronization unavailable'));
+    const viewerIds = JSON.parse(
+      process.env.DISPLAYR_SYNC_VIEWER_IDS_JSON || "{}",
+    );
+    const worker = createPermissionWorker({
+      endpoint: new URL("/api/internal/displayr/permissions", portalOrigin)
+        .href,
+      secret: process.env.DISPLAYR_PERMISSION_SYNC_SECRET,
+      viewers,
+      updateGroups,
+      viewerIds,
+    });
+    const provisioning =
+      process.env.DISPLAYR_PROVISIONING_ENABLED === "true" &&
+      provisioningBrowser
+        ? createProvisioningWorker({
+            endpoint: new URL(
+              "/api/internal/displayr/provisioning",
+              portalOrigin,
+            ).href,
+            secret: process.env.DISPLAYR_PERMISSION_SYNC_SECRET,
+            viewers,
+            viewerIds,
+            broker,
+            browser: provisioningBrowser,
+            companyId: process.env.DISPLAYR_SYNC_COMPANY_ID,
+            activate: ({ invitation, password, companyId }) =>
+              activateViewer({
+                chromium,
+                link: invitation,
+                password,
+                companyId,
+                executablePath: process.env.DISPLAYR_CHROMIUM_PATH,
+              }),
+            authenticateViewer: (credential) =>
+              createBrowserAuthenticator({
+                chromium,
+                viewers: new Map([["provisioning", credential]]),
+                executablePath: process.env.DISPLAYR_CHROMIUM_PATH,
+              })("provisioning"),
+            synchronize: () => worker.tick(),
+          })
+        : null;
+    let ticking = false;
+    const tick = async () => {
+      if (ticking) return;
+      ticking = true;
+      try {
+        if (provisioning)
+          await provisioning
+            .tick()
+            .catch(() =>
+              console.warn(
+                "[displayr-provisioning] synchronization unavailable",
+              ),
+            );
+        await worker
+          .tick()
+          .catch(() =>
+            console.warn("[displayr-permissions] synchronization unavailable"),
+          );
+      } finally {
+        ticking = false;
+      }
+    };
     permissionTimer = setInterval(tick, 30_000);
     permissionTimer.unref();
     void tick();
   }
-
 } catch {
   await close();
-  throw new Error('Pilot listeners could not start');
+  throw new Error("Pilot listeners could not start");
 }
-for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, async () => { await close(); process.exit(0); });
+for (const signal of ["SIGINT", "SIGTERM"])
+  process.once(signal, async () => {
+    await close();
+    process.exit(0);
+  });

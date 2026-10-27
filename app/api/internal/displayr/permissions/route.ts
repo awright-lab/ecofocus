@@ -1,3 +1,4 @@
+import { isDisplayrManagedUser } from "@/lib/portal/displayr-gateway-config";
 import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getServiceSupabase } from "@/lib/supabase/server";
@@ -19,7 +20,14 @@ export async function POST(req: NextRequest) {
     !timingSafeEqual(actual, expected)
   )
     return json({ error: "Denied" }, 401);
-  const userIds = (process.env.DISPLAYR_GATEWAY_MANAGED_USER_IDS || "")
+  const userIds = [
+    process.env.DISPLAYR_GATEWAY_MANAGED_USER_IDS,
+    process.env.DISPLAYR_PROVISIONING_ENABLED === "true"
+      ? process.env.DISPLAYR_PROVISIONING_USER_IDS
+      : "",
+  ]
+    .filter(Boolean)
+    .join(",")
     .split(",")
     .map((id) => id.trim())
     .filter(Boolean);
@@ -59,6 +67,7 @@ export async function POST(req: NextRequest) {
           if (page.data.length < 1000) break;
         }
       }
+      enrolled = enrolled.filter(isDisplayrManagedUser);
       const due = new Map(
         prior.map((state) => [
           state.user_id,
