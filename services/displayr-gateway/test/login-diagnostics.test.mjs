@@ -30,6 +30,7 @@ test('login navigation timeout is reported without raw exception content and clo
 });
 
 test('page diagnostics emit only flags, never page text or credentials', () => {
+  assert.equal(classifyLoginPage('Email or password is incorrect').credentialsRejected, true);
   const rejected = classifyLoginPage('Log in failed. Check your email address and password. viewer@example.com test-password-never-log');
   assert.deepEqual(rejected, { credentialsRejected: true, verificationRequested: false, rateLimited: false });
   assert.equal(classifyLoginPage('Verify you are human').verificationRequested, true);

@@ -34,7 +34,10 @@ export default function ReportsGrid() {
     setError(null);
 
     fetch(`/api/reports?${qs}`, { signal: ctrl.signal, cache: "no-store" })
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) throw new Error("Reports request failed");
+        return r.json();
+      })
       .then((j: ApiResp) => alive && setData(j))
       .catch((e) => {
         if (alive && e?.name !== "AbortError") setError("Failed to load reports.");
@@ -174,91 +177,33 @@ function compactRange(page: number, total: number) {
 }
 
 function ReportCard({ item }: { item: ReportListItem }) {
-  const isFree = item.access === "Free" || Number(item.price) === 0;
-  const href = `/reports/${item.id}`;
+  const isFree = item.access === "Free";
+  const href = `/reports/${encodeURIComponent(item.slug)}`;
 
   return (
-    <div
-      className={[
-        // Deep brand slab per card
-        "relative overflow-hidden rounded-2xl section-slab-deep",
-        // subtle border on dark
-        "border border-white/10 shadow-sm",
-      ].join(" ")}
-    >
-      {/* right price/cta */}
-      <div className="absolute right-4 top-4 flex items-center gap-3">
-        <div className="text-right">
-          <div className="text-xs uppercase tracking-wide text-white/70">
-            {isFree ? "No cost" : "Excl. tax"}
+    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-emerald-300 hover:shadow-md">
+      <div className="h-1 bg-gradient-to-r from-emerald-700 via-emerald-500 to-[#EF9601]" />
+      <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:p-8">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap gap-2 text-xs font-semibold">
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-900">{item.year}</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">{isFree ? "Free report" : "Research report"}</span>
+            {item.format && <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">{item.format}</span>}
           </div>
-          {!isFree && (
-            <div className="text-lg font-bold text-white">${Number(item.price).toLocaleString()}</div>
-          )}
+          <h3 className="mt-4 text-xl font-bold leading-snug text-emerald-900">
+            <Link href={href} className="hover:underline underline-offset-4">{item.title}</Link>
+          </h3>
+          {item.description && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600">{item.description}</p>}
+          {!!item.tags?.length && <p className="mt-4 text-xs text-slate-500">{item.tags.slice(0, 6).join(" · ")}</p>}
         </div>
-        {isFree ? (
-          <a
-            href={item.freeHref || "#"}
-            className="inline-flex items-center justify-center rounded-xl border border-emerald-400 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-          >
-            Download
-          </a>
-        ) : (
-          <Link
-            href={href}
-            className="inline-flex items-center justify-center rounded-xl border border-emerald-400 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
-          >
-            Add to cart
-          </Link>
-        )}
-      </div>
-
-      {/* body */}
-      <div className="p-5 sm:p-6 pr-40 text-white">
-        {/* badges */}
-        <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-300 text-emerald-900">
-            {item.year}
-          </span>
-        </div>
-
-        {/* title */}
-        <h3 className="mt-2 text-[clamp(1.0rem,2.4vw,1.125rem)] font-semibold leading-snug">
-          <Link href={href} className="hover:underline decoration-amber-300 underline-offset-4">
-            {item.title}
-          </Link>
-        </h3>
-
-        {/* description */}
-        {item.description && (
-          <p className="mt-2 text-sm text-white/90 line-clamp-2">{item.description}</p>
-        )}
-
-        {/* tags */}
-        {(item.tags?.length ?? 0) > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {item.tags!.slice(0, 6).map((t) => (
-              <span
-                key={t}
-                className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-xs text-white ring-1 ring-white/20"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* secondary CTA */}
-        <div className="mt-4">
-          <Link
-            href={href}
-            className="inline-flex items-center rounded-xl border border-white/25 bg-transparent px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-          >
-            View details
+        <div className="shrink-0 sm:w-40 sm:text-right">
+          <p className="text-xl font-bold text-slate-900">{isFree ? "Free" : item.price > 0 ? `$${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Contact us"}</p>
+          <Link href={href} className="mt-4 inline-flex justify-center rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">
+            {isFree ? "View download" : "View report"}
           </Link>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

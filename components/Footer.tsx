@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useReducedMotion } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import PscMembership from '@/components/PscMembership';
 import NewsletterForm from '@/components/newsletter/NewsletterForm'; // ← import it
 
 export default function Footer() {
@@ -47,6 +48,8 @@ export default function Footer() {
             Turning sustainability data into actionable strategies for over a decade.
           </p>
 
+          <PscMembership />
+
           {/* Social */}
           <div className="mt-6 flex space-x-4">
             <a
@@ -68,7 +71,10 @@ export default function Footer() {
             {[
               { label: 'Home', href: '/' },
               { label: 'About', href: '/about' },
-              { label: 'Blog', href: '/blog' },
+              { label: 'Brands', href: '/brands' },
+              { label: 'Agencies', href: '/agencies' },
+              { label: 'Case Study', href: '/case-studies/glass-packaging-institute' },
+              { label: 'EcoNugget Insights', href: '/blog' },
               { label: 'Contact', href: '/contact' },
             ].map((link) => (
               <li key={link.label}>

@@ -24,6 +24,7 @@ export default function AccessTabs() {
     if (access === "All") next.delete("access");
     else next.set("access", access.toLowerCase()); // canonical slug
     next.delete("cursor");
+    next.delete("page");
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
 

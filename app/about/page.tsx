@@ -8,6 +8,7 @@ import AboutWhoWeAre from "./AboutWhoWeAre";
 //import AboutImpact from "./AboutImpact";
 //import AboutCta from "./AboutCta";
 import Script from "next/script";
+import PscMembership from "@/components/PscMembership";
 import Leadership from "./Leadership";
 import CallToAction from "../home/CallToAction";
 
@@ -82,6 +83,23 @@ export default function AboutPage() {
 
       <AboutHero />
       <AboutWhoWeAre />
+      <section aria-labelledby="psc-membership-heading" className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 md:py-16">
+          <div className="max-w-3xl">
+            <h2 id="psc-membership-heading" className="text-2xl font-bold text-slate-900 md:text-3xl">
+              Proud Member of the Pet Sustainability Coalition
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-gray-600">
+              EcoFocus Research is proud to be a member of the Pet Sustainability Coalition (PSC),
+              a nonprofit organization advancing sustainability across the pet industry through
+              collaboration, education, and innovation. Our membership reflects our commitment
+              to helping organizations make informed decisions through credible consumer research
+              and actionable sustainability insights.
+            </p>
+            <PscMembership variant="about" />
+          </div>
+        </div>
+      </section>
       <Leadership />
       <CallToAction />
 

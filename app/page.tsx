@@ -92,8 +92,9 @@ export default async function HomePage({
     },
   };
   const newsletterPopupConfig = {
-    delayMs: 1200,
-    showOnScrollPercent: 25,
+    delayMs: 10000,
+    showOnScrollPercent: 0,
+    showOnExitIntent: false,
     turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
   };
 

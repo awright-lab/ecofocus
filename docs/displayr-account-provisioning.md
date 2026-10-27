@@ -99,3 +99,17 @@ Group membership is a list: a viewer may belong to multiple dashboard groups. Re
 The administrator verified live mailbox refresh/read access and reports sending the controlled test invitation. The admin mailbox page now includes Find test invitation, backed by an administrator-only POST route with the same public-host and Origin checks as the mailbox health check. It searches only the stable alias for `displayr-provisioning-test-2024-v1`, starting September 14, 2026. It returns a count and search-completeness flag, never message IDs, contents, or activation URLs. Zero, one, multiple, and incomplete results have distinct UI messages. This is candidate discovery only; it does not authenticate an invitation or activate the account.
 
 Validation: the route/client browser fixture, TypeScript checking, and focused ESLint pass. Live invitation discovery still needs the administrator to click the new button after deployment.
+
+## Observed invitation link structure
+
+The controlled invitation uses HTTPS on app.displayr.com at `/SignUp/ConfirmEmail`. Observed parameter names are `iid`, `lid`, `sid`, `ajs_aid`, `firstname`, `signed_up_by_company_admin`, and `redir`. The redirect targets `/MyReports` with the expected Displayr company ID. Live parameter values are deliberately not recorded here.
+
+`lib/portal/displayr-invitation-link.ts` validates the observed route, UUID-shaped required identifiers, administrator invitation flag, unique allowlisted parameters, and exact relative company redirect. It returns structural metadata only. Synthetic tests cover destination substitution, duplicate or missing parameters, malformed identifiers, and company mismatches. This does not prove message authenticity, recipient binding, token validity, or account activation; those checks remain prerequisites for an activation worker. The live link was not visited.
+
+## Controlled activation probe
+
+The administrator's live inspection confirmed a POST to `/SignUp/ConfirmEmail`, preserving the invitation query parameters, with hidden `csrf`, password field `password` / `#password`, and submit input `#formSubmit`. No password was submitted by inspection.
+
+`tools/displayr-test-activate.mjs --activate-test` is a separately invoked local test utility. It prompts for the link and a password twice without echo, checks the observed form and its CSRF field, and permits one activation POST with no automatic retry. A report-library landing is reported separately from verified dashboard access. Any uncertain post-submission result requires verification before another attempt. The utility does not save credentials or connect the viewer to the gateway: retain the unique test password in a password manager. Automated mailbox link extraction and recipient/provenance verification remain unimplemented.
+
+Synthetic browser tests cover preserved CSRF/password form submission, sanitized output, browser cleanup and rejection of a changed form action. The browser fixture uses a local intercepted navigation to the report library; live activation remains to be tested.

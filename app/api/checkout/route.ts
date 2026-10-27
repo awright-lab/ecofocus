@@ -1,31 +1,41 @@
-// app/api/checkout/route.ts
-// app/api/checkout/route.ts
 import { NextResponse } from "next/server";
+import { getReportSiteOrigin } from "@/lib/report-site";
 import { getStripeServer } from "@/lib/stripe";
+import { getReportByPriceId } from "@/lib/reports-repo";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  const { items, successUrl, cancelUrl, metadata, customerEmail, clientReferenceId } = await req.json();
+  let body;
+  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid checkout request." }, { status: 400 }); }
+  if (!body || !Array.isArray(body.items) || !body.items.length || body.items.length > 20 || body.items.some((item: { price?: unknown; quantity?: unknown }) =>
+    !item || typeof item.price !== "string" || !/^price_[a-zA-Z0-9]+$/.test(item.price) || !Number.isInteger(item.quantity) || Number(item.quantity) < 1 || Number(item.quantity) > 100
+  )) return NextResponse.json({ error: "Choose a report and a valid quantity before checking out." }, { status: 400 });
 
   try {
+    const reports = await Promise.all(body.items.map((item: { price: string }) => getReportByPriceId(item.price)));
+    if (reports.some((report) => !report)) return NextResponse.json({ error: "A report is no longer available at this price. Refresh the catalog and try again." }, { status: 400 });
+    const totalCents = reports.reduce((total, report, index) => {
+      const price = report?.price;
+      return total + (typeof price === "number" && Number.isFinite(price) ? Math.round(price * 100) * body.items[index].quantity : 0);
+    }, 0);
+    if (totalCents < 50) return NextResponse.json({ error: "Card checkout requires a minimum order total of $0.50 USD. Please contact us for help.", code: "minimum_order_amount" }, { status: 400 });
     const stripe = getStripeServer();
+    const origin = getReportSiteOrigin(req.url);
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: items, // [{ price, quantity }]
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: metadata && typeof metadata === "object" ? metadata : undefined,
-      customer_email: typeof customerEmail === "string" ? customerEmail : undefined,
-      client_reference_id: typeof clientReferenceId === "string" ? clientReferenceId : undefined,
+      line_items: body.items.map((item: { price: string; quantity: number }) => ({ price: item.price, quantity: item.quantity })),
+      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/reports`,
+      metadata: { source: "report-store", report_ids: JSON.stringify([...new Set(reports.map((report) => report!.id))]) },
     });
     return NextResponse.json({ url: session.url });
-  } catch (e: any) {
-    const msg = e?.message ?? "Checkout error";
-    console.error("Checkout error:", msg);
-    return NextResponse.json({ error: msg }, { status: 500 });
+  } catch (error) {
+    console.error("Report checkout failed", error);
+    if (error && typeof error === "object" && "code" in error && error.code === "amount_too_small") {
+      return NextResponse.json({ error: "Card checkout requires a minimum order total of $0.50 USD. Please contact us for help.", code: "minimum_order_amount" }, { status: 400 });
+    }
+    return NextResponse.json({ error: "Checkout is temporarily unavailable. Please try again or contact us." }, { status: 503 });
   }
 }
-
-

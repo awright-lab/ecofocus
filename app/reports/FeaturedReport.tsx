@@ -37,7 +37,7 @@ export default function FeaturedReport({
 }: FeaturedReportProps) {
   // Derive mode: if not provided, treat as contact-first when price is missing
   const isContact = (purchaseType ?? (typeof price !== "number" ? "contact" : "direct")) === "contact";
-  const priceText = typeof price === "number" ? `$${price.toLocaleString()}` : undefined;
+  const priceText = typeof price === "number" ? `$${price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : undefined;
 
   return (
     <section id="featured-report" className="container mx-auto px-4 py-10">

@@ -58,6 +58,9 @@ export async function middleware(req: NextRequest) {
     );
   }
 
+  // Stripe verifies its own signed request body; no browser login is required.
+  if (pathname === '/api/stripe/webhook') return res;
+
   // This server-to-server route authenticates its own shared secret and live
   // viewer token. A browser-cookie login redirect would prevent the gateway
   // from ever reaching it on the portal hostname.

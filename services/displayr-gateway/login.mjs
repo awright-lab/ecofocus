@@ -33,7 +33,7 @@ export function parseViewerSecrets(raw) {
 
 export function classifyLoginPage(text) {
   return {
-    credentialsRejected: /(?:invalid|incorrect|wrong)\s+(?:email|password|credentials)|(?:log\s*in|sign\s*in)\s+failed|check\s+(?:your\s+)?email\s+(?:address\s+)?and\s+password/i.test(text),
+    credentialsRejected: /email\s+or\s+password\s+is\s+incorrect|(?:invalid|incorrect|wrong)\s+(?:email|password|credentials)|(?:log\s*in|sign\s*in)\s+failed|check\s+(?:your\s+)?email\s+(?:address\s+)?and\s+password/i.test(text),
     verificationRequested: /verify\s+(?:that\s+)?you\s+are\s+(?:a\s+)?human|verification\s+code|two.factor\s+authentication|unusual\s+(?:traffic|activity)/i.test(text),
     rateLimited: /too\s+many\s+(?:attempts|requests)|temporarily\s+locked/i.test(text),
   };
