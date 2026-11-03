@@ -38,8 +38,8 @@ test('configuration, missing file, and Payload failure never release a PDF', asy
   }
 });
 test('PDF is private and all reader PDF links lead to the form', () => {
-  assert.equal(fs.existsSync('public/EcoFocus_GPI_Case_Study_Final.pdf'), false);
-  assert.ok(fs.existsSync('private/case-studies/EcoFocus_GPI_Case_Study_Final.pdf'));
+  assert.equal(fs.existsSync('public/EcoFocus_GPI_Case_Study.pdf'), false);
+  assert.ok(fs.existsSync('private/case-studies/EcoFocus_GPI_Case_Study.pdf'));
   const html = fs.readFileSync('public/gpi-reader/index.html', 'utf8');
   assert.doesNotMatch(html, /href="[^"]*\.pdf"/);
   assert.match(html, /href="\/case-studies\/glass-packaging-institute\/download"/);

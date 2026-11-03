@@ -41,7 +41,7 @@ export async function middleware(req: NextRequest) {
   const hasDevPortalSession = PORTAL_DEV_BYPASS && Boolean(req.cookies.get(PORTAL_DEV_COOKIE)?.value);
   const res = NextResponse.next();
 
-  if (pathname === '/EcoFocus_GPI_Case_Study_Final.pdf') {
+  if ((pathname === '/EcoFocus_GPI_Case_Study_Final.pdf' || pathname === '/EcoFocus_GPI_Case_Study.pdf')) {
     return NextResponse.redirect(new URL('/case-studies/glass-packaging-institute/download', req.url));
   }
 

@@ -27,14 +27,14 @@ export async function POST(req: Request) {
     const key = process.env.CASE_STUDY_DOWNLOADS_API_KEY;
     if (!cms || !key) return retry(req, 'unavailable');
     // Load before recording a request so a missing deployment asset never counts.
-    const file = await readFile(path.join(process.cwd(), 'private/case-studies/EcoFocus_GPI_Case_Study_Final.pdf'));
+    const file = await readFile(path.join(process.cwd(), 'private/case-studies/EcoFocus_GPI_Case_Study.pdf'));
     const result = await fetch(`${cms}/api/case-study-downloads`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', 'x-case-study-download-key': key }, cache: 'no-store', redirect: 'error',
       body: JSON.stringify({ firstName: firstname, lastName: lastname, email, caseStudy: 'glass-packaging-institute-2026' }),
       signal: AbortSignal.timeout(15000),
     });
     if (!result.ok) return retry(req, 'unavailable');
-    return new Response(new Uint8Array(file), { headers: { ...headers, 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="EcoFocus_GPI_Case_Study_Final.pdf"' } });
+    return new Response(new Uint8Array(file), { headers: { ...headers, 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="EcoFocus_GPI_Case_Study.pdf"' } });
   } catch {
     return retry(req, 'unavailable');
   }
