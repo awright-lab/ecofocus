@@ -57,7 +57,7 @@ export default async function PetInsightsPage({ searchParams }: {
               Pet Industry Insights That Move{' '}
               <span className="animate-gradient bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent">Decisions</span>
             </h1>
-            <p className="mt-4 text-lg text-gray-200/90">Bite-size reads from our consumer research on pet owners, sustainability, and what builds trust in pet brands.</p>
+            <p className="mt-4 text-lg text-gray-200/90">Short reads from our national research on U.S. pet owners: what they value, what they buy, and what builds trust in a brand.</p>
           </div>
         </Hero>
         <div className="relative z-10 mx-auto -mt-10 max-w-7xl px-4 sm:px-6">
