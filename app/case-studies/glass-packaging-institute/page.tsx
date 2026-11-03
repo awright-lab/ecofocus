@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 
-const pdf = "/EcoFocus_GPI_Case_Study_Final.pdf";
+const pdf = "/case-studies/glass-packaging-institute/download";
 const title = "Glass Packaging Institute | Case Study 2026";
 const description = "Explore the Glass Packaging Institute 2026 case study and how EcoFocus helped GPI understand consumer attitudes toward glass packaging.";
 
@@ -77,8 +77,8 @@ export default function GlassPackagingCaseStudy() {
               allowFullScreen
             />
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">Use the arrows or swipe to turn pages. Page text is displayed as images and is not selectable or screen-reader readable. Open or download the original PDF from the reader toolbar.</p>
-          <noscript><p className="mt-3 text-sm"><a href={pdf} className="underline">Read the original case study PDF</a></p></noscript>
+          <p className="mt-3 text-sm leading-relaxed text-slate-600">Use the arrows or swipe to turn pages. Page text is displayed as images and is not selectable or screen-reader readable. Download the original PDF from the reader toolbar by providing your name and email.</p>
+          <noscript><p className="mt-3 text-sm"><a href={pdf} className="underline">Download the original case study PDF</a></p></noscript>
         </section>
 
         <section aria-label="Research context and approach" className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 sm:px-6 md:grid-cols-2 md:pb-16">

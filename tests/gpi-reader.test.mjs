@@ -110,6 +110,10 @@ function reader({ width = 1000, reduced = false, frame = null, native = false } 
 test("all shipped local script, style, image, and PDF paths resolve", () => {
   for (const [, path] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     if (/^(https?:|data:|#)/.test(path)) continue;
+    if (path === "/case-studies/glass-packaging-institute/download") {
+      assert.ok(fs.existsSync(new URL("../app/case-studies/glass-packaging-institute/download/page.tsx", publicRoot)));
+      continue;
+    }
     const file = path.startsWith("/") ? new URL(path.slice(1), publicRoot) : new URL(path, readerRoot);
     assert.ok(fs.statSync(file).isFile(), path);
   }

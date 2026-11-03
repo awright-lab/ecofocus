@@ -24,6 +24,7 @@ const withPWA = withPWAInit({
 });
 
 const nextConfig = {
+  outputFileTracingIncludes: { "/api/case-studies/gpi/download": ["./private/case-studies/*.pdf"] },
   reactStrictMode: true,
   images: {
     unoptimized: true, // ✅ Important for static export or PWA conflicts

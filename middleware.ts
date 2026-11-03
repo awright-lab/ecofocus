@@ -41,6 +41,10 @@ export async function middleware(req: NextRequest) {
   const hasDevPortalSession = PORTAL_DEV_BYPASS && Boolean(req.cookies.get(PORTAL_DEV_COOKIE)?.value);
   const res = NextResponse.next();
 
+  if (pathname === '/EcoFocus_GPI_Case_Study_Final.pdf') {
+    return NextResponse.redirect(new URL('/case-studies/glass-packaging-institute/download', req.url));
+  }
+
   if (isPortal || isPortalApi || portalHost) {
     res.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
     res.headers.set('Cache-Control', 'no-store, max-age=0');

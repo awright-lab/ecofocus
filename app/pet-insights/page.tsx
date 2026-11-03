@@ -54,7 +54,7 @@ export default async function PetInsightsPage({ searchParams }: {
               <PawPrint aria-hidden="true" className="h-4 w-4 shrink-0" /> EcoFocus Insights
             </span>
             <h1 className="text-4xl font-bold leading-tight text-white md:text-5xl">
-              Fresh Pet Industry Insights That Move{' '}
+              Pet Industry Insights That Move{' '}
               <span className="animate-gradient bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 bg-clip-text text-transparent">Decisions</span>
             </h1>
             <p className="mt-4 text-lg text-gray-200/90">Bite-size reads from our consumer research on pet owners, sustainability, and what builds trust in pet brands.</p>
