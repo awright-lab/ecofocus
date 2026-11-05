@@ -18,10 +18,10 @@ export default function ReportContent({ report, preview = false }: { report: Rep
           maxWidth="max-w-7xl"
         />
 
-        <section className="mx-auto grid max-w-7xl gap-10 px-6 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16" aria-labelledby="report-overview">
+        <section className="mx-auto grid max-w-7xl gap-10 scroll-mt-24 px-6 py-6 sm:py-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16" id="report-overview" aria-labelledby="report-overview-heading">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">A closer look</p>
-            <h2 id="report-overview" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">About this report</h2>
+            <h2 id="report-overview-heading" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Inside the report</h2>
             <ReportBody body={report.body || report.description || "Contact our team for more information about this report."} />
           </div>
           <aside className="self-start rounded-2xl border border-emerald-100 bg-emerald-50/60 p-6 sm:p-8" aria-labelledby="report-details">

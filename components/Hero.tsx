@@ -10,7 +10,7 @@ type CTA = { label: string; href: string };
 
 interface HeroProps {
   variant?: HeroVariant;
-  size?: "short" | "normal" | "tall";   // ← height control
+  size?: "compact" | "short" | "normal" | "tall";   // ← height control
   badge?: string;
   headline: ReactNode;                  // ← accepts JSX or string
   subhead?: ReactNode;                  // ← allows JSX if needed
@@ -40,7 +40,8 @@ export default function Hero({
     <section
       className={clsx(
         "relative overflow-hidden bg-neutral-950 text-white z-0",
-        size === "short" ? "py-10 sm:py-14"
+        size === "compact" ? "py-6 sm:py-8"
+        : size === "short" ? "py-10 sm:py-14"
         : size === "tall" ? "py-24 sm:py-32"
         : "py-16 sm:py-24"
       )}

@@ -90,6 +90,15 @@ export default function ContactForm({ className = '' }: { className?: string }) 
   }, []);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('inquiry') !== 'report-invoice') return;
+    const title = params.get('report')?.trim().slice(0, 250);
+    if (!title) return;
+    setMessage(current => current || `Please contact me about being billed for the report: ${title}.`);
+    setReasons(current => current.length ? current : ['Other']);
+  }, []);
+
+  useEffect(() => {
     if (!TURNSTILE_SITE_KEY || !turnstileElRef.current) return;
 
     let cancelled = false;
