@@ -4,7 +4,7 @@ import type { ReportDetail } from "@/lib/reports-repo";
 import PurchaseButtons from "./PurchaseButtons";
 import FreeGateButton from "./FreeGateButton";
 
-export default function CoverHero({ report }: { report: ReportDetail }) {
+export default function CoverHero({ report, preview = false }: { report: ReportDetail; preview?: boolean }) {
   const paid = report.access === "Premium";
   const price = typeof report.price === "number" ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(report.price) : report.priceDisplay;
   return <Hero variant="report" size="short" headline={report.title}
@@ -17,7 +17,7 @@ export default function CoverHero({ report }: { report: ReportDetail }) {
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">{paid ? "Research report" : "Free report"}</span>
-            <span className="text-slate-500">{[report.year, report.format].filter(Boolean).join(" · ")}</span>
+            <span className="text-slate-500">{[report.year, report.format, report.pages ? `${report.pages} pages` : undefined].filter(Boolean).join(" · ")}</span>
           </div>
           <h1 className="mt-4 text-2xl font-bold leading-tight tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">{report.title}</h1>
           {report.subtitle && <p className="mt-3 text-lg font-medium leading-relaxed text-emerald-800">{report.subtitle}</p>}
@@ -25,8 +25,8 @@ export default function CoverHero({ report }: { report: ReportDetail }) {
           <div className="mt-6 border-t border-slate-200 pt-5">
             <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">{paid ? "Report price · USD" : "Digital report"}</p>
             <p className="mt-1 text-3xl font-bold tracking-tight text-slate-900">{paid ? price || "Contact us for pricing" : "Free download"}</p>
-            {paid ? report.priceId ? <PurchaseButtons priceId={report.priceId} title={report.title} /> : <a href="/contact" className="mt-4 inline-block font-semibold text-emerald-800 underline">Contact us for availability</a> : <div className="mt-4"><FreeGateButton fileHref={report.freeHref} /></div>}
-            <p className="mt-3 text-xs leading-relaxed text-slate-500">{paid ? "Secure payment through Stripe. Download your file after payment is confirmed." : "Download the report directly to your device."}</p>
+            {preview ? <button type="button" disabled className="mt-4 rounded-full bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-500">Checkout unavailable in preview</button> : paid ? report.priceId ? <PurchaseButtons priceId={report.priceId} title={report.title} /> : <a href="/contact" className="mt-4 inline-block font-semibold text-emerald-800 underline">Contact us for availability</a> : <div className="mt-4"><FreeGateButton fileHref={report.freeHref} /></div>}
+            <p className="mt-3 text-xs leading-relaxed text-slate-500">{preview ? "This page is for review. The report is not yet available to purchase." : paid ? "Secure payment through Stripe. Download your file after payment is confirmed." : "Download the report directly to your device."}</p>
             {report.sampleHref && <a href={report.sampleHref} className="mt-3 inline-block text-sm font-semibold text-emerald-800 underline underline-offset-4">View a sample</a>}
           </div>
         </div>
