@@ -4,7 +4,7 @@
 
 Before publishing:
 
-- Upload the confirmed cover, `public/images/employment-report-cover.png`, to public Media. This cover is used in the local preview.
+- The approved cover is already uploaded to Payload Media as ID **394**, filename `environmental-sustainability-and-the-workforce-cover.png`. The draft selects this Media record.
 - Approved PDF (upload to private Report Files).
 
 The published item URL will be `/reports/environmental-sustainability-and-the-workforce`. The month and page count were confirmed by the user. File and cover relationships and Stripe IDs are assigned through Payload. The fielding dates and sample sizes are preserved from the supplied copy.
@@ -17,4 +17,4 @@ Local review screenshots are in the workspace's `artifacts/workforce-report` dir
 
 ## Published preview
 
-The review page is `/reports/preview/environmental-sustainability-and-the-workforce`. It reads this local draft, has noindex/nofollow metadata, and explicitly disables checkout. It is not a Payload publication and does not appear in the report catalog. The cover is served from `/images/employment-report-cover.png`. The paid report still requires its private PDF and Payload publication before sales.
+The review page is `/reports/preview/environmental-sustainability-and-the-workforce`. It reads this local draft, has noindex/nofollow metadata, and explicitly disables checkout. It is not a Payload publication and does not appear in the report catalog. The cover is served by Payload Media at `https://ecofocus-cms.onrender.com/api/media/file/environmental-sustainability-and-the-workforce-cover.png`. The paid report still requires its private PDF and Payload publication before sales.

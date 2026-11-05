@@ -14,7 +14,7 @@ export default function WorkforcePreview() {
     ...draft,
     id: "workforce-preview",
     access: "Premium",
-    cover: "/images/employment-report-cover.png",
+    cover: "https://ecofocus-cms.onrender.com/api/media/file/environmental-sustainability-and-the-workforce-cover.png",
     priceId: undefined,
   }} /><Footer /></>;
 }

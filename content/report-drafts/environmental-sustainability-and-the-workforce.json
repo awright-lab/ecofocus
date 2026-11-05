@@ -17,5 +17,6 @@
   "format": "PDF",
   "access": "Premium",
   "price": 1495,
-  "pages": 72
+  "pages": 72,
+  "cover": 394
 }

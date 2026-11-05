@@ -20,7 +20,7 @@ test('workforce draft has all supplied sections and no fabricated publication fa
   assert.equal(draft.price,1495);
   assert.equal(draft.pages,72);
   assert.match(draft.body,/^Published November 2026/);
-  assert.equal(draft.cover,undefined);
+  assert.equal(draft.cover,394);
   assert.equal(draft.downloadFile,undefined);
   assert.equal(blocks.filter(b=>b.type==='heading').length,9);
   assert.equal(blocks.find(b=>b.type==='ordered').items.length,7);
