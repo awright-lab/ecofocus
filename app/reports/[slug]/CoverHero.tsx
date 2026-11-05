@@ -1,4 +1,4 @@
-import Image from "next/image";
+import CoverZoom from "./CoverZoom";
 import Hero from "@/components/Hero";
 import type { ReportDetail } from "@/lib/reports-repo";
 import PurchaseButtons from "./PurchaseButtons";
@@ -12,7 +12,7 @@ export default function CoverHero({ report, preview = false }: { report: ReportD
     <div className="overflow-hidden rounded-3xl border border-white/20 bg-white text-slate-900 shadow-xl">
       <div className="grid md:grid-cols-[minmax(220px,0.7fr)_minmax(0,1.3fr)] lg:grid-cols-[400px_minmax(0,1fr)]">
         <div className="flex items-center justify-center border-b border-slate-100 bg-gradient-to-br from-emerald-50 to-slate-50 px-5 py-5 md:border-b-0 md:border-r">
-          {report.cover ? <a href={report.cover} target="_blank" rel="noopener noreferrer" aria-label="View full-size report cover" className="block rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-700"><Image src={report.cover} alt={`${report.title} cover`} width={500} height={650} sizes="(min-width: 1024px) 360px, (min-width: 768px) 280px, 260px" className="h-auto max-h-[510px] w-[260px] rounded-lg border border-slate-200 object-contain shadow-lg md:w-full md:max-w-[360px]" priority /></a> : <div className="flex aspect-[3/4] w-40 flex-col justify-between rounded-lg bg-emerald-900 p-6 text-white shadow-lg"><span className="text-sm font-semibold">EcoFocus Research</span><span className="text-2xl font-bold">{report.year}<br />Report</span></div>}
+          {report.cover ? <CoverZoom src={report.cover} title={report.title} /> : <div className="flex aspect-[3/4] w-40 flex-col justify-between rounded-lg bg-emerald-900 p-6 text-white shadow-lg"><span className="text-sm font-semibold">EcoFocus Research</span><span className="text-2xl font-bold">{report.year}<br />Report</span></div>}
         </div>
         <div className="p-5 sm:p-6 lg:p-7">
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
