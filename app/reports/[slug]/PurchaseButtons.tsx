@@ -8,7 +8,8 @@ import { useCart } from "@/app/store/cart";
 export default function PurchaseButtons({
   priceId,
   title,
-}: { priceId?: string; title: string }) {
+  buyLabel = "Buy now",
+}: { priceId?: string; title: string; buyLabel?: string }) {
   const [loading, setLoading] = useState(false);
   const { add, ready } = useCart();
   const [error, setError] = useState("");
@@ -43,7 +44,7 @@ export default function PurchaseButtons({
                    before:scale-0 before:transition-transform before:duration-500 hover:before:scale-110 before:z-0 disabled:opacity-60"
         aria-busy={loading}
       >
-        <span className="relative z-10">{loading ? "Redirecting…" : "Buy now"}</span>
+        <span className="relative z-10">{loading ? "Redirecting…" : buyLabel}</span>
       </button>
 
       <button

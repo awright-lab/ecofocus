@@ -1,13 +1,15 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
+import type { ReportPresentation } from "@/lib/report-presentation";
+import PurchaseButtons from "./PurchaseButtons";
 import type { ReportDetail } from "@/lib/reports-repo";
 import CoverHero from "./CoverHero";
 import ReportBody from "./ReportBody";
 
-export default function ReportContent({ report, preview = false }: { report: ReportDetail; preview?: boolean }) {
+export default function ReportContent({ report, preview = false, presentation }: { report: ReportDetail; preview?: boolean; presentation?: ReportPresentation }) {
   return (
       <main className="bg-white pt-14 text-gray-900 md:pt-20">
-        {preview && <div className="border-b border-amber-200 bg-amber-50 px-6 py-3 text-center text-sm font-medium text-amber-900" role="status">Report preview · Purchases are unavailable until the PDF is attached.</div>}
-        <CoverHero report={report} preview={preview} />
+        {preview && <div className="border-b border-amber-200 bg-amber-50 px-6 py-3 text-center text-sm font-medium text-amber-900" role="status">{presentation ? "Alternate copy preview" : "Report preview"} · Purchases are unavailable until the PDF is attached.{presentation && <> <a href={presentation.originalPreviewHref} className="ml-2 underline underline-offset-4">View original preview</a></>}</div>}
+        <CoverHero report={report} preview={preview} presentation={presentation} />
 
         <Breadcrumbs
           items={[
@@ -23,6 +25,12 @@ export default function ReportContent({ report, preview = false }: { report: Rep
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">A closer look</p>
             <h2 id="report-overview-heading" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Inside the report</h2>
             <ReportBody body={report.body || report.description || "Contact our team for more information about this report."} />
+            {presentation && <section className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 sm:p-8" aria-labelledby="final-purchase-heading">
+              <h3 id="final-purchase-heading" className="text-xl font-semibold text-slate-900">{presentation.finalHeading}</h3>
+              <p className="mt-3 leading-relaxed text-slate-600">{presentation.finalText}</p>
+              {preview ? <button type="button" disabled className="mt-4 rounded-full bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-600">{presentation.purchaseLabel}</button> : report.priceId ? <PurchaseButtons priceId={report.priceId} title={report.title} buyLabel={presentation.purchaseLabel} /> : <a href="/contact" className="mt-4 inline-block font-semibold text-emerald-800 underline">Contact us for availability</a>}
+              {preview && <p className="mt-2 text-xs text-slate-500">Checkout is disabled in this preview.</p>}
+            </section>}
           </div>
           <aside className="self-start rounded-2xl border border-emerald-100 bg-emerald-50/60 p-6 sm:p-8" aria-labelledby="report-details">
             <h2 id="report-details" className="text-lg font-semibold text-slate-900">Report details</h2>

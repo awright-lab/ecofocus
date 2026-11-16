@@ -29,3 +29,27 @@ test('workforce draft has all supplied sections and no fabricated publication fa
   assert.match(draft.body,/2,472/);
   assert.match(draft.body,/2,825/);
 });
+
+test('alternate workforce preview follows placement guide without changing the original copy', () => {
+  const original=JSON.parse(fs.readFileSync(new URL('../content/report-drafts/environmental-sustainability-and-the-workforce.json',import.meta.url)));
+  const {report,presentation}=JSON.parse(fs.readFileSync(new URL('../content/report-previews/workforce-alternate.json',import.meta.url)));
+  const blocks=parse(report.body);
+  assert.deepEqual(blocks.filter(b=>b.type==='heading').map(b=>b.text),[
+    'Put the findings to work in your next talent discussion','Who it’s for','What’s included','Questions this report answers','Contents','Methodology','License','About EcoFocus Research','Need more?',
+  ]);
+  assert.deepEqual(blocks.filter(b=>b.type==='unordered').map(b=>b.items.length),[4,4,6]);
+  assert.equal(blocks.find(b=>b.type==='ordered').items.length,7);
+  assert.match(original.body,/## Overview/);
+  assert.match(original.description,/hires and retains/);
+  assert.doesNotMatch(report.body,/## Overview|Environmental commitments are now/);
+  assert.match(report.body,/where sample sizes permit/);
+  assert.equal(report.price,1495);
+  assert.equal(report.pages,65);
+  assert.equal(report.cover,original.cover);
+  assert.equal(presentation.introParagraphs.length,3);
+  assert.match(presentation.introParagraphs[2],/^51%/);
+  assert.match(presentation.priceNote,/Licensed for internal use across your company/);
+  assert.equal(presentation.purchaseLabel,'Get the report');
+  assert.match(presentation.finalText,/\$1,495 for internal use across one organization/);
+  assert.doesNotMatch(JSON.stringify({report,presentation}),/CONFIDENTIAL WORKING DRAFT|ROI discussion|budget-request|claim-check/);
+});
