@@ -4,7 +4,7 @@
 
 Before publishing:
 
-- The approved cover is already uploaded to Payload Media as ID **394**, filename `environmental-sustainability-and-the-workforce-cover.png`. The draft selects this Media record.
+- The approved cover is already uploaded to Payload Media as ID **395**, filename `environmental-sustainability-and-the-workforce-cover-v6-1.webp`. The draft selects this Media record.
 - Approved PDF (upload to private Report Files).
 
 The published item URL will be `/reports/environmental-sustainability-and-the-workforce`. The month and page count were confirmed by the user. File and cover relationships and Stripe IDs are assigned through Payload. The fielding dates and sample sizes are preserved from the supplied copy.
@@ -17,4 +17,6 @@ Local review screenshots are in the workspace's `artifacts/workforce-report` dir
 
 ## Published preview
 
-The review page is `/reports/preview/environmental-sustainability-and-the-workforce`. It reads this local draft, has noindex/nofollow metadata, and explicitly disables checkout. It is not a Payload publication and does not appear in the report catalog. The cover is served by Payload Media at `https://ecofocus-cms.onrender.com/api/media/file/environmental-sustainability-and-the-workforce-cover.png`. The paid report still requires its private PDF and Payload publication before sales.
+The review page is `/reports/preview/environmental-sustainability-and-the-workforce`. It reads this local draft, has noindex/nofollow metadata, and explicitly disables checkout. It is not a Payload publication and does not appear in the report catalog. The cover is served by Payload Media at `https://ecofocus-cms.onrender.com/api/media/file/environmental-sustainability-and-the-workforce-cover-v6-1.webp`. The paid report still requires its private PDF and Payload publication before sales.
+
+The current cover comes from `EcoFocus_Workforce_Report_Draft_v6.1.png`. A web-optimized copy is stored in Media; the full-resolution original remains unchanged in the local public images folder. Previous cover Media ID 394 is retained.
