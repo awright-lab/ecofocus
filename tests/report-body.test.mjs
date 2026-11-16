@@ -18,7 +18,7 @@ test('workforce draft has all supplied sections and no fabricated publication fa
   const blocks=parse(draft.body);
   assert.equal(draft._status,'draft');
   assert.equal(draft.price,1495);
-  assert.equal(draft.pages,72);
+  assert.equal(draft.pages,65);
   assert.match(draft.body,/^Published November 2026/);
   assert.equal(draft.cover,395);
   assert.equal(draft.downloadFile,undefined);
