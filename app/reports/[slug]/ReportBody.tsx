@@ -3,7 +3,8 @@ import { parseReportBody } from "@/lib/report-body";
 
 function InlineText({ text }: { text: string }) {
   // Only same-site links are supported. Never render CMS HTML or arbitrary URLs.
-  return text.split(/(\[[^\]\n]+\]\(\/(?!\/)[a-zA-Z0-9/_#?=&%-]*\))/g).map((part, index) => {
+  return text.split(/(\*\*[^*\n]+\*\*|\[[^\]\n]+\]\(\/(?!\/)[a-zA-Z0-9/_#?=&%-]*\))/g).map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**")) return <strong key={index} className="font-semibold text-slate-800">{part.slice(2, -2)}</strong>;
     const link = /^\[([^\]]+)\]\((\/[^)]*)\)$/.exec(part);
     return link ? <Link key={index} href={link[2]} className="font-semibold text-emerald-800 underline underline-offset-4 hover:text-emerald-900">{link[1]}</Link> : part;
   });
