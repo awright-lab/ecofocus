@@ -63,20 +63,22 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/images/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/images/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.svg?v=ef-teal-2026", type: "image/svg+xml" },
+      { url: "/favicon.ico?v=ef-teal-2026", sizes: "any" },
+      { url: "/images/icons/favicon-32.png?v=ef-teal-2026", sizes: "32x32", type: "image/png" },
+      { url: "/images/icons/favicon-16.png?v=ef-teal-2026", sizes: "16x16", type: "image/png" },
     ],
     apple: [
-      { url: "/images/icons/apple-touch-icon-180.png", sizes: "180x180" },
-      { url: "/images/icons/apple-touch-icon-167.png", sizes: "167x167" },
-      { url: "/images/icons/apple-touch-icon-152.png", sizes: "152x152" },
-      { url: "/images/icons/apple-touch-icon-120.png", sizes: "120x120" },
+      { url: "/images/icons/apple-touch-icon-180.png?v=ef-teal-2026", sizes: "180x180" },
+      { url: "/images/icons/apple-touch-icon-167.png?v=ef-teal-2026", sizes: "167x167" },
+      { url: "/images/icons/apple-touch-icon-152.png?v=ef-teal-2026", sizes: "152x152" },
+      { url: "/images/icons/apple-touch-icon-120.png?v=ef-teal-2026", sizes: "120x120" },
     ],
     other: [
-      { rel: "mask-icon", url: "/images/icons/safari-pinned-tab.svg", color: "#156C2B" },
+      { rel: "mask-icon", url: "/images/icons/safari-pinned-tab.svg?v=ef-teal-2026", color: "#16b39e" },
     ],
   },
-  manifest: "/site.webmanifest",
+  manifest: "/site.webmanifest?v=ef-teal-2026",
   category: "business",
 };
 
@@ -176,52 +178,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             if (!window.__portalRecovery) gtag('config', '${GA_TRACKING_ID}');
           `}
         </Script>
-
-        {/* ✅ Full favicon + Apple icon set for macOS/iOS */}
-        {/* Modern scalable favicon */}
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        {/* Legacy .ico fallback (used by Safari/macOS) */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        {/* Explicit PNGs */}
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/images/icons/favicon-32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/images/icons/favicon-16.png"
-        />
-        {/* Apple Touch Icons */}
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/images/icons/apple-touch-icon-180.png"
-        />
-        <link
-          rel="apple-touch-icon"
-          sizes="167x167"
-          href="/images/icons/apple-touch-icon-167.png"
-        />
-        <link
-          rel="apple-touch-icon"
-          sizes="152x152"
-          href="/images/icons/apple-touch-icon-152.png"
-        />
-        <link
-          rel="apple-touch-icon"
-          sizes="120x120"
-          href="/images/icons/apple-touch-icon-120.png"
-        />
-        {/* Safari pinned tab (monochrome SVG) */}
-        <link
-          rel="mask-icon"
-          href="/images/icons/safari-pinned-tab.svg"
-          color="#156C2B"
-        />
 
         {/* iOS meta hints */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
