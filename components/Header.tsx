@@ -116,10 +116,10 @@ export default function Header() {
                 }`}
               >
                 <Image
-                  src="/images/ef-logo.png"
+                  src="/images/ef-logo-3.png"
                   alt="EcoFocus"
-                  width={160}
-                  height={50}
+                  width={1172}
+                  height={264}
                   sizes="(min-width:1280px) 180px, (min-width:1024px) 160px, (min-width:640px) 150px, 140px"
                   className="site-logo h-6 md:h-7 w-auto object-contain"
                   priority

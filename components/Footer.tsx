@@ -36,10 +36,10 @@ export default function Footer() {
         {/* Brand / About */}
         <section aria-label="About EcoFocus">
           <Image
-            src="/images/ef-logo-2.png"
+            src="/images/ef-logo-3.png"
             alt="EcoFocus Research"
-            width={180}
-            height={60}
+            width={1172}
+            height={264}
             sizes="180px"
             className="mb-6 h-auto w-[180px]"
             priority
