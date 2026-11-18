@@ -363,6 +363,16 @@ function normalizePayloadDetail(d: any): ReportDetail {
   };
 }
 
+// Payload REST expects bracket-encoded fields, not a JSON string in `where`.
+function setPayloadWhere(url: URL, where: unknown) {
+  const append = (key: string, value: unknown) => {
+    if (value !== null && typeof value === "object") {
+      Object.entries(value).forEach(([child, item]) => append(`${key}[${child}]`, item));
+    } else if (value !== undefined) url.searchParams.set(key, String(value));
+  };
+  append("where", where);
+}
+
 async function listReportsPayload(input: ListReportsInput): Promise<ListReportsResult> {
   const limit = Math.max(1, Math.min(60, input.limit || 12));
   const sort = payloadSortFromInput(input.sort);
@@ -374,7 +384,7 @@ async function listReportsPayload(input: ListReportsInput): Promise<ListReportsR
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("sort", sort);
-  if (where) url.searchParams.set("where", JSON.stringify(where));
+  if (where) setPayloadWhere(url, where);
 
   const res = await fetch(url.toString(), {
     headers: payloadHeaders(),
@@ -387,7 +397,7 @@ async function listReportsPayload(input: ListReportsInput): Promise<ListReportsR
   }
 
   const data = await res.json();
-  const docs = (data.docs ?? []) as any[];
+  const docs = ((data.docs ?? []) as any[]).filter((doc) => doc._status === "published");
   const items = docs.map(mapPayloadListDoc);
   const total = Number(data.totalDocs ?? items.length);
   const hasNext = Boolean(data.hasNextPage);
@@ -408,7 +418,7 @@ async function getPayloadDetailById(id: string): Promise<ReportDetail | null> {
 
 async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null> {
   const url = new URL(`${PAYLOAD_BASE_URL}/api/reports`);
-  url.searchParams.set("where", JSON.stringify({ and: [{ slug: { equals: slug } }, { _status: { equals: "published" } }] }));
+  setPayloadWhere(url, { and: [{ slug: { equals: slug } }, { _status: { equals: "published" } }] });
   const res = await fetch(url.toString(), {
     headers: payloadHeaders(),
     cache: "no-store",
@@ -416,7 +426,7 @@ async function getPayloadDetailBySlug(slug: string): Promise<ReportDetail | null
   if (!res.ok) throw new Error(`Payload detail error: ${res.status}`);
   const data = await res.json();
   const doc = data?.docs?.[0];
-  return doc ? normalizePayloadDetail(doc) : null;
+  return doc?._status === "published" && doc.slug === slug ? normalizePayloadDetail(doc) : null;
 }
 
 /* =========================
@@ -445,10 +455,11 @@ export async function getReportBySlug(slug: string): Promise<ReportDetail | null
 export async function getReportByPriceId(priceId: string): Promise<ReportDetail | null> {
   if (!WANT_PAYLOAD) return null;
   const url = new URL(`${PAYLOAD_BASE_URL}/api/reports`);
-  url.searchParams.set("where", JSON.stringify({ and: [{ priceId: { equals: priceId } }, { _status: { equals: "published" } }, { access: { equals: "Premium" } }] }));
+  setPayloadWhere(url, { and: [{ priceId: { equals: priceId } }, { _status: { equals: "published" } }, { access: { equals: "Premium" } }] });
   url.searchParams.set("limit", "1");
   const response = await fetch(url, { headers: payloadHeaders(), cache: "no-store" });
   if (!response.ok) throw new Error("The report catalog is unavailable.");
   const data = await response.json();
-  return data.docs?.[0] ? normalizePayloadDetail(data.docs[0]) : null;
+  const doc = data.docs?.[0];
+  return doc?._status === "published" && doc.access === "Premium" && doc.priceId === priceId ? normalizePayloadDetail(doc) : null;
 }

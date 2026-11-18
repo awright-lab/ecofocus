@@ -77,8 +77,9 @@ test('production catalog uses published Payload records and canonical access enu
   });
   const result = await repo.listReports({ access: 'premium' });
   assert.equal(result.items.length, 0);
-  const where = JSON.parse(requests[0].searchParams.get('where'));
-  assert.equal(JSON.stringify(where), JSON.stringify({ and: [{ _status: { equals: 'published' } }, { access: { equals: 'Premium' } }] }));
+  assert.equal(requests[0].searchParams.get('where'), null);
+  assert.equal(requests[0].searchParams.get('where[and][0][_status][equals]'), 'published');
+  assert.equal(requests[0].searchParams.get('where[and][1][access][equals]'), 'Premium');
 });
 
 test('CMS failures never replace production products with demo products', async () => {
@@ -112,4 +113,32 @@ test('checkout initiated from a hosting alias returns customers to the primary s
   assert.equal((await route.post({ items: [{ price: 'price_test', quantity: 1 }] }, 'https://main--ecofocusresearch.netlify.app')).status, 200);
   assert.equal(route.calls[0].success_url, 'https://ecofocusresearch.com/checkout/success?session_id={CHECKOUT_SESSION_ID}');
   assert.equal(route.calls[0].cancel_url, 'https://ecofocusresearch.com/reports');
+});
+
+
+test('authenticated catalog never exposes draft records even if the CMS returns them', async () => {
+  const repo = load('lib/reports-repo.ts', { 'server-only': {} }, {
+    process: { env: { PAYLOAD_BASE_URL: 'https://cms.example', REPORTS_API_KEY: 'fixture', NODE_ENV: 'production' } },
+    fetch: async () => ({ ok: true, json: async () => ({ docs: [{ id: 1, slug: 'test-report', _status: 'draft' }, { id: 2, slug: 'real-report', _status: 'published' }], totalDocs: 2 }) }),
+  });
+  assert.deepEqual(JSON.parse(JSON.stringify((await repo.listReports({})).items.map(x => x.slug))), ['real-report']);
+});
+
+test('slug and checkout price lookups use REST filters and reject mismatched or draft records', async () => {
+  const requests = []; let doc;
+  const repo = load('lib/reports-repo.ts', { 'server-only': {} }, {
+    process: { env: { PAYLOAD_BASE_URL: 'https://cms.example', REPORTS_API_KEY: 'fixture', NODE_ENV: 'production' } },
+    fetch: async url => { requests.push(new URL(url)); return { ok: true, json: async () => ({ docs: doc ? [doc] : [] }) }; },
+  });
+  doc = { id: 1, slug: 'test-report', _status: 'draft', access: 'Premium', priceId: 'price_old' };
+  assert.equal(await repo.getReportBySlug('test-report'), null);
+  assert.equal(await repo.getReportByPriceId('price_old'), null);
+  assert.equal(requests[0].searchParams.get('where[and][0][slug][equals]'), 'test-report');
+  assert.equal(requests[1].searchParams.get('where[and][0][priceId][equals]'), 'price_old');
+  doc = { ...doc, _status: 'published', slug: 'other-report', priceId: 'price_other' };
+  assert.equal(await repo.getReportBySlug('test-report'), null);
+  assert.equal(await repo.getReportByPriceId('price_old'), null);
+  doc = { ...doc, slug: 'real-report', priceId: 'price_real' };
+  assert.equal((await repo.getReportBySlug('real-report')).id, '1');
+  assert.equal((await repo.getReportByPriceId('price_real')).id, '1');
 });
