@@ -33,11 +33,14 @@ test('unpublished or outdated catalog prices cannot be checked out', async () =>
 });
 test('checkout sets trusted order metadata and return URLs on the server', async () => {
   const route = checkout();
-  const response = await route.post({ items: [{ price: 'price_test', quantity: 1, amount: 1 }], successUrl: 'https://evil.example', metadata: { report_ids: '["other"]' } });
+  const response = await route.post({ items: [{ price: 'price_test', quantity: 1, amount: 1 }], successUrl: 'https://evil.example', metadata: { report_ids: '["other"]' }, discounts: [{ coupon: 'client_coupon' }] });
   assert.equal(response.status, 200);
   assert.equal(route.calls[0].metadata.report_ids, '["42"]');
   assert.equal(route.calls[0].success_url, 'https://ecofocusresearch.com/checkout/success?session_id={CHECKOUT_SESSION_ID}');
   assert.equal(route.calls[0].line_items[0].amount, undefined);
+  assert.equal(route.calls[0].allow_promotion_codes, true);
+  assert.equal(route.calls[0].discounts, undefined);
+
 });
 test('Stripe errors produce a recoverable checkout response', async () => {
   const route = checkout({ fail: true });

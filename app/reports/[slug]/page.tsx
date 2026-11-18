@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { getReportBySlug } from "@/lib/reports-repo";
 
 import ReportContent from "./ReportContent";
+import workforce from "@/content/report-previews/workforce-alternate.json";
 
 const SITE_URL = "https://ecofocusresearch.com";
 
@@ -76,7 +77,7 @@ export default async function ReportDetailPage({
   return (
     <>
       <Header />
-      <ReportContent report={report} />
+      <ReportContent report={report} presentation={slug === workforce.report.slug ? workforce.presentation : undefined} />
       <Footer />
     </>
   );

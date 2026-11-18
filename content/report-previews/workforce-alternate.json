@@ -19,7 +19,8 @@
     "access": "Premium",
     "price": 1495,
     "pages": 65,
-    "cover": 395
+    "cover": 395,
+    "downloadFile": 2
   },
   "presentation": {
     "introHeading": "A must-read for the teams responsible for attracting talent and shaping the employee experience.",
