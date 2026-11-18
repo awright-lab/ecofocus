@@ -102,3 +102,16 @@ Before treating collection as complete:
 - Verify an invoice preview with the real product/price and a customer location in a registered jurisdiction. Inspect line-item `taxability_reason`, not just the tax amount. `not_collecting` means that collection has not been verified and must never be reported as an exempt sale.
 
 Relevant references: [Stripe Tax setup](https://docs.stripe.com/tax/set-up), [US tax collection](https://docs.stripe.com/tax/supported-countries/united-states), [threshold monitoring](https://docs.stripe.com/tax/monitoring), and [product tax codes](https://docs.stripe.com/tax/tax-codes).
+
+
+## Report orders in Payload
+
+Open **Store → Report Orders** in Payload to see confirmed report buyers. Admins and editors can read the list; anonymous visitors cannot. Standard REST create, update, and delete operations are disabled. These records never subscribe buyers to marketing.
+
+The website posts only a Checkout Session ID to the authenticated `/api/report-orders/sync` endpoint, using the existing `REPORTS_API_KEY` (a CMS admin/editor user key). The CMS independently retrieves the checkout, payment charge, and all line items from its matching Stripe account/mode. Only complete, paid `report-store` sessions with valid report references are accepted. Buyer details and amounts supplied by callers are ignored.
+
+The list includes buyer name/email, purchased report titles/quantities, original amount paid, payment charge date (falling back to checkout creation), live/test mode, payment status, and a link to Stripe. It retains the order's title/price snapshots if a report is later edited or unpublished. Raw amount fields are minor currency units (USD cents). A unique Stripe session index and conflict handling prevent duplicate rows on webhook retries or simultaneous requests.
+
+Paid `checkout.session.completed` and `checkout.session.async_payment_succeeded` events record the order before sending the download email. The order-email fallback does the same even if an email was sent previously. CMS failures return a webhook error so Stripe retries; email-provider failures leave the recorded order available.
+
+Enable `charge.refunded` on the same Stripe webhook to refresh refund amounts/status for report-store sessions. Refund sync updates the buyer record; it does not revoke existing file access. Stripe remains the payment system of record. A historical migration imports confirmed purchases from the CMS's configured Stripe mode, skipping unrelated and unpaid checkouts, without sending emails or creating charges.

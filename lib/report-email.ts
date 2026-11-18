@@ -1,4 +1,5 @@
 import "server-only";
+import { recordReportOrder } from "@/lib/report-order-sync";
 import { getReportOrderDetails } from "@/lib/report-orders";
 import { getReportSiteOrigin } from "@/lib/report-site";
 import { getStripeServer } from "@/lib/stripe";
@@ -7,6 +8,7 @@ const escapeHtml = (value: string) => value.replaceAll("&", "&amp;").replaceAll(
 
 export async function sendReportOrderEmail(sessionId: string) {
   const order = await getReportOrderDetails(sessionId);
+  await recordReportOrder(sessionId);
   if (!order.email) throw new Error("No checkout email address is available for this order.");
   if (order.emailSent) return { sent: true, alreadySent: true };
   const key = process.env.RESEND_API_KEY;

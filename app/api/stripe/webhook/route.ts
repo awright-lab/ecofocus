@@ -5,6 +5,7 @@ import { syncPortalInvoiceStatusFromStripeInvoice, syncPortalSubscriptionStatusF
 import { getPortalCompanies } from "@/lib/portal/data";
 import { sendPortalInvoicePaidNotificationEmail } from "@/lib/portal/email";
 import { getPortalProvisioningMetadata, upsertPortalAccountRecords, upsertPortalDashboardConfig } from "@/lib/portal/provisioning";
+import { recordReportRefund } from "@/lib/report-order-sync";
 import { sendReportOrderEmail } from "@/lib/report-email";
 import { getStripeServer } from "@/lib/stripe";
 
@@ -98,6 +99,12 @@ export async function POST(req: Request) {
       case "checkout.session.async_payment_succeeded":
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
         break;
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        const intent = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+        if (intent) await recordReportRefund(intent);
+        break;
+      }
       case "payment_intent.succeeded":
         break;
       case "invoice.finalized":

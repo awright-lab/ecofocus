@@ -44,16 +44,17 @@ test('order summary uses Stripe paid amount, reference and all line items', asyn
   assert.equal(order.items[0].qty,2);
   assert.equal(order.emailSent,false);
 });
-function emailHarness({sent=false,valid=true,configured=true,providerOk=true}={}) {
-  const requests=[],updates=[];
+function emailHarness({sent=false,valid=true,configured=true,providerOk=true,cmsOk=true}={}) {
+  const requests=[],updates=[],records=[];
   const order={reference:'EF-1234567890',currency:'usd',amountTotal:50,email:'buyer@example.com',emailSent:sent,items:[{title:'Report <script> & charts',priceId:'price_a',qty:1}]};
   const email=load('lib/report-email.ts',{
     'server-only':{},
+    '@/lib/report-order-sync':{recordReportOrder:async id=>{if(!cmsOk)throw Error('CMS unavailable');records.push(id);}},
     '@/lib/report-site':{getReportSiteOrigin:()=> 'https://ecofocusresearch.com'},
     '@/lib/report-orders':{getReportOrderDetails:async()=>{if(!valid)throw Error('Payment not confirmed');return order;}},
     '@/lib/stripe':{getStripeServer:()=>({checkout:{sessions:{update:async(...args)=>updates.push(args)}}})},
   },{process:{env:configured?{RESEND_API_KEY:'test-provider-key',PORTAL_FROM_EMAIL:'reports@example.com'}:{}},fetch:async(url,options)=>{requests.push({url,options});return {ok:providerOk,status:providerOk?200:500,json:async()=>({id:'email_test'})};}});
-  return {...email,requests,updates};
+  return {...email,requests,updates,records};
 }
 test('email sends to the Stripe buyer with an escaped message and private order link',async()=>{
   const email=emailHarness();
@@ -100,6 +101,7 @@ test('webhook emails only paid report-store sessions, including delayed success'
     '@/lib/portal/email':{sendPortalInvoicePaidNotificationEmail:async()=>{}},
     '@/lib/portal/provisioning':{getPortalProvisioningMetadata:()=>null,upsertPortalAccountRecords:async()=>{},upsertPortalDashboardConfig:async()=>{}},
     '@/lib/report-email':{sendReportOrderEmail:async id=>sent.push(id)},
+    '@/lib/report-order-sync':{recordReportRefund:async()=>{}},
     '@/lib/stripe':{getStripeServer:()=>({webhooks:{constructEventAsync:async()=>event}})},
   },{process:{env:{STRIPE_WEBHOOK_SECRET:'test-secret'}}});
   for(const [type,status,source] of [['checkout.session.completed','unpaid','report-store'],['checkout.session.completed','paid','report-store'],['checkout.session.async_payment_succeeded','paid','report-store'],['checkout.session.completed','paid','other']]) {
@@ -149,4 +151,18 @@ test('status endpoint returns payment state without unlocking files or exposing 
 test('status API errors stay errors instead of being presented as pending payments',async()=>{
   const {POST}=load('app/api/reports/order-status/route.ts',{'next/server':{NextResponse:{json:(data,options)=>Response.json(data,options)}},'@/lib/report-orders':{getReportOrderStatus:async()=>{throw Error('Stripe unavailable');}}});
   assert.equal((await POST(new Request('https://example.com/api/reports/order-status',{method:'POST',body:JSON.stringify({sessionId:'cs_test_abc123'})}))).status,503);
+});
+
+
+test('order is recorded even when email was already sent or the email provider fails', async () => {
+  for (const options of [{sent:true},{providerOk:false}]) {
+    const h=emailHarness(options);
+    await h.sendReportOrderEmail('cs_live_fixture').catch(()=>{});
+    assert.deepEqual(h.records,['cs_live_fixture']);
+  }
+});
+test('CMS failure remains retryable and does not falsely report successful order delivery', async () => {
+  const h=emailHarness({cmsOk:false});
+  await assert.rejects(h.sendReportOrderEmail('cs_live_fixture'),/CMS unavailable/);
+  assert.equal(h.requests.length,0);
 });
