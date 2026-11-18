@@ -33,7 +33,7 @@ test('unpublished or outdated catalog prices cannot be checked out', async () =>
 });
 test('checkout sets trusted order metadata and return URLs on the server', async () => {
   const route = checkout();
-  const response = await route.post({ items: [{ price: 'price_test', quantity: 1, amount: 1 }], successUrl: 'https://evil.example', metadata: { report_ids: '["other"]' }, discounts: [{ coupon: 'client_coupon' }], automatic_tax: { enabled: false }, billing_address_collection: 'auto' });
+  const response = await route.post({ items: [{ price: 'price_test', quantity: 1, amount: 1 }], successUrl: 'https://evil.example', metadata: { report_ids: '["other"]' }, discounts: [{ coupon: 'client_coupon' }], automatic_tax: { enabled: false }, billing_address_collection: 'auto', custom_fields: [] });
   assert.equal(response.status, 200);
   assert.equal(route.calls[0].metadata.report_ids, '["42"]');
   assert.equal(route.calls[0].success_url, 'https://ecofocusresearch.com/checkout/success?session_id={CHECKOUT_SESSION_ID}');
@@ -42,6 +42,7 @@ test('checkout sets trusted order metadata and return URLs on the server', async
   assert.equal(route.calls[0].discounts, undefined);
   assert.equal(route.calls[0].automatic_tax.enabled, true);
   assert.equal(route.calls[0].billing_address_collection, 'required');
+  assert.deepEqual(JSON.parse(JSON.stringify(route.calls[0].custom_fields)), [{ key: 'companyName', label: { type: 'custom', custom: 'Company name' }, type: 'text', optional: false, text: { minimum_length: 1, maximum_length: 200 } }]);
 
 });
 test('Stripe errors produce a recoverable checkout response', async () => {

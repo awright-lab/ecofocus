@@ -28,6 +28,7 @@ export async function POST(req: Request) {
       allow_promotion_codes: true,
       automatic_tax: { enabled: true },
       billing_address_collection: "required",
+      custom_fields: [{ key: "companyName", label: { type: "custom", custom: "Company name" }, type: "text", optional: false, text: { minimum_length: 1, maximum_length: 200 } }],
       line_items: body.items.map((item: { price: string; quantity: number }) => ({ price: item.price, quantity: item.quantity })),
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/reports`,
