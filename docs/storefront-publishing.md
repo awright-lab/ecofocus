@@ -11,7 +11,7 @@ Implementation spans this website and the local checkout of `awright-lab/ecofocu
 5. Save Draft while preparing. Publish to synchronize the product with Stripe and make it appear at `/reports`. Stripe IDs and last sync time appear in the sidebar automatically. Stripe errors prevent publication and display an explanation.
 6. Later price changes create/reuse a matching Stripe Price; previous prices remain available for existing orders. The website rejects carts containing prices that are no longer current. Saving a draft does not change the published Stripe price.
 
-USD and one-time payments are supported in this first implementation. Report licensing and tax treatment should be specified in the product copy before launch. Automatic tax is not configured here. Verified buyers download from their private order confirmation link; sharing that link shares download access. Transactional report emails use Resend, send only after confirmed payment, and include this same private order link. The confirmation page reports email success only after the provider accepts the message. Refund-based revocation and customer account libraries are future work.
+USD and one-time payments are supported in this first implementation. Report licensing and tax treatment should be specified in the product copy before launch. Hosted report checkout enables Stripe Tax and requires a billing address. See Nationwide sales and tax below for registration and classification prerequisites. Verified buyers download from their private order confirmation link; sharing that link shares download access. Transactional report emails use Resend, send only after confirmed payment, and include this same private order link. The confirmation page reports email success only after the provider accepts the message. Refund-based revocation and customer account libraries are future work.
 
 ## Cloudflare storage provisioned
 
@@ -85,3 +85,20 @@ Production checkout return URLs and email links default to `https://ecofocusrese
 ## Stripe webhook on the portal hostname
 
 `https://portal.ecofocusresearch.com/api/stripe/webhook` must be reachable without a browser login. Middleware exempts only the exact `/api/stripe/webhook` path; the handler still verifies the raw request body against `stripe-signature` and `STRIPE_WEBHOOK_SECRET`. An unsigned POST should return HTTP 400, not a login redirect. A genuine signed event should return 2xx after successful processing. Check test-mode event delivery in Stripe Workbench after deployment and resend failed events if needed. The connected Stripe app may expose live mode only; this does not prove test-mode delivery succeeded.
+
+
+## Nationwide sales and tax
+
+New report checkouts enable `automatic_tax` and collect a full billing address so Stripe can determine the buyer's location. Prices, product classifications, and tax registrations remain server-controlled; request bodies cannot disable tax or override a report's price. Existing Checkout Sessions retain the settings with which they were created, including the earlier $1 test link with tax disabled.
+
+Stripe Tax **collects no tax in a jurisdiction without an active registration there**. Enabling automatic tax does not register EcoFocus, establish that it owes tax, or prove that a zero-tax result is an exemption. As of November 18, 2026, the live account's Tax Settings are active with an Illinois head office, but its Tax Registrations list is empty. No registrations have been submitted or fabricated during this work.
+
+Before treating collection as complete:
+
+- The workforce report uses the user-confirmed `txcd_10503000` (Digital other news or documents — downloadable, non-subscription, permanent rights). Its existing $1,495 USD Stripe Price is tax-exclusive, so applicable tax is added at checkout. The account-wide default remains unchanged for unrelated products. Payload republishing preserves an existing product's tax code. Confirm classification and price tax behavior for each additional report before publishing it.
+- Review obligations with an accountant using all sales channels and each state's own revenue/transaction periods and thresholds. Texas's $500,000 safe harbor is not a nationwide threshold. Account for physical presence independently.
+- Add only actual, confirmed registrations to Stripe. A registration entered in Stripe represents an existing tax-authority registration; it is not a substitute for obtaining one.
+- Review [Stripe Tax → Locations → Needs attention](https://dashboard.stripe.com/tax/locations?primary_tab=needs_attention) for threshold monitoring and include revenue outside Stripe in the review. Monitoring does not resolve physical-presence obligations.
+- Verify an invoice preview with the real product/price and a customer location in a registered jurisdiction. Inspect line-item `taxability_reason`, not just the tax amount. `not_collecting` means that collection has not been verified and must never be reported as an exempt sale.
+
+Relevant references: [Stripe Tax setup](https://docs.stripe.com/tax/set-up), [US tax collection](https://docs.stripe.com/tax/supported-countries/united-states), [threshold monitoring](https://docs.stripe.com/tax/monitoring), and [product tax codes](https://docs.stripe.com/tax/tax-codes).
