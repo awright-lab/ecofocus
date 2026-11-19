@@ -5,10 +5,10 @@ export default function ReportsHero() {
     <Hero
       variant="solutions"
       size="normal"
+      contentWidth="wide"
       badge="Reports & insights"
-      headline={<>Understand the consumer.<br /><span className="text-emerald-400">Move your business forward.</span></>}
+      headline={<><span className="block">EcoFocus Proprietary Reports</span><span className="block">to help you understand the consumer</span><span className="block text-emerald-400">and move your business forward.</span></>}
       subhead="Explore sustainability research on the attitudes, choices, and behaviors shaping your market. Find the insights to guide your next decision."
-      ctaPrimary={{ label: "Explore reports", href: "#report-catalog" }}
       ctaSecondary={{ label: "Discuss your research needs", href: "/contact" }}
       videoSrc="https://pub-3816c55026314a19bf7805556b182cb0.r2.dev/hero-6.mp4"
       posterSrc="/images/hero-6-poster.jpg"

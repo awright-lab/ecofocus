@@ -6,8 +6,9 @@ import Script from "next/script";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ReportsPageClient from "./ReportsPageClient";
-import AccessTabs from "./AccessTabs";
 import ReportsHero from "./ReportsHero";
+import AccessTabs from "./AccessTabs";
+import { REPORT_FILTERS_ENABLED } from "./catalog-settings";
 
 export const dynamic = "force-dynamic";
 
@@ -98,8 +99,7 @@ export default function ReportsPage() {
       {/* Hero section */}
       <ReportsHero />
 
-      {/* Tabs under hero */}
-      <AccessTabs />
+      {REPORT_FILTERS_ENABLED && <AccessTabs />}
 
       {/* Body (client) */}
       <Suspense

@@ -12,6 +12,7 @@ interface HeroProps {
   variant?: HeroVariant;
   size?: "compact" | "short" | "normal" | "tall";   // ← height control
   badge?: string;
+  contentWidth?: "normal" | "wide";
   headline: ReactNode;                  // ← accepts JSX or string
   subhead?: ReactNode;                  // ← allows JSX if needed
   ctaPrimary?: CTA;
@@ -26,6 +27,7 @@ interface HeroProps {
 export default function Hero({
   size = "normal",
   badge,
+  contentWidth = "normal",
   headline,
   subhead,
   ctaPrimary,
@@ -91,7 +93,7 @@ export default function Hero({
           rightVisual ? "md:grid-cols-12" : "place-items-center text-center"
         )}>
           <motion.div
-            className={rightVisual ? "md:col-span-7" : "max-w-3xl"}
+            className={rightVisual ? "md:col-span-7" : contentWidth === "wide" ? "max-w-5xl" : "max-w-3xl"}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

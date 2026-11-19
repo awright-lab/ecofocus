@@ -8,7 +8,7 @@ import type { ReportListItem } from "@/lib/reports-repo";
 
 type ApiResp = { items: ReportListItem[]; nextCursor?: string | null; total?: number };
 
-export default function ReportsGrid() {
+export default function ReportsGrid({ showFilters = true }: { showFilters?: boolean }) {
   const { values, setParam } = useReportSearchParams();
   const [data, setData] = React.useState<ApiResp | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -16,16 +16,18 @@ export default function ReportsGrid() {
 
   const qs = React.useMemo(() => {
     const p = new URLSearchParams();
-    if (values.q) p.set("q", values.q);
-    if (values.year && values.year !== "All") p.set("year", String(values.year));
-    if (values.topic && values.topic !== "All") p.set("topic", values.topic);
-    if (values.type && values.type !== "All") p.set("type", values.type);
-    if (values.access && values.access !== "All") p.set("access", values.access.toLowerCase());
+    if (showFilters) {
+      if (values.q) p.set("q", values.q);
+      if (values.year && values.year !== "All") p.set("year", String(values.year));
+      if (values.topic && values.topic !== "All") p.set("topic", values.topic);
+      if (values.type && values.type !== "All") p.set("type", values.type);
+      if (values.access && values.access !== "All") p.set("access", values.access.toLowerCase());
+    }
     p.set("sort", values.sort || "Newest");
     p.set("limit", String(values.limit || 24));
     if (values.page > 1) p.set("page", String(values.page));
     return p.toString();
-  }, [values]);
+  }, [values, showFilters]);
 
   React.useEffect(() => {
     let alive = true;
@@ -73,8 +75,8 @@ export default function ReportsGrid() {
       {error && <div className="text-red-600 text-sm">{error}</div>}
       {!loading && !error && (data?.items?.length ?? 0) === 0 && (
         <div className="rounded-2xl border border-emerald-200 bg-white p-8 text-center">
-          <p className="text-emerald-900 font-medium">No results match your filters.</p>
-          <p className="text-emerald-900/70 text-sm mt-1">Try clearing a filter or two.</p>
+          <p className="text-emerald-900 font-medium">{showFilters ? "No results match your filters." : "No reports are available yet."}</p>
+          <p className="text-emerald-900/70 text-sm mt-1">{showFilters ? "Try clearing a filter or two." : "Please check back soon."}</p>
         </div>
       )}
 

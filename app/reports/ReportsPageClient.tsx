@@ -7,6 +7,7 @@ import { LeftFilterRail } from "./LeftFilterRail";
 import { MobileFilterDrawer } from "./MobileFilterDrawer";
 import { useReportSearchParams } from "./useReportSearchParams";
 import ReportsBundles from "./ReportsBundles";
+import { REPORT_FILTERS_ENABLED } from "./catalog-settings";
 
 export default function ReportsPageClient() {
   const { values, setParam } = useReportSearchParams();
@@ -17,8 +18,8 @@ export default function ReportsPageClient() {
     <>
       {/* Centered container: filters + grid */}
       <div id="report-catalog" className="mx-auto max-w-7xl scroll-mt-24 px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <aside className="lg:col-span-3">
+        <div className={REPORT_FILTERS_ENABLED ? "grid grid-cols-1 lg:grid-cols-12 gap-6" : "space-y-10"}>
+          {REPORT_FILTERS_ENABLED && <aside className="lg:col-span-3">
             <button
               className="lg:hidden w-full rounded-xl border border-emerald-200 py-2 text-emerald-900"
               onClick={() => setMobileOpen(true)}
@@ -34,10 +35,10 @@ export default function ReportsPageClient() {
                 setParam={setParam}
               />
             </div>
-          </aside>
+          </aside>}
 
-          <main className="lg:col-span-9 space-y-10">
-            <ReportsGrid />
+          <main className={REPORT_FILTERS_ENABLED ? "lg:col-span-9 space-y-10" : "space-y-10"}>
+            <ReportsGrid showFilters={REPORT_FILTERS_ENABLED} />
           </main>
         </div>
       </div>
@@ -49,7 +50,7 @@ export default function ReportsPageClient() {
         </div>
       </section>
 
-      <MobileFilterDrawer
+      {REPORT_FILTERS_ENABLED && <MobileFilterDrawer
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         access={access}
@@ -60,7 +61,7 @@ export default function ReportsPageClient() {
           setParam(k, v);
           // setMobileOpen(false);
         }}
-      />
+      />}
     </>
   );
 }

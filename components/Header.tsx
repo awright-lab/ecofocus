@@ -77,6 +77,7 @@ export default function Header() {
     { name: 'Brands', href: '/brands' },
     { name: 'Agencies', href: '/agencies' },
     { name: 'Case Study', href: '/case-studies/glass-packaging-institute' },
+    { name: 'Reports', href: '/reports' },
     { name: 'EcoNugget Insights', href: '/blog' },
     { name: 'Contact', href: '/contact' },
   ];
@@ -128,7 +129,7 @@ export default function Header() {
             </div>
 
             {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-4 xl:gap-6" aria-label="Primary">
+            <nav className="hidden xl:flex items-center gap-4 xl:gap-6" aria-label="Primary">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
@@ -153,7 +154,7 @@ export default function Header() {
             </nav>
 
             {/* Desktop CTA container (keeps space; invisible on contact page) */}
-            <div className="hidden lg:flex items-center w-[128px] xl:w-[190px] justify-end">
+            <div className="hidden xl:flex items-center w-[128px] xl:w-[190px] justify-end">
               <Link
                 href="/contact"
                 aria-label="Contact us"
@@ -185,7 +186,7 @@ export default function Header() {
             <button
               ref={menuBtnRef}
               type="button"
-              className="grid h-10 w-10 place-items-center rounded lg:hidden"
+              className="grid h-10 w-10 place-items-center rounded xl:hidden"
               onClick={() => setIsMenuOpen((v) => !v)}
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isMenuOpen}
@@ -208,7 +209,7 @@ export default function Header() {
               animate={reduceMotion ? { opacity: 1 } : { opacity: 1, height: 'auto' }}
               exit={reduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
               transition={{ duration: 0.25 }}
-              className="lg:hidden overflow-hidden bg-white/95 backdrop-blur-md shadow-md"
+              className="xl:hidden overflow-hidden bg-white/95 backdrop-blur-md shadow-md"
               aria-label="Mobile"
             >
               <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 pb-[calc(1rem+env(safe-area-inset-bottom))]">
