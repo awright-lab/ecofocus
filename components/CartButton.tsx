@@ -11,11 +11,12 @@ export default function CartButton() {
   const { ready, items, remove, checkout, clear } = useCart();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [promotionCode, setPromotionCode] = useState("");
   const [error, setError] = useState("");
   async function buy() {
     setLoading(true);
     setError("");
-    try { await checkout(); }
+    try { await checkout(promotionCode); }
     catch (cause) { setError(cause instanceof Error ? cause.message : "Checkout failed. Please try again."); }
     finally { setLoading(false); }
   }
@@ -55,6 +56,11 @@ export default function CartButton() {
                 </div>
               ))}
             </div>
+            {!!items.length && <div className="border-t border-gray-200 px-4 py-4">
+              <label htmlFor="cart-promo-code" className="block text-sm font-semibold text-gray-900">Promo code <span className="font-normal text-gray-500">(optional)</span></label>
+              <input id="cart-promo-code" value={promotionCode} onChange={event => { setPromotionCode(event.target.value); setError(""); }} maxLength={200} autoComplete="off" autoCapitalize="characters" spellCheck={false} disabled={loading} className="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-emerald-600 focus:outline-none focus:ring-1 focus:ring-emerald-600" aria-describedby="cart-promo-help" />
+              <p id="cart-promo-help" className="mt-2 text-xs text-gray-600">Your discount will appear on the checkout page.</p>
+            </div>}
             {error && <p className="px-4 text-sm text-red-700" role="alert">{error}</p>}
             <div className="sticky bottom-0 border-t border-gray-200 p-4 flex items-center justify-between">
               <button onClick={clear} className="text-sm text-gray-600 hover:text-gray-900">Clear</button>

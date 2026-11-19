@@ -1,8 +1,8 @@
-export async function checkoutPrices(items: Array<{ price: string; quantity: number }>) {
+export async function checkoutPrices(items: Array<{ price: string; quantity: number }>, promotionCode?: string) {
   const response = await fetch('/api/checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items }),
+    body: JSON.stringify({ items, ...(promotionCode?.trim() ? { promotionCode: promotionCode.trim() } : {}) }),
   });
   const data = await response.json();
   if (!response.ok || typeof data.url !== 'string') throw new Error(data.error || 'Checkout is unavailable. Please try again.');

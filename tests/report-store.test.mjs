@@ -11,13 +11,13 @@ function load(path, modules, globals = {}) {
   vm.runInNewContext(code, { exports, require: name => { if (!(name in modules)) throw new Error(name); return modules[name]; }, Request, Response, URL, console: { error() {} }, process: { env: {} }, ...globals });
   return exports;
 }
-function checkout({ report = { id: '42', price: 10 }, fail = false, production = false } = {}) {
+function checkout({ report = { id: '42', price: 10 }, fail = false, production = false, promotions = [] } = {}) {
   const calls = [];
   const route = load('app/api/checkout/route.ts', {
     'next/server': { NextResponse: { json: (data, options) => Response.json(data, options) } },
     '@/lib/report-site': load('lib/report-site.ts', {}, { process: { env: { NODE_ENV: production ? 'production' : 'test' } } }),
     '@/lib/reports-repo': { getReportByPriceId: async () => report },
-    '@/lib/stripe': { getStripeServer: () => ({ checkout: { sessions: { create: async args => { calls.push(args); if (fail) throw Error('Stripe failed'); return { url: 'https://checkout.stripe.com/test' }; } } } }) },
+    '@/lib/stripe': { getStripeServer: () => ({ promotionCodes: { list: async () => ({ data: promotions }) }, checkout: { sessions: { create: async args => { calls.push(args); if (fail) throw Error('Stripe failed'); return { url: 'https://checkout.stripe.com/test' }; } } } }) },
   });
   return { calls, post: (body, origin = 'https://ecofocusresearch.com') => route.POST(new Request(`${origin}/api/checkout`, { method: 'POST', body: JSON.stringify(body) })) };
 }
@@ -142,4 +142,15 @@ test('slug and checkout price lookups use REST filters and reject mismatched or 
   doc = { ...doc, slug: 'real-report', priceId: 'price_real' };
   assert.equal((await repo.getReportBySlug('real-report')).id, '1');
   assert.equal((await repo.getReportByPriceId('price_real')).id, '1');
+});
+
+test('cart promo codes are resolved by Stripe and preapplied without trusting caller discount IDs', async () => {
+ const h = checkout({ promotions: [{ id: 'promo_verified' }] });
+ assert.equal((await h.post({ items: [{ price: 'price_test', quantity: 1 }], promotionCode: ' WORKFORCE100 ', discounts: [{ coupon: 'untrusted' }] })).status, 200);
+ assert.deepEqual(JSON.parse(JSON.stringify(h.calls[0].discounts)), [{ promotion_code: 'promo_verified' }]);
+ assert.equal(h.calls[0].allow_promotion_codes, undefined);
+ const missing = checkout();
+ assert.equal((await missing.post({ items: [{ price: 'price_test', quantity: 1 }], promotionCode: 'MISSING' })).status, 400);
+ assert.equal(missing.calls.length, 0);
+ for (const promotionCode of [123, {}, 'invalid code', 'a'.repeat(201)]) assert.equal((await missing.post({ items: [{ price: 'price_test', quantity: 1 }], promotionCode })).status, 400);
 });

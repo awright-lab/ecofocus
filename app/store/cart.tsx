@@ -11,7 +11,7 @@ type Ctx = {
   add: (i: Item) => void;
   remove: (priceId: string) => void;
   clear: () => void;
-  checkout: () => Promise<void>;
+  checkout: (promotionCode?: string) => Promise<void>;
 };
 
 const CartContext = createContext<Ctx | null>(null);
@@ -61,9 +61,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   function clear() {
     setItems([]);
   }
-  async function checkout() {
+  async function checkout(promotionCode?: string) {
     if (!items.length) throw new Error("Add a report before checking out.");
-    await checkoutPrices(items.map(i => ({ price: i.priceId, quantity: i.qty })));
+    await checkoutPrices(items.map(i => ({ price: i.priceId, quantity: i.qty })), promotionCode);
   }
 
   const value: Ctx = { ready: hydrated, items, add, remove, clear, checkout };

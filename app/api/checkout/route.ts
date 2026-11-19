@@ -13,6 +13,7 @@ export async function POST(req: Request) {
     !item || typeof item.price !== "string" || !/^price_[a-zA-Z0-9]+$/.test(item.price) || !Number.isInteger(item.quantity) || Number(item.quantity) < 1 || Number(item.quantity) > 100
   )) return NextResponse.json({ error: "Choose a report and a valid quantity before checking out." }, { status: 400 });
 
+  if (body.promotionCode !== undefined && (typeof body.promotionCode !== "string" || body.promotionCode.length > 200 || (body.promotionCode.trim() && !/^[a-zA-Z0-9-]+$/.test(body.promotionCode.trim())))) return NextResponse.json({ error: "Enter a valid promo code." }, { status: 400 });
   try {
     const reports = await Promise.all(body.items.map((item: { price: string }) => getReportByPriceId(item.price)));
     if (reports.some((report) => !report)) return NextResponse.json({ error: "A report is no longer available at this price. Refresh the catalog and try again." }, { status: 400 });
@@ -23,9 +24,12 @@ export async function POST(req: Request) {
     if (totalCents < 50) return NextResponse.json({ error: "Card checkout requires a minimum order total of $0.50 USD. Please contact us for help.", code: "minimum_order_amount" }, { status: 400 });
     const stripe = getStripeServer();
     const origin = getReportSiteOrigin(req.url);
+    const code = body.promotionCode?.trim();
+    const promotion = code ? (await stripe.promotionCodes.list({ code, active: true, limit: 1 })).data[0] : null;
+    if (code && !promotion) return NextResponse.json({ error: "This promo code is invalid or no longer available." }, { status: 400 });
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      allow_promotion_codes: true,
+      ...(promotion ? { discounts: [{ promotion_code: promotion.id }] } : { allow_promotion_codes: true }),
       automatic_tax: { enabled: true },
       billing_address_collection: "required",
       custom_fields: [{ key: "companyName", label: { type: "custom", custom: "Company name" }, type: "text", optional: false, text: { minimum_length: 1, maximum_length: 200 } }],
