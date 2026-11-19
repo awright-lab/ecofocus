@@ -104,11 +104,11 @@ test('webhook emails only paid report-store sessions, including delayed success'
     '@/lib/report-order-sync':{recordReportRefund:async()=>{}},
     '@/lib/stripe':{getStripeServer:()=>({webhooks:{constructEventAsync:async()=>event}})},
   },{process:{env:{STRIPE_WEBHOOK_SECRET:'test-secret'}}});
-  for(const [type,status,source] of [['checkout.session.completed','unpaid','report-store'],['checkout.session.completed','paid','report-store'],['checkout.session.async_payment_succeeded','paid','report-store'],['checkout.session.completed','paid','other']]) {
-    event={type,data:{object:{id:'cs_test_abc123',payment_status:status,metadata:{source}}}};
+  for(const [type,status,source,total] of [['checkout.session.completed','unpaid','report-store'],['checkout.session.completed','paid','report-store'],['checkout.session.async_payment_succeeded','paid','report-store'],['checkout.session.completed','paid','other'],['checkout.session.completed','no_payment_required','report-store',0],['checkout.session.completed','no_payment_required','report-store',100]]) {
+    event={type,data:{object:{id:'cs_test_abc123',mode:'payment',status:'complete',amount_total:total,payment_status:status,metadata:{source}}}};
     assert.equal((await POST(new Request('https://example.com/api/stripe/webhook',{method:'POST',headers:{'stripe-signature':'test-signature'},body:'{}'}))).status,200);
   }
-  assert.equal(sent.length,2);
+  assert.equal(sent.length,3);
 });
 
 
@@ -165,4 +165,15 @@ test('CMS failure remains retryable and does not falsely report successful order
   const h=emailHarness({cmsOk:false});
   await assert.rejects(h.sendReportOrderEmail('cs_live_fixture'),/CMS unavailable/);
   assert.equal(h.requests.length,0);
+});
+
+test('completed no-cost report checkouts unlock delivery without a payment intent', async () => {
+  let session = { id: 'cs_live_complimentary', mode: 'payment', status: 'complete', payment_status: 'no_payment_required', amount_total: 0, payment_intent: null, metadata: { source: 'report-store', report_ids: '["2"]' } };
+  const h = load('lib/report-orders.ts', { 'server-only': {}, '@/lib/stripe': { getStripeServer: () => ({ checkout: { sessions: { retrieve: async () => session } } }) } });
+  assert.deepEqual(JSON.parse(JSON.stringify(await h.getPaidReportOrder(session.id))), ['2']);
+  assert.equal((await h.getReportOrderStatus(session.id)).state, 'paid');
+  for (const change of [{ amount_total: 100 }, { amount_total: null }, { status: 'open' }, { mode: 'setup' }, { payment_status: 'unpaid' }]) {
+    const previous = session; session = { ...session, ...change };
+    await assert.rejects(h.getPaidReportOrder(session.id)); session = previous;
+  }
 });

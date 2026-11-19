@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 async function handleCheckoutCompleted(s: Stripe.Checkout.Session) {
   if (s.metadata?.source === "report-store") {
-    if (s.payment_status === "paid") await sendReportOrderEmail(s.id);
+    if (s.payment_status === "paid" || (s.status === "complete" && s.mode === "payment" && s.payment_status === "no_payment_required" && s.amount_total === 0)) await sendReportOrderEmail(s.id);
     return;
   }
   const provisioning = getPortalProvisioningMetadata(s);

@@ -14,7 +14,7 @@ async function readReportSession(sessionId: string, expandPayment = false) {
 
 export async function getVerifiedReportSession(sessionId: string) {
   const result = await readReportSession(sessionId);
-  if (result.session.status !== "complete" || result.session.payment_status !== "paid") throw new Error("Payment has not been confirmed for this order.");
+  if (result.session.status !== "complete" || !(result.session.payment_status === "paid" || (result.session.payment_status === "no_payment_required" && result.session.amount_total === 0 && result.session.mode === "payment"))) throw new Error("Payment has not been confirmed for this order.");
   return result;
 }
 
@@ -22,7 +22,7 @@ export async function getReportOrderStatus(sessionId: string) {
   const { session } = await readReportSession(sessionId, true);
   const intent = typeof session.payment_intent === "object" ? session.payment_intent : null;
   let state: ReportPaymentState;
-  if (session.status === "complete" && session.payment_status === "paid") state = "paid";
+  if (session.status === "complete" && (session.payment_status === "paid" || (session.payment_status === "no_payment_required" && session.amount_total === 0 && session.mode === "payment"))) state = "paid";
   else if (session.status === "expired") state = "expired";
   else if (intent?.status === "canceled" || (session.status === "complete" && intent?.status === "requires_payment_method")) state = "failed";
   else if (session.status === "complete" || intent?.status === "processing") state = "pending";
