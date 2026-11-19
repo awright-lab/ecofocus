@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+import StoreReportCard from "./StoreReportCard";
 import { useReportSearchParams } from "./useReportSearchParams";
 import type { ReportListItem } from "@/lib/reports-repo";
 
@@ -81,10 +81,10 @@ export default function ReportsGrid({ showFilters = true }: { showFilters?: bool
       )}
 
       {/* List */}
-      <ul className="space-y-4">
+      <ul className="space-y-7">
         {data?.items?.map((r) => (
           <li key={r.id}>
-            <ReportCard item={r} />
+            <StoreReportCard item={r} />
           </li>
         ))}
       </ul>
@@ -178,45 +178,14 @@ function compactRange(page: number, total: number) {
   return res;
 }
 
-function ReportCard({ item }: { item: ReportListItem }) {
-  const isFree = item.access === "Free";
-  const href = `/reports/${encodeURIComponent(item.slug)}`;
-
-  return (
-    <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-emerald-300 hover:shadow-md">
-      <div className="h-1 bg-gradient-to-r from-emerald-700 via-emerald-500 to-[#EF9601]" />
-      <div className="flex flex-col gap-6 p-6 sm:flex-row sm:items-start sm:p-8">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap gap-2 text-xs font-semibold">
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-900">{item.year}</span>
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-800">{isFree ? "Free report" : "Research report"}</span>
-            {item.format && <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">{item.format}</span>}
-          </div>
-          <h3 className="mt-4 text-xl font-bold leading-snug text-emerald-900">
-            <Link href={href} className="hover:underline underline-offset-4">{item.title}</Link>
-          </h3>
-          {item.description && <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600">{item.description}</p>}
-          {!!item.tags?.length && <p className="mt-4 text-xs text-slate-500">{item.tags.slice(0, 6).join(" · ")}</p>}
-        </div>
-        <div className="shrink-0 sm:w-40 sm:text-right">
-          <p className="text-xl font-bold text-slate-900">{isFree ? "Free" : item.price > 0 ? `$${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "Contact us"}</p>
-          <Link href={href} className="mt-4 inline-flex justify-center rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800">
-            {isFree ? "View download" : "View report"}
-          </Link>
-        </div>
-      </div>
-    </article>
-  );
-}
-
 function ListSkeleton() {
   return (
-    <ul className="space-y-4">
+    <ul className="space-y-7">
       {Array.from({ length: 3 }).map((_, i) => (
-        <li key={i} className="rounded-2xl section-slab-deep border border-white/10 p-6 shadow-sm">
-          <div className="h-5 w-1/3 bg-white/15 rounded" />
-          <div className="mt-3 h-4 w-2/3 bg-white/15 rounded" />
-          <div className="mt-2 h-4 w-1/2 bg-white/15 rounded" />
+        <li key={i} className="rounded-3xl border border-emerald-900/10 bg-emerald-50/50 p-8 shadow-sm">
+          <div className="h-5 w-1/3 bg-emerald-900/10 rounded" />
+          <div className="mt-3 h-4 w-2/3 bg-emerald-900/10 rounded" />
+          <div className="mt-2 h-4 w-1/2 bg-emerald-900/10 rounded" />
         </li>
       ))}
     </ul>
