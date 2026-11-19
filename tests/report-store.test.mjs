@@ -146,7 +146,7 @@ test('slug and checkout price lookups use REST filters and reject mismatched or 
 
 test('cart promo codes are resolved by Stripe and preapplied without trusting caller discount IDs', async () => {
  const h = checkout({ promotions: [{ id: 'promo_verified' }] });
- assert.equal((await h.post({ items: [{ price: 'price_test', quantity: 1 }], promotionCode: ' WORKFORCE100 ', discounts: [{ coupon: 'untrusted' }] })).status, 200);
+ assert.equal((await h.post({ items: [{ price: 'price_test', quantity: 1 }], promotionCode: ' FIXTURE100 ', discounts: [{ coupon: 'untrusted' }] })).status, 200);
  assert.deepEqual(JSON.parse(JSON.stringify(h.calls[0].discounts)), [{ promotion_code: 'promo_verified' }]);
  assert.equal(h.calls[0].allow_promotion_codes, undefined);
  const missing = checkout();
